@@ -19,7 +19,7 @@ def user_auth_required(func):
     def _checkUser(*list_args, **named_args):
         auth_ok = True
         if auth_ok:
-            return func(*args, **what)
+            return func(*list_args, **named_args)
         else:
             return HttpResponse("User and/or App not authorized")
 

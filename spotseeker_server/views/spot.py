@@ -10,7 +10,7 @@ class SpotView(RESTDispatch):
     def GET(self, request, spot_id):
         try:
             spot = Spot.objects.get(pk=spot_id)
-            return HttpResponse("This is the RESTy view for spot id: "+spot_id)
+            return HttpResponse(json.dumps(spot.json_data_structure()))
         except:
             response = HttpResponse("Spot not found")
             response.status_code = 404

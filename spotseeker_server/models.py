@@ -8,6 +8,12 @@ class Spot(models.Model):
     organization = models.CharField(max_length=50)
     manager = models.CharField(max_length=50)
 
+    def json_data_structure(self):
+        return {
+            "id": self.pk,
+            "name": self.name,
+        }
+
 class SpotImage(models.Model):
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)

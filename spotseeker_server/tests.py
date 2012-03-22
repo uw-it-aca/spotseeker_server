@@ -5,6 +5,7 @@ from spotseeker_server.test.spot_model import SpotModelTest
 from spotseeker_server.test.spot_put import SpotPUTTest
 from spotseeker_server.test.spot_delete import SpotDELETETest
 from spotseeker_server.test.spot_post import SpotPOSTTest
+from spotseeker_server.test.spot_post_image import SpotImagePOSTTest
 
 class SpotSeekerTests(unittest.TestCase):
     def suite(self):
@@ -14,4 +15,5 @@ class SpotSeekerTests(unittest.TestCase):
         suite.addTest(SpotPUTTest())
         suite.addTest(SpotDELETETest())
         suite.addTest(SpotPOSTTest())
+        suite.addTest(SpotImagePOSTTest())
 

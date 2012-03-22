@@ -34,14 +34,49 @@ class SpotPUTTest(unittest.TestCase):
         response = c.put(self.url, '{}', content_type="application/json")
         self.assertEquals(response.status_code, 400, "Rejects an empty body")
 
-    def test_valid_json(self):
+    def test_valid_json_no_etag(self):
         c = Client()
         new_name = "testing PUT name: {0}".format(random.random())
         new_capacity = "testing PUT capacity: {0}".format(random.random())
         response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json")
+        self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+
+        updated_spot = Spot.objects.get(pk=self.spot.pk)
+        self.assertEquals(updated_spot.name, self.spot.name, "No etag - same name")
+        self.assertEquals(updated_spot.capacity, self.spot.capacity, "no etag - same capacity")
+
+    def test_valid_json_valid_etag(self):
+        c = Client()
+        new_name = "testing PUT name: {0}".format(random.random())
+        new_capacity = "testing PUT capacity: {0}".format(random.random())
+
+        response = c.get(self.url)
+        etag = response["ETag"]
+
+        response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", If_Match=etag )
         self.assertEquals(response.status_code, 200, "Accepts a valid json string")
 
         updated_spot = Spot.objects.get(pk=self.spot.pk)
         self.assertEquals(updated_spot.name, new_name, "a valid PUT changes the name")
         self.assertEquals(updated_spot.capacity, new_capacity, "a valid PUT changes the capacity")
+
+    def test_valid_json_outdated_etag(self):
+        c = Client()
+        new_name = "testing PUT name: {0}".format(random.random())
+        new_capacity = "testing PUT capacity: {0}".format(random.random())
+
+        response = c.get(self.url)
+        etag = response["ETag"]
+
+        intermediate_spot = Spot.objects.get(pk=self.spot.pk)
+        intermediate_spot.name = "This interferes w/ the PUT"
+        intermediate_spot.save()
+
+        response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", If_Match=etag)
+        self.assertEquals(response.status_code, 409, "An outdated etag leads to a conflict")
+
+        updated_spot = Spot.objects.get(pk=self.spot.pk)
+        self.assertEquals(updated_spot.name, intermediate_spot.name, "keeps the intermediate name w/ an outdated etag")
+        self.assertEquals(updated_spot.capacity, intermediate_spot.capacity, "keeps the intermediate capacity w/ an outdate etag")
+
 

@@ -23,9 +23,13 @@ class SpotDELETETest(unittest.TestCase):
         response = c.delete(test_url)
         self.assertEquals(response.status_code, 404, "Rejects a not-yet existant url")
 
-    def test_actual_delete(self):
+    def test_actual_delete_with_etag(self):
         c = Client()
-        response = c.delete(self.url)
+
+        response = c.get(self.url)
+        etag = response["ETag"]
+
+        response = c.delete(self.url, If_Match=etag)
 
         self.assertEquals(response.status_code, 410, "Gives a GONE in response to a valid delete")
 
@@ -39,5 +43,38 @@ class SpotDELETETest(unittest.TestCase):
 
         self.assertIsNone(test_spot, "Can't objects.get a deleted spot")
 
+    def test_actual_delete_no_etag(self):
+        c = Client()
 
+        response = c.delete(self.url)
+        self.assertEquals(response.status_code, 409, "Deleting w/o an etag is a conflict")
+
+        response = c.get(self.url)
+        self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+
+    def test_actual_delete_no_etag(self):
+        c = Client()
+
+        response = c.delete(self.url)
+        self.assertEquals(response.status_code, 409, "Deleting w/o an etag is a conflict")
+
+        response = c.get(self.url)
+        self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+
+
+    def test_actual_delete_expired_etag(self):
+        c = Client()
+
+        response = c.get(self.url)
+        etag = response["ETag"]
+
+        intermediate_spot = Spot.objects.get(pk=self.spot.pk)
+        intermediate_spot.name = "This interferes w/ the PUT"
+        intermediate_spot.save()
+
+        response = c.delete(self.url, If_Match=etag)
+        self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+
+        response = c.get(self.url)
+        self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
 

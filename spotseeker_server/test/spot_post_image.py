@@ -1,7 +1,6 @@
 from django.utils import unittest
 from django.test.client import Client
 from spotseeker_server.models import Spot
-import simplejson as json
 import random
 
 class SpotImagePOSTTest(unittest.TestCase):

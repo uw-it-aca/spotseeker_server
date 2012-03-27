@@ -5,6 +5,7 @@ from spotseeker_server.test.spot_model import SpotModelTest
 from spotseeker_server.test.spot_put import SpotPUTTest
 from spotseeker_server.test.spot_delete import SpotDELETETest
 from spotseeker_server.test.spot_post import SpotPOSTTest
+from spotseeker_server.test.spot_get import SpotGETTest
 from spotseeker_server.test.spot_post_image import SpotImagePOSTTest
 from spotseeker_server.test.image_thumb import ImageThumbTest
 
@@ -16,6 +17,7 @@ class SpotSeekerTests(unittest.TestCase):
         suite.addTest(SpotPUTTest())
         suite.addTest(SpotDELETETest())
         suite.addTest(SpotPOSTTest())
+        suite.addTest(SpotGETTest())
         suite.addTest(SpotImagePOSTTest())
         suite.addTest(ImageThumbTest())
 

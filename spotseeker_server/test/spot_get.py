@@ -15,7 +15,6 @@ class SpotGETTest(unittest.TestCase):
 
     def test_invalid_id_too_high(self):
         c = Client()
-        last_spot = list(Spot.objects.all())[-1]
-        url = "/api/v1/spot/%s" % (last_spot.pk + 1)
+        url = "/api/v1/spot/%s" % (self.spot.pk + 10000)
         response = c.get(url)
         self.assertEquals(response.status_code, 404, "Spot ID too high")

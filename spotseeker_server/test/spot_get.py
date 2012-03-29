@@ -8,6 +8,11 @@ class SpotGETTest(unittest.TestCase):
         spot.save()
         self.spot = spot
 
+    def test_invalid_id(self):
+        c = Client()
+        response = c.get("/api/v1/spot/bad_id")
+        self.assertEquals(response.status_code, 404, "Rejects a non-numeric id")
+
     def test_invalid_id_too_high(self):
         c = Client()
         last_spot = list(Spot.objects.all())[-1]

@@ -52,16 +52,6 @@ class SpotDELETETest(unittest.TestCase):
         response = c.get(self.url)
         self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
 
-    def test_actual_delete_no_etag(self):
-        c = Client()
-
-        response = c.delete(self.url)
-        self.assertEquals(response.status_code, 409, "Deleting w/o an etag is a conflict")
-
-        response = c.get(self.url)
-        self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
-
-
     def test_actual_delete_expired_etag(self):
         c = Client()
 

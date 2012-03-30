@@ -18,3 +18,10 @@ class SpotGETTest(unittest.TestCase):
         url = "/api/v1/spot/%s" % (self.spot.pk + 10000)
         response = c.get(url)
         self.assertEquals(response.status_code, 404, "Spot ID too high")
+
+    def test_invalid_params(self):
+        c = Client()
+        url = "/api/v1/spot/%s" % self.spot.pk
+        response = c.get(url, {'bad_param':'does not exist'},)
+        self.assertEquals(response.status_code, 200, "Accepts a query string")
+        self.assertEquals(response.content, '[]', "Should return empty json")

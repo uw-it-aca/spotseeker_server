@@ -14,5 +14,3 @@ class SpotFormTest(unittest.TestCase):
         self.assertTrue("name" in errors, "Default spot form requires a spot name")
         self.assertTrue("capacity" in errors, "Default spot form requires a spot name")
 
-
-

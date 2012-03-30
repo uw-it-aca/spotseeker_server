@@ -67,8 +67,8 @@ class SpotSearchDistanceTest(unittest.TestCase):
             inner_bottom.pk : 1,
         }
         for spot in spots:
-            self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner spot")
-            spot_ids[spot.pk] = 2
+            self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner spot")
+            spot_ids[spot.id] = 2
 
         # Testing the mid ring
         response = c.get("/api/v1/spot", { 'center_latititude':center_lat, 'center_longitude':center_long, 'distance':60 })
@@ -86,8 +86,8 @@ class SpotSearchDistanceTest(unittest.TestCase):
             mid_bottom.pk : 1,
         }
         for spot in spots:
-            self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner or mid spot")
-            spot_ids[spot.pk] = 2
+            self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner or mid spot")
+            spot_ids[spot.id] = 2
 
 
         # Testing the outer ring
@@ -110,8 +110,8 @@ class SpotSearchDistanceTest(unittest.TestCase):
             outer_bottom.pk : 1,
         }
         for spot in spots:
-            self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner, mid or outer spot")
-            spot_ids[spot.pk] = 2
+            self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner, mid or outer spot")
+            spot_ids[spot.id] = 2
 
         # testing a limit - should get the inner 4, and any 2 of the mid
         response = c.get("/api/v1/spot", { 'center_latititude':center_lat, 'center_longitude':center_long, 'distance':60 ,'limit':6})
@@ -129,8 +129,8 @@ class SpotSearchDistanceTest(unittest.TestCase):
             mid_bottom.pk : 1,
         }
         for spot in spots:
-            self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner, mid or outer spot")
-            spot_ids[spot.pk] = 2
+            self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner, mid or outer spot")
+            spot_ids[spot.id] = 2
 
 
         self.assertEquals(spot_ids[inner_left.pk], 2, "Inner left was selected")
@@ -154,8 +154,8 @@ class SpotSearchDistanceTest(unittest.TestCase):
             mid_bottom.pk : 1,
         }
         for spot in spots:
-            self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner or mid spot")
-            spot_ids[spot.pk] = 2
+            self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner or mid spot")
+            spot_ids[spot.id] = 2
 
         # Testing limits - should get all inner and mid spots, and 2 outer spots
         response = c.get("/api/v1/spot", { 'center_latititude':center_lat, 'center_longitude':center_long, 'distance':101 ,'limit':10})
@@ -177,8 +177,8 @@ class SpotSearchDistanceTest(unittest.TestCase):
             outer_bottom.pk : 1,
         }
         for spot in spots:
-            self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner, mid or outer spot")
-            spot_ids[spot.pk] = 2
+            self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner, mid or outer spot")
+            spot_ids[spot.id] = 2
 
 
         self.assertEquals(spot_ids[inner_left.pk], 2, "Inner left was selected")
@@ -211,8 +211,8 @@ class SpotSearchDistanceTest(unittest.TestCase):
             outer_bottom.pk : 1,
         }
         for spot in spots:
-            self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner, mid or outer spot")
-            spot_ids[spot.pk] = 2
+            self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner, mid or outer spot")
+            spot_ids[spot.id] = 2
 
 
         # Testing that the default limit is 20 spaces
@@ -238,7 +238,7 @@ class SpotSearchDistanceTest(unittest.TestCase):
         far_out_count = 0
         for spot in spots:
             if spot.pk in spot_ids:
-                self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner, mid or outer spot")
+                self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner, mid or outer spot")
             else:
                 far_out_count += 1
 
@@ -267,7 +267,7 @@ class SpotSearchDistanceTest(unittest.TestCase):
         far_out_count = 0
         for spot in spots:
             if spot.pk in spot_ids:
-                self.assertEquals(spot_ids[spot.pk], 1, "Spot matches a unique inner, mid or outer spot")
+                self.assertEquals(spot_ids[spot.id], 1, "Spot matches a unique inner, mid or outer spot")
             else:
                 far_out_count += 1
 

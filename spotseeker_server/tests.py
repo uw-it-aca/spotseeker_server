@@ -8,6 +8,7 @@ from spotseeker_server.test.spot_post import SpotPOSTTest
 from spotseeker_server.test.spot_get import SpotGETTest
 from spotseeker_server.test.spot_post_image import SpotImagePOSTTest
 from spotseeker_server.test.image_thumb import ImageThumbTest
+from spotseeker_server.test.search.distance import SpotSearchDistanceTest
 
 class SpotSeekerTests(unittest.TestCase):
     def suite(self):
@@ -20,4 +21,5 @@ class SpotSeekerTests(unittest.TestCase):
         suite.addTest(SpotGETTest())
         suite.addTest(SpotImagePOSTTest())
         suite.addTest(ImageThumbTest())
+        suite.addTest(SpotSearchDistanceTest())
 

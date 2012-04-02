@@ -54,19 +54,27 @@ class SearchView(RESTDispatch):
             else:
                 print "Key: ", key, " Value: ", request.GET[key]
 
+        limit = 20
         if 'limit' in request.GET:
             if request.GET['limit'] == '0':
-                final_list = query
+                limit = 0
             else:
-                final_list = query[:request.GET['limit']]
-        else:
-            final_list = query[:20]
+                limit = int(request.GET['limit'])
+
+        if limit > 0 and limit < len(query):
+            sorted_list = list(query)
+            sorted_list.sort(lambda x, y : cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
+            query = sorted_list[:limit]
 
         response = []
 
-        for spot in final_list:
+        for spot in query:
             response.append(spot.json_data_structure())
 
         return HttpResponse(json.dumps(response))
 
+    def distance(self, spot, longitude, latitude):
+        g = Geod(ellps='clrk66')
+        az12,az21,dist = g.inv(spot.longitude,spot.latitude,longitude,latitude)
+        return dist
 

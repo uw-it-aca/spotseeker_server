@@ -14,6 +14,10 @@ class Spot(models.Model):
         return {
             "id": self.pk,
             "name": self.name,
+            "location": {
+                "latitude": self.latitude,
+                "longitude": self.longitude,
+            },
         }
 
 class SpotImage(models.Model):

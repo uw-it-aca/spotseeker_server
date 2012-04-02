@@ -11,6 +11,11 @@ class Spot(models.Model):
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
 
     def json_data_structure(self):
+        extended_info = {}
+        info = SpotExtendedInfo.objects.filter(spot=self)
+        for attr in info:
+            extended_info[attr.key] = attr.value
+
         return {
             "id": self.pk,
             "name": self.name,
@@ -18,7 +23,14 @@ class Spot(models.Model):
                 "latitude": self.latitude,
                 "longitude": self.longitude,
             },
+            "extended_info": extended_info,
         }
+
+
+class SpotExtendedInfo(models.Model):
+    key = models.CharField(max_length=50)
+    value = models.CharField(max_length=200)
+    spot = models.ForeignKey(Spot)
 
 class SpotImage(models.Model):
     spot = models.ForeignKey(Spot)

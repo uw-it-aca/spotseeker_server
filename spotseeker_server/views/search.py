@@ -6,11 +6,14 @@ from spotseeker_server.models import Spot
 from pyproj import Geod
 from decimal import *
 import simplejson as json
+import re
 
 class SearchView(RESTDispatch):
     @app_auth_required
     def GET(self, request):
         form = SpotSearchForm(request.GET)
+        has_valid_search_param = False
+
         if not form.is_valid():
             return HttpResponse('[]')
 
@@ -37,6 +40,7 @@ class SearchView(RESTDispatch):
                 query = query.filter(longitude__lte=right_limit)
                 query = query.filter(latitude__gte=bottom_limit)
                 query = query.filter(latitude__lte=top_limit)
+                has_valid_search_param = True
             except Exception as e:
                 print "E: ", e
                 query = Spot.objects.all()
@@ -51,8 +55,25 @@ class SearchView(RESTDispatch):
                 pass
             elif key == "limit":
                 pass
+            elif re.search('^extended_info:', key):
+                kwargs = {
+                    'spotextendedinfo__key'              : key[14:],
+                    'spotextendedinfo__value__icontains' : request.GET[key]
+                }
+                query = query.filter(**kwargs)
+                has_valid_search_param = True
             else:
-                print "Key: ", key, " Value: ", request.GET[key]
+                try:
+                    kwargs = {
+                        '%s__icontains' % key : request.GET[key]
+                    }
+                    query = query.filter(**kwargs)
+                    has_valid_search_param = True
+                except Exception as e:
+                    print e
+
+        if not has_valid_search_param:
+            return HttpResponse('[]')
 
         limit = 20
         if 'limit' in request.GET:

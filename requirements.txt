@@ -2,3 +2,4 @@ Django
 South
 simplejson
 PIL
+pyproj

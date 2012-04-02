@@ -5,23 +5,47 @@ import simplejson as json
 from decimal import *
 
 class SpotSearchDistanceTest(unittest.TestCase):
-    def test_invalid_input(self):
+    def test_invalid_latitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", { 'center_latitude':"bad_data", 'center_longitude':"bad_data", 'distance':"bad_data" })
-        self.assertEquals(response.status_code, 200, "Accepts a query with bad inputs")
+        response = c.get("/api/v1/spot", { 'center_latitude':"bad_data", 'center_longitude':-40, 'distance':10 })
+        self.assertEquals(response.status_code, 200, "Accepts a query with bad latitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
-    def test_large_long_lat(self):
+    def test_invalid_longitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", { 'center_latitude':100, 'center_longitude':190, 'distance':10 })
-        self.assertEquals(response.status_code, 200, "Accepts a query with too large long/lat")
+        response = c.get("/api/v1/spot", { 'center_latitude':"30", 'center_longitude':"bad_data", 'distance':"10" })
+        self.assertEquals(response.status_code, 200, "Accepts a query with bad longitude")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
+    def test_invalid_distance(self):
+        c = Client()
+        response = c.get("/api/v1/spot", { 'center_latitude':"30", 'center_longitude':"-40", 'distance':"bad_data" })
+        self.assertEquals(response.status_code, 200, "Accepts a query with bad distance")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
+    def test_large_longitude(self):
+        c = Client()
+        response = c.get("/api/v1/spot", { 'center_latitude':30, 'center_longitude':190, 'distance':10 })
+        self.assertEquals(response.status_code, 200, "Accepts a query with too large longitude")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
+    def test_large_latitude(self):
+        c = Client()
+        response = c.get("/api/v1/spot", { 'center_latitude':100, 'center_longitude':-40, 'distance':10 })
+        self.assertEquals(response.status_code, 200, "Accepts a query with too large latitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
 
-    def test_large_long_lat(self):
+    def test_large_negative_latitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", { 'center_latitude':-100, 'center_longitude':-190, 'distance':10 })
-        self.assertEquals(response.status_code, 200, "Accepts a query with too large long/lat")
+        response = c.get("/api/v1/spot", { 'center_latitude':-100, 'center_longitude':-40, 'distance':10 })
+        self.assertEquals(response.status_code, 200, "Accepts a query with too negative latitude")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
+    def test_large_negative_longitude(self):
+        c = Client()
+        response = c.get("/api/v1/spot", { 'center_latitude':40, 'center_longitude':-190, 'distance':10 })
+        self.assertEquals(response.status_code, 200, "Accepts a query with too negative longitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_no_params(self):

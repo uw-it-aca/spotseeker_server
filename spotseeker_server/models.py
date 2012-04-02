@@ -7,6 +7,8 @@ class Spot(models.Model):
     display_access_restrictions = models.CharField(max_length=200)
     organization = models.CharField(max_length=50)
     manager = models.CharField(max_length=50)
+    latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
 
     def json_data_structure(self):
         return {

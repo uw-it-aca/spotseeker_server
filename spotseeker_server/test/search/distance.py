@@ -2,6 +2,7 @@ from django.utils import unittest
 from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
+from decimal import *
 
 class SpotSearchDistanceTest(unittest.TestCase):
     def test_distances(self):
@@ -17,35 +18,36 @@ class SpotSearchDistanceTest(unittest.TestCase):
         # Mid spots are 50 meters away from the center
         # Outer spots are 100 meters away from the center
         # Far out spots are 120 meters away, at the north
-        inner_top = Spot.objects.create( name = "Inner Top", latitude = 30.0000898315, longitude = -40.0 )
+
+        inner_top = Spot.objects.create( name = "Inner Top", latitude = Decimal('30.0000898315'), longitude = Decimal('-40.0') )
         inner_top.save()
-        inner_bottom = Spot.objects.create( name = "Inner Bottom", latitude = 29.9999101685, longitude = -40.0 )
+        inner_bottom = Spot.objects.create( name = "Inner Bottom", latitude = Decimal('29.9999101685'), longitude = Decimal('-40.0') )
         inner_bottom.save()
-        inner_left = Spot.objects.create( name = "Inner Left", latitude = 30.0, longitude = -40.0001037285)
+        inner_left = Spot.objects.create( name = "Inner Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0001037285') )
         inner_left.save()
-        inner_right = Spot.objects.create( name = "Inner Right", latitude = 30.0, longitude = -39.9998962715 )
+        inner_right = Spot.objects.create( name = "Inner Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9998962715') )
         inner_right.save()
 
-        mid_top = Spot.objects.create( name = "Mid Top", latitude =  30.0004491576, longitude = -40.0 )
+        mid_top = Spot.objects.create( name = "Mid Top", latitude = Decimal(' 30.0004491576'), longitude = Decimal('-40.0') )
         mid_top.save()
-        mid_bottom = Spot.objects.create( name = "Mid Bottom", latitude = 29.9995508424, longitude = -40.0 )
+        mid_bottom = Spot.objects.create( name = "Mid Bottom", latitude = Decimal('29.9995508424'), longitude = Decimal('-40.0') )
         mid_bottom.save()
-        mid_left = Spot.objects.create( name = "Mid Left", latitude = 30.0, longitude = -40.0005186426 )
+        mid_left = Spot.objects.create( name = "Mid Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0005186426') )
         mid_left.save()
-        mid_right = Spot.objects.create( name = "Mid Right", latitude = 30.0, longitude = -39.9994813574 )
+        mid_right = Spot.objects.create( name = "Mid Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9994813574') )
         mid_right.save()
 
-        outer_top = Spot.objects.create( name = "Outer Top", latitude = 30.0008983153, longitude = -40.0 )
+        outer_top = Spot.objects.create( name = "Outer Top", latitude = Decimal('30.0008983153'), longitude = Decimal('-40.0') )
         outer_top.save()
-        outer_bottom = Spot.objects.create( name = "Outer Bottom", latitude = 29.9991016847, longitude = -40.0 )
+        outer_bottom = Spot.objects.create( name = "Outer Bottom", latitude = Decimal('29.9991016847'), longitude = Decimal('-40.0') )
         outer_bottom.save()
-        outer_left = Spot.objects.create( name = "Outer Left", latitude = 30.0, longitude = -40.0010372851 )
+        outer_left = Spot.objects.create( name = "Outer Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0010372851') )
         outer_left.save()
-        outer_right = Spot.objects.create( name = "Outer Right", latitude = 30.0, longitude = -39.9989627149 )
+        outer_right = Spot.objects.create( name = "Outer Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9989627149') )
         outer_right.save()
 
         for i in range(0, 100):
-            far_out = Spot.objects.create( name = "Far Out %s" % i, latitude = 30.0010779783 , longitude = 40.0)
+            far_out = Spot.objects.create( name = "Far Out %s" % i, latitude = Decimal('30.0010779783 '), longitude = Decimal('40.0') )
             far_out.save()
 
 

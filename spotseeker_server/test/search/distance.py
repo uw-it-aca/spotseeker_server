@@ -5,10 +5,32 @@ import simplejson as json
 from decimal import *
 
 class SpotSearchDistanceTest(unittest.TestCase):
+    def test_invalid_input(self):
+        c = Client()
+        response = c.get("/api/v1/spot", { 'center_latitude':"bad_data", 'center_longitude':"bad_data", 'distance':"bad_data" })
+        self.assertEquals(response.status_code, 200, "Accepts a query with bad inputs")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
+    def test_large_long_lat(self):
+        c = Client()
+        response = c.get("/api/v1/spot", { 'center_latitude':100, 'center_longitude':190, 'distance':10 })
+        self.assertEquals(response.status_code, 200, "Accepts a query with too large long/lat")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
+
+    def test_large_long_lat(self):
+        c = Client()
+        response = c.get("/api/v1/spot", { 'center_latitude':-100, 'center_longitude':-190, 'distance':10 })
+        self.assertEquals(response.status_code, 200, "Accepts a query with too large long/lat")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
+    def test_no_params(self):
+        c = Client()
+        response = c.get("/api/v1/spot", {})
+        self.assertEquals(response.status_code, 200, "Accepts a query with no params")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
     def test_distances(self):
-
-
-    
 
         # Spots are in the atlantic to make them less likely to collide with actual spots
         center_lat = 30.000000

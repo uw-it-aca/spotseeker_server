@@ -1,4 +1,5 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.forms.spot_search import SpotSearchForm
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot
@@ -9,6 +10,13 @@ import simplejson as json
 class SearchView(RESTDispatch):
     @app_auth_required
     def GET(self, request):
+        form = SpotSearchForm(request.GET)
+        if not form.is_valid():
+            return HttpResponse('[]')
+
+        if len(request.GET) == 0:
+            return HttpResponse('[]')
+
         query = Spot.objects.all()
 
         if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
@@ -55,6 +63,7 @@ class SearchView(RESTDispatch):
             final_list = query[:20]
 
         response = []
+
         for spot in final_list:
             response.append(spot.json_data_structure())
 

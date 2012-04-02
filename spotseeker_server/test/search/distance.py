@@ -65,23 +65,10 @@ class SpotSearchDistanceTest(unittest.TestCase):
         # Outer spots are 100 meters away from the center
         # Far out spots are 120 meters away, at the north
 
-        inner_top = Spot.objects.create( name = "Inner Top", latitude = Decimal('30.0000898315'), longitude = Decimal('-40.0') )
-        inner_top.save()
-        inner_bottom = Spot.objects.create( name = "Inner Bottom", latitude = Decimal('29.9999101685'), longitude = Decimal('-40.0') )
-        inner_bottom.save()
-        inner_left = Spot.objects.create( name = "Inner Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0001037285') )
-        inner_left.save()
-        inner_right = Spot.objects.create( name = "Inner Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9998962715') )
-        inner_right.save()
-
-        mid_top = Spot.objects.create( name = "Mid Top", latitude = Decimal(' 30.0004491576'), longitude = Decimal('-40.0') )
-        mid_top.save()
-        mid_bottom = Spot.objects.create( name = "Mid Bottom", latitude = Decimal('29.9995508424'), longitude = Decimal('-40.0') )
-        mid_bottom.save()
-        mid_left = Spot.objects.create( name = "Mid Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0005186426') )
-        mid_left.save()
-        mid_right = Spot.objects.create( name = "Mid Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9994813574') )
-        mid_right.save()
+        # Creating these from the outside in, so things that sort by primary key will give bad results for things that should be sorted by distance
+        for i in range(0, 100):
+            far_out = Spot.objects.create( name = "Far Out %s" % i, latitude = Decimal('30.0010779783'), longitude = Decimal('-40.0') )
+            far_out.save()
 
         outer_top = Spot.objects.create( name = "Outer Top", latitude = Decimal('30.0008983153'), longitude = Decimal('-40.0') )
         outer_top.save()
@@ -92,9 +79,24 @@ class SpotSearchDistanceTest(unittest.TestCase):
         outer_right = Spot.objects.create( name = "Outer Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9989627149') )
         outer_right.save()
 
-        for i in range(0, 100):
-            far_out = Spot.objects.create( name = "Far Out %s" % i, latitude = Decimal('30.0010779783'), longitude = Decimal('-40.0') )
-            far_out.save()
+        mid_top = Spot.objects.create( name = "Mid Top", latitude = Decimal(' 30.0004491576'), longitude = Decimal('-40.0') )
+        mid_top.save()
+        mid_bottom = Spot.objects.create( name = "Mid Bottom", latitude = Decimal('29.9995508424'), longitude = Decimal('-40.0') )
+        mid_bottom.save()
+        mid_left = Spot.objects.create( name = "Mid Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0005186426') )
+        mid_left.save()
+        mid_right = Spot.objects.create( name = "Mid Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9994813574') )
+        mid_right.save()
+
+        inner_top = Spot.objects.create( name = "Inner Top", latitude = Decimal('30.0000898315'), longitude = Decimal('-40.0') )
+        inner_top.save()
+        inner_bottom = Spot.objects.create( name = "Inner Bottom", latitude = Decimal('29.9999101685'), longitude = Decimal('-40.0') )
+        inner_bottom.save()
+        inner_left = Spot.objects.create( name = "Inner Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0001037285') )
+        inner_left.save()
+        inner_right = Spot.objects.create( name = "Inner Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9998962715') )
+        inner_right.save()
+
 
         # Testing to make sure too small of a radius returns nothing
         c = Client()

@@ -65,4 +65,25 @@ class SpotView(RESTDispatch):
 
     @user_auth_required
     def DELETE(self, request, spot_id):
-        return HttpResponse("This should be a DELETE for spot id: "+spot_id)
+        try:
+            spot = Spot.objects.get(pk=spot_id)
+        except Exception as e:
+            response = HttpResponse('{"error":"Spot not found"}')
+            response.status_code = 404
+            return response
+
+        if not "If_Match" in request.META:
+            response = HttpResponse('{"error":"If-Match header required"}')
+            response.status_code = 409
+            return response
+
+        if request.META["If_Match"] != spot.etag:
+            response = HttpResponse('{"error":"Invalid ETag"}')
+            response.status_code = 409
+            return response
+
+
+        spot.delete()
+        response = HttpResponse()
+        response.status_code = 410
+        return response

@@ -39,7 +39,10 @@ class SpotDELETETest(unittest.TestCase):
         response = c.delete(self.url)
         self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
 
-        test_spot = Spot.objects.get(pk=self.spot.pk)
+        try:
+            test_spot = Spot.objects.get(pk=self.spot.pk)
+        except Exception as e:
+            test_spot = None
 
         self.assertIsNone(test_spot, "Can't objects.get a deleted spot")
 

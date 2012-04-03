@@ -16,7 +16,7 @@ class SpotSearchDistanceFieldTest(unittest.TestCase):
         inner_top2 = Spot.objects.create( name = "Alternate name of AL1", latitude = Decimal('31.0000898315'), longitude = Decimal('-41.0') )
         inner_top2.save()
 
-        mid_top = Spot.objects.create( name = "Atlantic Location 2", latitude =  Decimal('30.0004491576'), longitude = Decimal('-40.0') )
+        mid_top = Spot.objects.create( name = "Atlantic Location 2", latitude =  Decimal('34.0004491576'), longitude = Decimal('-44.0') )
         mid_top.save()
 
         c = Client()

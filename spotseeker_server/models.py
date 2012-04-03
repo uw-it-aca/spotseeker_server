@@ -1,7 +1,11 @@
 from django.db import models
+import hashlib
+import time
+import random
 
 class Spot(models.Model):
     name = models.CharField(max_length=100)
+    etag = models.CharField(max_length=40)
     capacity = models.CharField(max_length=50)
     display_hours_available = models.CharField(max_length=200)
     display_access_restrictions = models.CharField(max_length=200)
@@ -26,6 +30,9 @@ class Spot(models.Model):
             "extended_info": extended_info,
         }
 
+    def save(self, *args, **kwargs):
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        super(Spot, self).save(*args, **kwargs)
 
 class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)

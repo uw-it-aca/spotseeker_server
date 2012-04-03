@@ -2,6 +2,7 @@ from django.db import models
 import hashlib
 import time
 import random
+from PIL import Image
 
 class Spot(models.Model):
     name = models.CharField(max_length=100)
@@ -50,16 +51,26 @@ class SpotImage(models.Model):
     description = models.CharField(max_length=200)
     image = models.FileField(upload_to="spot_images")
     spot = models.ForeignKey(Spot)
-
-    def rest_url(self):
-        return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
-
-
-class SpotImage(models.Model):
-    spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
     height = models.IntegerField()
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
+    etag = models.CharField(max_length=40)
+
+
+    def rest_url(self):
+        return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
+
+    def save(self, *args, **kwargs):
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        img = Image.open(self.image.path)
+        self.width = img.size[0]
+        self.height = img.size[1]
+
+        content_types = { "JPEG":"image/jpeg", "GIF":"image/gif", "PNG":"image/png" }
+        self.content_type = content_types[img.format]
+
+        super(SpotImage, self).save(*args, **kwargs)
+
 

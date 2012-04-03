@@ -49,8 +49,6 @@ class AddImageView(RESTDispatch):
         response.status_code = 201
         response["Location"] = image.rest_url()
 
-        print "URL: ", image.rest_url()
-
         return response
 
 

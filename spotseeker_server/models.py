@@ -14,6 +14,9 @@ class Spot(models.Model):
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
 
+    def rest_url(self):
+        return "/api/v1/spot/{0}".format(self.pk)
+
     def json_data_structure(self):
         extended_info = {}
         info = SpotExtendedInfo.objects.filter(spot=self)
@@ -23,6 +26,7 @@ class Spot(models.Model):
         return {
             "id": self.pk,
             "name": self.name,
+            "capacity": self.capacity,
             "location": {
                 "latitude": self.latitude,
                 "longitude": self.longitude,

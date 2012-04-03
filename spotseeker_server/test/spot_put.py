@@ -14,7 +14,7 @@ class SpotPUTTest(unittest.TestCase):
 
     def test_bad_json(self):
         c = Client()
-        response = c.put(self.url, 'this is just text', content_type="application/json")
+        response = c.put(self.url, 'this is just text', content_type="application/json", If_Match = self.spot.etag)
         self.assertEquals(response.status_code, 400, "Rejects non-json")
 
     def test_invalid_url(self):

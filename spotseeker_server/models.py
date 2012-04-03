@@ -43,6 +43,18 @@ class SpotExtendedInfo(models.Model):
     value = models.CharField(max_length=200)
     spot = models.ForeignKey(Spot)
 
+class UploadTestImage(models.Model):
+    image = models.FileField(upload_to="upload_images")
+
+class SpotImage(models.Model):
+    description = models.CharField(max_length=200)
+    image = models.FileField(upload_to="spot_images")
+    spot = models.ForeignKey(Spot)
+
+    def rest_url(self):
+        return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
+
+
 class SpotImage(models.Model):
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)

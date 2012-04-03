@@ -24,24 +24,24 @@ class SpotPOSTTest(unittest.TestCase):
 
         post_pk = next_pk - 1
 
-        self.assertEquals(response["Location"], "/api/v1/spot/{0}".format(post_pk), "The uri for the new spot is correct")
+        self.assertEquals(response["Location"], "http://testserver/api/v1/spot/{0}".format(post_pk), "The uri for the new spot is correct")
 
-        get_response = client.get(response["Location"])
+        get_response = c.get(response["Location"])
         self.assertEquals(get_response.status_code, 200, "OK in response to GETing the new spot")
 
-        spot_json = json.loads(response.content)
+        spot_json = json.loads(get_response.content)
 
         self.assertEquals(spot_json["name"], new_name, "The right name was stored")
         self.assertEquals(spot_json["capacity"], new_capacity, "The right capacity was stored")
 
     def test_non_json(self):
         c = Client()
-        response = c.post('/api/v1/spot/', 'just a string', follow=False)
+        response = c.post('/api/v1/spot/', 'just a string', content_type="application/json", follow=False)
         self.assertEquals(response.status_code, 400)
 
     def test_invalid_json(self):
         c = Client()
-        response = c.post('/api/v1/spot/', '{}', follow=False)
+        response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
         self.assertEquals(response.status_code, 400)
 
 

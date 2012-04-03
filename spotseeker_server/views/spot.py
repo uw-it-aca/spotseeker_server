@@ -20,16 +20,22 @@ class SpotView(RESTDispatch):
             return response
 
 
+
+    @user_auth_required
+    def POST(self, request):
+        spot = Spot.objects.create()
+
+        error_response = self.build_and_save_from_input(request, spot)
+        if error_response:
+            return error_response
+
+        response = HttpResponse()
+        response.status_code = 201
+        response["Location"] = spot.rest_url()
+        return response
+
     @user_auth_required
     def PUT(self, request, spot_id):
-        body = request.read()
-        try:
-            new_values = json.loads(body)
-        except Exception as e:
-            response = HttpResponse('{"error":"Unable to parse JSON"}')
-            response.status_code = 400
-            return response
-
         try:
             spot = Spot.objects.get(pk=spot_id)
         except Exception as e:
@@ -37,31 +43,15 @@ class SpotView(RESTDispatch):
             response.status_code = 404
             return response
 
-        form = SpotForm(new_values)
+        error_response = self.validate_etag(request, spot)
+        if error_response:
+            return error_response
 
-
-        if not "If_Match" in request.META:
-            response = HttpResponse('{"error":"If-Match header required"}')
-            response.status_code = 409
-            return response
-
-        if request.META["If_Match"] != spot.etag:
-            response = HttpResponse('{"error":"Invalid ETag"}')
-            response.status_code = 409
-            return response
-
-        if not form.is_valid():
-            response = HttpResponse(json.dumps(form.errors))
-            response.status_code = 400
-            return response
-
-        spot.name = new_values["name"]
-        spot.capacity = new_values["capacity"]
-        spot.save()
-
+        error_response = self.build_and_save_from_input(request, spot)
+        if error_response:
+            return error_response
 
         return self.GET(request, spot_id)
-#        return HttpResponse("Passes validation")
 
     @user_auth_required
     def DELETE(self, request, spot_id):
@@ -72,6 +62,18 @@ class SpotView(RESTDispatch):
             response.status_code = 404
             return response
 
+
+        error_response = self.validate_etag(request, spot)
+        if error_response:
+            return error_response
+
+        spot.delete()
+        response = HttpResponse()
+        response.status_code = 410
+        return response
+
+    # These are utility methods for the HTTP methods
+    def validate_etag(self, request, spot):
         if not "If_Match" in request.META:
             response = HttpResponse('{"error":"If-Match header required"}')
             response.status_code = 409
@@ -82,8 +84,23 @@ class SpotView(RESTDispatch):
             response.status_code = 409
             return response
 
+    def build_and_save_from_input(self, request, spot):
+        body = request.read()
+        try:
+            new_values = json.loads(body)
+        except Exception as e:
+            response = HttpResponse('{"error":"Unable to parse JSON"}')
+            response.status_code = 400
+            return response
 
-        spot.delete()
-        response = HttpResponse()
-        response.status_code = 410
-        return response
+        form = SpotForm(new_values)
+        if not form.is_valid():
+            response = HttpResponse(json.dumps(form.errors))
+            response.status_code = 400
+            return response
+
+        spot.name = new_values["name"]
+        spot.capacity = new_values["capacity"]
+        spot.save()
+
+

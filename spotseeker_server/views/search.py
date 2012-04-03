@@ -1,5 +1,6 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot_search import SpotSearchForm
+from spotseeker_server.views.spot import SpotView
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot
@@ -9,6 +10,10 @@ import simplejson as json
 import re
 
 class SearchView(RESTDispatch):
+    @user_auth_required
+    def POST(self, request):
+        return SpotView().run(request)
+
     @app_auth_required
     def GET(self, request):
         form = SpotSearchForm(request.GET)

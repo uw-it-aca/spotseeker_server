@@ -1,6 +1,7 @@
-# compiled files and swap files
+# compiled files, swap files, system files, etc.
 *.pyc
 *.swp
+.DS_Store
 
 # virtualenv files
 .Python

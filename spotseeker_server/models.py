@@ -39,6 +39,30 @@ class Spot(models.Model):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         super(Spot, self).save(*args, **kwargs)
 
+class SpotAvailableHours(models.Model):
+    spot = models.ForeignKey(Spot)
+    day = models.CharField(max_length=3, choices = (
+        ('m', 'monday'),
+        ('t', 'tuesday'),
+        ('w', 'wednesday'),
+        ('th', 'thursday'),
+        ('f', 'friday'),
+        ('sa', 'saturday'),
+        ('su', 'sunday'),
+    ), null=False, blank=False)
+
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if self.start_time >= self.end_time:
+            raise Exception("Invalid time range - start time must be before end time")
+        if not self.day:
+            # XXX - why is this needed?  come on, django
+            raise Exception("You must have a day")
+        super(SpotAvailableHours, self).save(*args, **kwargs)
+
 class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=200)

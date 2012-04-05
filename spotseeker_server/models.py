@@ -24,6 +24,20 @@ class Spot(models.Model):
         for attr in info:
             extended_info[attr.key] = attr.value
 
+        available_hours = {
+            'monday': [],
+            'tuesday': [],
+            'wednesday': [],
+            'thursday': [],
+            'friday': [],
+            'saturday': [],
+            'sunday': [],
+        }
+
+        hours = SpotAvailableHours.objects.filter(spot=self).order_by('start_time')
+        for window in hours:
+            available_hours[window.get_day_display()].append([window.start_time.strftime("%H:%M"), window.end_time.strftime("%H:%M")])
+
         return {
             "id": self.pk,
             "name": self.name,
@@ -33,6 +47,7 @@ class Spot(models.Model):
                 "longitude": self.longitude,
             },
             "extended_info": extended_info,
+            "available_hours": available_hours,
         }
 
     def save(self, *args, **kwargs):
@@ -58,9 +73,6 @@ class SpotAvailableHours(models.Model):
         self.full_clean()
         if self.start_time >= self.end_time:
             raise Exception("Invalid time range - start time must be before end time")
-        if not self.day:
-            # XXX - why is this needed?  come on, django
-            raise Exception("You must have a day")
         super(SpotAvailableHours, self).save(*args, **kwargs)
 
 class SpotExtendedInfo(models.Model):

@@ -6,8 +6,9 @@ import simplejson as json
 class SpotHoursGETTest(unittest.TestCase):
     def setUp(self):
         spot = Spot.objects.create ( name = "This spot has available hours" )
-        hours1 = SpotAvailableHours.objects.create(spot = spot, day = "m", start_time="00:00", end_time="10:00")
+        # Intentionally out of order - make sure windows are sorted, not just in db happenstance order
         hours2 = SpotAvailableHours.objects.create(spot = spot, day = "m", start_time="11:00", end_time="14:00")
+        hours1 = SpotAvailableHours.objects.create(spot = spot, day = "m", start_time="00:00", end_time="10:00")
         hours3 = SpotAvailableHours.objects.create(spot = spot, day = "t", start_time="11:00", end_time="14:00")
         hours4 = SpotAvailableHours.objects.create(spot = spot, day = "w", start_time="11:00", end_time="14:00")
         hours5 = SpotAvailableHours.objects.create(spot = spot, day = "th", start_time="11:00", end_time="14:00")
@@ -24,13 +25,13 @@ class SpotHoursGETTest(unittest.TestCase):
         spot_dict = json.loads(response.content)
 
         valid_data = {
-            'm': [ [ "00:00", "10:00" ], [ "11:00", "14:00" ] ],
-            't': [ [ "11:00", "14:00" ] ],
-            'w': [ [ "11:00", "14:00" ] ],
-            't': [ [ "11:00", "14:00" ] ],
-            'f': [ [ "11:00", "14:00" ] ],
-            'sa': [ ],
-            'su': [ [ "11:00", "14:00" ] ],
+            'monday': [ [ "00:00", "10:00" ], [ "11:00", "14:00" ] ],
+            'tuesday': [ [ "11:00", "14:00" ] ],
+            'wednesday': [ [ "11:00", "14:00" ] ],
+            'thursday': [ [ "11:00", "14:00" ] ],
+            'friday': [ [ "11:00", "14:00" ] ],
+            'saturday': [ ],
+            'sunday': [ [ "11:00", "14:00" ] ],
         }
 
         available_hours = spot_dict["available_hours"]

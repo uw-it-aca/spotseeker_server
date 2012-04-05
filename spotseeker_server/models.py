@@ -24,6 +24,20 @@ class Spot(models.Model):
         for attr in info:
             extended_info[attr.key] = attr.value
 
+        available_hours = {
+            'monday': [],
+            'tuesday': [],
+            'wednesday': [],
+            'thursday': [],
+            'friday': [],
+            'saturday': [],
+            'sunday': [],
+        }
+
+        hours = SpotAvailableHours.objects.filter(spot=self).order_by('start_time')
+        for window in hours:
+            available_hours[window.get_day_display()].append([window.start_time.strftime("%H:%M"), window.end_time.strftime("%H:%M")])
+
         return {
             "id": self.pk,
             "name": self.name,
@@ -33,11 +47,33 @@ class Spot(models.Model):
                 "longitude": self.longitude,
             },
             "extended_info": extended_info,
+            "available_hours": available_hours,
         }
 
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         super(Spot, self).save(*args, **kwargs)
+
+class SpotAvailableHours(models.Model):
+    spot = models.ForeignKey(Spot)
+    day = models.CharField(max_length=3, choices = (
+        ('m', 'monday'),
+        ('t', 'tuesday'),
+        ('w', 'wednesday'),
+        ('th', 'thursday'),
+        ('f', 'friday'),
+        ('sa', 'saturday'),
+        ('su', 'sunday'),
+    ), null=False, blank=False)
+
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if self.start_time >= self.end_time:
+            raise Exception("Invalid time range - start time must be before end time")
+        super(SpotAvailableHours, self).save(*args, **kwargs)
 
 class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)

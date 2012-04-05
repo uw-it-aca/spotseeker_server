@@ -1,9 +1,10 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot import SpotForm
-from spotseeker_server.models import Spot
+from spotseeker_server.models import Spot, SpotAvailableHours
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 import simplejson as json
+from django.db import transaction
 
 class SpotView(RESTDispatch):
     @app_auth_required
@@ -84,6 +85,7 @@ class SpotView(RESTDispatch):
             response.status_code = 409
             return response
 
+    @transaction.commit_on_success
     def build_and_save_from_input(self, request, spot):
         body = request.read()
         try:
@@ -102,5 +104,16 @@ class SpotView(RESTDispatch):
         spot.name = new_values["name"]
         spot.capacity = new_values["capacity"]
         spot.save()
+
+        queryset = SpotAvailableHours.objects.filter(spot=spot)
+        queryset.delete()
+
+        if "available_hours" in new_values:
+            available_hours = new_values["available_hours"]
+            for day in [[ "m", "monday"], ["t", "tuesday"], ["w", "wednesday"], ["th", "thursday"], ["f", "friday"], ["sa", "saturday"], ["su", "sunday"]]:
+                if day[1] in available_hours:
+                    day_hours = available_hours[day[1]]
+                    for window in day_hours:
+                        SpotAvailableHours.objects.create(spot = spot, day=day[0], start_time = window[0], end_time = window[1])
 
 

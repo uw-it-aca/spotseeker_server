@@ -14,6 +14,8 @@ from spotseeker_server.test.search.fields import SpotSearchFieldTest
 from spotseeker_server.test.search.distance_fields import SpotSearchDistanceFieldTest
 from spotseeker_server.test.hours.model import SpotHoursModelTest
 from spotseeker_server.test.hours.get import SpotHoursGETTest
+from spotseeker_server.test.hours.put import SpotHoursPUTTest
+from spotseeker_server.test.hours.post import SpotHoursPOSTTest
 
 class SpotSeekerTests(unittest.TestCase):
     def suite(self):

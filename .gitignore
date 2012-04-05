@@ -1,2 +1,9 @@
+# compiled files and swap files
 *.pyc
 *.swp
+
+# virtualenv files
+.Python
+bin/
+include/
+lib/

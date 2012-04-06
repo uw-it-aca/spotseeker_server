@@ -62,7 +62,7 @@ class SpotHoursOpenNowLocationAttributesTest(unittest.TestCase):
 
 
         self.assertEquals(has_open_match_in_range, True, "Found the open spot in range w/ the attributes")
-        self.assertEquals(has_open_no_match_in_range, True, "Did not find the open spot in range w/o the attributes")
+        self.assertEquals(has_open_no_match_in_range, False, "Did not find the open spot in range w/o the attributes")
         self.assertEquals(has_closed_in_range, False, "Did not find the closed spot in range")
         self.assertEquals(has_open_outof_range, False, "Did not find the open spot out of range")
         self.assertEquals(has_closed_outof_range, False, "Did not find the closed spot out of range")

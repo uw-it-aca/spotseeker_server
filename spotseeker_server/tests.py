@@ -16,6 +16,7 @@ from spotseeker_server.test.hours.model import SpotHoursModelTest
 from spotseeker_server.test.hours.get import SpotHoursGETTest
 from spotseeker_server.test.hours.put import SpotHoursPUTTest
 from spotseeker_server.test.hours.post import SpotHoursPOSTTest
+from spotseeker_server.test.hours.open_now import SpotHoursOpenNowTest
 
 class SpotSeekerTests(unittest.TestCase):
     def suite(self):

@@ -8,6 +8,8 @@ from pyproj import Geod
 from decimal import *
 import simplejson as json
 import re
+from time import *
+from datetime import datetime
 
 class SearchView(RESTDispatch):
     @user_auth_required
@@ -60,6 +62,17 @@ class SearchView(RESTDispatch):
                 pass
             elif key == "limit":
                 pass
+            elif key == "open_now":
+                if request.GET["open_now"]:
+
+                    day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
+                    day_num = int(strftime("%w", localtime()))
+                    today = day_lookup[day_num]
+                    now = datetime.time(datetime.now())
+                    query = query.filter(spotavailablehours__day__iexact=today)
+                    query = query.filter(spotavailablehours__start_time__lt=now)
+                    query = query.filter(spotavailablehours__end_time__gt=now)
+                    has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {
                     'spotextendedinfo__key'              : key[14:],

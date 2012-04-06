@@ -18,6 +18,7 @@ from spotseeker_server.test.hours.put import SpotHoursPUTTest
 from spotseeker_server.test.hours.post import SpotHoursPOSTTest
 from spotseeker_server.test.hours.open_now import SpotHoursOpenNowTest
 from spotseeker_server.test.hours.open_now_location import SpotHoursOpenNowLocationTest
+from spotseeker_server.test.hours.open_now_location_attributes import SpotHoursOpenNowLocationAttributesTest
 
 class SpotSeekerTests(unittest.TestCase):
     def suite(self):
@@ -36,5 +37,6 @@ class SpotSeekerTests(unittest.TestCase):
         suite.addTest(SpotHoursModelTest())
         suite.addTest(SpotHoursOpenNowTest())
         suite.addTest(SpotHoursOpenNowLocationTest())
+        suite.addTest(SpotHoursOpenNowLocationAttributesTest())
 
 

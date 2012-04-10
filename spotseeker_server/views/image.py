@@ -15,6 +15,7 @@ class ImageView(RESTDispatch):
                 raise Exception("Image Spot ID doesn't match spot id in url")
 
             response = HttpResponse(FileWrapper(img.image))
+            response["ETag"] = img.etag
             response["Content-length"] = img.image.size
             response["Content-type"] = img.content_type
             return response

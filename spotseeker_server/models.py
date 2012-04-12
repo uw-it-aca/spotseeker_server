@@ -3,6 +3,7 @@ import hashlib
 import time
 import random
 from PIL import Image
+from cStringIO import StringIO
 
 class Spot(models.Model):
     name = models.CharField(max_length=100)
@@ -116,15 +117,22 @@ class SpotImage(models.Model):
     def __unicode__(self):
         return self.description
 
-#    def save(self, *args, **kwargs):
-#        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-#        img = Image.open(self.image.path)
-#        self.width = img.size[0]
-#        self.height = img.size[1]
-#
-#        content_types = { "JPEG":"image/jpeg", "GIF":"image/gif", "PNG":"image/png" }
-#        self.content_type = content_types[img.format]
-#
-#        super(SpotImage, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+
+        content_types = { "JPEG":"image/jpeg", "GIF":"image/gif", "PNG":"image/png" }
+        if self.image.file.multiple_chunks():
+            img = Image.open(self.image.file.temporary_file_path())
+        else:
+            img = StringIO(self.image.file.read())
+            img = Image.open(img)
+
+        # raises a KeyError if the type is not in content types - use this to validate the image type?
+        self.content_type = content_types[img.format]
+
+        self.width = img.size[0]
+        self.height = img.size[1]
+
+        super(SpotImage, self).save(*args, **kwargs)
 
 

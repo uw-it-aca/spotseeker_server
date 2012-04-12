@@ -1,5 +1,5 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
-from spotseeker_server.models import SpotImage, Spot, UploadTestImage
+from spotseeker_server.models import SpotImage, Spot#, UploadTestImage
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 from PIL import Image
@@ -20,7 +20,8 @@ class AddImageView(RESTDispatch):
             response.status_code = 400
             return response
 
-        upload_image = UploadTestImage(image=request.FILES["image"])
+        #upload_image = UploadTestImage(image=request.FILES["image"])
+        upload_image = request.FILES["image"]
         upload_image.save()
 
         try:

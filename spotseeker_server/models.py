@@ -95,12 +95,12 @@ class SpotExtendedInfo(models.Model):
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot, self.key, self.value)
 
-class UploadTestImage(models.Model):
-    image = models.FileField(upload_to="upload_images")
+#class UploadTestImage(models.Model):
+#    image = models.FileField(upload_to="upload_images")
 
 class SpotImage(models.Model):
     description = models.CharField(max_length=200)
-    image = models.FileField(upload_to="spot_images")
+    image = models.ImageField(upload_to="spot_images")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
@@ -116,15 +116,15 @@ class SpotImage(models.Model):
     def __unicode__(self):
         return self.description
 
-    def save(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-        img = Image.open(self.image.path)
-        self.width = img.size[0]
-        self.height = img.size[1]
-
-        content_types = { "JPEG":"image/jpeg", "GIF":"image/gif", "PNG":"image/png" }
-        self.content_type = content_types[img.format]
-
-        super(SpotImage, self).save(*args, **kwargs)
+#    def save(self, *args, **kwargs):
+#        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+#        img = Image.open(self.image.path)
+#        self.width = img.size[0]
+#        self.height = img.size[1]
+#
+#        content_types = { "JPEG":"image/jpeg", "GIF":"image/gif", "PNG":"image/png" }
+#        self.content_type = content_types[img.format]
+#
+#        super(SpotImage, self).save(*args, **kwargs)
 
 

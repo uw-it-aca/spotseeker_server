@@ -50,6 +50,9 @@ class Spot(models.Model):
             "available_hours": available_hours,
         }
 
+    def __unicode__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         super(Spot, self).save(*args, **kwargs)
@@ -78,6 +81,9 @@ class SpotAvailableHours(models.Model):
             raise Exception("Invalid time range - start time must be before end time")
         super(SpotAvailableHours, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        return "%s: %s-%s" % (self.day, self.start_time, self.end_time)
+
 class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=200)
@@ -85,6 +91,9 @@ class SpotExtendedInfo(models.Model):
 
     class Meta:
         verbose_name_plural = "Spot extended info"
+
+    def __unicode__(self):
+        return "%s[%s: %s]" % (self.spot, self.key, self.value)
 
 class UploadTestImage(models.Model):
     image = models.FileField(upload_to="upload_images")
@@ -103,6 +112,9 @@ class SpotImage(models.Model):
 
     def rest_url(self):
         return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
+
+    def __unicode__(self):
+        return self.description
 
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()

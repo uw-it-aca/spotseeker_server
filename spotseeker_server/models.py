@@ -69,6 +69,9 @@ class SpotAvailableHours(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
+    class Meta:
+        verbose_name_plural = "Spot available hours"
+
     def save(self, *args, **kwargs):
         self.full_clean()
         if self.start_time >= self.end_time:
@@ -79,6 +82,9 @@ class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=200)
     spot = models.ForeignKey(Spot)
+
+    class Meta:
+        verbose_name_plural = "Spot extended info"
 
 class UploadTestImage(models.Model):
     image = models.FileField(upload_to="upload_images")

@@ -29,6 +29,7 @@ class SearchView(RESTDispatch):
 
         query = Spot.objects.all()
 
+
         if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
             try:
                 g = Geod(ellps='clrk66')
@@ -69,9 +70,7 @@ class SearchView(RESTDispatch):
                     day_num = int(strftime("%w", localtime()))
                     today = day_lookup[day_num]
                     now = datetime.time(datetime.now())
-                    query = query.filter(spotavailablehours__day__iexact=today)
-                    query = query.filter(spotavailablehours__start_time__lt=now)
-                    query = query.filter(spotavailablehours__end_time__gt=now)
+                    query = query.filter(spotavailablehours__day__iexact=today, spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)
                     has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {

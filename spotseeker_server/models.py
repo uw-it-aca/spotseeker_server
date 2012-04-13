@@ -1,8 +1,10 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 import hashlib
 import time
 import random
 from PIL import Image
+from cStringIO import StringIO
 
 class Spot(models.Model):
     name = models.CharField(max_length=100)
@@ -50,6 +52,9 @@ class Spot(models.Model):
             "available_hours": available_hours,
         }
 
+    def __unicode__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         super(Spot, self).save(*args, **kwargs)
@@ -69,23 +74,32 @@ class SpotAvailableHours(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
+    class Meta:
+        verbose_name_plural = "Spot available hours"
+
     def save(self, *args, **kwargs):
         self.full_clean()
         if self.start_time >= self.end_time:
             raise Exception("Invalid time range - start time must be before end time")
         super(SpotAvailableHours, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        return "%s: %s-%s" % (self.day, self.start_time, self.end_time)
+
 class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=200)
     spot = models.ForeignKey(Spot)
 
-class UploadTestImage(models.Model):
-    image = models.FileField(upload_to="upload_images")
+    class Meta:
+        verbose_name_plural = "Spot extended info"
+
+    def __unicode__(self):
+        return "%s[%s: %s]" % (self.spot, self.key, self.value)
 
 class SpotImage(models.Model):
     description = models.CharField(max_length=200)
-    image = models.FileField(upload_to="spot_images")
+    image = models.ImageField(upload_to="spot_images")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
@@ -98,14 +112,26 @@ class SpotImage(models.Model):
     def rest_url(self):
         return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
 
+    def __unicode__(self):
+        return self.description
+
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-        img = Image.open(self.image.path)
-        self.width = img.size[0]
-        self.height = img.size[1]
 
         content_types = { "JPEG":"image/jpeg", "GIF":"image/gif", "PNG":"image/png" }
+        if self.image.file.multiple_chunks():
+            img = Image.open(self.image.file.temporary_file_path())
+        else:
+            img = StringIO(self.image.file.read())
+            img = Image.open(img)
+
+        if not img.format in content_types:
+            raise ValidationError('Not an accepted image format')
+
         self.content_type = content_types[img.format]
+
+        self.width = img.size[0]
+        self.height = img.size[1]
 
         super(SpotImage, self).save(*args, **kwargs)
 

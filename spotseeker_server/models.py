@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 import hashlib
 import time
 import random
@@ -96,9 +97,6 @@ class SpotExtendedInfo(models.Model):
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot, self.key, self.value)
 
-#class UploadTestImage(models.Model):
-#    image = models.FileField(upload_to="upload_images")
-
 class SpotImage(models.Model):
     description = models.CharField(max_length=200)
     image = models.ImageField(upload_to="spot_images")
@@ -127,7 +125,9 @@ class SpotImage(models.Model):
             img = StringIO(self.image.file.read())
             img = Image.open(img)
 
-        # raises a KeyError if the type is not in content types - use this to validate the image type?
+        if not img.format in content_types:
+            raise ValidationError('Not an accepted image format')
+
         self.content_type = content_types[img.format]
 
         self.width = img.size[0]

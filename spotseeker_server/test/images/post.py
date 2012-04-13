@@ -25,7 +25,7 @@ class SpotImagePOSTTest(unittest.TestCase):
 
     def test_gif(self):
         c = Client()
-        f = open("%s/test/resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is a gif", "image": f })
         f.close()
 
@@ -33,7 +33,7 @@ class SpotImagePOSTTest(unittest.TestCase):
 
     def test_png(self):
         c = Client()
-        f = open("%s/test/resources/test_png.png" % TEST_ROOT)
+        f = open("%s/../resources/test_png.png" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is a png", "image": f })
         f.close()
 
@@ -41,7 +41,7 @@ class SpotImagePOSTTest(unittest.TestCase):
 
     def test_invalid_image_type(self):
         c = Client()
-        f = open("%s/test/resources/test_bmp.bmp" % TEST_ROOT)
+        f = open("%s/../resources/test_bmp.bmp" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is a bmp file - invalid format", "image": f })
         f.close()
 
@@ -50,7 +50,7 @@ class SpotImagePOSTTest(unittest.TestCase):
 
     def test_invalid_file(self):
         c = Client()
-        f = open("%s/test/resources/fake_jpeg.jpg" % TEST_ROOT)
+        f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is really a text file", "image": f })
         f.close()
 
@@ -64,7 +64,7 @@ class SpotImagePOSTTest(unittest.TestCase):
 
     def test_wrong_field(self):
         c = Client()
-        f = open("%s/test/resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is a gif", "not_image": f })
         f.close()
 
@@ -73,7 +73,7 @@ class SpotImagePOSTTest(unittest.TestCase):
 
     def test_wrong_url(self):
         c = Client()
-        f = open("%s/test/resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         response = c.post('/api/v1/spot/{0}/image'.format(self.spot.pk + 1), { "description": "This is a gif", "image": f })
         f.close()
 

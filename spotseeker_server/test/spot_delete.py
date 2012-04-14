@@ -62,7 +62,7 @@ class SpotDELETETest(unittest.TestCase):
         etag = response["ETag"]
 
         intermediate_spot = Spot.objects.get(pk=self.spot.pk)
-        intermediate_spot.name = "This interferes w/ the PUT"
+        intermediate_spot.name = "This interferes w/ the DELETE"
         intermediate_spot.save()
 
         response = c.delete(self.url, If_Match=etag)

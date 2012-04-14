@@ -164,3 +164,48 @@ class SpotImageDELETETest(unittest.TestCase):
         response = c.get(self.png_url)
         self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
 
+    def test_actual_delete_expired_etag(self):
+        c = Client()
+
+        #GIF
+        response = c.get(self.gif_url)
+        etag = response["ETag"]
+
+        intermediate_img = SpotImage.objects.get(pk=self.gif.pk)
+        intermediate_img.name = "This interferes w/ the DELETE"
+        intermediate_img.save()
+
+        response = c.delete(self.gif_url, If_Match=etag)
+        self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+
+        response = c.get(self.gif_url)
+        self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+
+        #JPEG
+        response = c.get(self.jpeg_url)
+        etag = response["ETag"]
+
+        intermediate_img = SpotImage.objects.get(pk=self.jpeg.pk)
+        intermediate_img.name = "This interferes w/ the DELETE"
+        intermediate_img.save()
+
+        response = c.delete(self.jpeg_url, If_Match=etag)
+        self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+
+        response = c.get(self.jpeg_url)
+        self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+
+        #PNG
+        response = c.get(self.png_url)
+        etag = response["ETag"]
+
+        intermediate_img = SpotImage.objects.get(pk=self.png.pk)
+        intermediate_img.name = "This interferes w/ the DELETE"
+        intermediate_img.save()
+
+        response = c.delete(self.png_url, If_Match=etag)
+        self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+
+        response = c.get(self.png_url)
+        self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+

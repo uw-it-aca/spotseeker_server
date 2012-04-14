@@ -8,7 +8,7 @@ TEST_ROOT = abspath(dirname(__file__))
 
 class SpotImageDELETETest(unittest.TestCase):
     def setUp(self):
-        spot = Spot.objects.create( name = "This is to test getting images" )
+        spot = Spot.objects.create( name = "This is to test DELETEing images" )
         spot.save()
         self.spot = spot
 

@@ -73,3 +73,16 @@ class SpotImagePUTTest(unittest.TestCase):
         response = c.put(test_url, '{}', content_type="application/json")
         self.assertEquals(response.status_code, 404, "Rejects an id that doesn't exist yet (no PUT to create)")
 
+
+    def test_empty_json(self):
+        c = Client()
+        #GIF
+        response = c.put(self.gif_url, '{}', content_type="application/json", If_Match = self.gif.etag)
+        self.assertEquals(response.status_code, 400, "Rejects an empty body")
+        #JPEG
+        response = c.put(self.jpeg_url, '{}', content_type="application/json", If_Match = self.jpeg.etag)
+        self.assertEquals(response.status_code, 400, "Rejects an empty body")
+        #PNG
+        response = c.put(self.png_url, '{}', content_type="application/json", If_Match = self.png.etag)
+        self.assertEquals(response.status_code, 400, "Rejects an empty body")
+

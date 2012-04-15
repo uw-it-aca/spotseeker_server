@@ -65,3 +65,11 @@ class SpotImagePUTTest(unittest.TestCase):
         response = c.put(bad_url, '{}', content_type="application/json")
         self.assertEquals(response.status_code, 404, "Rejects a non-numeric url")
 
+
+    def test_invalid_id_too_high(self):
+        c = Client()
+        test_id = self.gif.pk + 10000
+        test_url = "%s/image/%s" % (self.url, test_id)
+        response = c.put(test_url, '{}', content_type="application/json")
+        self.assertEquals(response.status_code, 404, "Rejects an id that doesn't exist yet (no PUT to create)")
+

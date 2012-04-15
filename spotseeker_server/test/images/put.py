@@ -42,6 +42,7 @@ class SpotImagePUTTest(unittest.TestCase):
         self.png = png
         self.png_url = "%s/image/%s" % (self.url, self.png.pk)
 
+
     def test_bad_json(self):
         c = Client()
 
@@ -56,4 +57,11 @@ class SpotImagePUTTest(unittest.TestCase):
         #PNG
         response = c.put(self.png_url, 'this is just text', content_type="application/json", If_Match = self.spot.etag)
         self.assertEquals(response.status_code, 400, "Rejects non-json")
+
+
+    def test_invalid_url(self):
+        c = Client()
+        bad_url = "%s/image/aa" % self.url
+        response = c.put(bad_url, '{}', content_type="application/json")
+        self.assertEquals(response.status_code, 404, "Rejects a non-numeric url")
 

@@ -44,13 +44,8 @@ class SpotImageDELETETest(unittest.TestCase):
 
     def test_bad_url(self):
         c = Client()
-        response = c.delete(self.gif_url)
-        self.assertEquals(response.status_code, 404, "Rejects an invalid url")
-
-        response = c.delete(self.jpeg_url)
-        self.assertEquals(response.status_code, 404, "Rejects an invalid url")
-        
-        response = c.delete(self.png_url)
+        bad_url = "%s/image/aa" % self.url
+        response = c.delete(self.bad_url)
         self.assertEquals(response.status_code, 404, "Rejects an invalid url")
 
     def test_invalid_id_too_high(self):
@@ -59,18 +54,6 @@ class SpotImageDELETETest(unittest.TestCase):
         #GIF
         test_gif_id = self.gif.pk + 10000
         test_url = "/api/v1/spot/%s/image/%s" % (self.url, test_gif_id)
-        response = c.delete(test_url)
-        self.assertEquals(response.status_code, 404, "Rejects a not-yet existant url")
-
-        #JPEG
-        test_jpeg_id = self.jpeg.pk + 10000
-        test_url = "/api/v1/spot/%s/image/%s" % (self.url, test_jpeg_id)
-        response = c.delete(test_url)
-        self.assertEquals(response.status_code, 404, "Rejects a not-yet existant url")
-
-        #PNG
-        test_png_id = self.png.pk + 10000
-        test_url = "/api/v1/spot/%s/image/%s" % (self.url, test_png_id)
         response = c.delete(test_url)
         self.assertEquals(response.status_code, 404, "Rejects a not-yet existant url")
 

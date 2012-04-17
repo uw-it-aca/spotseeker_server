@@ -77,3 +77,45 @@ class SpotSearchFieldTest(unittest.TestCase):
         self.assertEquals(response.status_code, 200, "Accepts an invalid extended_info field in query")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
+    def test_multi_value_field(self):
+        natural = Spot.objects.create(name = "Has field value: natural")
+        attr = SpotExtendedInfo(key = "lightingmultifieldtest", value = "natural", spot = natural)
+        attr.save()
+
+        artificial = Spot.objects.create(name = "Has field value: artificial")
+        attr = SpotExtendedInfo(key = "lightingmultifieldtest", value = "artificial", spot = artificial)
+        attr.save()
+
+        other = Spot.objects.create(name = "Has field value: other")
+        attr = SpotExtendedInfo(key = "lightingmultifieldtest", value = "other", spot = other)
+        attr.save()
+
+        c = Client()
+        response = c.get("/api/v1/spot", { 'extended_info:lightingmultifieldtest':'natural'})
+        spots = json.loads(response.content)
+        self.assertEquals(len(spots), 1, 'Finds 1 match for lightingmultifieldtest - natural')
+        self.assertEquals(spots[0]['id'], natural.pk, "Finds natural light spot")
+
+        response = c.get("/api/v1/spot", { 'extended_info:lightingmultifieldtest':'artificial'})
+        spots = json.loads(response.content)
+        self.assertEquals(len(spots), 1, 'Finds 1 match for lightingmultifieldtest - artificial')
+        self.assertEquals(spots[0]['id'], artificial.pk, "Finds artificial light spot")
+
+        response = c.get("/api/v1/spot", { 'extended_info:lightingmultifieldtest':'other'})
+        spots = json.loads(response.content)
+        self.assertEquals(len(spots), 1, 'Finds 1 match for lightingmultifieldtest - other')
+        self.assertEquals(spots[0]['id'], other.pk, "Finds other light spot")
+
+        response = c.get("/api/v1/spot", { 'extended_info:lightingmultifieldtest':('other', 'natural')})
+        spots = json.loads(response.content)
+        self.assertEquals(len(spots), 2, 'Finds 2 match for lightingmultifieldtest - other + natural')
+
+        spot_ids = {
+            other.pk:1,
+            natural.pk:1,
+        }
+
+        for spot in spots:
+            self.assertEquals(spot_ids[spot['id']], 1, "Includes each spot, uniquely")
+            spot_ids[spot['id']] = 2
+

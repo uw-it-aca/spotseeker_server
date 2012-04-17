@@ -74,8 +74,8 @@ class SearchView(RESTDispatch):
                     has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {
-                    'spotextendedinfo__key'              : key[14:],
-                    'spotextendedinfo__value__icontains' : request.GET[key]
+                   'spotextendedinfo__key'              : key[14:],
+                   'spotextendedinfo__value__in' : request.GET.getlist(key)
                 }
                 query = query.filter(**kwargs)
                 has_valid_search_param = True

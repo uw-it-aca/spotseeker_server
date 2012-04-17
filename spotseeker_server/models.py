@@ -98,7 +98,7 @@ class SpotExtendedInfo(models.Model):
 
 class SpotImage(models.Model):
     description = models.CharField(max_length=200)
-    image = models.ImageField(upload_to="spot_images")
+    image = models.ImageField(upload_to="spot_images", height_field="height", width_field="width")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
@@ -106,7 +106,6 @@ class SpotImage(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
     etag = models.CharField(max_length=40)
-
 
     def rest_url(self):
         return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
@@ -128,9 +127,6 @@ class SpotImage(models.Model):
             raise ValidationError('Not an accepted image format')
 
         self.content_type = content_types[img.format]
-
-        self.width = img.size[0]
-        self.height = img.size[1]
 
         super(SpotImage, self).save(*args, **kwargs)
 

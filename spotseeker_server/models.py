@@ -9,8 +9,7 @@ from cStringIO import StringIO
 class Spot(models.Model):
     name = models.CharField(max_length=100)
     etag = models.CharField(max_length=40)
-    capacity = models.CharField(max_length=50)
-    display_hours_available = models.CharField(max_length=200)
+    capacity = models.IntegerField()
     display_access_restrictions = models.CharField(max_length=200)
     organization = models.CharField(max_length=50)
     manager = models.CharField(max_length=50)

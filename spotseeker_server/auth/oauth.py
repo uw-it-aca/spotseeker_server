@@ -22,6 +22,7 @@ except ImportError:
 
 def authenticate_application(func):
     def check_app(*args, **kwargs):
+        request = args[1]
         try:
             oauth_request = get_oauth_request(request)
             consumer = store.get_consumer(request, oauth_request, oauth_request['oauth_consumer_key'])
@@ -36,6 +37,7 @@ def authenticate_application(func):
 
 def authenticate_user(func):
     def check_user(*args, **kwargs):
+        request = args[1]
         try:
             oauth_request = get_oauth_request(request)
             consumer = store.get_consumer(request, oauth_request, oauth_request['oauth_consumer_key'])

@@ -1,9 +1,11 @@
 from django.utils import unittest
+from django.conf import settings
 import random
 
 from spotseeker_server.models import Spot
 
 class SpotModelTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_json(self):
         name = "This is a test spot: {0}".format(random.random())
 

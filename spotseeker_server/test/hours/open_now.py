@@ -1,4 +1,5 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
@@ -8,6 +9,7 @@ import datetime as alternate_date
 from time import *
 
 class SpotHoursOpenNowTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_open_now(self):
         open_spot = Spot.objects.create ( name = "This spot is open now" )
         no_hours_spot = Spot.objects.create( name = "This spot has no hours" )

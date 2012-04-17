@@ -1,10 +1,12 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
 
 class SpotPOSTTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_valid_json(self):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())

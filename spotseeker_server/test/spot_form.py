@@ -4,6 +4,7 @@ from spotseeker_server.forms.spot import SpotForm
 from django.conf import settings
 
 class SpotFormTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_default(self):
         form = SpotForm({})
         self.assertEqual(form.__class__, DefaultSpotForm({}).__class__, "Tests shouldn't be run with a defined SPOTSEEKER_SPOT_FORM")

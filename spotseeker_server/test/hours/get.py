@@ -1,9 +1,11 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 
 class SpotHoursGETTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
         spot = Spot.objects.create ( name = "This spot has available hours" )
         # Intentionally out of order - make sure windows are sorted, not just in db happenstance order

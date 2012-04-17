@@ -1,10 +1,12 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 from decimal import *
 
 class SpotSearchDistanceFieldTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_distances(self):
         # Spots are in the atlantic to make them less likely to collide with actual spots
         center_lat = 31.000000

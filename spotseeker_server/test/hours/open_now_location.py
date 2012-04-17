@@ -1,4 +1,5 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
@@ -9,6 +10,7 @@ from decimal import *
 from time import *
 
 class SpotHoursOpenNowLocationTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_open_now(self):
         open_in_range_spot = Spot.objects.create ( name = "This spot is open now", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )
         closed_in_range_spot = Spot.objects.create ( name = "This spot is closed now", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )

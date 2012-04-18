@@ -29,6 +29,9 @@ def authenticate_application(func):
             consumer = store.get_consumer(request, oauth_request, oauth_request['oauth_consumer_key'])
             verify_oauth_request(request, oauth_request, consumer)
 
+            request.META['SS_OAUTH_CONSUMER_NAME'] = consumer.name
+            request.META['SS_OAUTH_CONSUMER_PK'] = consumer.pk
+
             return func(*args, **kwargs)
         except Exception as e:
             response = HttpResponse("Error authorizing application")
@@ -53,6 +56,9 @@ def authenticate_user(func):
                 access_token = store.get_access_token(request, oauth_request, consumer, oauth_request[u'oauth_token'])
                 user = store.get_user_for_access_token(request, oauth_request, access_token)
 
+            request.META['SS_OAUTH_CONSUMER_NAME'] = consumer.name
+            request.META['SS_OAUTH_CONSUMER_PK'] = consumer.pk
+            request.META['SS_OAUTH_USER'] = user
 
             return func(*args, **kwargs)
         except Exception as e:

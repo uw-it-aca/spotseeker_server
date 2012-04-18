@@ -1,4 +1,5 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
 import random
@@ -7,6 +8,7 @@ from os.path import abspath, dirname
 TEST_ROOT = abspath(dirname(__file__))
 
 class SpotImagePOSTTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
         spot = Spot.objects.create( name = "This is to test adding images" )
         spot.save()

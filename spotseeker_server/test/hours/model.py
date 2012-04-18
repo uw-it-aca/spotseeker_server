@@ -1,8 +1,10 @@
 from django.utils import unittest
+from django.conf import settings
 import datetime
 from spotseeker_server.models import Spot, SpotAvailableHours
 
 class SpotHoursModelTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_startMatchesEnd(self):
         spot = Spot.objects.create(name = 'testing hours')
         try:

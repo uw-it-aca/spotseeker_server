@@ -1,9 +1,11 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 
 class SpotSearchFieldTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_fields(self):
         spot1 = Spot.objects.create(name = "This is a searchable Name - OUGL")
         spot1.save()

@@ -1,8 +1,10 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
 
 class SpotDELETETest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
         spot = Spot.objects.create( name = "This is for testing DELETE" )
         spot.save()

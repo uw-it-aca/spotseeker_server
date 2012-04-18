@@ -1,9 +1,11 @@
 from django.utils import unittest
+from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 
 class SpotHoursPUTTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
     def test_hours(self):
         spot = Spot.objects.create( name = "This spot has available hours" )

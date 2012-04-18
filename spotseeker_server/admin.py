@@ -1,7 +1,13 @@
 from django.contrib import admin
 from spotseeker_server.models import *
 
-admin.site.register(Spot)
+class SpotAdmin(admin.ModelAdmin):
+    exclude = ('etag',)
+admin.site.register(Spot, SpotAdmin)
+
 admin.site.register(SpotAvailableHours)
 admin.site.register(SpotExtendedInfo)
-admin.site.register(SpotImage)
+
+class SpotImageAdmin(admin.ModelAdmin):
+    exclude = ('content_type', 'width', 'height', 'etag',)
+admin.site.register(SpotImage, SpotImageAdmin)

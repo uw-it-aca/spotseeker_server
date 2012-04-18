@@ -7,12 +7,12 @@ from PIL import Image
 from cStringIO import StringIO
 
 class Spot(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, blank=True)
     etag = models.CharField(max_length=40)
-    capacity = models.IntegerField()
-    display_access_restrictions = models.CharField(max_length=200)
-    organization = models.CharField(max_length=50)
-    manager = models.CharField(max_length=50)
+    capacity = models.IntegerField(null=True, blank=True)
+    display_access_restrictions = models.CharField(max_length=200, blank=True)
+    organization = models.CharField(max_length=50, blank=True)
+    manager = models.CharField(max_length=50, blank=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
 
@@ -97,7 +97,7 @@ class SpotExtendedInfo(models.Model):
         return "%s[%s: %s]" % (self.spot, self.key, self.value)
 
 class SpotImage(models.Model):
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, blank=True)
     image = models.ImageField(upload_to="spot_images", height_field="height", width_field="width")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
@@ -120,8 +120,7 @@ class SpotImage(models.Model):
         if self.image.file.multiple_chunks():
             img = Image.open(self.image.file.temporary_file_path())
         else:
-            img = StringIO(self.image.file.read())
-            img = Image.open(img)
+            img = Image.open(self.image)
 
         if not img.format in content_types:
             raise ValidationError('Not an accepted image format')

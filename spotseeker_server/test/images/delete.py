@@ -20,7 +20,6 @@ class SpotImageDELETETest(unittest.TestCase):
         # GIF
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         gif = self.spot.spotimage_set.create( description = "This is the GIF test", image = File(f) )
-        gif.save()
         f.close()
 
         self.gif = gif
@@ -29,7 +28,6 @@ class SpotImageDELETETest(unittest.TestCase):
         # JPEG
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
         jpeg = self.spot.spotimage_set.create( description = "This is the JPEG test", image = File(f) )
-        jpeg.save()
         f.close()
 
         self.jpeg = jpeg
@@ -38,7 +36,6 @@ class SpotImageDELETETest(unittest.TestCase):
         # PNG
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
         png = self.spot.spotimage_set.create( description = "This is the PNG test", image = File(f) )
-        png.save()
         f.close()
 
         self.png = png
@@ -47,7 +44,7 @@ class SpotImageDELETETest(unittest.TestCase):
     def test_bad_url(self):
         c = Client()
         bad_url = "%s/image/aa" % self.url
-        response = c.delete(self.bad_url)
+        response = c.delete(bad_url)
         self.assertEquals(response.status_code, 404, "Rejects an invalid url")
 
     def test_invalid_id_too_high(self):

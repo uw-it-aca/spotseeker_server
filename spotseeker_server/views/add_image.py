@@ -31,8 +31,6 @@ class AddImageView(RESTDispatch):
         if "description" in request.POST:
             image.description = request.POST["description"]
 
-        image.save()
-
         response = HttpResponse()
         response.status_code = 201
         response["Location"] = image.rest_url()

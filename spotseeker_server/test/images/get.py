@@ -19,21 +19,18 @@ class SpotImageGETTest(unittest.TestCase):
 
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         gif = SpotImage.objects.create( description = "This is the GIF test", spot=spot, image = File(f) )
-        gif.save()
         f.close()
 
         self.gif = gif
 
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
         jpeg = SpotImage.objects.create( description = "This is the JPEG test", spot=spot, image = File(f) )
-        jpeg.save()
         f.close()
 
         self.jpeg = jpeg
 
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
         png = SpotImage.objects.create( description = "This is the PNG test", spot=spot, image = File(f) )
-        png.save()
         f.close()
 
         self.png = png

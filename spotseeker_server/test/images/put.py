@@ -4,13 +4,14 @@ from django.test.client import Client
 from django.core.files import File
 from spotseeker_server.models import Spot, SpotImage
 from os.path import abspath, dirname
+import random
 
 TEST_ROOT = abspath(dirname(__file__))
 
 class SpotImagePUTTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
-        spot = Spot.objects.create( name = "This is to test PUTtingimages" )
+        spot = Spot.objects.create( name = "This is to test PUTtingimages", capacity=1 )
         spot.save()
         self.spot = spot
 
@@ -20,7 +21,6 @@ class SpotImagePUTTest(unittest.TestCase):
         # GIF
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         gif = self.spot.spotimage_set.create( description = "This is the GIF test", image = File(f) )
-        gif.save()
         f.close()
 
         self.gif = gif
@@ -29,7 +29,6 @@ class SpotImagePUTTest(unittest.TestCase):
         # JPEG
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
         jpeg = self.spot.spotimage_set.create( description = "This is the JPEG test", image = File(f) )
-        jpeg.save()
         f.close()
 
         self.jpeg = jpeg
@@ -38,27 +37,10 @@ class SpotImagePUTTest(unittest.TestCase):
         # PNG
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
         png = self.spot.spotimage_set.create( description = "This is the PNG test", image = File(f) )
-        png.save()
         f.close()
 
         self.png = png
         self.png_url = "%s/image/%s" % (self.url, self.png.pk)
-
-
-    def test_bad_json(self):
-        c = Client()
-
-        #GIF
-        response = c.put(self.gif_url, 'this is just text', content_type="application/json", If_Match = self.spot.etag)
-        self.assertEquals(response.status_code, 400, "Rejects non-json")
-
-        #JPEG
-        response = c.put(self.jpeg_url, 'this is just text', content_type="application/json", If_Match = self.spot.etag)
-        self.assertEquals(response.status_code, 400, "Rejects non-json")
-
-        #PNG
-        response = c.put(self.png_url, 'this is just text', content_type="application/json", If_Match = self.spot.etag)
-        self.assertEquals(response.status_code, 400, "Rejects non-json")
 
 
     def test_invalid_url(self):
@@ -76,15 +58,33 @@ class SpotImagePUTTest(unittest.TestCase):
         self.assertEquals(response.status_code, 404, "Rejects an id that doesn't exist yet (no PUT to create)")
 
 
-    def test_empty_json(self):
+    def test_valid_image_no_etag(self):
         c = Client()
         #GIF
-        response = c.put(self.gif_url, '{}', content_type="application/json", If_Match = self.gif.etag)
-        self.assertEquals(response.status_code, 400, "Rejects an empty body")
+        #TODO: these actually need to try putting a different img, not the same one
+        f = open("%s/../resources/test_gif2.gif" % TEST_ROOT)
+        new_gif_name = "testing PUT name: {0}".format(random.random())
+        response = c.put(self.gif_url, { "description": new_gif_name, "image": f })
+        self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+
+        updated_img = SpotImage.objects.get(pk=self.gif.pk)
+        self.assertEquals(updated_img.image, self.gif.image, "No etag - same image")
+
         #JPEG
-        response = c.put(self.jpeg_url, '{}', content_type="application/json", If_Match = self.jpeg.etag)
-        self.assertEquals(response.status_code, 400, "Rejects an empty body")
+        f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
+        new_jpeg_name = "testing PUT name: {0}".format(random.random())
+        response = c.put(self.gif_url, { "description": new_jpeg_name, "image": f })
+        self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+
+        updated_img = SpotImage.objects.get(pk=self.jpeg.pk)
+        self.assertEquals(updated_img.image, self.jpeg.name, "No etag - same image")
+
         #PNG
-        response = c.put(self.png_url, '{}', content_type="application/json", If_Match = self.png.etag)
-        self.assertEquals(response.status_code, 400, "Rejects an empty body")
+        f = open("%s/../resources/test_png2.jpg" % TEST_ROOT)
+        new_png_name = "testing PUT name: {0}".format(random.random())
+        response = c.put(self.gif_url, { "description": new_png_name, "image": f })
+        self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+
+        updated_img = SpotImage.objects.get(pk=self.png.pk)
+        self.assertEquals(updated_img.image, self.png.name, "No etag - same image")
 

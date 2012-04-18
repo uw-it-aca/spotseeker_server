@@ -13,6 +13,7 @@ from django.http import HttpResponse
 
 from oauth_provider.utils import get_oauth_request, verify_oauth_request
 from oauth_provider.store import store, InvalidConsumerError, InvalidTokenError
+from spotseeker_server.models import TrustedOAuthClient
 
 # w/ Python 2.4 fallback
 try:
@@ -43,10 +44,15 @@ def authenticate_user(func):
             consumer = store.get_consumer(request, oauth_request, oauth_request['oauth_consumer_key'])
             verify_oauth_request(request, oauth_request, consumer)
 
-            # XXX - if consumer is trusted, return here
+            # Allow a trusted client to either give us a user via header, or do the 3-legged oauth
+            trusted_client = TrustedOAuthClient.objects.get(consumer = consumer)
+            if trusted_client and trusted_client.is_trusted:
+                user = request.META["HTTP_XOAUTH_USER"];
 
-            access_token = store.get_access_token(request, oauth_request, consumer, oauth_request[u'oauth_token'])
-            user = store.get_user_for_access_token(request, oauth_request, access_token)
+            if not user:
+                access_token = store.get_access_token(request, oauth_request, consumer, oauth_request[u'oauth_token'])
+                user = store.get_user_for_access_token(request, oauth_request, access_token)
+
 
             return func(*args, **kwargs)
         except Exception as e:

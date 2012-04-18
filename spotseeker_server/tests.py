@@ -21,6 +21,8 @@ from spotseeker_server.test.hours.post import SpotHoursPOSTTest
 from spotseeker_server.test.hours.open_now import SpotHoursOpenNowTest
 from spotseeker_server.test.hours.open_now_location import SpotHoursOpenNowLocationTest
 from spotseeker_server.test.hours.open_now_location_attributes import SpotHoursOpenNowLocationAttributesTest
+from spotseeker_server.test.auth.all_ok import SpotAuthAllOK
+from spotseeker_server.test.auth.oauth import SpotAuthOAuth
 
 class SpotSeekerTests(unittest.TestCase):
     def suite(self):
@@ -42,5 +44,7 @@ class SpotSeekerTests(unittest.TestCase):
         suite.addTest(SpotHoursOpenNowTest())
         suite.addTest(SpotHoursOpenNowLocationTest())
         suite.addTest(SpotHoursOpenNowLocationAttributesTest())
+        suite.addTest(SpotAuthAllOK())
+        suite.addTest(SpotAuthOAuth())
 
 

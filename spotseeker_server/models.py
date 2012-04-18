@@ -6,6 +6,12 @@ import random
 from PIL import Image
 from cStringIO import StringIO
 
+try:
+    import oauth_provider.models
+    has_oauth = True
+except:
+    has_oauth = False
+
 class Spot(models.Model):
     name = models.CharField(max_length=100)
     etag = models.CharField(max_length=40)
@@ -130,4 +136,8 @@ class SpotImage(models.Model):
 
         super(SpotImage, self).save(*args, **kwargs)
 
+class TrustedOAuthClient(models.Model):
+    if has_oauth:
+        consumer = models.ForeignKey(oauth_provider.models.Consumer)
+    is_trusted = models.BooleanField()
 

@@ -10,9 +10,10 @@ class SpotPOSTTest(unittest.TestCase):
     def test_valid_json(self):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
-        new_capacity = "testing POST capacity: {0}".format(random.random())
+        new_capacity = 10
         response = c.post('/api/v1/spot/', '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", follow=False)
 
+        print response
         self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
         # XXX - I'm not sure if anything below here is valid

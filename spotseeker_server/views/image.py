@@ -64,6 +64,31 @@ class ImageView(RESTDispatch):
         return self.GET(request, spot_id, image_id)
 
 
+    @user_auth_required
+    def DELETE(self, request, spot_id, image_id):
+        try:
+            img = SpotImage.objects.get(pk=image_id)
+            spot = img.spot
+
+            if int(spot.pk) != int(spot_id):
+                raise Exception("Image Spot ID doesn't match spot id in url")
+
+            error_response = self.validate_etag(request, img)
+            if error_response:
+                return error_response
+
+        except Exception as e:
+            response = HttpResponse('{"error":"Bad Image URL"}')
+            response.status_code = 404
+            return response
+
+        img.delete()
+
+        response = HttpResponse("")
+        response.status_code = 200
+
+        return response
+
     # Utility methods...
     def validate_etag(self, request, img):
         if not "If_Match" in request.META:

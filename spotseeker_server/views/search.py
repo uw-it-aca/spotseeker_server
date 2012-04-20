@@ -55,7 +55,9 @@ class SearchView(RESTDispatch):
 
         # Exclude things that get special consideration here, otherwise add a filter for the keys
         for key in request.GET:
-            if key == "distance":
+            if re.search('^oauth_', key):
+                pass
+            elif key == "distance":
                 pass
             elif key == "center_latitude":
                 pass

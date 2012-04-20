@@ -39,7 +39,7 @@ class SpotPUTTest(unittest.TestCase):
     def test_valid_json_no_etag(self):
         c = Client()
         new_name = "testing PUT name: {0}".format(random.random())
-        new_capacity = "testing PUT capacity: {0}".format(random.random())
+        new_capacity = 10
         response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json")
         self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
 
@@ -50,7 +50,7 @@ class SpotPUTTest(unittest.TestCase):
     def test_valid_json_valid_etag(self):
         c = Client()
         new_name = "testing PUT name: {0}".format(random.random())
-        new_capacity = "testing PUT capacity: {0}".format(random.random())
+        new_capacity = 20
 
         response = c.get(self.url)
         etag = response["ETag"]
@@ -65,7 +65,7 @@ class SpotPUTTest(unittest.TestCase):
     def test_valid_json_outdated_etag(self):
         c = Client()
         new_name = "testing PUT name: {0}".format(random.random())
-        new_capacity = "testing PUT capacity: {0}".format(random.random())
+        new_capacity = 30
 
         response = c.get(self.url)
         etag = response["ETag"]

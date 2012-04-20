@@ -6,12 +6,13 @@ import simplejson as json
 
 class SpotHoursPOSTTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+    settings.SPOTSEEKER_SPOT_FORM = 'spotseeker_server.default_forms.spot.DefaultSpotForm';
 
     def test_hours(self):
 
         post_obj = {
             'name': "This spot has available hours",
-            'capacity': "4",
+            'capacity': 4,
             'available_hours': {
                 'monday': [ [ "00:00", "10:00" ], [ "11:00", "14:00" ] ],
                 'tuesday': [ [ "11:00", "14:00" ] ],

@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.utils.importlib import import_module
+from django.core.exceptions import ImproperlyConfigured
 import spotseeker_server.auth.all_ok
 
 try: from functools import wraps

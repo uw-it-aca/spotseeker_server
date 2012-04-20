@@ -8,8 +8,6 @@ except ImportError: from django.utils.functional import wraps # Python 2.4 fallb
 from django.conf import settings
 
 def app_auth_required(func):
-    print "In app_auth_required - ", settings.SPOTSEEKER_AUTH_MODULE
-    print func
 
     def _checkAuth(*args, **kwargs):
         if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
@@ -37,7 +35,6 @@ def app_auth_required(func):
 
 
 def user_auth_required(func):
-    print "In user_auth_required - ", settings.SPOTSEEKER_AUTH_MODULE
 
     def _checkAuth(*args, **kwargs):
         if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):

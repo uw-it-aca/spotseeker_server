@@ -33,7 +33,7 @@ class SpotDELETETest(unittest.TestCase):
 
         response = c.delete(self.url, If_Match=etag)
 
-        self.assertEquals(response.status_code, 410, "Gives a GONE in response to a valid delete")
+        self.assertEquals(response.status_code, 200, "Gives a GONE in response to a valid delete")
 
         response = c.get(self.url)
         self.assertEquals(response.status_code, 404, "Gives a 404 on GET after a delete")

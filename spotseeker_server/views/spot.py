@@ -70,7 +70,7 @@ class SpotView(RESTDispatch):
 
         spot.delete()
         response = HttpResponse()
-        response.status_code = 410
+        response.status_code = 200
         return response
 
     # These are utility methods for the HTTP methods

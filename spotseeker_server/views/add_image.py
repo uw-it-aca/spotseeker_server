@@ -15,7 +15,6 @@ class AddImageView(RESTDispatch):
             response.status_code = 404
             return response
 
-
         if not "image" in request.FILES:
             response = HttpResponse('"error":"No image"}')
             response.status_code = 400

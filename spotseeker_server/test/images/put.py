@@ -4,6 +4,7 @@ from django.test.client import Client
 from django.core.files import File
 from spotseeker_server.models import Spot, SpotImage
 from os.path import abspath, dirname
+import os
 import random
 
 TEST_ROOT = abspath(dirname(__file__))
@@ -57,11 +58,46 @@ class SpotImagePUTTest(unittest.TestCase):
         response = c.put(test_url, '{}', content_type="application/json")
         self.assertEquals(response.status_code, 404, "Rejects an id that doesn't exist yet (no PUT to create)")
 
+    def test_valid_same_type_with_etag(self):
+        c = Client()
+        response = c.get(self.jpeg_url)
+        etag = response["etag"]
 
-    def test_valid_image_no_etag(self):
+        f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
+        f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+
+        new_jpeg_name = "testing PUT name: {0}".format(random.random())
+
+        response = c.put(self.jpeg_url, { "description": new_jpeg_name, "image": f }, If_Match=etag)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(int(response["content-length"]), os.fstat(f.fileno()).st_size, "Loaded the new image")
+        self.assertNotEqual(int(response["content-length"]), os.fstat(f2.fileno()).st_size, "Size doesn't match the original image")
+        self.assertEquals(response["content-type"], "image/jpeg", "Has the right content type")
+
+    def test_valid_different_image_type_valid_etag(self):
+        c = Client()
+        response = c.get(self.gif_url)
+        etag = response["etag"]
+
+        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+
+        new_name = "testing PUT name: {0}".format(random.random())
+
+        response = c.put(self.gif_url, { "description": new_name, "image": f }, If_Match=etag)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(int(response["content-length"]), os.fstat(f.fileno()).st_size, "Loaded the new image")
+        self.assertNotEqual(int(response["content-length"]), os.fstat(f2.fileno()).st_size, "Size doesn't match the original image")
+        self.assertEquals(response["content-type"], "image/png", "Has the right content type")
+
+        # Just to be sure
+        response = c.get(self.gif_url)
+        self.assertEquals(response["content-type"], "image/png", "Has the right content type")
+
+    # Want this to be one of the first tests to run
+    def test_a_valid_image_no_etag(self):
         c = Client()
         #GIF
-        #TODO: these actually need to try putting a different img, not the same one
         f = open("%s/../resources/test_gif2.gif" % TEST_ROOT)
         new_gif_name = "testing PUT name: {0}".format(random.random())
         response = c.put(self.gif_url, { "description": new_gif_name, "image": f })
@@ -77,14 +113,21 @@ class SpotImagePUTTest(unittest.TestCase):
         self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
 
         updated_img = SpotImage.objects.get(pk=self.jpeg.pk)
-        self.assertEquals(updated_img.image, self.jpeg.name, "No etag - same image")
+        self.assertEquals(updated_img.description, self.jpeg.description, "No etag - same image")
 
         #PNG
-        f = open("%s/../resources/test_png2.jpg" % TEST_ROOT)
+        f = open("%s/../resources/test_png2.png" % TEST_ROOT)
         new_png_name = "testing PUT name: {0}".format(random.random())
         response = c.put(self.gif_url, { "description": new_png_name, "image": f })
         self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
 
         updated_img = SpotImage.objects.get(pk=self.png.pk)
-        self.assertEquals(updated_img.image, self.png.name, "No etag - same image")
+        self.assertEquals(updated_img.description, self.png.description, "No etag - same image")
+
+        response = c.get(self.gif_url)
+        content_length = response["content-length"]
+        self.assertNotEqual(os.fstat(f.fileno()).st_size, int(content_length), "Content length doesn't match new png")
+
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        self.assertEquals(os.fstat(f.fileno()).st_size, int(content_length), "Content length does match original gif")
 

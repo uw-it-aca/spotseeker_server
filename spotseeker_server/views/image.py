@@ -25,5 +25,56 @@ class ImageView(RESTDispatch):
             response.status_code = 404
             return response
 
-        return HttpResponse("This should be image data.  spot id: "+spot_id+" image id: "+image_id)
+    @user_auth_required
+    def PUT(self, request, spot_id, image_id):
+        try:
+            img = SpotImage.objects.get(pk=image_id)
+            spot = img.spot
+
+            if int(spot.pk) != int(spot_id):
+                raise Exception("Image Spot ID doesn't match spot id in url")
+
+            error_response = self.validate_etag(request, img)
+            if error_response:
+                return error_response
+
+        except Exception as e:
+            response = HttpResponse('{"error":"Bad Image URL"}')
+            response.status_code = 404
+            return response
+
+
+        # This trick was taken from piston
+        request.method = "POST"
+        request._load_post_and_files()
+        request.method = "PUT"
+
+        if "image" in request.FILES:
+            try:
+                img.image = request.FILES["image"]
+                img.save()
+            except ValidationError:
+                response = HttpResponse('"error":"Not an accepted image format"}')
+                response.status_code = 400
+                return response
+
+        if "description" in request.POST:
+            img.description = request.POST["description"]
+
+        return self.GET(request, spot_id, image_id)
+
+
+    # Utility methods...
+    def validate_etag(self, request, img):
+        if not "If_Match" in request.META:
+            response = HttpResponse('{"error":"If-Match header required"}')
+            response.status_code = 409
+            return response
+
+        if request.META["If_Match"] != img.etag:
+            response = HttpResponse('{"error":"Invalid ETag"}')
+            response.status_code = 409
+            return response
+
+
 

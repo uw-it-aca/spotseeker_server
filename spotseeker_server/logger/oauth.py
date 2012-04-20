@@ -17,7 +17,13 @@ class LogMiddleware:
         request_method = request.META['REQUEST_METHOD']
 
         response_status = response.status_code
-        response_length = len(response.content)
+
+        # response.content will empty out the FileWrapper object on file downloads -
+        # those views need to correctly set their own content length
+        if 'Content-Length' in response:
+            response_length = response["Content-Length"]
+        else:
+            response_length = len(response.content)
 
         oauth_app_pk = "-"
         oauth_app_name = "-"

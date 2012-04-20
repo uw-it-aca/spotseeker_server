@@ -4,6 +4,9 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 from cStringIO import StringIO
 from PIL import Image
+from os.path import abspath, dirname
+
+TEST_ROOT = abspath(dirname(__file__))
 
 class ImageThumbTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
@@ -17,7 +20,7 @@ class ImageThumbTest(unittest.TestCase):
 
     def test_jpeg_thumbs(self):
         c = Client()
-        f = open('test/resources/test_jpeg.jpg')
+        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is a jpeg", "image": f })
         f.close()
 
@@ -86,7 +89,7 @@ class ImageThumbTest(unittest.TestCase):
 
     def test_png_thumbs(self):
         c = Client()
-        f = open('test/resources/test_png.png')
+        f = open("%s/../resources/test_png.png" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is a png", "image": f })
         f.close()
 
@@ -155,7 +158,7 @@ class ImageThumbTest(unittest.TestCase):
 
     def test_gif_thumbs(self):
         c = Client()
-        f = open('test/resources/test_gif.gif')
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         response = c.post(self.url, { "description": "This is a gif", "image": f })
         f.close()
 

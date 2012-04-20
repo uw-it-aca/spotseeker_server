@@ -11,22 +11,10 @@ try:
 except ImportError:
     from django.utils.functional import wraps
 
-def authenticate_application(func):
-    """
-    This method wraps the view function with the method
-    that actually checks the application auth
-    """
-    def check_app(*args, **kwargs):
-        """ This always allows requests through """
-        return func(*args, **kwargs)
-    return wraps(func)(check_app)
+def authenticate_application(*args, **kwargs):
+    """ This always allows requests through """
+    return
 
-def authenticate_user(func):
-    """
-    This method wraps the view function with the method
-    that actually checks the application/user auth
-    """
-    def check_user(*args, **kwargs):
-        """ This always allows requests through """
-        return func(*args, **kwargs)
-    return wraps(func)(check_user)
+def authenticate_user(*args, **kwargs):
+    """ This always allows requests through """
+    return

@@ -20,7 +20,8 @@ def authenticate_application(*args, **kwargs):
     request = args[1]
     try:
         oauth_request = get_oauth_request(request)
-        consumer = store.get_consumer(request, oauth_request, oauth_request['oauth_consumer_key'])
+        consumer = store.get_consumer(request, oauth_request, 
+                                      oauth_request['oauth_consumer_key'])
         verify_oauth_request(request, oauth_request, consumer)
 
         request.META['SS_OAUTH_CONSUMER_NAME'] = consumer.name
@@ -32,15 +33,18 @@ def authenticate_application(*args, **kwargs):
         response.status_code = 401
         return response
 
+
 def authenticate_user(*args, **kwargs):
     request = args[1]
     try:
         oauth_request = get_oauth_request(request)
-        consumer = store.get_consumer(request, oauth_request, oauth_request['oauth_consumer_key'])
+        consumer = store.get_consumer(request, oauth_request, 
+                                      oauth_request['oauth_consumer_key'])
         verify_oauth_request(request, oauth_request, consumer)
 
-        # Allow a trusted client to either give us a user via header, or do the 3-legged oauth
-        trusted_client = TrustedOAuthClient.objects.get(consumer = consumer)
+        # Allow a trusted client to either give us a user via header, or do the 
+        # 3-legged oauth
+        trusted_client = TrustedOAuthClient.objects.get(consumer=consumer)
         if trusted_client and trusted_client.is_trusted:
             user = request.META["HTTP_XOAUTH_USER"];
 

@@ -12,6 +12,7 @@ try:
 except:
     has_oauth = False
 
+
 class Spot(models.Model):
     name = models.CharField(max_length=100, blank=True)
     etag = models.CharField(max_length=40)
@@ -64,9 +65,10 @@ class Spot(models.Model):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         super(Spot, self).save(*args, **kwargs)
 
+
 class SpotAvailableHours(models.Model):
     spot = models.ForeignKey(Spot)
-    day = models.CharField(max_length=3, choices = (
+    day = models.CharField(max_length=3, choices=(
         ('m', 'monday'),
         ('t', 'tuesday'),
         ('w', 'wednesday'),
@@ -91,6 +93,7 @@ class SpotAvailableHours(models.Model):
     def __unicode__(self):
         return "%s: %s-%s" % (self.day, self.start_time, self.end_time)
 
+
 class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=200)
@@ -102,9 +105,11 @@ class SpotExtendedInfo(models.Model):
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot, self.key, self.value)
 
+
 class SpotImage(models.Model):
     description = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to="spot_images", height_field="height", width_field="width")
+    image = models.ImageField(upload_to="spot_images", height_field="height", 
+                              width_field="width")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
@@ -120,9 +125,11 @@ class SpotImage(models.Model):
         return self.description
 
     def save(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), 
+                                                    time.time())).hexdigest()
 
-        content_types = { "JPEG":"image/jpeg", "GIF":"image/gif", "PNG":"image/png" }
+        content_types = {"JPEG": "image/jpeg", "GIF": "image/gif", 
+                         "PNG": "image/png"}
         if self.image.file.multiple_chunks():
             img = Image.open(self.image.file.temporary_file_path())
         else:
@@ -135,8 +142,8 @@ class SpotImage(models.Model):
 
         super(SpotImage, self).save(*args, **kwargs)
 
+
 class TrustedOAuthClient(models.Model):
     if has_oauth:
         consumer = models.ForeignKey(oauth_provider.models.Consumer)
     is_trusted = models.BooleanField()
-

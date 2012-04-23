@@ -25,8 +25,7 @@ def app_auth_required(func):
             try:
                 method = getattr(mod, "authenticate_application")
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a 
-                                           "authenticate_application" method.' % module)
+                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_application" method.' % module)
 
             bad_response = method(*args, **kwargs)
         else:
@@ -53,8 +52,7 @@ def user_auth_required(func):
             try:
                 method = getattr(mod, "authenticate_user")
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a 
-                                           "authenticate_user" method.' % module)
+                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_user" method.' % module)
 
             bad_response = method(*args, **kwargs)
         else:

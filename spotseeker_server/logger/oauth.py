@@ -8,6 +8,7 @@ info about the OAuth apps.  This is the format:
 from datetime import datetime
 import logging
 
+
 class LogMiddleware:
     def __init__(self):
         self.logger = logging.getLogger(__name__)

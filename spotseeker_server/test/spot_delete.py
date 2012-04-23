@@ -3,10 +3,12 @@ from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
 
+
 class SpotDELETETest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+
     def setUp(self):
-        spot = Spot.objects.create( name = "This is for testing DELETE" )
+        spot = Spot.objects.create(name="This is for testing DELETE")
         spot.save()
         self.spot = spot
 
@@ -72,4 +74,3 @@ class SpotDELETETest(unittest.TestCase):
 
         response = c.get(self.url)
         self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
-

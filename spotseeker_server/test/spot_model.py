@@ -4,8 +4,10 @@ import random
 
 from spotseeker_server.models import Spot
 
+
 class SpotModelTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+
     def test_json(self):
         name = "This is a test spot: {0}".format(random.random())
 
@@ -20,4 +22,3 @@ class SpotModelTest(unittest.TestCase):
 
         self.assertEqual(json_data["name"], name, "The json structure has the right name")
         self.assertEqual(json_data["id"], saved_id, "The json structure has the right id")
-

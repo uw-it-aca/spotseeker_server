@@ -5,8 +5,10 @@ from spotseeker_server.models import Spot
 import simplejson as json
 import random
 
+
 class SpotPOSTTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+
     def test_valid_json(self):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
@@ -19,7 +21,7 @@ class SpotPOSTTest(unittest.TestCase):
         self.assertIn("Location", response, "The response has a location header")
 
         # Assuming tests are sequential - make a spot, and the spot before it should be the POST
-        next_spot = Spot.objects.create(name = "This is just to get the id")
+        next_spot = Spot.objects.create(name="This is just to get the id")
         next_spot.save()
 
         next_pk = next_spot.pk
@@ -45,5 +47,3 @@ class SpotPOSTTest(unittest.TestCase):
         c = Client()
         response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
         self.assertEquals(response.status_code, 400)
-
-

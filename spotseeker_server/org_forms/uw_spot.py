@@ -2,6 +2,7 @@ from django import forms
 from spotseeker_server.models import Spot
 import simplejson as json
 
+
 class ExtendedInfoField(forms.Field):
     def validate(self, value):
         if value == None:
@@ -11,10 +12,10 @@ class ExtendedInfoField(forms.Field):
 
         return True
 
+
 class UWSpotForm(forms.Form):
     class Meta:
         model = Spot
         fields = ('name', 'capacity')
 
     extended_info = ExtendedInfoField()
-

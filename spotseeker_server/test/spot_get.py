@@ -4,10 +4,12 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 
+
 class SpotGETTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+
     def setUp(self):
-        spot = Spot.objects.create( name = "This is for testing GET" )
+        spot = Spot.objects.create(name="This is for testing GET")
         spot.save()
         self.spot = spot
 
@@ -37,7 +39,7 @@ class SpotGETTest(unittest.TestCase):
     def test_invalid_params(self):
         c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
-        response = c.get(url, {'bad_param':'does not exist'},)
+        response = c.get(url, {'bad_param': 'does not exist'},)
         self.assertEquals(response.status_code, 200, "Accepts a query string")
         spot_dict = json.loads(response.content)
         returned_spot = Spot.objects.get(pk=spot_dict['id'])

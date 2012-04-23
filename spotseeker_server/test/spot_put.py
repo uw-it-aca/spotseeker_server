@@ -4,10 +4,12 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import random
 
+
 class SpotPUTTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+
     def setUp(self):
-        spot = Spot.objects.create( name = "This is for testing PUT" )
+        spot = Spot.objects.create(name="This is for testing PUT")
         spot.save()
         self.spot = spot
 
@@ -16,7 +18,7 @@ class SpotPUTTest(unittest.TestCase):
 
     def test_bad_json(self):
         c = Client()
-        response = c.put(self.url, 'this is just text', content_type="application/json", If_Match = self.spot.etag)
+        response = c.put(self.url, 'this is just text', content_type="application/json", If_Match=self.spot.etag)
         self.assertEquals(response.status_code, 400, "Rejects non-json")
 
     def test_invalid_url(self):
@@ -33,7 +35,7 @@ class SpotPUTTest(unittest.TestCase):
 
     def test_empty_json(self):
         c = Client()
-        response = c.put(self.url, '{}', content_type="application/json", If_Match = self.spot.etag)
+        response = c.put(self.url, '{}', content_type="application/json", If_Match=self.spot.etag)
         self.assertEquals(response.status_code, 400, "Rejects an empty body")
 
     def test_valid_json_no_etag(self):
@@ -55,7 +57,7 @@ class SpotPUTTest(unittest.TestCase):
         response = c.get(self.url)
         etag = response["ETag"]
 
-        response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", If_Match=etag )
+        response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", If_Match=etag)
         self.assertEquals(response.status_code, 200, "Accepts a valid json string")
 
         updated_spot = Spot.objects.get(pk=self.spot.pk)
@@ -80,5 +82,3 @@ class SpotPUTTest(unittest.TestCase):
         updated_spot = Spot.objects.get(pk=self.spot.pk)
         self.assertEquals(updated_spot.name, intermediate_spot.name, "keeps the intermediate name w/ an outdated etag")
         self.assertEquals(updated_spot.capacity, intermediate_spot.capacity, "keeps the intermediate capacity w/ an outdate etag")
-
-

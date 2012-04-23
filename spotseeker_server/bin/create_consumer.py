@@ -12,4 +12,3 @@ consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
 
 print "Key: ", key
 print "Secret: ", secret
-

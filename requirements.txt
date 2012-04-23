@@ -3,3 +3,5 @@ South
 simplejson
 PIL
 pyproj
+oauth2
+oauth_provider

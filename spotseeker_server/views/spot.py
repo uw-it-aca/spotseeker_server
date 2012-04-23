@@ -6,6 +6,7 @@ from spotseeker_server.require_auth import *
 import simplejson as json
 from django.db import transaction
 
+
 class SpotView(RESTDispatch):
     @app_auth_required
     def GET(self, request, spot_id):
@@ -19,8 +20,6 @@ class SpotView(RESTDispatch):
             response = HttpResponse("Spot not found")
             response.status_code = 404
             return response
-
-
 
     @user_auth_required
     def POST(self, request):
@@ -62,7 +61,6 @@ class SpotView(RESTDispatch):
             response = HttpResponse('{"error":"Spot not found"}')
             response.status_code = 404
             return response
-
 
         error_response = self.validate_etag(request, spot)
         if error_response:
@@ -110,10 +108,14 @@ class SpotView(RESTDispatch):
 
         if "available_hours" in new_values:
             available_hours = new_values["available_hours"]
-            for day in [[ "m", "monday"], ["t", "tuesday"], ["w", "wednesday"], ["th", "thursday"], ["f", "friday"], ["sa", "saturday"], ["su", "sunday"]]:
+            for day in [["m", "monday"], 
+                        ["t", "tuesday"], 
+                        ["w", "wednesday"], 
+                        ["th", "thursday"], 
+                        ["f", "friday"], 
+                        ["sa", "saturday"], 
+                        ["su", "sunday"]]:
                 if day[1] in available_hours:
                     day_hours = available_hours[day[1]]
                     for window in day_hours:
-                        SpotAvailableHours.objects.create(spot = spot, day=day[0], start_time = window[0], end_time = window[1])
-
-
+                        SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])

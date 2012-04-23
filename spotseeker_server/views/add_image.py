@@ -1,9 +1,10 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
-from spotseeker_server.models import SpotImage, Spot#, UploadTestImage
+from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 from spotseeker_server.require_auth import *
 from PIL import Image
+
 
 class AddImageView(RESTDispatch):
     @user_auth_required
@@ -21,7 +22,7 @@ class AddImageView(RESTDispatch):
             return response
 
         try:
-            image = spot.spotimage_set.create( image=request.FILES["image"] )
+            image = spot.spotimage_set.create(image=request.FILES["image"])
         except ValidationError:
             response = HttpResponse('"error":"Not an accepted image format"}')
             response.status_code = 400
@@ -39,5 +40,3 @@ class AddImageView(RESTDispatch):
         response["Location"] = image.rest_url()
 
         return response
-
-

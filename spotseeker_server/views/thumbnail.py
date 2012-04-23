@@ -5,6 +5,7 @@ from spotseeker_server.require_auth import *
 from cStringIO import StringIO
 import Image
 
+
 class ThumbnailView(RESTDispatch):
     @app_auth_required
     def GET(self, request, spot_id, image_id, thumb_width, thumb_height):
@@ -40,5 +41,3 @@ class ThumbnailView(RESTDispatch):
         response = HttpResponse(tmp.getvalue())
         response["Content-type"] = img.content_type
         return response
-
-

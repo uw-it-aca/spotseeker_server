@@ -11,6 +11,7 @@ import re
 from time import *
 from datetime import datetime
 
+
 class SearchView(RESTDispatch):
     @user_auth_required
     def POST(self, request):
@@ -29,14 +30,13 @@ class SearchView(RESTDispatch):
 
         query = Spot.objects.all()
 
-
         if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
             try:
                 g = Geod(ellps='clrk66')
                 top = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 0, request.GET['distance'])
                 right = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 90, request.GET['distance'])
                 bottom = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 180, request.GET['distance'])
-                left  = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 270, request.GET['distance'])
+                left = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 270, request.GET['distance'])
 
                 top_limit = "%.8f" % top[1]
                 bottom_limit = "%.8f" % bottom[1]
@@ -76,15 +76,15 @@ class SearchView(RESTDispatch):
                     has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {
-                   'spotextendedinfo__key'              : key[14:],
-                   'spotextendedinfo__value__in' : request.GET.getlist(key)
+                   'spotextendedinfo__key': key[14:],
+                   'spotextendedinfo__value__in': request.GET.getlist(key)
                 }
                 query = query.filter(**kwargs)
                 has_valid_search_param = True
             else:
                 try:
                     kwargs = {
-                        '%s__icontains' % key : request.GET[key]
+                        '%s__icontains' % key: request.GET[key]
                     }
                     query = query.filter(**kwargs)
                     has_valid_search_param = True
@@ -103,7 +103,7 @@ class SearchView(RESTDispatch):
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)
-            sorted_list.sort(lambda x, y : cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
+            sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
             query = sorted_list[:limit]
 
         response = []
@@ -115,6 +115,5 @@ class SearchView(RESTDispatch):
 
     def distance(self, spot, longitude, latitude):
         g = Geod(ellps='clrk66')
-        az12,az21,dist = g.inv(spot.longitude,spot.latitude,longitude,latitude)
+        az12, az21, dist = g.inv(spot.longitude,spot.latitude,longitude,latitude)
         return dist
-

@@ -23,6 +23,13 @@ class Spot(models.Model):
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
 
+    def __unicode__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        super(Spot, self).save(*args, **kwargs)
+
     def rest_url(self):
         return "/api/v1/spot/{0}".format(self.pk)
 
@@ -58,13 +65,6 @@ class Spot(models.Model):
             "available_hours": available_hours,
         }
 
-    def __unicode__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-        super(Spot, self).save(*args, **kwargs)
-
 
 class SpotAvailableHours(models.Model):
     spot = models.ForeignKey(Spot)
@@ -76,7 +76,7 @@ class SpotAvailableHours(models.Model):
         ('f', 'friday'),
         ('sa', 'saturday'),
         ('su', 'sunday'),
-    ), null=False, blank=False)
+    ))
 
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -84,14 +84,14 @@ class SpotAvailableHours(models.Model):
     class Meta:
         verbose_name_plural = "Spot available hours"
 
+    def __unicode__(self):
+        return "%s: %s-%s" % (self.day, self.start_time, self.end_time)
+
     def save(self, *args, **kwargs):
         self.full_clean()
         if self.start_time >= self.end_time:
             raise Exception("Invalid time range - start time must be before end time")
         super(SpotAvailableHours, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return "%s: %s-%s" % (self.day, self.start_time, self.end_time)
 
 
 class SpotExtendedInfo(models.Model):
@@ -118,9 +118,6 @@ class SpotImage(models.Model):
     modification_date = models.DateTimeField(auto_now=True)
     etag = models.CharField(max_length=40)
 
-    def rest_url(self):
-        return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
-
     def __unicode__(self):
         return self.description
 
@@ -141,6 +138,9 @@ class SpotImage(models.Model):
         self.content_type = content_types[img.format]
 
         super(SpotImage, self).save(*args, **kwargs)
+
+    def rest_url(self):
+        return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
 
 
 class TrustedOAuthClient(models.Model):

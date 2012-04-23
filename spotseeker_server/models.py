@@ -108,7 +108,8 @@ class SpotExtendedInfo(models.Model):
 
 class SpotImage(models.Model):
     description = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to="spot_images", height_field="height", width_field="width")
+    image = models.ImageField(upload_to="spot_images", height_field="height", 
+                              width_field="width")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
@@ -124,9 +125,11 @@ class SpotImage(models.Model):
         return self.description
 
     def save(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), 
+                                                    time.time())).hexdigest()
 
-        content_types = {"JPEG": "image/jpeg", "GIF": "image/gif", "PNG": "image/png"}
+        content_types = {"JPEG": "image/jpeg", "GIF": "image/gif", 
+                         "PNG": "image/png"}
         if self.image.file.multiple_chunks():
             img = Image.open(self.image.file.temporary_file_path())
         else:

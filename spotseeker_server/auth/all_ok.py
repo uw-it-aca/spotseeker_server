@@ -11,9 +11,11 @@ try:
 except ImportError:
     from django.utils.functional import wraps
 
+
 def authenticate_application(*args, **kwargs):
     """ This always allows requests through """
     return
+
 
 def authenticate_user(*args, **kwargs):
     """ This always allows requests through """

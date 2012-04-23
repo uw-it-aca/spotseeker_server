@@ -20,7 +20,6 @@ class ImageView(RESTDispatch):
             response["Content-type"] = img.content_type
             return response
         except Exception as e:
-            print "E: ", e
             response = HttpResponse('{"error":"Bad Image URL"}')
             response.status_code = 404
             return response

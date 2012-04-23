@@ -13,7 +13,6 @@ class SpotPOSTTest(unittest.TestCase):
         new_capacity = 10
         response = c.post('/api/v1/spot/', '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", follow=False)
 
-        print response
         self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
         # XXX - I'm not sure if anything below here is valid

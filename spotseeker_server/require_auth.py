@@ -3,16 +3,19 @@ from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 import spotseeker_server.auth.all_ok
 
-try: from functools import wraps
-except ImportError: from django.utils.functional import wraps # Python 2.4 fallback
+try: 
+    from functools import wraps
+except ImportError: 
+    from django.utils.functional import wraps  # Python 2.4 fallback
 
 from django.conf import settings
+
 
 def app_auth_required(func):
 
     def _checkAuth(*args, **kwargs):
         if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
-            module = settings.SPOTSEEKER_AUTH_MODULE;
+            module = settings.SPOTSEEKER_AUTH_MODULE
             try:
                 mod = import_module(module)
             except ImportError, e:
@@ -22,7 +25,8 @@ def app_auth_required(func):
             try:
                 method = getattr(mod, "authenticate_application")
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_application" method.' % module)
+                raise ImproperlyConfigured('Module "%s" does not define a 
+                                           "authenticate_application" method.' % module)
 
             bad_response = method(*args, **kwargs)
         else:
@@ -39,7 +43,7 @@ def user_auth_required(func):
 
     def _checkAuth(*args, **kwargs):
         if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
-            module = settings.SPOTSEEKER_AUTH_MODULE;
+            module = settings.SPOTSEEKER_AUTH_MODULE
             try:
                 mod = import_module(module)
             except ImportError, e:
@@ -49,7 +53,8 @@ def user_auth_required(func):
             try:
                 method = getattr(mod, "authenticate_user")
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_user" method.' % module)
+                raise ImproperlyConfigured('Module "%s" does not define a 
+                                           "authenticate_user" method.' % module)
 
             bad_response = method(*args, **kwargs)
         else:
@@ -60,4 +65,3 @@ def user_auth_required(func):
         else:
             return func(*args, **kwargs)
     return wraps(func)(_checkAuth)
-

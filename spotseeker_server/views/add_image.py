@@ -26,6 +26,10 @@ class AddImageView(RESTDispatch):
             response = HttpResponse('"error":"Not an accepted image format"}')
             response.status_code = 400
             return response
+        except Exception as e:
+            response = HttpResponse('"error":"Not an accepted image format"}')
+            response.status_code = 400
+            return response
 
         if "description" in request.POST:
             image.description = request.POST["description"]

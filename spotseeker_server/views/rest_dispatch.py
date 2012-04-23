@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 
+
 class RESTDispatch:
     def run(self, *args, **named_args):
         request = args[0]
@@ -31,5 +32,3 @@ class RESTDispatch:
         response = HttpResponse("Method not allowed")
         response.status_code = 405
         return response
-
-

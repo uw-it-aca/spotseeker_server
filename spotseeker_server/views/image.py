@@ -4,6 +4,7 @@ from django.core.servers.basehttp import FileWrapper
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
 
+
 class ImageView(RESTDispatch):
     @app_auth_required
     def GET(self, request, spot_id, image_id):
@@ -42,7 +43,6 @@ class ImageView(RESTDispatch):
             response.status_code = 404
             return response
 
-
         # This trick was taken from piston
         request.method = "POST"
         request._load_post_and_files()
@@ -61,7 +61,6 @@ class ImageView(RESTDispatch):
             img.description = request.POST["description"]
 
         return self.GET(request, spot_id, image_id)
-
 
     @user_auth_required
     def DELETE(self, request, spot_id, image_id):
@@ -99,6 +98,3 @@ class ImageView(RESTDispatch):
             response = HttpResponse('{"error":"Invalid ETag"}')
             response.status_code = 409
             return response
-
-
-

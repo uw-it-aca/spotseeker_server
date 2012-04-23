@@ -38,6 +38,14 @@ class SpotImageGETTest(unittest.TestCase):
         self.url = '/api/v1/spot/{0}/image'.format(self.spot.pk)
         self.url = self.url
 
+    def test_bad_url(self):
+        c = Client()
+        spot = Spot.objects.create( name = "This is the wrong spot" )
+
+        response = c.get("/api/v1/spot/{0}/image/{1}".format(spot.pk, self.jpeg.pk))
+        self.assertEquals(response.status_code, 404, "Gives a 404 for a spot image that doesn't match the spot")
+
+
     def test_jpeg(self):
         c = Client()
         response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))

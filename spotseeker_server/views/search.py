@@ -89,7 +89,7 @@ class SearchView(RESTDispatch):
                     query = query.filter(**kwargs)
                     has_valid_search_param = True
                 except Exception as e:
-                    print e
+                    pass
 
         if not has_valid_search_param:
             return HttpResponse('[]')

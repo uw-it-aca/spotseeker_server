@@ -27,28 +27,3 @@ from spotseeker_server.test.auth.all_ok import SpotAuthAllOK
 from spotseeker_server.test.auth.oauth import SpotAuthOAuth
 from spotseeker_server.test.auth.oauth_logger import SpotAuthOAuthLogger
 
-
-class SpotSeekerTests(unittest.TestCase):
-    def suite(self):
-        suite = unittest.TestSuite()
-        suite.addTest(SpotModelToStringTests())
-        suite.addTest(SpotFormTest())
-        suite.addTest(SpotModelTest())
-        suite.addTest(SpotPUTTest())
-        suite.addTest(SpotDELETETest())
-        suite.addTest(SpotPOSTTest())
-        suite.addTest(SpotGETTest())
-        suite.addTest(SpotImagePOSTTest())
-        suite.addTest(SpotImagePUTTest())
-        suite.addTest(SpotImageDELETETest())
-        suite.addTest(ImageThumbTest())
-        suite.addTest(SpotSearchDistanceTest())
-        suite.addTest(SpotSearchFieldTest())
-        suite.addTest(SpotSearchDistanceFieldTest())
-        suite.addTest(SpotHoursModelTest())
-        suite.addTest(SpotHoursOpenNowTest())
-        suite.addTest(SpotHoursOpenNowLocationTest())
-        suite.addTest(SpotHoursOpenNowLocationAttributesTest())
-        suite.addTest(SpotAuthAllOK())
-        suite.addTest(SpotAuthOAuth())
-        suite.addTest(NoRESTMethodsTest())

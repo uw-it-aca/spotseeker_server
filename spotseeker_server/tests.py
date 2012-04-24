@@ -6,6 +6,7 @@ from spotseeker_server.test.spot_put import SpotPUTTest
 from spotseeker_server.test.spot_delete import SpotDELETETest
 from spotseeker_server.test.spot_post import SpotPOSTTest
 from spotseeker_server.test.spot_get import SpotGETTest
+from spotseeker_server.test.no_rest_methods import NoRESTMethodsTest
 from spotseeker_server.test.images.get import SpotImageGETTest
 from spotseeker_server.test.images.post import SpotImagePOSTTest
 from spotseeker_server.test.images.put import SpotImagePUTTest
@@ -48,3 +49,4 @@ class SpotSeekerTests(unittest.TestCase):
         suite.addTest(SpotHoursOpenNowLocationAttributesTest())
         suite.addTest(SpotAuthAllOK())
         suite.addTest(SpotAuthOAuth())
+        suite.addTest(NoRESTMethodsTest())

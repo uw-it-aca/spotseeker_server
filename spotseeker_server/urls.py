@@ -4,8 +4,10 @@ from spotseeker_server.views.search import SearchView
 from spotseeker_server.views.add_image import AddImageView
 from spotseeker_server.views.image import ImageView
 from spotseeker_server.views.thumbnail import ThumbnailView
+from spotseeker_server.views.null import NullView
 
 urlpatterns = patterns('',
+    url(r'v1/null$', NullView().run),
     url(r'v1/spot/(?P<spot_id>\d+)$', SpotView().run),
     url(r'v1/spot/?$', SearchView().run),
     url(r'v1/spot/(?P<spot_id>\d+)/image$', AddImageView().run),

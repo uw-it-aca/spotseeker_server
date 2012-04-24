@@ -22,3 +22,14 @@ class NoRESTMethodsTest(unittest.TestCase):
         c = Client()
         response = c.put("/api/v1/null")
         self.assertEquals(response.status_code, 405)
+
+    def test_no_HEAD(self):
+        c = Client()
+        response = c.head("/api/v1/null")
+        self.assertEquals(response.status_code, 405)
+
+
+    def test_no_OPTIONS(self):
+        c = Client()
+        response = c.options("/api/v1/null")
+        self.assertEquals(response.status_code, 405)

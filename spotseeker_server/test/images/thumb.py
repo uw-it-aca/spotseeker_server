@@ -1,7 +1,8 @@
 from django.utils import unittest
 from django.conf import settings
+from django.core.files import File
 from django.test.client import Client
-from spotseeker_server.models import Spot
+from spotseeker_server.models import Spot, SpotImage
 from cStringIO import StringIO
 from PIL import Image
 from os.path import abspath, dirname
@@ -226,5 +227,20 @@ class ImageThumbTest(unittest.TestCase):
         self.assertEquals(response.status_code, 404, "404 for invalid height, gif")
 
 
+
+    def test_invalid_url(self):
+        c = Client()
+        bad_spot = Spot.objects.create( name = "This is the wrong spot" )
+
+        spot = Spot.objects.create( name = "This is to test getting images" )
+
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        gif = SpotImage.objects.create( description = "This is the GIF test", spot=spot, image = File(f) )
+        f.close()
+
+
+        url = "/api/v1/spot/{0}/image/{1}/thumb/10x10".format(bad_spot.pk, gif.pk)
+        response = c.get(url)
+        self.assertEquals(response.status_code, 404, "Give a 404 for a spot id that doesn't match the image's")
 
 

@@ -6,13 +6,8 @@ import simplejson as json
 import hashlib
 import time
 import random
-
-try:
-    from oauth_provider.models import Consumer
-    import oauth2
-    no_oauth = False
-except Exception as e:
-    no_oauth = True
+from oauth_provider.models import Consumer
+import oauth2
 
 class SpotAuthOAuth(unittest.TestCase):
     def setUp(self):
@@ -20,7 +15,6 @@ class SpotAuthOAuth(unittest.TestCase):
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
-    @unittest.skipIf(no_oauth, "Unable to load oauth library")
     def test_get_no_oauth(self):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
         c = Client()
@@ -28,7 +22,6 @@ class SpotAuthOAuth(unittest.TestCase):
         self.assertEquals(response.status_code, 401, "No access to GET w/o oauth")
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
-    @unittest.skipIf(no_oauth, "Unable to load oauth library")
     def test_valid_oauth(self):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
         consumer_name = "Test consumer"
@@ -55,7 +48,6 @@ class SpotAuthOAuth(unittest.TestCase):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
 
-    @unittest.skipIf(no_oauth, "Unable to load oauth library")
     def test_invalid_oauth(self):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
 
@@ -72,7 +64,6 @@ class SpotAuthOAuth(unittest.TestCase):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
 
-    @unittest.skipIf(no_oauth, "Unable to load oauth library")
     def test_put_no_oauth(self):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
         c = Client()

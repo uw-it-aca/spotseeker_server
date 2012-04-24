@@ -11,15 +11,8 @@ import hashlib
 import time
 import random
 
-try:
-    from oauth_provider.models import Consumer
-    import oauth2
-    no_oauth = False
-except Exception as e:
-    no_oauth = True
-
-
-
+from oauth_provider.models import Consumer
+import oauth2
 
 class SpotAuthOAuthLogger(unittest.TestCase):
     def setUp(self):

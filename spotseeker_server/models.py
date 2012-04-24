@@ -5,12 +5,7 @@ import time
 import random
 from PIL import Image
 from cStringIO import StringIO
-
-try:
-    import oauth_provider.models
-    has_oauth = True
-except:
-    has_oauth = False
+import oauth_provider.models
 
 
 class Spot(models.Model):
@@ -144,6 +139,5 @@ class SpotImage(models.Model):
 
 
 class TrustedOAuthClient(models.Model):
-    if has_oauth:
-        consumer = models.ForeignKey(oauth_provider.models.Consumer)
+    consumer = models.ForeignKey(oauth_provider.models.Consumer)
     is_trusted = models.BooleanField()

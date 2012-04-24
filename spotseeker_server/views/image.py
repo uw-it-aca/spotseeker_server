@@ -52,10 +52,11 @@ class ImageView(RESTDispatch):
             try:
                 img.image = request.FILES["image"]
                 img.save()
-            except ValidationError:
+            except Exception:
                 response = HttpResponse('"error":"Not an accepted image format"}')
                 response.status_code = 400
                 return response
+
 
         if "description" in request.POST:
             img.description = request.POST["description"]

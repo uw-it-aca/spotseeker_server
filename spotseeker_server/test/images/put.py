@@ -43,6 +43,15 @@ class SpotImagePUTTest(unittest.TestCase):
         self.png = png
         self.png_url = "%s/image/%s" % (self.url, self.png.pk)
 
+    def test_bad_url(self):
+        c = Client()
+        spot = Spot.objects.create( name = "This is the wrong spot" )
+
+        url = "/api/v1/spot/{0}/image/{1}".format(spot.pk, self.jpeg.pk)
+        response = c.put(url, '{}', content_type="application/json")
+        self.assertEquals(response.status_code, 404, "Gives a 404 for a spot image that doesn't match the spot")
+
+
 
     def test_invalid_url(self):
         c = Client()
@@ -93,6 +102,25 @@ class SpotImagePUTTest(unittest.TestCase):
         # Just to be sure
         response = c.get(self.gif_url)
         self.assertEquals(response["content-type"], "image/png", "Has the right content type")
+
+
+    def test_invalid_image_type_valid_etag(self):
+        c = Client()
+        response = c.get(self.gif_url)
+        etag = response["etag"]
+
+        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+
+        new_name = "testing PUT name: {0}".format(random.random())
+
+        c = Client()
+        f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
+        response = c.put(self.gif_url, { "description": "This is really a text file", "image": f }, If_Match=etag)
+        f.close()
+
+        self.assertEquals(response.status_code, 400, "Gives a Bad Request in response to a non-image")
+
 
     # Want this to be one of the first tests to run
     def test_a_valid_image_no_etag(self):

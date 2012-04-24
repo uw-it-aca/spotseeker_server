@@ -47,6 +47,17 @@ class SpotImageDELETETest(unittest.TestCase):
         response = c.delete(bad_url)
         self.assertEquals(response.status_code, 404, "Rejects an invalid url")
 
+    def test_wrong_spot_id(self):
+        c = Client()
+        spot = Spot.objects.create( name = "This is the wrong spot" )
+
+        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        png = self.spot.spotimage_set.create( description = "This is another PNG", image = File(f) )
+        f.close()
+
+        response = c.delete("/api/v1/spot/{0}/image/{1}".format(spot.pk, png.pk))
+        self.assertEquals(response.status_code, 404, "Gives a 404 for a spot image that doesn't match the spot")
+
     def test_invalid_id_too_high(self):
         c = Client()
 

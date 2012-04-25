@@ -5,9 +5,9 @@
 
 # virtualenv files
 .Python
-./bin/
-./include/
-./lib/
+/bin/
+/include/
+/lib/
 
 # django project files added when following the Install-for-developers wiki page
 manage.py

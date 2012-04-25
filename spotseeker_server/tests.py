@@ -13,6 +13,7 @@ from spotseeker_server.test.images.post import SpotImagePOSTTest
 from spotseeker_server.test.images.put import SpotImagePUTTest
 from spotseeker_server.test.images.delete import SpotImageDELETETest
 from spotseeker_server.test.images.thumb import ImageThumbTest
+from spotseeker_server.test.images.spot_info import SpotResourceImageTest
 from spotseeker_server.test.search.distance import SpotSearchDistanceTest
 from spotseeker_server.test.search.fields import SpotSearchFieldTest
 from spotseeker_server.test.search.distance_fields import SpotSearchDistanceFieldTest

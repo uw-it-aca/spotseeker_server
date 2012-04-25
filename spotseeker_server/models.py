@@ -1,7 +1,9 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 import hashlib
+import datetime
 import time
+from wsgiref.handlers import format_date_time
 import random
 from PIL import Image
 from cStringIO import StringIO
@@ -48,6 +50,22 @@ class Spot(models.Model):
         for window in hours:
             available_hours[window.get_day_display()].append([window.start_time.strftime("%H:%M"), window.end_time.strftime("%H:%M")])
 
+        images = []
+        spot_images = SpotImage.objects.filter(spot=self)
+        for img in spot_images:
+            images.append({
+                "id": img.pk,
+                "content-type": img.content_type,
+                "description": img.description,
+                "creation_date": format_date_time(time.mktime(img.creation_date.timetuple())),
+                "modification_date": format_date_time(time.mktime(img.modification_date.timetuple())),
+                "width": img.width,
+                "height": img.height,
+                "url": img.rest_url(),
+                "thumbnail_root": "{0}/thumb".format(img.rest_url()),
+            })
+
+
         return {
             "id": self.pk,
             "name": self.name,
@@ -58,6 +76,7 @@ class Spot(models.Model):
             },
             "extended_info": extended_info,
             "available_hours": available_hours,
+            "images": images
         }
 
 

@@ -115,5 +115,5 @@ class SearchView(RESTDispatch):
 
     def distance(self, spot, longitude, latitude):
         g = Geod(ellps='clrk66')
-        az12, az21, dist = g.inv(spot.longitude,spot.latitude,longitude,latitude)
+        az12, az21, dist = g.inv(spot.longitude, spot.latitude, longitude,latitude)
         return dist

@@ -108,12 +108,12 @@ class SpotView(RESTDispatch):
 
         if "available_hours" in new_values:
             available_hours = new_values["available_hours"]
-            for day in [["m", "monday"], 
-                        ["t", "tuesday"], 
-                        ["w", "wednesday"], 
-                        ["th", "thursday"], 
-                        ["f", "friday"], 
-                        ["sa", "saturday"], 
+            for day in [["m", "monday"],
+                        ["t", "tuesday"],
+                        ["w", "wednesday"],
+                        ["th", "thursday"],
+                        ["f", "friday"],
+                        ["sa", "saturday"],
                         ["su", "sunday"]]:
                 if day[1] in available_hours:
                     day_hours = available_hours[day[1]]

@@ -57,7 +57,6 @@ class ImageView(RESTDispatch):
                 response.status_code = 400
                 return response
 
-
         if "description" in request.POST:
             img.description = request.POST["description"]
 

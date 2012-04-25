@@ -63,6 +63,8 @@ class Spot(models.Model):
                 "height": img.height,
                 "url": img.rest_url(),
                 "thumbnail_root": "{0}/thumb".format(img.rest_url()),
+                "upload_user": img.upload_user,
+                "upload_application": img.upload_application,
             })
 
 
@@ -131,6 +133,8 @@ class SpotImage(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
     etag = models.CharField(max_length=40)
+    upload_user = models.CharField(max_length=40)
+    upload_application = models.CharField(max_length=100)
 
     def __unicode__(self):
         return self.description

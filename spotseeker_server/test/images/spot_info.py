@@ -62,6 +62,8 @@ class SpotResourceImageTest(unittest.TestCase):
                 self.assertEquals(image["width"], img.size[0], "Includes the gif width")
                 self.assertEquals(image["height"], img.size[1], "Includes the gif height")
                 self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
+                self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
+                self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
 
             if image["id"] == self.png.pk:
                 has_png = True
@@ -72,6 +74,8 @@ class SpotResourceImageTest(unittest.TestCase):
                 self.assertEquals(image["width"], img.size[0], "Includes the png width")
                 self.assertEquals(image["height"], img.size[1], "Includes the png height")
                 self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
+                self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
+                self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
 
             if image["id"] == self.jpeg.pk:
                 has_jpg = True
@@ -82,6 +86,8 @@ class SpotResourceImageTest(unittest.TestCase):
                 self.assertEquals(image["width"], img.size[0], "Includes the jpeg width")
                 self.assertEquals(image["height"], img.size[1], "Includes the jpeg height")
                 self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
+                self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
+                self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
 
         self.assertEquals(has_gif, True, "Found the gif")
         self.assertEquals(has_jpg, True, "Found the jpg")

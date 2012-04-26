@@ -23,5 +23,3 @@ class SpotSearchForm(object):
             return FormModule(args[1])
         else:
             return DefaultSpotSearchForm(args[1])
-
-

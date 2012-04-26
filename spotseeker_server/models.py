@@ -173,5 +173,8 @@ class TrustedOAuthClient(models.Model):
     consumer = models.ForeignKey(oauth_provider.models.Consumer)
     is_trusted = models.BooleanField()
 
+    class Meta:
+        verbose_name_plural = "Trusted OAuth clients"
+
     def __unicode__(self):
         return self.consumer.name

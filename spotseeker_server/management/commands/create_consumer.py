@@ -1,3 +1,6 @@
+"""
+This provides a management command to django's manage.py called create_consumer that will generate a oauth key and secret based on the consumer name.
+"""
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 import hashlib

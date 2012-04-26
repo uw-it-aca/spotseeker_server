@@ -13,14 +13,12 @@ class SpotModelToStringTests(unittest.TestCase):
         test_str = "{0}".format(spot)
         self.assertEquals(test_str, "This is the test name", "Proper stringification of Spot objects")
 
-
     def test_available_hours(self):
         spot = Spot.objects.create(name="This is the test name")
         hours = SpotAvailableHours.objects.create(spot = spot, day = "m", start_time="11:00", end_time="14:00")
 
         test_str = "{0}".format(hours)
         self.assertEquals(test_str, "m: 11:00:00-14:00:00", "Proper stringification of SpotAvailableHours objects")
-
 
     def test_extended_info(self):
         spot = Spot.objects.create(name="This is the test name")

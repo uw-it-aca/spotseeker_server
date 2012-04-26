@@ -40,7 +40,6 @@ class SpotResourceImageTest(unittest.TestCase):
 
         self.assertEquals(len(spot_dict["images"]), 0, "Has an empty array for a spot w/ no images")
 
-
     def test_image_data(self):
         c = Client()
         response = c.get('/api/v1/spot/{0}'.format(self.spot.pk))

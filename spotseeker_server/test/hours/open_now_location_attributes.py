@@ -62,7 +62,6 @@ class SpotHoursOpenNowLocationAttributesTest(unittest.TestCase):
             if spot['id'] == closed_outof_range_spot.pk:
                 has_closed_outof_range = True
 
-
         self.assertEquals(has_open_match_in_range, True, "Found the open spot in range w/ the attributes")
         self.assertEquals(has_open_no_match_in_range, False, "Did not find the open spot in range w/o the attributes")
         self.assertEquals(has_closed_in_range, False, "Did not find the closed spot in range")

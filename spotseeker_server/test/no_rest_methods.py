@@ -28,7 +28,6 @@ class NoRESTMethodsTest(unittest.TestCase):
         response = c.head("/api/v1/null")
         self.assertEquals(response.status_code, 405)
 
-
     def test_no_OPTIONS(self):
         c = Client()
         response = c.options("/api/v1/null")

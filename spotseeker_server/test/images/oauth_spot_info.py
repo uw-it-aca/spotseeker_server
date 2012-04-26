@@ -19,7 +19,6 @@ class SpotResourceOAuthImageTest(unittest.TestCase):
         spot = Spot.objects.create( name = "This is to test images in the spot resource, with oauth" )
         self.spot = spot
 
-
     def test_oauth_attributes(self):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
 

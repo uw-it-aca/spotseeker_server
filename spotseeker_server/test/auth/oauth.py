@@ -138,10 +138,9 @@ class SpotAuthOAuth(unittest.TestCase):
         secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
-        trusted_consumer = TrustedOAuthClient.objects.create(consumer = create_consumer, is_trusted = True)
+        trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted = True)
 
-        consumer=oauth2.Consumer(key=key, secret=secret)
-
+        consumer = oauth2.Consumer(key=key, secret=secret)
 
         req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
 

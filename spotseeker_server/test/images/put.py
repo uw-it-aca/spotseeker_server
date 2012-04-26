@@ -102,7 +102,6 @@ class SpotImagePUTTest(unittest.TestCase):
         response = c.get(self.gif_url)
         self.assertEquals(response["content-type"], "image/png", "Has the right content type")
 
-
     def test_invalid_image_type_valid_etag(self):
         c = Client()
         response = c.get(self.gif_url)
@@ -119,7 +118,6 @@ class SpotImagePUTTest(unittest.TestCase):
         f.close()
 
         self.assertEquals(response.status_code, 400, "Gives a Bad Request in response to a non-image")
-
 
     # Want this to be one of the first tests to run
     def test_a_valid_image_no_etag(self):
@@ -157,4 +155,3 @@ class SpotImagePUTTest(unittest.TestCase):
 
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
         self.assertEquals(os.fstat(f.fileno()).st_size, int(content_length), "Content length does match original gif")
-

@@ -51,7 +51,6 @@ class SpotImagePOSTTest(unittest.TestCase):
 
         self.assertEquals(response.status_code, 400, "Gives a Bad Request in response to a non-accepted image format")
 
-
     def test_invalid_file(self):
         c = Client()
         f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
@@ -73,7 +72,6 @@ class SpotImagePOSTTest(unittest.TestCase):
         f.close()
 
         self.assertEquals(response.status_code, 400, "Gives an error for a file uploaded with the wrong field name")
-
 
     def test_wrong_url(self):
         c = Client()

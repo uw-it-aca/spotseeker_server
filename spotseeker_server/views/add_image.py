@@ -7,6 +7,8 @@ from PIL import Image
 
 
 class AddImageView(RESTDispatch):
+    """ Saves a SpotImage for a particular Spot on POST to /api/v1/spot/<spot id>/image.
+    """
     @user_auth_required
     def POST(self, request, spot_id):
         try:

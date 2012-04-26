@@ -10,6 +10,8 @@ import random
 TEST_ROOT = abspath(dirname(__file__))
 
 class SpotImagePUTTest(unittest.TestCase):
+    """ Tests updating a SpotImage by PUTting to /api/v1/spot/<spot id>/image/<image_id>.
+    """
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
         spot = Spot.objects.create( name = "This is to test PUTtingimages", capacity=1 )
@@ -51,14 +53,11 @@ class SpotImagePUTTest(unittest.TestCase):
         response = c.put(url, '{}', content_type="application/json")
         self.assertEquals(response.status_code, 404, "Gives a 404 for a spot image that doesn't match the spot")
 
-
-
     def test_invalid_url(self):
         c = Client()
         bad_url = "%s/image/aa" % self.url
         response = c.put(bad_url, '{}', content_type="application/json")
         self.assertEquals(response.status_code, 404, "Rejects a non-numeric url")
-
 
     def test_invalid_id_too_high(self):
         c = Client()

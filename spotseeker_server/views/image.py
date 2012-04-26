@@ -6,6 +6,11 @@ from spotseeker_server.models import *
 
 
 class ImageView(RESTDispatch):
+    """ Handles actions at /api/v1/spot/<spot id>/image/<image id>.
+    GET returns 200 with the image.
+    PUT returns 200 and updates the image.
+    DELETE returns 200 and deletes the image.
+    """
     @app_auth_required
     def GET(self, request, spot_id, image_id):
         try:

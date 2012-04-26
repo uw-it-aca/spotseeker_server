@@ -8,6 +8,12 @@ from django.db import transaction
 
 
 class SpotView(RESTDispatch):
+    """ Performs actions on a Spot at /api/v1/spot/<spot id>.
+    GET returns 200 with Spot details.
+    POST to /api/v1/spot with valid JSON returns 200 and creates a new Spot.
+    PUT returns 200 and updates the Spot information.
+    DELETE returns 200 and deletes the Spot.
+    """
     @app_auth_required
     def GET(self, request, spot_id):
         try:

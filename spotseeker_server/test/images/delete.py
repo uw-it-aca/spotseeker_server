@@ -8,6 +8,8 @@ from os.path import abspath, dirname
 TEST_ROOT = abspath(dirname(__file__))
 
 class SpotImageDELETETest(unittest.TestCase):
+    """ Tests DELETE of a SpotImage at /api/v1/spot/<spot id>/image/<image id>.
+    """
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
         spot = Spot.objects.create( name = "This is to test DELETEing images" )

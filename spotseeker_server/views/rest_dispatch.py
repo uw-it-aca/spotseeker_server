@@ -2,6 +2,8 @@ from django.http import HttpResponse
 
 
 class RESTDispatch:
+    """ Handles passing on the request to the correct view method based on the request type.
+    """
     def run(self, *args, **named_args):
         request = args[0]
         if "GET" == request.META['REQUEST_METHOD']:

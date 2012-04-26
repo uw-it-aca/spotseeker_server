@@ -11,6 +11,8 @@ import oauth_provider.models
 
 
 class Spot(models.Model):
+    """ Represents a place for students to study.
+    """
     name = models.CharField(max_length=100, blank=True)
     etag = models.CharField(max_length=40)
     capacity = models.IntegerField(null=True, blank=True)
@@ -83,6 +85,8 @@ class Spot(models.Model):
 
 
 class SpotAvailableHours(models.Model):
+    """ The hours a Spot is available, i.e. the open or closed hours for the building the spot is located in.
+    """
     spot = models.ForeignKey(Spot)
     day = models.CharField(max_length=3, choices=(
         ('m', 'monday'),
@@ -111,6 +115,8 @@ class SpotAvailableHours(models.Model):
 
 
 class SpotExtendedInfo(models.Model):
+    """ Additional institution-provided metadata about a spot. If providing custom metadata, you should provide a validator for that data, as well.
+    """
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=200)
     spot = models.ForeignKey(Spot)
@@ -123,6 +129,8 @@ class SpotExtendedInfo(models.Model):
 
 
 class SpotImage(models.Model):
+    """ An image of a Spot. Multiple images can be associated with a Spot, and Spot objects have a 'Spot.spotimage_set' method that will return all SpotImage objects for the Spot.
+    """
     description = models.CharField(max_length=200, blank=True)
     image = models.ImageField(upload_to="spot_images", height_field="height", 
                               width_field="width")
@@ -164,3 +172,6 @@ class SpotImage(models.Model):
 class TrustedOAuthClient(models.Model):
     consumer = models.ForeignKey(oauth_provider.models.Consumer)
     is_trusted = models.BooleanField()
+
+    def __unicode__(self):
+        return self.consumer.name

@@ -11,7 +11,6 @@ class SpotHoursPUTTest(unittest.TestCase):
         spot = Spot.objects.create( name = "This spot has available hours" )
         etag = spot.etag
 
-
         put_obj = {
             'name': "This spot has available hours",
             'capacity': "4",
@@ -26,7 +25,6 @@ class SpotHoursPUTTest(unittest.TestCase):
             }
         }
 
-
         c = Client()
         url = "/api/v1/spot/%s" % spot.pk
         response = c.put(url, json.dumps(put_obj) , content_type="application/json", If_Match=etag )
@@ -34,7 +32,3 @@ class SpotHoursPUTTest(unittest.TestCase):
 
         self.maxDiff = None
         self.assertEquals(spot_dict["available_hours"], put_obj["available_hours"], "Data from the web service matches the data for the spot")
-
-
-
-

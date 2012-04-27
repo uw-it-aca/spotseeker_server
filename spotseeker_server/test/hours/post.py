@@ -24,7 +24,6 @@ class SpotHoursPOSTTest(unittest.TestCase):
             }
         }
 
-
         c = Client()
         response = c.post("/api/v1/spot/", json.dumps(post_obj) , content_type="application/json")
 
@@ -38,7 +37,3 @@ class SpotHoursPOSTTest(unittest.TestCase):
         self.assertEquals(spot_dict["available_hours"], post_obj["available_hours"], "Data from the web service matches the data for the spot")
         self.assertEquals(spot_dict["name"], post_obj["name"], "Data from the web service matches the data for the spot")
         self.assertEquals(spot_dict["capacity"], post_obj["capacity"], "Data from the web service matches the data for the spot")
-
-
-
-

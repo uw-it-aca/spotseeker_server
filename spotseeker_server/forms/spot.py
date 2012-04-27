@@ -24,5 +24,3 @@ class SpotForm(object):
             return FormModule(args[1])
         else:
             return DefaultSpotForm(args[1])
-
-

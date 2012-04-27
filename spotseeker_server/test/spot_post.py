@@ -7,6 +7,8 @@ import random
 
 
 class SpotPOSTTest(unittest.TestCase):
+    """ Tests creating a new Spot via POST.
+    """
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
     def test_valid_json(self):

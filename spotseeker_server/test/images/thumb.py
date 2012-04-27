@@ -226,8 +226,6 @@ class ImageThumbTest(unittest.TestCase):
         response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, "a"))
         self.assertEquals(response.status_code, 404, "404 for invalid height, gif")
 
-
-
     def test_invalid_url(self):
         c = Client()
         bad_spot = Spot.objects.create( name = "This is the wrong spot" )
@@ -238,9 +236,6 @@ class ImageThumbTest(unittest.TestCase):
         gif = SpotImage.objects.create( description = "This is the GIF test", spot=spot, image = File(f) )
         f.close()
 
-
         url = "/api/v1/spot/{0}/image/{1}/thumb/10x10".format(bad_spot.pk, gif.pk)
         response = c.get(url)
         self.assertEquals(response.status_code, 404, "Give a 404 for a spot id that doesn't match the image's")
-
-

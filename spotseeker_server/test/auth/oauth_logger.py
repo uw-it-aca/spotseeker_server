@@ -78,7 +78,6 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         self.assertEquals(status_code, response.status_code, "Logging correct status_code")
         self.assertEquals(response_size, len(response.content), "Logging correct content size")
 
-
     def test_log_trusted_3_legged(self):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
         consumer_name = "Trusted test consumer"
@@ -90,7 +89,6 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         trusted_consumer = TrustedOAuthClient.objects.create(consumer = create_consumer, is_trusted = True)
 
         consumer = oauth2.Consumer(key=key, secret=secret)
-
 
         req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
 
@@ -126,8 +124,6 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         self.assertEquals(status_code, response.status_code, "Logging correct status_code")
         self.assertEquals(response_size, len(response.content), "Logging correct content size")
 
-
-
     def test_invalid(self):
         settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
 
@@ -145,15 +141,12 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         status_code = int(matches.group(2))
         response_size = int(matches.group(3))
 
-
         self.assertEquals(spot_id, self.spot.pk, "Logging correct uri")
         self.assertEquals(status_code, response.status_code, "Logging correct status_code")
         self.assertEquals(response_size, len(response.content), "Logging correct content size")
-
 
     def tearDown(self):
         self.log.removeHandler(self.handler)
         self.handler.close()
 
         settings.MIDDLEWARE_CLASSES = self.original_middleware
-

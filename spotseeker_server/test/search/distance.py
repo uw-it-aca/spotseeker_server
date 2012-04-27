@@ -37,7 +37,6 @@ class SpotSearchDistanceTest(unittest.TestCase):
         self.assertEquals(response.status_code, 200, "Accepts a query with too large latitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
-
     def test_large_negative_latitude(self):
         c = Client()
         response = c.get("/api/v1/spot", { 'center_latitude':-100, 'center_longitude':-40, 'distance':10 })
@@ -99,7 +98,6 @@ class SpotSearchDistanceTest(unittest.TestCase):
         inner_right = Spot.objects.create( name = "Inner Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9998962715') )
         inner_right.save()
 
-
         # Testing to make sure too small of a radius returns nothing
         c = Client()
         response = c.get("/api/v1/spot", { 'center_latitude':center_lat, 'center_longitude':center_long, 'distance':1 })
@@ -139,7 +137,6 @@ class SpotSearchDistanceTest(unittest.TestCase):
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner or mid spot")
             spot_ids[spot['id']] = 2
-
 
         # Testing the outer ring
         response = c.get("/api/v1/spot", { 'center_latitude':center_lat, 'center_longitude':center_long, 'distance':110 })
@@ -182,7 +179,6 @@ class SpotSearchDistanceTest(unittest.TestCase):
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner, mid or outer spot")
             spot_ids[spot['id']] = 2
-
 
         self.assertEquals(spot_ids[inner_left.pk], 2, "Inner left was selected")
         self.assertEquals(spot_ids[inner_right.pk], 2, "Inner right was selected")
@@ -231,7 +227,6 @@ class SpotSearchDistanceTest(unittest.TestCase):
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner, mid or outer spot")
             spot_ids[spot['id']] = 2
 
-
         self.assertEquals(spot_ids[inner_left.pk], 2, "Inner left was selected")
         self.assertEquals(spot_ids[inner_right.pk], 2, "Inner right was selected")
         self.assertEquals(spot_ids[inner_top.pk], 2, "Inner top was selected")
@@ -264,7 +259,6 @@ class SpotSearchDistanceTest(unittest.TestCase):
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner, mid or outer spot")
             spot_ids[spot['id']] = 2
-
 
         # Testing that the default limit is 20 spaces
         response = c.get("/api/v1/spot", { 'center_latitude':center_lat, 'center_longitude':center_long, 'distance':150 })
@@ -323,8 +317,3 @@ class SpotSearchDistanceTest(unittest.TestCase):
                 far_out_count += 1
 
         self.assertEquals(far_out_count, 100, "Found all 100 far out spots")
-
-
-
-
-

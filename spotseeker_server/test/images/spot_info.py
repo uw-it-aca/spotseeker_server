@@ -1,5 +1,6 @@
 from django.utils import unittest
 from django.test.client import Client
+from django.conf import settings
 from os.path import abspath, dirname
 from spotseeker_server.models import Spot, SpotImage
 from django.core.files import File
@@ -10,6 +11,7 @@ TEST_ROOT = abspath(dirname(__file__))
 
 class SpotResourceImageTest(unittest.TestCase):
     def setUp(self):
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
         spot = Spot.objects.create( name = "This is to test images in the spot resource" )
         self.spot = spot
 

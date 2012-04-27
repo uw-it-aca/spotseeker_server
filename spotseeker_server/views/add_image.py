@@ -22,7 +22,13 @@ class AddImageView(RESTDispatch):
             return response
 
         try:
-            image = spot.spotimage_set.create(image=request.FILES["image"])
+            upload_user = ''
+            upload_app = ''
+            if 'SS_OAUTH_CONSUMER_NAME' in request.META:
+                upload_app = request.META['SS_OAUTH_CONSUMER_NAME']
+            if 'SS_OAUTH_USER' in request.META:
+                upload_user = request.META['SS_OAUTH_USER']
+            image = spot.spotimage_set.create(image=request.FILES["image"], upload_user=upload_user, upload_application=upload_app)
         except ValidationError:
             response = HttpResponse('"error":"Not an accepted image format"}')
             response.status_code = 400

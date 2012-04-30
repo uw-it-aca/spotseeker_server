@@ -16,7 +16,7 @@ import oauth2
 
 class SpotAuthOAuthLogger(unittest.TestCase):
     def setUp(self):
-        spot = Spot.objects.create(name = "This is for testing the oauth module", capacity = 10 )
+        spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10 )
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
@@ -86,7 +86,7 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
-        trusted_consumer = TrustedOAuthClient.objects.create(consumer = create_consumer, is_trusted = True)
+        trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted=True)
 
         consumer = oauth2.Consumer(key=key, secret=secret)
 

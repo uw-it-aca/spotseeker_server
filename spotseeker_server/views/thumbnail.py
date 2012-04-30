@@ -7,6 +7,8 @@ import Image
 
 
 class ThumbnailView(RESTDispatch):
+    """ Returns 200 with a thumbnail of a SpotImage.
+    """
     @app_auth_required
     def GET(self, request, spot_id, image_id, thumb_width, thumb_height):
         try:

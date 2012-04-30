@@ -6,6 +6,8 @@ import simplejson as json
 
 
 class SpotAuthAllOK(unittest.TestCase):
+    """ Tests that the all_ok auth module successfully allows any client access.
+    """
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
     def setUp(self):

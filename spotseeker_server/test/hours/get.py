@@ -21,6 +21,8 @@ class SpotHoursGETTest(unittest.TestCase):
         self.spot = spot
 
     def test_hours(self):
+        """ Tests that a Spot's available hours can be retrieved successfully.
+        """
         c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
         response = c.get(url)

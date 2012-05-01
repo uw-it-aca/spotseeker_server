@@ -16,7 +16,7 @@ TEST_ROOT = abspath(dirname(__file__))
 
 class SpotResourceOAuthImageTest(unittest.TestCase):
     def setUp(self):
-        spot = Spot.objects.create( name = "This is to test images in the spot resource, with oauth" )
+        spot = Spot.objects.create(name = "This is to test images in the spot resource, with oauth" )
         self.spot = spot
 
     def test_oauth_attributes(self):

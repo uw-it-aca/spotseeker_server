@@ -138,7 +138,7 @@ class SpotAuthOAuth(unittest.TestCase):
         secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
-        trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted = True)
+        trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted=True)
 
         consumer = oauth2.Consumer(key=key, secret=secret)
 
@@ -165,7 +165,7 @@ class SpotAuthOAuth(unittest.TestCase):
         secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
-        trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted = True)
+        trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted=True)
 
         consumer = oauth2.Consumer(key=key, secret=secret)
 

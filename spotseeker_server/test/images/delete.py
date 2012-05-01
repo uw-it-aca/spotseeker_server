@@ -12,7 +12,7 @@ class SpotImageDELETETest(unittest.TestCase):
     """
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
-        spot = Spot.objects.create( name = "This is to test DELETEing images" )
+        spot = Spot.objects.create(name = "This is to test DELETEing images" )
         spot.save()
         self.spot = spot
 
@@ -21,7 +21,7 @@ class SpotImageDELETETest(unittest.TestCase):
 
         # GIF
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = self.spot.spotimage_set.create( description = "This is the GIF test", image = File(f) )
+        gif = self.spot.spotimage_set.create(description = "This is the GIF test", image = File(f) )
         f.close()
 
         self.gif = gif
@@ -29,7 +29,7 @@ class SpotImageDELETETest(unittest.TestCase):
 
         # JPEG
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = self.spot.spotimage_set.create( description = "This is the JPEG test", image = File(f) )
+        jpeg = self.spot.spotimage_set.create(description = "This is the JPEG test", image = File(f) )
         f.close()
 
         self.jpeg = jpeg
@@ -37,7 +37,7 @@ class SpotImageDELETETest(unittest.TestCase):
 
         # PNG
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = self.spot.spotimage_set.create( description = "This is the PNG test", image = File(f) )
+        png = self.spot.spotimage_set.create(description = "This is the PNG test", image = File(f) )
         f.close()
 
         self.png = png
@@ -51,10 +51,10 @@ class SpotImageDELETETest(unittest.TestCase):
 
     def test_wrong_spot_id(self):
         c = Client()
-        spot = Spot.objects.create( name = "This is the wrong spot" )
+        spot = Spot.objects.create(name = "This is the wrong spot" )
 
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = self.spot.spotimage_set.create( description = "This is another PNG", image = File(f) )
+        png = self.spot.spotimage_set.create(description = "This is another PNG", image = File(f) )
         f.close()
 
         response = c.delete("/api/v1/spot/{0}/image/{1}".format(spot.pk, png.pk))

@@ -12,7 +12,7 @@ TEST_ROOT = abspath(dirname(__file__))
 class ImageThumbTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def setUp(self):
-        spot = Spot.objects.create( name = "This is to test thumbnailing images" )
+        spot = Spot.objects.create(name="This is to test thumbnailing images" )
         spot.save()
         self.spot = spot
 
@@ -22,7 +22,7 @@ class ImageThumbTest(unittest.TestCase):
     def test_jpeg_thumbs(self):
         c = Client()
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        response = c.post(self.url, { "description": "This is a jpeg", "image": f })
+        response = c.post(self.url, {"description": "This is a jpeg", "image": f })
         f.close()
 
         new_base_location = response["Location"]
@@ -91,7 +91,7 @@ class ImageThumbTest(unittest.TestCase):
     def test_png_thumbs(self):
         c = Client()
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        response = c.post(self.url, { "description": "This is a png", "image": f })
+        response = c.post(self.url, {"description": "This is a png", "image": f })
         f.close()
 
         new_base_location = response["Location"]
@@ -160,7 +160,7 @@ class ImageThumbTest(unittest.TestCase):
     def test_gif_thumbs(self):
         c = Client()
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        response = c.post(self.url, { "description": "This is a gif", "image": f })
+        response = c.post(self.url, {"description": "This is a gif", "image": f })
         f.close()
 
         new_base_location = response["Location"]
@@ -228,12 +228,12 @@ class ImageThumbTest(unittest.TestCase):
 
     def test_invalid_url(self):
         c = Client()
-        bad_spot = Spot.objects.create( name = "This is the wrong spot" )
+        bad_spot = Spot.objects.create(name="This is the wrong spot" )
 
-        spot = Spot.objects.create( name = "This is to test getting images" )
+        spot = Spot.objects.create(name="This is to test getting images" )
 
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create( description = "This is the GIF test", spot=spot, image = File(f) )
+        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image = File(f) )
         f.close()
 
         url = "/api/v1/spot/{0}/image/{1}/thumb/10x10".format(bad_spot.pk, gif.pk)

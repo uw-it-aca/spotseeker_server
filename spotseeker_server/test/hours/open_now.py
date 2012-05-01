@@ -14,9 +14,9 @@ class SpotHoursOpenNowTest(unittest.TestCase):
     """
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_open_now(self):
-        open_spot = Spot.objects.create ( name = "This spot is open now" )
-        no_hours_spot = Spot.objects.create( name = "This spot has no hours" )
-        closed_spot = Spot.objects.create ( name = "This spot has hours, but is closed" )
+        open_spot = Spot.objects.create (name = "This spot is open now" )
+        no_hours_spot = Spot.objects.create(name = "This spot has no hours" )
+        closed_spot = Spot.objects.create (name = "This spot has hours, but is closed" )
 
         now = datetime.time(datetime.now())
 
@@ -35,7 +35,7 @@ class SpotHoursOpenNowTest(unittest.TestCase):
 
         # Testing to make sure too small of a radius returns nothing
         c = Client()
-        response = c.get("/api/v1/spot", { 'open_now': True })
+        response = c.get("/api/v1/spot", {'open_now': True })
         self.assertEquals(response.status_code, 200, "Accepts a query for open now")
         spots = json.loads(response.content)
 

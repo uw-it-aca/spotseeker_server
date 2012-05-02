@@ -14,13 +14,13 @@ class SpotHoursPOSTTest(unittest.TestCase):
             'name': "This spot has available hours",
             'capacity': 4,
             'available_hours': {
-                'monday': [ [ "00:00", "10:00" ], [ "11:00", "14:00" ] ],
-                'tuesday': [ [ "11:00", "14:00" ] ],
-                'wednesday': [ [ "11:00", "14:00" ] ],
-                'thursday': [ [ "11:00", "14:00" ] ],
-                'friday': [ [ "11:00", "14:00" ] ],
-                'saturday': [ ],
-                'sunday': [ [ "11:00", "14:00" ] ],
+                'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
+                'tuesday': [["11:00", "14:00"]],
+                'wednesday': [["11:00", "14:00"]],
+                'thursday': [["11:00", "14:00"]],
+                'friday': [["11:00", "14:00"]],
+                'saturday': [],
+                'sunday': [["11:00", "14:00"]],
             }
         }
 

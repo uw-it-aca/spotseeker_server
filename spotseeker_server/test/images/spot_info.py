@@ -16,25 +16,25 @@ class SpotResourceImageTest(unittest.TestCase):
         self.spot = spot
 
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create( description = "This is the GIF test", spot=spot, image = File(f) )
+        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image = File(f) )
         f.close()
 
         self.gif = gif
 
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = SpotImage.objects.create( description = "This is the JPEG test", spot=spot, image = File(f) )
+        jpeg = SpotImage.objects.create(description="This is the JPEG test", spot=spot, image = File(f) )
         f.close()
 
         self.jpeg = jpeg
 
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = SpotImage.objects.create( description = "This is the PNG test", spot=spot, image = File(f) )
+        png = SpotImage.objects.create(description="This is the PNG test", spot=spot, image = File(f) )
         f.close()
 
         self.png = png
 
     def test_empty_image_data(self):
-        spot = Spot.objects.create( name = "A spot with no images")
+        spot = Spot.objects.create(name="A spot with no images")
 
         c = Client()
         response = c.get('/api/v1/spot/{0}'.format(spot.pk))

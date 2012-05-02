@@ -12,13 +12,13 @@ from time import *
 class SpotHoursOpenNowLocationAttributesTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
     def test_open_now(self):
-        open_in_range_matched_spot = Spot.objects.create ( name = "Find this: Atlantic", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )
-        open_in_range_no_match_spot = Spot.objects.create ( name = "Don't find this", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )
+        open_in_range_matched_spot = Spot.objects.create (name = "Find this: Atlantic", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )
+        open_in_range_no_match_spot = Spot.objects.create (name = "Don't find this", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )
 
-        closed_in_range_spot = Spot.objects.create ( name = "This spot is closed now: Atlantic", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )
+        closed_in_range_spot = Spot.objects.create (name = "This spot is closed now: Atlantic", latitude = Decimal('40.0000898315'), longitude = Decimal('-50.0')  )
 
-        open_outof_range_spot = Spot.objects.create ( name = "This spot is open now: Atlantic", latitude = Decimal('45.0000898315'), longitude = Decimal('-55.0')  )
-        closed_outof_range_spot = Spot.objects.create ( name = "This spot is closed now: Atlantic", latitude = Decimal('45.0000898315'), longitude = Decimal('-55.0')  )
+        open_outof_range_spot = Spot.objects.create (name = "This spot is open now: Atlantic", latitude = Decimal('45.0000898315'), longitude = Decimal('-55.0')  )
+        closed_outof_range_spot = Spot.objects.create (name = "This spot is closed now: Atlantic", latitude = Decimal('45.0000898315'), longitude = Decimal('-55.0')  )
 
         now = datetime.time(datetime.now())
 
@@ -41,7 +41,7 @@ class SpotHoursOpenNowLocationAttributesTest(unittest.TestCase):
         open_hours3 = SpotAvailableHours.objects.create(spot = open_in_range_no_match_spot, day = today, start_time = open_start, end_time = open_end)
 
         c = Client()
-        response = c.get("/api/v1/spot", { 'center_latitude':"40", 'center_longitude':-50, 'distance':100, 'open_now':True, 'name':'Atlantic' })
+        response = c.get("/api/v1/spot", {'center_latitude':"40", 'center_longitude':-50, 'distance':100, 'open_now':True, 'name':'Atlantic' })
         spots = json.loads(response.content)
 
         has_open_match_in_range = False

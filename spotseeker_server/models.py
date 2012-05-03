@@ -14,6 +14,7 @@ class Spot(models.Model):
     """ Represents a place for students to study.
     """
     name = models.CharField(max_length=100, blank=True)
+    type_name = models.CharField(max_length=100, blank=True)
     etag = models.CharField(max_length=40)
     capacity = models.IntegerField(null=True, blank=True)
     display_access_restrictions = models.CharField(max_length=200, blank=True)
@@ -72,6 +73,7 @@ class Spot(models.Model):
         return {
             "id": self.pk,
             "name": self.name,
+            "type": self.type_name,
             "capacity": self.capacity,
             "location": {
                 "latitude": self.latitude,

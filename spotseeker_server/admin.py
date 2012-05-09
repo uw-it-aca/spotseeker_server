@@ -19,6 +19,12 @@ class SpotImageAdmin(admin.ModelAdmin):
 admin.site.register(SpotImage, SpotImageAdmin)
 
 
-admin.site.register(SpotAvailableHours)
+class SpotAvailableHoursAdmin(admin.ModelAdmin):
+    """ The admin model for SpotAvailableHours.
+    """
+    list_filter = ('day', 'spot')
+admin.site.register(SpotAvailableHours, SpotAvailableHoursAdmin)
+
+
 admin.site.register(SpotExtendedInfo)
 admin.site.register(TrustedOAuthClient)

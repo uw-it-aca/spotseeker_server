@@ -12,7 +12,8 @@ admin.site.register(Spot, SpotAdmin)
 
 class SpotImageAdmin(admin.ModelAdmin):
     """ The admin model for a SpotImage.
-    Content-type, width, height, and ETag are all filled in by the server on SpotImage save.
+    Content-type, width, height, and ETag are all filled in by the server on
+    SpotImage save.
     """
     exclude = ('content_type', 'width', 'height', 'etag',)
 admin.site.register(SpotImage, SpotImageAdmin)

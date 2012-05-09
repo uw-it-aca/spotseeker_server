@@ -46,7 +46,7 @@ def authenticate_user(*args, **kwargs):
         # 3-legged oauth
         trusted_client = TrustedOAuthClient.objects.get(consumer=consumer)
         if trusted_client and trusted_client.is_trusted:
-            user = request.META["HTTP_XOAUTH_USER"];
+            user = request.META["HTTP_XOAUTH_USER"]
 
         if not user:
             access_token = store.get_access_token(request, oauth_request, consumer, oauth_request[u'oauth_token'])

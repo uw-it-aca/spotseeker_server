@@ -26,7 +26,19 @@ class SpotHoursOverlapTest(unittest.TestCase):
         self.assertEquals(hours1.end_time, new_hours.end_time, "End time is the same")
 
     def test_late_overlap(self):
-        pass
+        """ Tests adding SpotAvailableHours with a start time within current hours, but an end time later than the current open hours.
+        """
+        hours1 = SpotAvailableHours.objects.create(spot=self.spot, day="m", start_time="09:00", end_time="12:00")
+        hours2 = SpotAvailableHours.objects.create(spot=self.spot, day="m", start_time="10:00", end_time="14:00")
+
+        # creating hours2 should get those times merged into hours1
+        hours_obj_count = self.spot.spotavailablehours_set.values_list().count()
+        self.assertEquals(hours_obj_count, 1, "Only one SpotAvailableHours object")
+        
+        # check to see that start and end times are correct
+        new_hours = self.spot.spotavailablehours_set.values_list()[0]
+        self.assertEquals(hours1.start_time, new_hours.start_time, "Start time is the same")
+        self.assertEquals(hours2.end_time, new_hours.end_time, "End time is the same")
 
     def test_total_overlap(self):
         pass
@@ -35,4 +47,13 @@ class SpotHoursOverlapTest(unittest.TestCase):
         pass
 
     def test_no_overlap(self):
+        pass
+
+    def test_exact_same_start(self):
+        pass
+
+    def test_exact_same_end(self):
+        pass
+
+    def test_exact_same_hours(self):
         pass

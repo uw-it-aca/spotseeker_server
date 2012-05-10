@@ -12,7 +12,7 @@ from time import *
 class SpotHoursOpenNowTest(unittest.TestCase):
     """ Tests that we can tell if a Spot is available now, based on it's Available Hours.
     """
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
     def test_open_now(self):
         open_spot = Spot.objects.create (name = "This spot is open now" )
         no_hours_spot = Spot.objects.create(name = "This spot has no hours" )

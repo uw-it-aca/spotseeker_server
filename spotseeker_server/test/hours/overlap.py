@@ -3,6 +3,7 @@ from django.utils import unittest
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 
+
 class SpotHoursOverlapTest(unittest.TestCase):
     """ Tests that when open hours are submitted that overlap with other open hours for a Spot, the previous Spot hours are adjusted rather than having multiple AvailableHours hanging around.
     """
@@ -19,7 +20,7 @@ class SpotHoursOverlapTest(unittest.TestCase):
         # creating hours2 should get those times merged into hours1
         hours_obj_count = self.spot.spotavailablehours_set.values_list().count()
         self.assertEquals(hours_obj_count, 1, "Only one SpotAvailableHours object")
-        
+
         # check to see that start and end times are correct
         new_hours = self.spot.spotavailablehours_set.get(pk=1)
         self.assertEquals(hours2.start_time, new_hours.start_time, "Start time is the same")
@@ -34,7 +35,7 @@ class SpotHoursOverlapTest(unittest.TestCase):
         # creating hours2 should get those times merged into hours1
         hours_obj_count = self.spot.spotavailablehours_set.values_list().count()
         self.assertEquals(hours_obj_count, 1, "Only one SpotAvailableHours object")
-        
+
         # check to see that start and end times are correct
         new_hours = self.spot.spotavailablehours_set.get(pk=1)
         self.assertEquals(hours1.start_time, new_hours.start_time, "Start time is the same")
@@ -49,7 +50,7 @@ class SpotHoursOverlapTest(unittest.TestCase):
         # creating hours2 should get those times merged into hours1
         hours_obj_count = self.spot.spotavailablehours_set.values_list().count()
         self.assertEquals(hours_obj_count, 1, "Only one SpotAvailableHours object")
-        
+
         # check to see that start and end times are correct
         new_hours = self.spot.spotavailablehours_set.get(pk=1)
         self.assertEquals(hours2.start_time, new_hours.start_time, "Start time is the same")
@@ -64,7 +65,7 @@ class SpotHoursOverlapTest(unittest.TestCase):
         # creating hours2 should get those times merged into hours1
         hours_obj_count = self.spot.spotavailablehours_set.values_list().count()
         self.assertEquals(hours_obj_count, 1, "Only one SpotAvailableHours object")
-        
+
         # check to see that start and end times are correct
         new_hours = self.spot.spotavailablehours_set.get(pk=1)
         self.assertEquals(hours1.start_time, new_hours.start_time, "Start time is the same")
@@ -79,7 +80,7 @@ class SpotHoursOverlapTest(unittest.TestCase):
         # creating hours2 should get those times merged into hours1
         hours_obj_count = self.spot.spotavailablehours_set.values_list().count()
         self.assertEquals(hours_obj_count, 2, "Two SpotAvailableHours objects")
-        
+
         # check to see that start and end times are correct
         new_hours = self.spot.spotavailablehours_set.get(pk=1)
         new_hours2 = self.spot.spotavailablehours_set.get(pk=2)

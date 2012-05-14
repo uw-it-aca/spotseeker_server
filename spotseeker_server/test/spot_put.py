@@ -8,7 +8,7 @@ import random
 class SpotPUTTest(unittest.TestCase):
     """ Tests updating Spot information via PUT.
     """
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
 
     def setUp(self):
         spot = Spot.objects.create(name="This is for testing PUT")

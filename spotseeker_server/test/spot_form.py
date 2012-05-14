@@ -5,8 +5,8 @@ from django.conf import settings
 
 
 class SpotFormTest(unittest.TestCase):
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
-    settings.SPOTSEEKER_SPOT_FORM = 'spotseeker_server.default_forms.spot.DefaultSpotForm';
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
+    settings.SPOTSEEKER_SPOT_FORM = 'spotseeker_server.default_forms.spot.DefaultSpotForm'
 
     def test_default(self):
         form = SpotForm({})

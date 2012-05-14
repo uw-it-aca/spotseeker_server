@@ -120,4 +120,3 @@ class SpotSearchFieldTest(unittest.TestCase):
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Includes each spot, uniquely")
             spot_ids[spot['id']] = 2
-

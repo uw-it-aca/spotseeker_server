@@ -116,71 +116,71 @@ class SpotSearchDistanceTest(unittest.TestCase):
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 4, "Returns 4 spots")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
         }
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner spot")
             spot_ids[spot['id']] = 2
 
         # Testing the mid ring
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':60 })
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 60})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 8, "Returns 8 spots")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
         }
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner or mid spot")
             spot_ids[spot['id']] = 2
 
         # Testing the outer ring
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':110 })
+        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance': 110})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 12, "Returns 12 spots")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
-            outer_left.pk : 1,
-            outer_right.pk : 1,
-            outer_top.pk : 1,
-            outer_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
+            outer_left.pk: 1,
+            outer_right.pk: 1,
+            outer_top.pk: 1,
+            outer_bottom.pk: 1,
         }
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner, mid or outer spot")
             spot_ids[spot['id']] = 2
 
         # testing a limit - should get the inner 4, and any 2 of the mid
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':60 ,'limit':6})
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 60, 'limit': 6})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 6, "Returns 6 spots")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
         }
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner, mid or outer spot")
@@ -192,42 +192,42 @@ class SpotSearchDistanceTest(unittest.TestCase):
         self.assertEquals(spot_ids[inner_bottom.pk], 2, "Inner bottom was selected")
 
         # Testing limits - should get all of the inner and mid, but no outer spots
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':101 ,'limit':8})
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 101, 'limit': 8})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 8, "Returns 8 spots")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
         }
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner or mid spot")
             spot_ids[spot['id']] = 2
 
         # Testing limits - should get all inner and mid spots, and 2 outer spots
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':101 ,'limit':10})
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 101, 'limit': 10})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 10, "Returns 10 spots")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
-            outer_left.pk : 1,
-            outer_right.pk : 1,
-            outer_top.pk : 1,
-            outer_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
+            outer_left.pk: 1,
+            outer_right.pk: 1,
+            outer_top.pk: 1,
+            outer_bottom.pk: 1,
         }
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner, mid or outer spot")
@@ -244,46 +244,46 @@ class SpotSearchDistanceTest(unittest.TestCase):
         self.assertEquals(spot_ids[mid_bottom.pk], 2, "Mid bottom was selected")
 
         # Testing that limit 0 = no limit - get all 12 spots
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':110, 'limit': 0 })
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 110, 'limit': 0})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 12, "Returns 12 spots with a limit of 0")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
-            outer_left.pk : 1,
-            outer_right.pk : 1,
-            outer_top.pk : 1,
-            outer_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
+            outer_left.pk: 1,
+            outer_right.pk: 1,
+            outer_top.pk: 1,
+            outer_bottom.pk: 1,
         }
         for spot in spots:
             self.assertEquals(spot_ids[spot['id']], 1, "Spot matches a unique inner, mid or outer spot")
             spot_ids[spot['id']] = 2
 
         # Testing that the default limit is 20 spaces
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':150 })
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 150})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 20, "Returns 20 spots with no defined limit")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
-            outer_left.pk : 1,
-            outer_right.pk : 1,
-            outer_top.pk : 1,
-            outer_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
+            outer_left.pk: 1,
+            outer_right.pk: 1,
+            outer_top.pk: 1,
+            outer_bottom.pk: 1,
         }
 
         far_out_count = 0
@@ -296,23 +296,23 @@ class SpotSearchDistanceTest(unittest.TestCase):
         self.assertEquals(far_out_count, 8, "Found 8 far out spots to fill in the limit of 20")
 
         # Testing that with a limit of 0, we pull in all spots in range
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':130, 'limit':0 })
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 130, 'limit': 0})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 112, "Returns 112 spots with a limit of 0")
         spot_ids = {
-            inner_left.pk : 1,
-            inner_right.pk : 1,
-            inner_top.pk : 1,
-            inner_bottom.pk : 1,
-            mid_left.pk : 1,
-            mid_right.pk : 1,
-            mid_top.pk : 1,
-            mid_bottom.pk : 1,
-            outer_left.pk : 1,
-            outer_right.pk : 1,
-            outer_top.pk : 1,
-            outer_bottom.pk : 1,
+            inner_left.pk: 1,
+            inner_right.pk: 1,
+            inner_top.pk: 1,
+            inner_bottom.pk: 1,
+            mid_left.pk: 1,
+            mid_right.pk: 1,
+            mid_top.pk: 1,
+            mid_bottom.pk: 1,
+            outer_left.pk: 1,
+            outer_right.pk: 1,
+            outer_top.pk: 1,
+            outer_bottom.pk: 1,
         }
 
         far_out_count = 0

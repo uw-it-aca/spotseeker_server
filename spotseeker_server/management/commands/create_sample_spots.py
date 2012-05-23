@@ -31,6 +31,16 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="surfaces", value="Large, Flat", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="seating", value="Comfy chairs", spot=art)
 
+            art2 = Spot.objects.create(name="Also in the Art Building", type_name="Café", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241') )
+            art_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=art2)
+            art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="1", spot=art2)
+            art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=art2)
+            art_ada = SpotExtendedInfo.objects.create(key="has_monitors", value="1", spot=art2)
+            art_ada = SpotExtendedInfo.objects.create(key="surfaces", value="Large, Flat", spot=art2)
+            art_ada = SpotExtendedInfo.objects.create(key="seating", value="Comfy chairs", spot=art2)
+
+
+
 #            f = open("building1.jpg")
 #            art_img1 = SpotImage.objects.create( description = "This is one building", spot=art, image = File(f) )
 #            f = open("building2.jpg")
@@ -43,4 +53,5 @@ class Command(BaseCommand):
 
             for day in ["su", "m", "t", "w", "th", "f", "sa"]:
                 SpotAvailableHours.objects.create(spot=art, day=day, start_time="00:00", end_time="23:59")
+                SpotAvailableHours.objects.create(spot=art2, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=savery, day=day, start_time="00:00", end_time="23:59")

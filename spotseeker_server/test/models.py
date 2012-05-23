@@ -1,10 +1,10 @@
-
 from django.core.files import File
 from django.utils import unittest
 from spotseeker_server.models import *
 from os.path import abspath, dirname
 
 TEST_ROOT = abspath(dirname(__file__))
+
 
 class SpotModelToStringTests(unittest.TestCase):
     def test_spot(self):

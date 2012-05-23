@@ -22,6 +22,7 @@ class Spot(models.Model):
     manager = models.CharField(max_length=50, blank=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
+    height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -78,6 +79,7 @@ class Spot(models.Model):
             "location": {
                 "latitude": self.latitude,
                 "longitude": self.longitude,
+                "height_from_sea_level": self.height_from_sea_level,
             },
             "extended_info": extended_info,
             "available_hours": available_hours,

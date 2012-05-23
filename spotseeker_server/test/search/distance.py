@@ -19,6 +19,12 @@ class SpotSearchDistanceTest(unittest.TestCase):
         self.assertEquals(response.status_code, 200, "Accepts a query with bad longitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
+    def test_invalid_height(self):
+        c = Client()
+        response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':-40, 'height_from_sea_level':"bad_data", 'distance':"10" })
+        self.assertEquals(response.status_code, 200, "Accepts a query with bad height")
+        self.assertEquals(response.content, '[]', "Should return no matches")
+
     def test_invalid_distance(self):
         c = Client()
         response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':"-40", 'distance':"bad_data" })

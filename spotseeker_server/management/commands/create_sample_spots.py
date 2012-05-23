@@ -51,7 +51,16 @@ class Command(BaseCommand):
             savery = Spot.objects.create( name="In Savery", type_name="Study room", capacity=20, longitude=Decimal('-122.308504'), latitude=Decimal('47.657041'))
             savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery)
 
+
+            savery2 = Spot.objects.create( name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657041'))
+            savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery2)
+
+            savery3 = Spot.objects.create( name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657431'))
+            savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery3)
+
             for day in ["su", "m", "t", "w", "th", "f", "sa"]:
                 SpotAvailableHours.objects.create(spot=art, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=art2, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=savery, day=day, start_time="00:00", end_time="23:59")
+                SpotAvailableHours.objects.create(spot=savery2, day=day, start_time="00:00", end_time="23:59")
+                SpotAvailableHours.objects.create(spot=savery3, day=day, start_time="00:00", end_time="23:59")

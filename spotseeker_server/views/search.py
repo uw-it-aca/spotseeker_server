@@ -83,6 +83,9 @@ class SearchView(RESTDispatch):
                 }
                 query = query.filter(**kwargs)
                 has_valid_search_param = True
+            elif key == "id":
+                query = query.filter(id__in=request.GET.getlist(key))
+                has_valid_search_param = True
             else:
                 try:
                     kwargs = {

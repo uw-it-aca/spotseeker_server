@@ -18,6 +18,10 @@ class Spot(models.Model):
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
+    building_name = models.CharField(max_length=100, blank=True)
+    floor = models.CharField(max_length=50, blank=True)
+    room_number = models.CharField(max_length=25, blank=True)
+    description = models.TextField(blank=True)
     capacity = models.IntegerField(null=True, blank=True)
     display_access_restrictions = models.CharField(max_length=200, blank=True)
     organization = models.CharField(max_length=50, blank=True)
@@ -80,10 +84,10 @@ class Spot(models.Model):
                 "latitude": self.latitude,
                 "longitude": self.longitude,
                 "height_from_sea_level": self.height_from_sea_level,
-                "building_name": "",  # Not implemented yet.
-                "floor": "", # Not implemented yet.
-                "room_number": "", # Not implemented yet.
-                "description": "" # Not implemented yet.
+                "building_name": self.building_name,
+                "floor": self.floor,
+                "room_number": self.room_number,
+                "description": self.description
             },
             "capacity": self.capacity,
             "display_access_restrictions": self.display_access_restrictions,

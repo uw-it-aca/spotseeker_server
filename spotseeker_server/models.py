@@ -15,14 +15,14 @@ class Spot(models.Model):
     """
     name = models.CharField(max_length=100, blank=True)
     type_name = models.CharField(max_length=100, blank=True)
-    etag = models.CharField(max_length=40)
+    latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
+    height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
     capacity = models.IntegerField(null=True, blank=True)
     display_access_restrictions = models.CharField(max_length=200, blank=True)
     organization = models.CharField(max_length=50, blank=True)
     manager = models.CharField(max_length=50, blank=True)
-    latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
-    longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
-    height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
+    etag = models.CharField(max_length=40)
 
     def __unicode__(self):
         return self.name
@@ -59,31 +59,39 @@ class Spot(models.Model):
         for img in spot_images:
             images.append({
                 "id": img.pk,
+                "url": img.rest_url(),
                 "content-type": img.content_type,
-                "description": img.description,
-                "creation_date": format_date_time(time.mktime(img.creation_date.timetuple())),
-                "modification_date": format_date_time(time.mktime(img.modification_date.timetuple())),
                 "width": img.width,
                 "height": img.height,
-                "url": img.rest_url(),
-                "thumbnail_root": "{0}/thumb".format(img.rest_url()),
+                "creation_date": format_date_time(time.mktime(img.creation_date.timetuple())),
+                "modification_date": format_date_time(time.mktime(img.modification_date.timetuple())),
                 "upload_user": img.upload_user,
                 "upload_application": img.upload_application,
+                "thumbnail_root": "{0}/thumb".format(img.rest_url()),
+                "description": img.description
             })
 
         return {
             "id": self.pk,
+            "uri": self.rest_url(),
             "name": self.name,
             "type": self.type_name,
-            "capacity": self.capacity,
             "location": {
                 "latitude": self.latitude,
                 "longitude": self.longitude,
                 "height_from_sea_level": self.height_from_sea_level,
+                "building_name": "",  # Not implemented yet.
+                "floor": "", # Not implemented yet.
+                "room_number": "", # Not implemented yet.
+                "description": "" # Not implemented yet.
             },
-            "extended_info": extended_info,
+            "capacity": self.capacity,
+            "display_access_restrictions": self.display_access_restrictions,
+            "images": images,
             "available_hours": available_hours,
-            "images": images
+            "organization": self.organization,
+            "manager": self.manager,
+            "extended_info": extended_info
         }
 
 

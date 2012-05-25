@@ -1,6 +1,6 @@
-
 from django.utils import unittest
 from django.test.client import Client
+
 
 class NoRESTMethodsTest(unittest.TestCase):
     def test_no_GET(self):

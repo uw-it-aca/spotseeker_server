@@ -5,53 +5,55 @@ from spotseeker_server.models import Spot
 import simplejson as json
 from decimal import *
 
+
 class SpotSearchDistanceTest(unittest.TestCase):
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
+
     def test_invalid_latitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"bad_data", 'center_longitude':-40, 'distance':10 })
+        response = c.get("/api/v1/spot", {'center_latitude': "bad_data", 'center_longitude': -40, 'distance': 10})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad latitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_longitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':"bad_data", 'distance':"10" })
+        response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': "bad_data", 'distance': "10"})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad longitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_height(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':-40, 'height_from_sea_level':"bad_data", 'distance':"10" })
+        response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': -40, 'height_from_sea_level': "bad_data", 'distance': "10"})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad height")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_distance(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':"-40", 'distance':"bad_data" })
+        response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': "-40", 'distance': "bad_data"})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad distance")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_longitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':30, 'center_longitude':190, 'distance':10 })
+        response = c.get("/api/v1/spot", {'center_latitude': 30, 'center_longitude': 190, 'distance': 10})
         self.assertEquals(response.status_code, 200, "Accepts a query with too large longitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_latitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':100, 'center_longitude':-40, 'distance':10 })
+        response = c.get("/api/v1/spot", {'center_latitude': 100, 'center_longitude': -40, 'distance': 10})
         self.assertEquals(response.status_code, 200, "Accepts a query with too large latitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_negative_latitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':-100, 'center_longitude':-40, 'distance':10 })
+        response = c.get("/api/v1/spot", {'center_latitude': -100, 'center_longitude': -40, 'distance': 10})
         self.assertEquals(response.status_code, 200, "Accepts a query with too negative latitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_negative_longitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':40, 'center_longitude':-190, 'distance':10 })
+        response = c.get("/api/v1/spot", {'center_latitude': 40, 'center_longitude': -190, 'distance': 10})
         self.assertEquals(response.status_code, 200, "Accepts a query with too negative longitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
@@ -74,44 +76,44 @@ class SpotSearchDistanceTest(unittest.TestCase):
 
         # Creating these from the outside in, so things that sort by primary key will give bad results for things that should be sorted by distance
         for i in range(0, 100):
-            far_out = Spot.objects.create(name="Far Out %s" % i, latitude = Decimal('30.0010779783'), longitude = Decimal('-40.0') )
+            far_out = Spot.objects.create(name="Far Out %s" % i, latitude=Decimal('30.0010779783'), longitude=Decimal('-40.0'))
             far_out.save()
 
-        outer_top = Spot.objects.create(name="Outer Top", latitude = Decimal('30.0008983153'), longitude = Decimal('-40.0') )
+        outer_top = Spot.objects.create(name="Outer Top", latitude=Decimal('30.0008983153'), longitude=Decimal('-40.0'))
         outer_top.save()
-        outer_bottom = Spot.objects.create(name="Outer Bottom", latitude = Decimal('29.9991016847'), longitude = Decimal('-40.0') )
+        outer_bottom = Spot.objects.create(name="Outer Bottom", latitude=Decimal('29.9991016847'), longitude=Decimal('-40.0'))
         outer_bottom.save()
-        outer_left = Spot.objects.create(name="Outer Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0010372851') )
+        outer_left = Spot.objects.create(name="Outer Left", latitude=Decimal('30.0'), longitude=Decimal('-40.0010372851'))
         outer_left.save()
-        outer_right = Spot.objects.create(name="Outer Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9989627149') )
+        outer_right = Spot.objects.create(name="Outer Right", latitude=Decimal('30.0'), longitude=Decimal('-39.9989627149'))
         outer_right.save()
 
-        mid_top = Spot.objects.create(name="Mid Top", latitude = Decimal(' 30.0004491576'), longitude = Decimal('-40.0') )
+        mid_top = Spot.objects.create(name="Mid Top", latitude=Decimal(' 30.0004491576'), longitude=Decimal('-40.0'))
         mid_top.save()
-        mid_bottom = Spot.objects.create(name="Mid Bottom", latitude = Decimal('29.9995508424'), longitude = Decimal('-40.0') )
+        mid_bottom = Spot.objects.create(name="Mid Bottom", latitude=Decimal('29.9995508424'), longitude=Decimal('-40.0'))
         mid_bottom.save()
-        mid_left = Spot.objects.create(name="Mid Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0005186426') )
+        mid_left = Spot.objects.create(name="Mid Left", latitude=Decimal('30.0'), longitude=Decimal('-40.0005186426'))
         mid_left.save()
-        mid_right = Spot.objects.create(name="Mid Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9994813574') )
+        mid_right = Spot.objects.create(name="Mid Right", latitude=Decimal('30.0'), longitude=Decimal('-39.9994813574'))
         mid_right.save()
 
-        inner_top = Spot.objects.create(name="Inner Top", latitude = Decimal('30.0000898315'), longitude = Decimal('-40.0') )
+        inner_top = Spot.objects.create(name="Inner Top", latitude=Decimal('30.0000898315'), longitude=Decimal('-40.0'))
         inner_top.save()
-        inner_bottom = Spot.objects.create(name="Inner Bottom", latitude = Decimal('29.9999101685'), longitude = Decimal('-40.0') )
+        inner_bottom = Spot.objects.create(name="Inner Bottom", latitude=Decimal('29.9999101685'), longitude=Decimal('-40.0'))
         inner_bottom.save()
-        inner_left = Spot.objects.create(name="Inner Left", latitude = Decimal('30.0'), longitude = Decimal('-40.0001037285') )
+        inner_left = Spot.objects.create(name="Inner Left", latitude=Decimal('30.0'), longitude=Decimal('-40.0001037285'))
         inner_left.save()
-        inner_right = Spot.objects.create(name="Inner Right", latitude = Decimal('30.0'), longitude = Decimal('-39.9998962715') )
+        inner_right = Spot.objects.create(name="Inner Right", latitude=Decimal('30.0'), longitude=Decimal('-39.9998962715'))
         inner_right.save()
 
         # Testing to make sure too small of a radius returns nothing
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':1 })
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 1})
         self.assertEquals(response.status_code, 200, "Accepts a query with no matches")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
         # Testing the inner ring
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance':12 })
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 12})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 4, "Returns 4 spots")
@@ -145,7 +147,7 @@ class SpotSearchDistanceTest(unittest.TestCase):
             spot_ids[spot['id']] = 2
 
         # Testing the outer ring
-        response = c.get("/api/v1/spot", {'center_latitude':center_lat, 'center_longitude':center_long, 'distance': 110})
+        response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 110})
         self.assertEquals(response.status_code, 200, "Accepts the distance query")
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 12, "Returns 12 spots")

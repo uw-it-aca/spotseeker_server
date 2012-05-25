@@ -30,7 +30,7 @@ class SpotModelToStringTests(unittest.TestCase):
     def test_image(self):
         spot = Spot.objects.create(name="This is the test name")
         f = open("%s/resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image=File(f) )
+        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image=File(f))
 
         test_str = "{0}".format(gif)
         self.assertEquals(test_str, "This is the GIF test", "Proper stringification of SpotImage objects")

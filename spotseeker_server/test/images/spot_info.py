@@ -9,26 +9,28 @@ import simplejson as json
 
 TEST_ROOT = abspath(dirname(__file__))
 
+
 class SpotResourceImageTest(unittest.TestCase):
+
     def setUp(self):
-        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
-        spot = Spot.objects.create( name = "This is to test images in the spot resource" )
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
+        spot = Spot.objects.create(name="This is to test images in the spot resource")
         self.spot = spot
 
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image = File(f) )
+        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image=File(f))
         f.close()
 
         self.gif = gif
 
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = SpotImage.objects.create(description="This is the JPEG test", spot=spot, image = File(f) )
+        jpeg = SpotImage.objects.create(description="This is the JPEG test", spot=spot, image=File(f))
         f.close()
 
         self.jpeg = jpeg
 
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = SpotImage.objects.create(description="This is the PNG test", spot=spot, image = File(f) )
+        png = SpotImage.objects.create(description="This is the PNG test", spot=spot, image=File(f))
         f.close()
 
         self.png = png

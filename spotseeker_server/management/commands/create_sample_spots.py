@@ -31,7 +31,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="surfaces", value="Large, Flat", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="seating", value="Comfy chairs", spot=art)
 
-            art2 = Spot.objects.create(name="Also in the Art Building", type_name="Café", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art building")
+            art2 = Spot.objects.create(name="Also in the Art Building", type_name="Café", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
             art_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=art2)

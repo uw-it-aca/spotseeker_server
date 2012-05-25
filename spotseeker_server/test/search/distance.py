@@ -5,29 +5,31 @@ from spotseeker_server.models import Spot
 import simplejson as json
 from decimal import *
 
+
 class SpotSearchDistanceTest(unittest.TestCase):
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
+
     def test_invalid_latitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"bad_data", 'center_longitude':-40, 'distance':10 })
+        response = c.get("/api/v1/spot", {'center_latitude': "bad_data", 'center_longitude': -40, 'distance': 10})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad latitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_longitude(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':"bad_data", 'distance':"10" })
+        response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': "bad_data", 'distance': "10"})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad longitude")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_height(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':-40, 'height_from_sea_level':"bad_data", 'distance':"10" })
+        response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': -40, 'height_from_sea_level': "bad_data", 'distance': "10"})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad height")
         self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_distance(self):
         c = Client()
-        response = c.get("/api/v1/spot", {'center_latitude':"30", 'center_longitude':"-40", 'distance':"bad_data" })
+        response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': "-40", 'distance': "bad_data"})
         self.assertEquals(response.status_code, 200, "Accepts a query with bad distance")
         self.assertEquals(response.content, '[]', "Should return no matches")
 

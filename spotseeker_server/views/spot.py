@@ -13,7 +13,7 @@ try:
     org_forms_mod = __import__(settings.SPOTSEEKER_ORG_SPOT_FORM[0], fromlist=[settings.SPOTSEEKER_ORG_SPOT_FORM[1]])
     org_spot_form = getattr(org_forms_mod, settings.SPOTSEEKER_ORG_SPOT_FORM[1])
 except:
-    org_spot_form = None
+    pass
 
 
 class SpotView(RESTDispatch):

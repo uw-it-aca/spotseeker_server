@@ -1,19 +1,17 @@
 from django.utils import unittest
 from django.conf import settings
 from django.test.client import Client
-from spotseeker_server.models import Spot, SpotExtendedInfo
+from spotseeker_server.models import Spot
 import simplejson as json
 
 
 class SpotAuthAllOK(unittest.TestCase):
     """ Tests that the all_ok auth module successfully allows any client access.
     """
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
     def setUp(self):
-        spot = Spot.objects.create(name="This is for testing the all ok auth module",
-                                   capacity=10)
-        extended = SpotExtendedInfo.objects.create(spot=spot, key="outlets", value=True)
+        spot = Spot.objects.create(name="This is for testing the all ok auth module", capacity=10 )
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 

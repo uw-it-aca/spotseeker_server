@@ -24,7 +24,7 @@ class SpotHoursPUTTest(unittest.TestCase):
                 'saturday': [],
                 'sunday': [["11:00", "14:00"]],
             },
-            'extended_info': {"outlets": 0}
+            'extended_info': {}
         }
 
         c = Client()

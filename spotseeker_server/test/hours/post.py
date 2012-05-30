@@ -4,10 +4,9 @@ from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 
-
 class SpotHoursPOSTTest(unittest.TestCase):
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
-    settings.SPOTSEEKER_SPOT_FORM = 'spotseeker_server.default_forms.spot.DefaultSpotForm'
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+    settings.SPOTSEEKER_SPOT_FORM = 'spotseeker_server.default_forms.spot.DefaultSpotForm';
 
     def test_hours(self):
 
@@ -22,12 +21,11 @@ class SpotHoursPOSTTest(unittest.TestCase):
                 'friday': [["11:00", "14:00"]],
                 'saturday': [],
                 'sunday': [["11:00", "14:00"]],
-            },
-            'extended_info': {}
+            }
         }
 
         c = Client()
-        response = c.post("/api/v1/spot/", json.dumps(post_obj), content_type="application/json")
+        response = c.post("/api/v1/spot/", json.dumps(post_obj) , content_type="application/json")
 
         get_response = c.get(response["Location"])
 

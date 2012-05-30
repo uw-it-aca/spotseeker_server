@@ -1,6 +1,6 @@
 from django.utils import unittest
 from django.conf import settings
-from spotseeker_server.models import Spot, TrustedOAuthClient
+from spotseeker_server.models import Spot, SpotExtendedInfo, TrustedOAuthClient
 from django.test.client import Client
 import re
 import simplejson as json
@@ -14,9 +14,11 @@ import random
 from oauth_provider.models import Consumer
 import oauth2
 
+
 class SpotAuthOAuthLogger(unittest.TestCase):
     def setUp(self):
-        spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10 )
+        spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10)
+        extended = SpotExtendedInfo.objects.create(spot=spot, key="outlets", value=True)
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
@@ -41,7 +43,7 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         self.log.addHandler(self.handler)
 
     def test_log_value_2_legged(self):
-        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth'
 
         consumer_name = "Test consumer"
 
@@ -59,7 +61,7 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         c = Client()
         response = c.get(self.url, HTTP_AUTHORIZATION=oauth_header['Authorization'])
 
-        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
 
         self.handler.flush()
         log_message = self.stream.getvalue()
@@ -79,7 +81,7 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         self.assertEquals(response_size, len(response.content), "Logging correct content size")
 
     def test_log_trusted_3_legged(self):
-        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth'
         consumer_name = "Trusted test consumer"
 
         key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
@@ -103,7 +105,7 @@ class SpotAuthOAuthLogger(unittest.TestCase):
 
         response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag, HTTP_AUTHORIZATION=oauth_header['Authorization'], HTTP_XOAUTH_USER="pmichaud")
         self.assertEquals(response.status_code, 200, "Accespts a PUT from a trusted oauth client")
-        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
 
         self.handler.flush()
         log_message = self.stream.getvalue()
@@ -125,12 +127,12 @@ class SpotAuthOAuthLogger(unittest.TestCase):
         self.assertEquals(response_size, len(response.content), "Logging correct content size")
 
     def test_invalid(self):
-        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth';
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth'
 
         c = Client()
         response = c.get(self.url)
 
-        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
+        settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
 
         self.handler.flush()
         log_message = self.stream.getvalue()

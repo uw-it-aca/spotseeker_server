@@ -10,7 +10,7 @@ class SpotHoursGETTest(unittest.TestCase):
 
     def setUp(self):
         spot = Spot.objects.create(name="This spot has available hours")
-        spot.extended_info = {}
+        spot.extended_info = {"outlets": 1}
         # Intentionally out of order - make sure windows are sorted, not just in db happenstance order
         hours2 = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="11:00", end_time="14:00")
         hours1 = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00", end_time="10:00")

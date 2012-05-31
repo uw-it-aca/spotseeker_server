@@ -5,15 +5,6 @@ from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 import simplejson as json
 from django.db import transaction
-from django.conf import settings
-
-try:
-    # If an organization has their own set of validators for ExtendedInfo, it should be defined in their settings.py.
-    # This imports that SpotForm. SPOTSEEKER_ORG_SPOT_FORM should be a tuple consisting of the module then form name.
-    org_forms_mod = __import__(settings.SPOTSEEKER_ORG_SPOT_FORM[0], fromlist=[settings.SPOTSEEKER_ORG_SPOT_FORM[1]])
-    org_spot_form = getattr(org_forms_mod, settings.SPOTSEEKER_ORG_SPOT_FORM[1])
-except:
-    org_spot_form = None
 
 
 class SpotView(RESTDispatch):
@@ -108,11 +99,7 @@ class SpotView(RESTDispatch):
             response.status_code = 400
             return response
 
-        if org_spot_form:
-            form = org_spot_form(new_values)
-        else:
-            form = SpotForm(new_values)
-
+        form = SpotForm(new_values)
         if not form.is_valid():
             response = HttpResponse(json.dumps(form.errors))
             response.status_code = 400

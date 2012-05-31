@@ -59,8 +59,7 @@ class SpotPUTTest(unittest.TestCase):
         response = c.get(self.url)
         etag = response["ETag"]
 
-        json_string = '{"name":"%s","capacity":"%s","extended_info":{"outlets":1}}' % (new_name, new_capacity)
-        response = c.put(self.url, json_string, content_type="application/json", If_Match=etag)
+        response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", If_Match=etag)
         self.assertEquals(response.status_code, 200, "Accepts a valid json string")
 
         updated_spot = Spot.objects.get(pk=self.spot.pk)

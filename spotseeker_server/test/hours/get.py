@@ -4,13 +4,10 @@ from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 
-
 class SpotHoursGETTest(unittest.TestCase):
     settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
-
     def setUp(self):
         spot = Spot.objects.create(name="This spot has available hours")
-        spot.extended_info = {"outlets": 1}
         # Intentionally out of order - make sure windows are sorted, not just in db happenstance order
         hours2 = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="11:00", end_time="14:00")
         hours1 = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00", end_time="10:00")
@@ -32,8 +29,8 @@ class SpotHoursGETTest(unittest.TestCase):
         spot_dict = json.loads(response.content)
 
         valid_data = {
-            'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
-            'tuesday': [["11:00", "14:00"]],
+            'monday': [["00:00", "10:00" ], ["11:00", "14:00"]],
+            'tuesday': [["11:00", "14:00" ]],
             'wednesday': [["11:00", "14:00"]],
             'thursday': [["11:00", "14:00"]],
             'friday': [["11:00", "14:00"]],
@@ -43,3 +40,7 @@ class SpotHoursGETTest(unittest.TestCase):
 
         available_hours = spot_dict["available_hours"]
         self.assertEquals(available_hours, valid_data, "Data from the web service matches the data for the spot")
+
+
+
+

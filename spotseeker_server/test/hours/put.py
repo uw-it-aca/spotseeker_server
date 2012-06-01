@@ -1,15 +1,14 @@
-from django.test import TestCase
+from django.utils import unittest
 from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 
-
-class SpotHoursPUTTest(TestCase):
-    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
+class SpotHoursPUTTest(unittest.TestCase):
+    settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok';
 
     def test_hours(self):
-        spot = Spot.objects.create(name="This spot has available hours")
+        spot = Spot.objects.create(name = "This spot has available hours" )
         etag = spot.etag
 
         put_obj = {
@@ -28,20 +27,8 @@ class SpotHoursPUTTest(TestCase):
 
         c = Client()
         url = "/api/v1/spot/%s" % spot.pk
-        response = c.put(url, json.dumps(put_obj), content_type="application/json", If_Match=etag)
+        response = c.put(url, json.dumps(put_obj) , content_type="application/json", If_Match=etag )
         spot_dict = json.loads(response.content)
 
         self.maxDiff = None
         self.assertEquals(spot_dict["available_hours"], put_obj["available_hours"], "Data from the web service matches the data for the spot")
-
-        if settings.SPOTSEEKER_SPOT_FORM:
-            with self.settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-
-                response = c.get(url)
-                etag = response["ETag"]
-
-                response = c.put(url, json.dumps(put_obj), content_type="application/json", If_Match=etag)
-                spot_dict = json.loads(response.content)
-
-                self.maxDiff = None
-                self.assertEquals(spot_dict["available_hours"], put_obj["available_hours"], "Data from the web service matches the data for the spot")

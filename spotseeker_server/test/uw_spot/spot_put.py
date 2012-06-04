@@ -10,12 +10,12 @@ class UWSpotPUTTest(TestCase):
     """
 
     def setUp(self):
-            spot = Spot.objects.create(name="This is for testing PUT")
-            spot.save()
-            self.spot = spot
+        spot = Spot.objects.create(name="This is for testing PUT")
+        spot.save()
+        self.spot = spot
 
-            url = '/api/v1/spot/{0}'.format(self.spot.pk)
-            self.url = url
+        url = '/api/v1/spot/{0}'.format(self.spot.pk)
+        self.url = url
 
     def test_bad_json(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',

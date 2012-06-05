@@ -27,7 +27,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="1", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=art)
-            art_ada = SpotExtendedInfo.objects.create(key="has_monitors", value="1", spot=art)
+            art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="1", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="surfaces", value="Large, Flat", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="seating", value="Comfy chairs", spot=art)
 
@@ -35,7 +35,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=art2)
-            art_ada = SpotExtendedInfo.objects.create(key="has_monitors", value="1", spot=art2)
+            art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="surfaces", value="Large, Flat", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="seating", value="Comfy chairs", spot=art2)
 

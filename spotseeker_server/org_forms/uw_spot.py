@@ -27,6 +27,9 @@ class ExtendedInfoField(forms.Field):
                 raise forms.ValidationError("Value for printer must be 'In space', 'In building', or 'Not available'")
 
         # scanner should be one of 'In space', 'In building', 'Available for checkout', or 'Not available'
+        if "scanner" in value:
+            if not re.match("In space|In building|Available for checkout|Not available", value['scanner']):
+                raise forms.ValidationError("Value for scanner must be 'In space', 'In building', 'Available for checkout', or 'Not available'")
 
         # large_screen should be True/False
 

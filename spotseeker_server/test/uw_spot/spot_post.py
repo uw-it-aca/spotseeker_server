@@ -16,7 +16,7 @@ class UWSpotPOSTTest(TestCase):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"whiteboards":"True"}}' % (new_name, new_capacity)
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"whiteboards":"True","outlets":"False"}}' % (new_name, new_capacity)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
@@ -55,3 +55,60 @@ class UWSpotPOSTTest(TestCase):
             c = Client()
             response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 400)
+
+    def test_uw_field_whiteboards(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+            whiteboards = 12
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"whiteboards":"%s","outlets":"True"}}' % (new_name, new_capacity, whiteboards)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 400, "Not created because whiteboards field did not pass validation")
+
+            whiteboards = 'False'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"whiteboards":"%s","outlets":"True"}}' % (new_name, new_capacity, whiteboards)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+
+    def test_uw_field_outlets(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+            outlets = 12
+
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"whiteboards":"False"}}' % (new_name, new_capacity)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+            self.assertEquals(response.status_code, 400, "Not created because outlets was not included")
+
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"whiteboards":"False","outlets":"%s"}}' % (new_name, new_capacity, outlets)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+            self.assertEquals(response.status_code, 400, "Not created because outlets field did not pass validation")
+
+            outlets = 'True'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"whiteboards":"False","outlets":"%s"}}' % (new_name, new_capacity, outlets)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+
+    def test_uw_field_printer(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+            printer = 12
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"outlets":"True","printer":"%s"}}' % (new_name, new_capacity, printer)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 400, "Not created because printer field did not pass validation")
+
+            printer = 'In building'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"outlets":"True","printer":"%s"}}' % (new_name, new_capacity, printer)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")

@@ -32,6 +32,9 @@ class ExtendedInfoField(forms.Field):
                 raise forms.ValidationError("Value for scanner must be 'In space', 'In building', 'Available for checkout', or 'Not available'")
 
         # large_screen should be True/False
+        if "large_screen" in value:
+            if not re.match("True|False", value["large_screen"]):
+                raise forms.ValidationError("Value for large_screen must be 'True' or 'False'")
 
         # projector should be True/False
 

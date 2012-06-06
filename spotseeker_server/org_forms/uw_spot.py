@@ -67,6 +67,10 @@ class ExtendedInfoField(forms.Field):
                 raise forms.ValidationError("Value for noise_level must be one of %s" % choices)
 
         # food_nearby should be one of 'In space', 'In building', 'In neighboring building', 'None nearby'
+        if "food_nearby" in value:
+            choices = ['In space', 'In building', 'In neighboring building', 'None nearby']
+            if not value["food_nearby"] in choices:
+                raise forms.ValidationError("Value for food_nearby must be one of %s" % choices)
 
         return True
 

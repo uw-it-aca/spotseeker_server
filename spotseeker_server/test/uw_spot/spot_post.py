@@ -220,3 +220,21 @@ class UWSpotPOSTTest(TestCase):
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+
+    def test_uw_field_food_nearby(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+            food_nearby = 'The ave'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"1","food_nearby":"%s"}}' % (new_name, new_capacity, food_nearby)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 400, "Not created because food_nearby field did not pass validation")
+
+            food_nearby = 'In building'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"1","food_nearby":"%s"}}' % (new_name, new_capacity, food_nearby)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")

@@ -48,12 +48,15 @@ class Command(BaseCommand):
 
             savery = Spot.objects.create(name="In Savery", type_name="Study room", capacity=20, longitude=Decimal('-122.308504'), latitude=Decimal('47.657041'), building_name="Savery")
             savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery)
+            savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery)
 
             savery2 = Spot.objects.create(name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657041'), building_name="Savery")
             savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery2)
+            savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery2)
 
             savery3 = Spot.objects.create(name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657431'), building_name="Savery")
             savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery3)
+            savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery3)
 
             fish_kitchen = Spot.objects.create(name="FSH 2nd Floor South Kitchen",
                                                type_name="Lounge",
@@ -65,6 +68,7 @@ class Command(BaseCommand):
                                                description="South wing",
                                                capacity=12)
             fish_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=fish_kitchen)
+            fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=fish_kitchen)
 
             fish_patio = Spot.objects.create(name="FSH 2nd Floor Patio/Deck",
                                                type_name="Outdoor Area",
@@ -75,6 +79,7 @@ class Command(BaseCommand):
                                                description="South wing",
                                                capacity=12)
             fish_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=fish_patio)
+            fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=fish_patio)
 
             for day in ["su", "m", "t", "w", "th", "f", "sa"]:
                 SpotAvailableHours.objects.create(spot=art, day=day, start_time="00:00", end_time="23:59")

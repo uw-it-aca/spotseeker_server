@@ -54,7 +54,11 @@ class ExtendedInfoField(forms.Field):
             except ValueError:
                 raise forms.ValidationError("Value for computers must be an int")
 
-        # natural_light should be 1/0
+        # has_natural_light should be 1/0
+        if "has_natural_light" in value:
+            choices = ['1', '0']
+            if not value["has_natural_light"] in choices:
+                raise forms.ValidationError("Value for has_natural_light must be '1' or '0'")
 
         # noise_level should be one of 'Silent', 'Low hum', 'Chatter', 'Rowdy', 'Variable'
 

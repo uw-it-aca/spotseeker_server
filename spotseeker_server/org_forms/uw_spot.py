@@ -42,6 +42,10 @@ class ExtendedInfoField(forms.Field):
                 raise forms.ValidationError("Value for has_displays must be '1' or '0'")
 
         # projector should be 1/0
+        if "has_projector" in value:
+            choices = ['1', '0']
+            if not value["has_projector"] in choices:
+                raise forms.ValidationError("Value for has_projector must be '1' or '0'")
 
         # computers should be an integer
 

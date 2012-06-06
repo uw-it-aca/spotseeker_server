@@ -48,6 +48,11 @@ class ExtendedInfoField(forms.Field):
                 raise forms.ValidationError("Value for has_projector must be '1' or '0'")
 
         # computers should be an integer
+        if "computers" in value:
+            try:
+                int(value["computers"])
+            except ValueError:
+                raise forms.ValidationError("Value for computers must be an int")
 
         # natural_light should be 1/0
 

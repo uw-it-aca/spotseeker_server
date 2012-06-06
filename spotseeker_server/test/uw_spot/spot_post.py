@@ -166,3 +166,21 @@ class UWSpotPOSTTest(TestCase):
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+
+    def test_uw_field_computers(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+            computers = 'There are none'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"1","computers":"%s"}}' % (new_name, new_capacity, computers)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 400, "Not created because computers field did not pass validation")
+
+            computers = 23
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"1","computers":%s}}' % (new_name, new_capacity, computers)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")

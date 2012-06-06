@@ -10,6 +10,7 @@ import simplejson as json
 import re
 from time import *
 from datetime import datetime
+import sys
 
 
 class SearchView(RESTDispatch):
@@ -52,7 +53,7 @@ class SearchView(RESTDispatch):
                 query = query.filter(latitude__lte=top_limit)
                 has_valid_search_param = True
             except Exception as e:
-                print "E: ", e
+                print >> sys.stderr, "E: ", e
                 query = Spot.objects.all()
 
         # Exclude things that get special consideration here, otherwise add a filter for the keys
@@ -94,7 +95,7 @@ class SearchView(RESTDispatch):
                     query = query.filter(**kwargs)
                     has_valid_search_param = True
                 except Exception as e:
-                    pass
+                    print >> sys.stderr, "E: ", e
 
         if not has_valid_search_param:
             return HttpResponse('[]')

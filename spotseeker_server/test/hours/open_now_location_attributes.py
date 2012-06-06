@@ -13,7 +13,7 @@ from time import *
 
 class SpotHoursOpenNowLocationAttributesTest(TestCase):
 
-    @skipIf(datetime.now().hour + 2 > 23, "Skip open_now tests due to the time of day")
+    @skipIf(datetime.now().hour + 2 > 23 or datetime.now().hour < 2, "Skip open_now tests due to the time of day")
     def test_open_now(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             open_in_range_matched_spot = Spot.objects.create(name="Find this: Atlantic", latitude=Decimal('40.0000898315'), longitude=Decimal('-50.0'))

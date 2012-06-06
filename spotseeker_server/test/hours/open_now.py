@@ -14,7 +14,7 @@ class SpotHoursOpenNowTest(TestCase):
     """ Tests that we can tell if a Spot is available now, based on it's Available Hours.
     """
 
-    @skipIf(datetime.now().hour + 2 > 23, "Skip open_now tests due to the time of day")
+    @skipIf(datetime.now().hour + 2 > 23 or datetime.now().hour < 2, "Skip open_now tests due to the time of day")
     def test_open_now(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             open_spot = Spot.objects.create(name="This spot is open now")

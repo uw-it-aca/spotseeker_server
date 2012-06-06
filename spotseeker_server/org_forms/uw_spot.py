@@ -1,7 +1,6 @@
 from django import forms
 from spotseeker_server.models import Spot
 import simplejson as json
-import re
 
 
 class ExtendedInfoField(forms.Field):

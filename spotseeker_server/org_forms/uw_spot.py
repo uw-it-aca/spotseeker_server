@@ -75,6 +75,10 @@ class ExtendedInfoField(forms.Field):
         if "manager" not in value:
             raise forms.ValidationError("You must have a value for manager")
 
+        # organization is required
+        if "organization" not in value:
+            raise forms.ValidationError("You must have a value for organization")
+
         return True
 
 

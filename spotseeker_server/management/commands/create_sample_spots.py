@@ -30,6 +30,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="1", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="surfaces", value="Large, Flat", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="seating", value="Comfy chairs", spot=art)
+            mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=art)
 
             art2 = Spot.objects.create(name="Also in the Art Building", type_name="Café", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
             art_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=art2)
@@ -38,6 +39,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="surfaces", value="Large, Flat", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="seating", value="Comfy chairs", spot=art2)
+            mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=art2)
 
 #            f = open("building1.jpg")
 #            art_img1 = SpotImage.objects.create( description = "This is one building", spot=art, image = File(f) )
@@ -49,14 +51,17 @@ class Command(BaseCommand):
             savery = Spot.objects.create(name="In Savery", type_name="Study room", capacity=20, longitude=Decimal('-122.308504'), latitude=Decimal('47.657041'), building_name="Savery")
             savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery)
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery)
+            mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery)
 
             savery2 = Spot.objects.create(name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657041'), building_name="Savery")
             savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery2)
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery2)
+            mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery2)
 
             savery3 = Spot.objects.create(name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657431'), building_name="Savery")
             savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery3)
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery3)
+            mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery3)
 
             fish_kitchen = Spot.objects.create(name="FSH 2nd Floor South Kitchen",
                                                type_name="Lounge",
@@ -69,6 +74,7 @@ class Command(BaseCommand):
                                                capacity=12)
             fish_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=fish_kitchen)
             fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=fish_kitchen)
+            mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=fish_kitchen)
 
             fish_patio = Spot.objects.create(name="FSH 2nd Floor Patio/Deck",
                                                type_name="Outdoor Area",
@@ -80,6 +86,7 @@ class Command(BaseCommand):
                                                capacity=12)
             fish_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=fish_patio)
             fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=fish_patio)
+            mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=fish_patio)
 
             for day in ["su", "m", "t", "w", "th", "f", "sa"]:
                 SpotAvailableHours.objects.create(spot=art, day=day, start_time="00:00", end_time="23:59")

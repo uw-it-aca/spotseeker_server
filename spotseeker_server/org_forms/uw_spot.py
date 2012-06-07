@@ -71,6 +71,10 @@ class ExtendedInfoField(forms.Field):
             if not value["food_nearby"] in choices:
                 raise forms.ValidationError("Value for food_nearby must be one of %s" % choices)
 
+        # manager (of the Spot information) is required
+        if "manager" not in value:
+            raise forms.ValidationError("You must have a value for manager")
+
         return True
 
 

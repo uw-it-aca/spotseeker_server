@@ -293,3 +293,21 @@ class UWSpotPOSTTest(TestCase):
             json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_whiteboards":"0","has_outlets":"1","ada_accessible":"%s","manager":"Harry","organization":"UW"}}' % (new_name, new_capacity, ada_accessible)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+
+    def test_uw_field_reservable(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+            reservable = 'You bet'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"1","reservable":"%s","manager":"Patty","organization":"UW","ada_accessible":"1"}}' % (new_name, new_capacity, reservable)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 400, "Not created because reservable field did not pass validation")
+
+            reservable = 'Reservations required'
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"1","reservable":"%s","manager":"Patty","organization":"UW","ada_accessible":"1"}}' % (new_name, new_capacity, reservable)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")

@@ -86,6 +86,11 @@ class ExtendedInfoField(forms.Field):
         if not value["ada_accessible"] in choices:
             raise forms.ValidationError("Value for ada_accessible must be 1 or 0")
 
+        if "reservable" in value:
+            choices = ['Yes', 'Reservations required', 'No']
+            if not value["reservable"] in choices:
+                raise forms.ValidationError("Value for reservable must be one of %s" % choices)
+
         return True
 
 

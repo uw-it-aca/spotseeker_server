@@ -53,7 +53,8 @@ class SearchView(RESTDispatch):
                 query = query.filter(latitude__lte=top_limit)
                 has_valid_search_param = True
             except Exception as e:
-                print >> sys.stderr, "E: ", e
+                if not request.META['SERVER_NAME'] == 'testserver':
+                    print >> sys.stderr, "E: ", e
                 query = Spot.objects.all()
 
         # Exclude things that get special consideration here, otherwise add a filter for the keys
@@ -95,7 +96,8 @@ class SearchView(RESTDispatch):
                     query = query.filter(**kwargs)
                     has_valid_search_param = True
                 except Exception as e:
-                    print >> sys.stderr, "E: ", e
+                    if not request.META['SERVER_NAME'] == 'testserver':
+                        print >> sys.stderr, "E: ", e
 
         if not has_valid_search_param:
             return HttpResponse('[]')

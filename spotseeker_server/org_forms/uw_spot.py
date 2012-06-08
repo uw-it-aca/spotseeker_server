@@ -79,6 +79,13 @@ class ExtendedInfoField(forms.Field):
         if "organization" not in value:
             raise forms.ValidationError("You must have a value for organization")
 
+        # ada_accessible is required and must be 1/0
+        if "ada_accessible" not in value:
+            raise forms.ValidationError("You must have a value for ada_accessible")
+        choices = ['1', '0']
+        if not value["ada_accessible"] in choices:
+            raise forms.ValidationError("Value for ada_accessible must be 1 or 0")
+
         return True
 
 

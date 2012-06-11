@@ -24,13 +24,13 @@ class ExtendedInfoField(forms.Field):
 
         # printer_nearby should be one of 'In space', 'In building', or 'Not available'
         if "printer_nearby" in value:
-            choices = ['In space', 'In building', 'Not available']
+            choices = ['space', 'building', 'None']
             if not value['printer_nearby'] in choices:
                 raise forms.ValidationError("Value for printer_nearby must be 'In space', 'In building', or 'Not available'")
 
         # scanner_nearby should be one of 'In space', 'In building', 'Available for checkout', or 'Not available'
         if "scanner_nearby" in value:
-            choices = ['In space', 'In building', 'Available for checkout', 'Not available']
+            choices = ['space', 'building', 'checkout', 'None']
             if not value['scanner_nearby'] in choices:
                 raise forms.ValidationError("Value for scanner_nearby must be 'In space', 'In building', 'Available for checkout', or 'Not available'")
 
@@ -61,13 +61,13 @@ class ExtendedInfoField(forms.Field):
 
         # noise_level should be one of 'Silent', 'Low hum', 'Chatter', 'Rowdy', 'Variable'
         if "noise_level" in value:
-            choices = ['Silent', 'Low hum', 'Chatter', 'Rowdy', 'Variable']
+            choices = ['silent', 'quiet', 'moderate', 'loud', 'variable']
             if not value["noise_level"] in choices:
                 raise forms.ValidationError("Value for noise_level must be one of %s" % choices)
 
         # food_nearby should be one of 'In space', 'In building', 'In neighboring building', 'None nearby'
         if "food_nearby" in value:
-            choices = ['In space', 'In building', 'In neighboring building', 'None nearby']
+            choices = ['space', 'building', 'neighboring', 'None']
             if not value["food_nearby"] in choices:
                 raise forms.ValidationError("Value for food_nearby must be one of %s" % choices)
 
@@ -87,7 +87,7 @@ class ExtendedInfoField(forms.Field):
             raise forms.ValidationError("Value for ada_accessible must be 1 or 0")
 
         if "reservable" in value:
-            choices = ['Yes', 'Reservations required', 'No']
+            choices = ['1', 'reservations', '0']
             if not value["reservable"] in choices:
                 raise forms.ValidationError("Value for reservable must be one of %s" % choices)
 

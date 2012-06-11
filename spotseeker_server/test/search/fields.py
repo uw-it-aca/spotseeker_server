@@ -124,5 +124,3 @@ class SpotSearchFieldTest(unittest.TestCase):
         response = c.get("/api/v1/spot", {'id': ('1', '2', '3', '4')})
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 4, 'Finds 4 matches for searching for 4 ids')
-
-

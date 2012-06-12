@@ -14,9 +14,10 @@ import random
 from oauth_provider.models import Consumer
 import oauth2
 
+
 class SpotAuthOAuthLogger(TestCase):
     def setUp(self):
-        spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10 )
+        spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10)
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 

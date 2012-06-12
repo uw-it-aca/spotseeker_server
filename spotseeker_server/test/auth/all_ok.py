@@ -10,7 +10,7 @@ class SpotAuthAllOK(TestCase):
     """
 
     def setUp(self):
-        spot = Spot.objects.create(name="This is for testing the all ok auth module", capacity=10 )
+        spot = Spot.objects.create(name="This is for testing the all ok auth module", capacity=10)
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 

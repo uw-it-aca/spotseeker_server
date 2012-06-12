@@ -168,5 +168,3 @@ class SpotHoursOverlapTest(unittest.TestCase):
         new_hours = self.spot.spotavailablehours_set.all()[1]
         self.assertEquals(hours2.start_time, new_hours.start_time, "Start time is the same")
         self.assertEquals(hours2.end_time, new_hours.end_time, "End time is the same")
-
-

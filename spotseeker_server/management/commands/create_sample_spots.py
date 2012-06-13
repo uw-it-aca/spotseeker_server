@@ -24,7 +24,6 @@ class Command(BaseCommand):
             SpotAvailableHours.objects.all().delete()
 
             art = Spot.objects.create(name="In the Art Building", type_name="Café", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
-            art_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="1", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="1", spot=art)
@@ -34,7 +33,6 @@ class Command(BaseCommand):
             org = SpotExtendedInfo.objects.create(key="organization", value="Art", spot=art)
 
             art2 = Spot.objects.create(name="Also in the Art Building", type_name="Café", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
-            art_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="1", spot=art2)
@@ -51,19 +49,16 @@ class Command(BaseCommand):
 #            art_img3 = SpotImage.objects.create( description = "This is a third art building", spot=art, image = File(f) )
 
             savery = Spot.objects.create(name="In Savery", type_name="Study room", capacity=20, longitude=Decimal('-122.308504'), latitude=Decimal('47.657041'), building_name="Savery")
-            savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery)
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery)
             org = SpotExtendedInfo.objects.create(key="organization", value="Philosophy", spot=savery)
 
             savery2 = Spot.objects.create(name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657041'), building_name="Savery")
-            savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery2)
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery2)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery2)
             org = SpotExtendedInfo.objects.create(key="organization", value="Economics", spot=savery2)
 
             savery3 = Spot.objects.create(name="In Savery - #2", type_name="Study room", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657431'), building_name="Savery")
-            savery_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=savery3)
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=savery3)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery3)
             org = SpotExtendedInfo.objects.create(key="organization", value="Sociology", spot=savery3)
@@ -77,7 +72,6 @@ class Command(BaseCommand):
                                                room_number="266",
                                                description="South wing",
                                                capacity=12)
-            fish_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=fish_kitchen)
             fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=fish_kitchen)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=fish_kitchen)
             org = SpotExtendedInfo.objects.create(key="organization", value="Fisheries", spot=fish_kitchen)
@@ -90,7 +84,6 @@ class Command(BaseCommand):
                                                floor="2nd floor",
                                                description="South wing",
                                                capacity=12)
-            fish_ada = SpotExtendedInfo.objects.create(key="ada_accessible", value="1", spot=fish_patio)
             fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="1", spot=fish_patio)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=fish_patio)
             org = SpotExtendedInfo.objects.create(key="organization", value="Fisheries", spot=fish_patio)

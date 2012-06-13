@@ -23,16 +23,16 @@ class ExtendedInfoField(forms.Field):
             raise forms.ValidationError("Value for has_outlets must be 'true' or 'false'")
 
         # printer_nearby should be one of 'In space', 'In building', or 'Not available'
-        if "printer_nearby" in value:
-            choices = ['space', 'building', 'none']
-            if not value['printer_nearby'] in choices:
-                raise forms.ValidationError("Value for printer_nearby must be 'space', 'building', or 'none'")
+        if "has_printing" in value:
+            choices = ['true', 'false']
+            if not value['has_printing'] in choices:
+                raise forms.ValidationError("Value for has_printing must be 'true', or 'false'")
 
         # scanner_nearby should be one of 'In space', 'In building', 'Available for checkout', or 'Not available'
-        if "scanner_nearby" in value:
-            choices = ['space', 'building', 'checkout', 'none']
-            if not value['scanner_nearby'] in choices:
-                raise forms.ValidationError("Value for scanner_nearby must be 'space', 'building', 'checkout', or 'none'")
+        if "has_scanner" in value:
+            choices = ['true', 'false']
+            if not value['has_scanner'] in choices:
+                raise forms.ValidationError("Value for has_scanner must be 'true', or 'false'")
 
         # has_displays should be 1/0
         if "has_displays" in value:
@@ -47,11 +47,10 @@ class ExtendedInfoField(forms.Field):
                 raise forms.ValidationError("Value for has_projector must be 'true' or 'false'")
 
         # computers should be an integer
-        if "computers" in value:
-            try:
-                int(value["computers"])
-            except ValueError:
-                raise forms.ValidationError("Value for computers must be an int")
+        if "has_computers" in value:
+            choices = ['true', 'false']
+            if not value['has_computers'] in choices:
+                raise forms.ValidationError("Value for has_computers must be 'true' or 'false'")
 
         # has_natural_light should be 1/0
         if "has_natural_light" in value:
@@ -78,13 +77,6 @@ class ExtendedInfoField(forms.Field):
         # organization is required
         if "organization" not in value:
             raise forms.ValidationError("You must have a value for organization")
-
-        # ada_accessible is required and must be 1/0
-        if "ada_accessible" not in value:
-            raise forms.ValidationError("You must have a value for ada_accessible")
-        choices = ['true', 'false']
-        if not value["ada_accessible"] in choices:
-            raise forms.ValidationError("Value for ada_accessible must be 1 or 0")
 
         if "reservable" in value:
             choices = ['true', 'reservations', 'false']

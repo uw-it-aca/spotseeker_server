@@ -121,6 +121,12 @@ class SpotSearchFieldTest(unittest.TestCase):
             self.assertEquals(spot_ids[spot['id']], 1, "Includes each spot, uniquely")
             spot_ids[spot['id']] = 2
 
-        response = c.get("/api/v1/spot", {'id': ('1', '2', '3', '4')})
+        # For this next test, make sure we're trying to get spots that actually exist.
+        ids = (Spot.objects.all()[0].id,
+               Spot.objects.all()[1].id,
+               Spot.objects.all()[2].id,
+               Spot.objects.all()[3].id,)
+
+        response = c.get("/api/v1/spot", {'id': ids})
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 4, 'Finds 4 matches for searching for 4 ids')

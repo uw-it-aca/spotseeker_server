@@ -78,6 +78,19 @@ class SearchView(RESTDispatch):
                     now = datetime.time(datetime.now())
                     query = query.filter(spotavailablehours__day__iexact=today, spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)
                     has_valid_search_param = True
+            elif key == "open_at":
+                if request.GET["open_at"]:
+                    day_dict = {"Sunday": "su",
+                                "Monday": "m",
+                                "Tuesday": "t",
+                                "Wednesday": "w",
+                                "Thursday": "th",
+                                "Friday": "f",
+                                "Saturday": "sa", }
+                    day, time = request.GET['open_at'].split(',')
+                    day = day_dict[day]
+                    query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lt=time, spotavailablehours__end_time__gt=time)
+                    has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {
                    'spotextendedinfo__key': key[14:],

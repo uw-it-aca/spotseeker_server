@@ -57,6 +57,13 @@ class SearchView(RESTDispatch):
                     print >> sys.stderr, "E: ", e
                 query = Spot.objects.all()
 
+        day_dict = {"Sunday": "su",
+                    "Monday": "m",
+                    "Tuesday": "t",
+                    "Wednesday": "w",
+                    "Thursday": "th",
+                    "Friday": "f",
+                    "Saturday": "sa", }
         # Exclude things that get special consideration here, otherwise add a filter for the keys
         for key in request.GET:
             if re.search('^oauth_', key):
@@ -78,19 +85,23 @@ class SearchView(RESTDispatch):
                     now = datetime.time(datetime.now())
                     query = query.filter(spotavailablehours__day__iexact=today, spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)
                     has_valid_search_param = True
+            elif key == "open_until":
+                if request.GET["open_until"] and request.GET["open_at"]:
+                    until_day, until_time = request.GET["open_until"].split(',')
+                    at_day, at_time = request.GET["open_at"].split(',')
+                    until_day = day_dict[until_day]
+                    at_day = day_dict[at_day]
+                    query = query.filter(spotavailablehours__day__iexact=until_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte=until_time)
+                    has_valid_search_param = True
             elif key == "open_at":
                 if request.GET["open_at"]:
-                    day_dict = {"Sunday": "su",
-                                "Monday": "m",
-                                "Tuesday": "t",
-                                "Wednesday": "w",
-                                "Thursday": "th",
-                                "Friday": "f",
-                                "Saturday": "sa", }
-                    day, time = request.GET['open_at'].split(',')
-                    day = day_dict[day]
-                    query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lt=time, spotavailablehours__end_time__gt=time)
-                    has_valid_search_param = True
+                    try:
+                        request.GET["open_until"]
+                    except:
+                        day, time = request.GET['open_at'].split(',')
+                        day = day_dict[day]
+                        query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gte=time)
+                        has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {
                    'spotextendedinfo__key': key[14:],

@@ -65,3 +65,43 @@ class SpotHoursOpenUntilTest(TestCase):
                 spot_returned = True
 
         self.assertTrue(spot_returned, "Got the spot that is open later")
+
+
+    def test_open_window_ok(self):
+        spot = Spot.objects.create(name="Spot with window")
+
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="13:30:00");
+
+        c = Client()
+        response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Monday,13:30"})
+        spots = json.loads(response.content)
+
+        spot_returned = False
+
+        for s in spots:
+            if s['id'] == spot.pk:
+                spot_returned = True
+
+        self.assertTrue(spot_returned, "Got the spot with the full window")
+
+
+    def test_open_window_with_gap(self):
+        spot = Spot.objects.create(name="Spot with window gap")
+
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="10:30:00");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="11:30:00", end_time="13:30:00");
+
+        c = Client()
+        response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Monday,13:30"})
+        spots = json.loads(response.content)
+
+        spot_returned = False
+
+        for s in spots:
+            if s['id'] == spot.pk:
+                spot_returned = True
+
+        self.assertFalse(spot_returned, "Didn't find the spot with the gap")
+
+
+

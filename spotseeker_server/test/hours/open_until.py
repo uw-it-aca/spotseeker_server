@@ -140,4 +140,86 @@ class SpotHoursOpenUntilTest(TestCase):
 
         self.assertFalse(spot_returned, "Didn't find the spot w/ an overnight window, with a gap in it")
 
+    def test_open_window_multiple_days_long(self):
+        spot = Spot.objects.create(name="Spot with window - multiple days")
+
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="14:00:00");
+
+        c = Client()
+        response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Thursday,13:30"})
+        spots = json.loads(response.content)
+
+        spot_returned = False
+
+        for s in spots:
+            if s['id'] == spot.pk:
+                spot_returned = True
+
+        self.assertTrue(spot_returned, "Found the spot w/ a longer window")
+
+    def test_open_window_multiple_days_gap_long(self):
+        spot = Spot.objects.create(name="Spot with window - multiple days")
+
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="16:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="14:00:00");
+
+        c = Client()
+        response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Thursday,13:30"})
+        spots = json.loads(response.content)
+
+        spot_returned = False
+
+        for s in spots:
+            if s['id'] == spot.pk:
+                spot_returned = True
+
+        self.assertFalse(spot_returned, "Didn't find the spot w/ a longer window, with a gap in it")
+
+    def test_open_window_around_weekend(self):
+        spot = Spot.objects.create(name="Spot with window - multiple days")
+
+        SpotAvailableHours.objects.create(spot=spot, day="f", start_time="09:30:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="14:00:00");
+
+        c = Client()
+        response = c.get("/api/v1/spot", {'open_at': "Friday,09:30", 'open_until': "Monday,13:30"})
+        spots = json.loads(response.content)
+
+        spot_returned = False
+
+        for s in spots:
+            if s['id'] == spot.pk:
+                spot_returned = True
+
+        self.assertTrue(spot_returned, "Found the spot open over the weekend")
+
+    def test_open_window_around_weekend_gap(self):
+        spot = Spot.objects.create(name="Spot with window - multiple days")
+
+        SpotAvailableHours.objects.create(spot=spot, day="f", start_time="09:30:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="16:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="14:00:00");
+
+        c = Client()
+        response = c.get("/api/v1/spot", {'open_at': "Friday,09:30", 'open_until': "Monday,13:30"})
+        spots = json.loads(response.content)
+
+        spot_returned = False
+
+        for s in spots:
+            if s['id'] == spot.pk:
+                spot_returned = True
+
+        self.assertFalse(spot_returned, "Didn't find the spot w/ a gap over the weekend")
+
 

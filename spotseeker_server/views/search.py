@@ -91,7 +91,20 @@ class SearchView(RESTDispatch):
                     at_day, at_time = request.GET["open_at"].split(',')
                     until_day = day_dict[until_day]
                     at_day = day_dict[at_day]
-                    query = query.filter(spotavailablehours__day__iexact=until_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte=until_time)
+
+                    if until_day == at_day:
+                        query = query.filter(spotavailablehours__day__iexact=until_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte=until_time)
+                    else:
+                        days_to_test = self.get_days_in_range(at_day, until_day)
+                        last_day = days_to_test.pop()
+                        days_to_test.reverse()
+                        first_day = days_to_test.pop()
+
+                        query = query.filter(spotavailablehours__day__iexact=first_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte="23:59")
+                        query = query.filter(spotavailablehours__day__iexact=last_day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte=until_time)
+
+                        for day in days_to_test:
+                            query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte="23:59")
                     has_valid_search_param = True
             elif key == "open_at":
                 if request.GET["open_at"]:
@@ -149,3 +162,20 @@ class SearchView(RESTDispatch):
         g = Geod(ellps='clrk66')
         az12, az21, dist = g.inv(spot.longitude, spot.latitude, longitude, latitude)
         return dist
+
+
+    def get_days_in_range(self, start_day, until_day):
+        day_lookup = ["su", "m", "t", "w", "th", "f", "sa", "su", "m", "t", "w", "th", "f", "sa"]
+        matched_days = []
+        add_days = False
+
+        for day in day_lookup:
+            if day == start_day:
+                add_days = True
+            if add_days:
+                matched_days.append(day)
+
+            if day == until_day and add_days == True:
+                return matched_days
+
+        return []

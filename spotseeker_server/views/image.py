@@ -1,9 +1,9 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from django.http import HttpResponse
+from django.utils.http import http_date
 from django.core.servers.basehttp import FileWrapper
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
-
 
 class ImageView(RESTDispatch):
     """ Handles actions at /api/v1/spot/<spot id>/image/<image id>.
@@ -22,6 +22,9 @@ class ImageView(RESTDispatch):
 
             response = HttpResponse(FileWrapper(img.image))
             response["ETag"] = img.etag
+
+            # 12 hour timeout?
+            response['Expires'] = http_date(time.time() + 60 * 60 * 12)
             response["Content-length"] = img.image.size
             response["Content-type"] = img.content_type
             return response

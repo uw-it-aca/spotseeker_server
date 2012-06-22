@@ -10,11 +10,20 @@ from cStringIO import StringIO
 import oauth_provider.models
 
 
+class SpotType(models.Model):
+    """ The type of Spot.
+    """
+    name = models.SlugField(max_length=50)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Spot(models.Model):
     """ Represents a place for students to study.
     """
     name = models.CharField(max_length=100, blank=True)
-    type_name = models.CharField(max_length=100, blank=True)
+    spottypes = models.ManyToManyField(SpotType, max_length=50, related_name='spots')
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
@@ -74,12 +83,16 @@ class Spot(models.Model):
                 "thumbnail_root": "{0}/thumb".format(img.rest_url()),
                 "description": img.description
             })
+        types = []
+        spot_types = self.spottypes.all()
+        for t in spot_types:
+            types.append(t.name)
 
         return {
             "id": self.pk,
             "uri": self.rest_url(),
             "name": self.name,
-            "type": self.type_name,
+            "types": types,
             "location": {
                 "latitude": self.latitude,
                 "longitude": self.longitude,

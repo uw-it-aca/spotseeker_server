@@ -26,5 +26,6 @@ class SpotAvailableHoursAdmin(admin.ModelAdmin):
 admin.site.register(SpotAvailableHours, SpotAvailableHoursAdmin)
 
 
+admin.site.register(SpotType)
 admin.site.register(SpotExtendedInfo)
 admin.site.register(TrustedOAuthClient)

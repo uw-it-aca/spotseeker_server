@@ -1,0 +1,72 @@
+[
+  {
+    "pk": 1,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "computer_lab"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "open"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "alcove"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "lounge"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "classroom"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "study_room"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "study_area"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "studio"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "cafe"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "outdoor"
+    }
+  }
+]

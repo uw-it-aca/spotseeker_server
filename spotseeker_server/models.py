@@ -92,7 +92,7 @@ class Spot(models.Model):
             "id": self.pk,
             "uri": self.rest_url(),
             "name": self.name,
-            "types": types,
+            "type": types,
             "location": {
                 "latitude": self.latitude,
                 "longitude": self.longitude,

@@ -44,7 +44,11 @@ def authenticate_user(*args, **kwargs):
 
         # Allow a trusted client to either give us a user via header, or do the
         # 3-legged oauth
-        trusted_client = TrustedOAuthClient.objects.get(consumer=consumer)
+        try:
+            trusted_client = TrustedOAuthClient.objects.get(consumer=consumer)
+        except Exception as e:
+            pass
+
         if trusted_client and trusted_client.is_trusted:
             user = request.META["HTTP_XOAUTH_USER"]
 

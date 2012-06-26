@@ -6,6 +6,8 @@ class SpotAdmin(admin.ModelAdmin):
     """ The admin model for a Spot.
     The ETag is excluded because it is generated on Spot save.
     """
+    list_display = ("name", "building_name", "capacity")
+    list_filter = ["building_name"]
     exclude = ('etag',)
 admin.site.register(Spot, SpotAdmin)
 

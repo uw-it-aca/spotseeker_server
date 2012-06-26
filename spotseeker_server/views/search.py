@@ -2,8 +2,9 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
 from django.http import HttpResponse
+from django.db.models import Q
 from spotseeker_server.require_auth import *
-from spotseeker_server.models import Spot
+from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
 from decimal import *
 import simplejson as json
@@ -115,6 +116,14 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gte=time)
                         has_valid_search_param = True
+            elif key == "type":
+                type_values = request.GET.getlist(key)
+                q_obj = Q()
+                type_qs = [Q(spottypes__name__exact=v) for v in type_values]
+                for type_q in type_qs:
+                    q_obj |= type_q
+                query = query.filter(q_obj).distinct()
+                has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {
                    'spotextendedinfo__key': key[14:],
@@ -162,7 +171,6 @@ class SearchView(RESTDispatch):
         g = Geod(ellps='clrk66')
         az12, az21, dist = g.inv(spot.longitude, spot.latitude, longitude, latitude)
         return dist
-
 
     def get_days_in_range(self, start_day, until_day):
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa", "su", "m", "t", "w", "th", "f", "sa"]

@@ -1,7 +1,7 @@
 from django.utils import unittest
 from django.conf import settings
 from django.test.client import Client
-from spotseeker_server.models import Spot, SpotExtendedInfo
+from spotseeker_server.models import Spot, SpotExtendedInfo, SpotType
 import simplejson as json
 
 
@@ -130,3 +130,35 @@ class SpotSearchFieldTest(unittest.TestCase):
         response = c.get("/api/v1/spot", {'id': ids})
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 4, 'Finds 4 matches for searching for 4 ids')
+
+    def test_multi_type_spot(self):
+        c = Client()
+        cafe_type = SpotType.objects.get_or_create(name='cafe_testing')[0]  # Index 0 because get_or_create returns a Tuple of value and T/F if it was created
+        open_type = SpotType.objects.get_or_create(name='open_testing')[0]
+        never_used_type = SpotType.objects.get_or_create(name='never_used_testing')[0]
+
+        spot1 = Spot.objects.create(name='Spot1 is a Cafe for multi type test')
+        spot1.spottypes.add(cafe_type)
+        spot1.save()
+        spot2 = Spot.objects.create(name='Spot 2 is an Open space for multi type test')
+        spot2.spottypes.add(open_type)
+        spot2.save()
+        spot3 = Spot.objects.create(name='Spot 3 is an Open cafe for multi type test')
+        spot3.spottypes.add(cafe_type)
+        spot3.spottypes.add(open_type)
+        spot3.save()
+        spot4 = Spot.objects.create(name='Spot 4 should never get returned')
+        spot4.spottypes.add(never_used_type)
+        spot4.save()
+
+        response = c.get("/api/v1/spot", {"type": "cafe_testing"})
+        spots = json.loads(response.content)
+        self.assertEquals(len(spots), 2, 'Finds 2 matches for searching for type cafe_test')
+
+        response = c.get("/api/v1/spot", {"type": "open_testing"})
+        spots = json.loads(response.content)
+        self.assertEquals(len(spots), 2, 'Finds 2 matches for searching for type open_test')
+
+        response = c.get("/api/v1/spot", {"type": ["cafe_testing", "open_testing"]})
+        spots = json.loads(response.content)
+        self.assertEquals(len(spots), 3, 'Finds 3 matches for searching for cafe_test and open_test')

@@ -1,6 +1,6 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot import SpotForm
-from spotseeker_server.models import Spot, SpotAvailableHours, SpotType
+from spotseeker_server.models import Spot, SpotAvailableHours, SpotExtendedInfo, SpotType
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 import simplejson as json
@@ -127,6 +127,10 @@ class SpotView(RESTDispatch):
 
         queryset = SpotAvailableHours.objects.filter(spot=spot)
         queryset.delete()
+
+        if "extended_info" in new_values:
+            for item in new_values["extended_info"]:
+                SpotExtendedInfo.objects.create(key = item, value = new_values["extended_info"][item], spot=spot)
 
         if "available_hours" in new_values:
             available_hours = new_values["available_hours"]

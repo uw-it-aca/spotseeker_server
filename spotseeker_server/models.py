@@ -99,7 +99,6 @@ class Spot(models.Model):
                 "building_name": self.building_name,
                 "floor": self.floor,
                 "room_number": self.room_number,
-                "description": self.description
             },
             "capacity": self.capacity,
             "display_access_restrictions": self.display_access_restrictions,

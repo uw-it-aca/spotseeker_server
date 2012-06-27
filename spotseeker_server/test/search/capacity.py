@@ -20,11 +20,11 @@ class SpotSearchCapacityTest(TestCase):
             spot4 = Spot.objects.create(name="capacity: 4", capacity=4)
             spot4.save()
 
-            spot5 = Spot.objects.create(name="capacity: 50", capacity=4)
+            spot5 = Spot.objects.create(name="capacity: 50", capacity=50)
             spot5.save()
 
             c = Client()
-            response = c.get("/api/v1/spot", {'capacity': ''})
+            response = c.get("/api/v1/spot", {'capacity': '', 'name':'capacity'})
             spots = json.loads(response.content)
 
             has_1 = False

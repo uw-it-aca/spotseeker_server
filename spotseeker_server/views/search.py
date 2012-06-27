@@ -116,6 +116,18 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gte=time)
                         has_valid_search_param = True
+            elif key == "capacity":
+                try:
+                    limit = int(request.GET["capacity"])
+                    query = query.filter(capacity__gte=limit)
+                    has_valid_search_param = True
+                except ValueError:
+                    # This we don't care about - if someone passes "", or "twenty", just ignore it
+                    pass
+                except Exception as e:
+                    # Do something to complain??
+                    pass
+
             elif key == "type":
                 type_values = request.GET.getlist(key)
                 q_obj = Q()

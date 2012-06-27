@@ -1,6 +1,6 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot import SpotForm
-from spotseeker_server.models import Spot, SpotAvailableHours, SpotExtendedInfo, SpotType
+from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 import simplejson as json
@@ -107,22 +107,40 @@ class SpotView(RESTDispatch):
         spot.name = new_values["name"]
         if new_values["capacity"]:
             spot.capacity = new_values["capacity"]
-        for value in new_values["type"]:
-            try:
-                value = SpotType.objects.get(name=value)
-                spot.spottypes.add(value)
-            except:
-                pass
-        spot.latitude = new_values["latitude"]
-        spot.longitude = new_values["longitude"]
-        if new_values["height_from_sea_level"]:
-            spot.height_from_sea_level = new_values["height_from_sea_level"]
-        spot.building_name = new_values["building_name"]
-        spot.floor = new_values["floor"]
-        spot.room_number = new_values["room_number"]
-        spot.description = new_values["description"]
-        spot.organization = new_values["organization"]
-        spot.manager = new_values["manager"]
+
+        if "type" in new_values:
+            for value in new_values["type"]:
+                try:
+                    value = SpotType.objects.get(name=value)
+                    spot.spottypes.add(value)
+                except:
+                    pass
+            
+        if "location" in new_values:
+            if "latitude" in new_values["location"]:
+                spot.latitude = new_values["location"]["latitude"]
+            if "longitude" in new_values["location"]:
+                spot.longitude = new_values["location"]["longitude"]
+            #height from sea level is picky about wanting an integer
+            #also it is almost always given an empty string
+            if new_values["location"]["height_from_sea_level"]:
+                spot.height_from_sea_level = new_values["location"]["height_from_sea_level"]
+            if "building_name" in new_values["location"]:
+                spot.building_name = new_values["location"]["building_name"]
+            if "floor" in new_values["location"]:
+                spot.floor = new_values["location"]["floor"]
+            if "room_number" in new_values["location"]:
+                spot.room_number = new_values["location"]["room_number"]
+            if "description" in new_values["location"]:
+                spot.description = new_values["location"]["description"]
+        if "organization" in new_values:
+            spot.organization = new_values["organization"]
+        else:
+            spot.organization = ""
+        if "manager" in new_values:
+            spot.manager = new_values["manager"]
+        else:
+            spot.manager = ""
         spot.save()
 
         queryset = SpotAvailableHours.objects.filter(spot=spot)

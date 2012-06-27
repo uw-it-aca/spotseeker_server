@@ -238,40 +238,6 @@ class UWSpotPOSTTest(TestCase):
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
-    def test_uw_field_manager(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
-            c = Client()
-            new_name = "testing POST name: {0}".format(random.random())
-            new_capacity = 10
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"true","organization":"UW"}}' % (new_name, new_capacity)
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
-
-            self.assertEquals(response.status_code, 400, "Not created because manager field was not included")
-
-            manager = 'vegitron'
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"true","manager":"%s","organization":"UW"}}' % (new_name, new_capacity, manager)
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
-
-            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
-
-    def test_uw_field_organization(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
-            c = Client()
-            new_name = "testing POST name: {0}".format(random.random())
-            new_capacity = 10
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"true","manager":"Ken"}}' % (new_name, new_capacity)
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
-
-            self.assertEquals(response.status_code, 400, "Not created because organization field was not included")
-
-            organization = 'UW Libraries'
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"true","organization":"%s","manager":"Ken"}}' % (new_name, new_capacity, organization)
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
-
-            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
-
     def test_uw_field_reservable(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                            SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):

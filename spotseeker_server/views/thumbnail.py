@@ -1,6 +1,7 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
+from django.utils.http import http_date
 from spotseeker_server.require_auth import *
 from cStringIO import StringIO
 import Image

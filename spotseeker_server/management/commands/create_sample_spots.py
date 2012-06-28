@@ -82,7 +82,6 @@ class Command(BaseCommand):
                                                building_name="Fishery Sciences",
                                                floor="2nd floor",
                                                room_number="266",
-                                               description="South wing",
                                                capacity=12)
             fish_kitchen.spottypes.add(lounge_type)
             fish_kitchen.save()
@@ -96,7 +95,6 @@ class Command(BaseCommand):
                                                latitude=Decimal('47.65289'),
                                                building_name="Fishery Sciences",
                                                floor="2nd floor",
-                                               description="South wing",
                                                capacity=12)
             fish_patio.spottypes.add(outdoor_type)
             fish_patio.save()

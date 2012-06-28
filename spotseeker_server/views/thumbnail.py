@@ -41,5 +41,7 @@ class ThumbnailView(RESTDispatch):
         tmp.seek(0)
 
         response = HttpResponse(tmp.getvalue())
+        # 12 hour timeout?
+        response['Expires'] = http_date(time.time() + 60 * 60 * 12)
         response["Content-type"] = img.content_type
         return response

@@ -100,13 +100,27 @@ class SpotView(RESTDispatch):
 
         form = SpotForm(new_values)
         if not form.is_valid():
+            spot.delete()
             response = HttpResponse(json.dumps(form.errors))
             response.status_code = 400
             return response
 
-        spot.name = new_values["name"]
-        if new_values["capacity"]:
-            spot.capacity = new_values["capacity"]
+        errors = []
+        #Validate the data POST and record errors and don't make the spot
+        if "name" in new_values:
+            if new_values["name"]:
+                spot.name = new_values["name"]
+            else: 
+                errors.append("Invalid name")
+        else:
+            error.append("Name not provided")
+
+        if "capacity" in new_values:
+            if new_values["capacity"]:
+                try:
+                    spot.capacity = int(new_values["capacity"])
+                except:
+                    pass
 
         if "type" in new_values:
             for value in new_values["type"]:
@@ -115,33 +129,49 @@ class SpotView(RESTDispatch):
                     spot.spottypes.add(value)
                 except:
                     pass
-            
+        else:
+            errors.append("Spot types not found")
+        
         if "location" in new_values:
-            if "latitude" in new_values["location"]:
-                spot.latitude = new_values["location"]["latitude"]
-            if "longitude" in new_values["location"]:
-                spot.longitude = new_values["location"]["longitude"]
-            #height from sea level is picky about wanting an integer
-            #also it is almost always given an empty string
-            if new_values["location"]["height_from_sea_level"]:
-                spot.height_from_sea_level = new_values["location"]["height_from_sea_level"]
-            if "building_name" in new_values["location"]:
-                spot.building_name = new_values["location"]["building_name"]
-            if "floor" in new_values["location"]:
-                spot.floor = new_values["location"]["floor"]
-            if "room_number" in new_values["location"]:
-                spot.room_number = new_values["location"]["room_number"]
-            if "description" in new_values["location"]:
-                spot.description = new_values["location"]["description"]
+            loc_vals = new_values["location"]
+            if "latitude" in loc_vals and "longitude" in loc_vals:
+                try:
+                    spot.latitude = float(loc_vals["latitude"])
+                    spot.longitude = float(loc_vals["longitude"])
+                except:
+                    errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))
+            else:
+                errors.append("Latitude and longitude not provided")
+
+            if "height_from_sea_level" in loc_vals:
+                try:
+                    spot.height_from_sea_level = float(loc_vals["height_from_sea_level"])
+                except:
+                    pass
+
+            if "building_name" in loc_vals:
+                spot.building_name = loc_vals["building_name"]
+            if "floor" in loc_vals:
+                spot.floor = loc_vals["floor"]
+            if "room_number" in loc_vals:
+                spot.room_number = loc_vals["room_number"]
+            if "description" in loc_vals:
+                spot.description = loc_vals["description"]
+        else:
+            errors.append("Location data not provided")
+
         if "organization" in new_values:
             spot.organization = new_values["organization"]
-        else:
-            spot.organization = ""
         if "manager" in new_values:
             spot.manager = new_values["manager"]
+       
+        if len(errors) == 0:
+            spot.save()
         else:
-            spot.manager = ""
-        spot.save()
+            spot.delete()
+            response = HttpResponse('{"error":"'+str(errors)+'"}')
+            response.status_code = 400
+            return response
 
         queryset = SpotAvailableHours.objects.filter(spot=spot)
         queryset.delete()
@@ -150,7 +180,7 @@ class SpotView(RESTDispatch):
             for item in new_values["extended_info"]:
                 SpotExtendedInfo.objects.create(key = item, value = new_values["extended_info"][item], spot=spot)
 
-        if "available_hours" in new_values:
+        try:
             available_hours = new_values["available_hours"]
             for day in [["m", "monday"],
                         ["t", "tuesday"],
@@ -163,3 +193,5 @@ class SpotView(RESTDispatch):
                     day_hours = available_hours[day[1]]
                     for window in day_hours:
                         SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
+        except:
+            pass

@@ -162,3 +162,32 @@ class SpotSearchFieldTest(unittest.TestCase):
         response = c.get("/api/v1/spot", {"type": ["cafe_testing", "open_testing"]})
         spots = json.loads(response.content)
         self.assertEquals(len(spots), 3, 'Finds 3 matches for searching for cafe_test and open_test')
+
+    def test_multi_building_search(self):
+        """ Tests to be sure searching for spots in multiple buildings returns spots for all buildings.
+        """
+        # Building A
+        spot1 = Spot.objects.create(name='Room A403', building_name='Building A')
+        spot2 = Spot.objects.create(name='Room A589', building_name='Building A')
+
+        # Building B
+        spot3 = Spot.objects.create(name='Room B328', building_name='Building B')
+        spot4 = Spot.objects.create(name='Room B943', building_name='Building B')
+
+        # Building C - just because
+        spot5 = Spot.objects.create(name='Room C483', building_name='Building C')
+
+        c = Client()
+        response = c.get("/api/v1/spot", {"building_name": ['Building A', 'Building B']})
+        spots = json.loads(response.content)
+
+        response_ids = []
+        for s in spots:
+            response_ids.append(s['id'])
+
+        self.assertTrue(spot1.pk in response_ids, 'Spot 1 is returned')
+        self.assertTrue(spot2.pk in response_ids, 'Spot 2 is returned')
+        self.assertTrue(spot3.pk in response_ids, 'Spot 3 is returned')
+        self.assertTrue(spot4.pk in response_ids, 'Spot 4 is returned')
+        self.assertTrue(spot5.pk not in response_ids, 'Spot 5 is not returned')
+        self.assertEquals(len(spots), 4, 'Finds 4 matches searching for spots in Buildings A and B')

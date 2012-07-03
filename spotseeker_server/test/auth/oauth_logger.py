@@ -102,6 +102,7 @@ class SpotAuthOAuthLogger(TestCase):
 
             spot_dict = json.loads(response.content)
             spot_dict['name'] = "Failing to modify oauth"
+            spot_dict['location'] = {"latitude": 55, "longitude": -30}
 
             response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag, HTTP_AUTHORIZATION=oauth_header['Authorization'], HTTP_XOAUTH_USER="pmichaud")
             self.assertEquals(response.status_code, 200, "Accespts a PUT from a trusted oauth client")

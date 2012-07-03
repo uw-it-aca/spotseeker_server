@@ -127,7 +127,6 @@ class SearchView(RESTDispatch):
                 except Exception as e:
                     # Do something to complain??
                     pass
-
             elif key == "type":
                 type_values = request.GET.getlist(key)
                 q_obj = Q()
@@ -136,10 +135,18 @@ class SearchView(RESTDispatch):
                     q_obj |= type_q
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
+            elif key == "building_name":
+                building_names = request.GET.getlist(key)
+                q_obj = Q()
+                type_qs = [Q(building_name__exact=v) for v in building_names]
+                for type_q in type_qs:
+                    q_obj |= type_q
+                query = query.filter(q_obj).distinct()
+                has_valid_search_param = True
             elif re.search('^extended_info:', key):
                 kwargs = {
-                   'spotextendedinfo__key': key[14:],
-                   'spotextendedinfo__value__in': request.GET.getlist(key)
+                    'spotextendedinfo__key': key[14:],
+                    'spotextendedinfo__value__in': request.GET.getlist(key)
                 }
                 query = query.filter(**kwargs)
                 has_valid_search_param = True
@@ -195,7 +202,7 @@ class SearchView(RESTDispatch):
             if add_days:
                 matched_days.append(day)
 
-            if day == until_day and add_days == True:
+            if day == until_day and add_days is True:
                 return matched_days
 
         return []

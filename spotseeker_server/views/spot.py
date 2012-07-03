@@ -1,11 +1,10 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot import SpotForm
-from spotseeker_server.models import Spot, SpotAvailableHours
+from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 import simplejson as json
 from django.db import transaction
-
 
 class SpotView(RESTDispatch):
     """ Performs actions on a Spot at /api/v1/spot/<spot id>.
@@ -101,18 +100,87 @@ class SpotView(RESTDispatch):
 
         form = SpotForm(new_values)
         if not form.is_valid():
+            spot.delete()
             response = HttpResponse(json.dumps(form.errors))
             response.status_code = 400
             return response
 
-        spot.name = new_values["name"]
-        spot.capacity = new_values["capacity"]
-        spot.save()
+        errors = []
+        #Validate the data POST and record errors and don't make the spot
+        if "name" in new_values:
+            if new_values["name"]:
+                spot.name = new_values["name"]
+            else: 
+                errors.append("Invalid name")
+        else:
+            error.append("Name not provided")
+
+        if "capacity" in new_values:
+            if new_values["capacity"]:
+                try:
+                    spot.capacity = int(new_values["capacity"])
+                except:
+                    pass
+
+        if "type" in new_values:
+            for value in new_values["type"]:
+                try:
+                    value = SpotType.objects.get(name=value)
+                    spot.spottypes.add(value)
+                except:
+                    pass
+        
+        if "location" in new_values:
+            loc_vals = new_values["location"]
+            if "latitude" in loc_vals and "longitude" in loc_vals:
+                try:
+                    spot.latitude = float(loc_vals["latitude"])
+                    spot.longitude = float(loc_vals["longitude"])
+                except:
+                    pass
+                    errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))
+            else:
+                errors.append("Latitude and longitude not provided")
+
+            if "height_from_sea_level" in loc_vals:
+                try:
+                    spot.height_from_sea_level = float(loc_vals["height_from_sea_level"])
+                except:
+                    pass
+
+            if "building_name" in loc_vals:
+                spot.building_name = loc_vals["building_name"]
+            if "floor" in loc_vals:
+                spot.floor = loc_vals["floor"]
+            if "room_number" in loc_vals:
+                spot.room_number = loc_vals["room_number"]
+            if "description" in loc_vals:
+                spot.description = loc_vals["description"]
+        else:
+            errors.append("Location data not provided")
+
+        if "organization" in new_values:
+            spot.organization = new_values["organization"]
+        if "manager" in new_values:
+            spot.manager = new_values["manager"]
+       
+        if len(errors) == 0:
+            spot.save()
+        else:
+            spot.delete()
+            response = HttpResponse('{"error":"'+str(errors)+'"}')
+            response.status_code = 400
+            return response
 
         queryset = SpotAvailableHours.objects.filter(spot=spot)
         queryset.delete()
 
-        if "available_hours" in new_values:
+        if "extended_info" in new_values:
+            for item in new_values["extended_info"]:
+                if (new_values["extended_info"][item]!= 'false') and (new_values["extended_info"][item]!='False'):
+                    SpotExtendedInfo.objects.create(key = item, value = new_values["extended_info"][item], spot=spot)
+
+        try:
             available_hours = new_values["available_hours"]
             for day in [["m", "monday"],
                         ["t", "tuesday"],
@@ -125,3 +193,5 @@ class SpotView(RESTDispatch):
                     day_hours = available_hours[day[1]]
                     for window in day_hours:
                         SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
+        except:
+            pass

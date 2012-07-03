@@ -1,9 +1,11 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
+from django.utils.http import http_date
 from spotseeker_server.require_auth import *
 from cStringIO import StringIO
 import Image
+import time
 
 
 class ThumbnailView(RESTDispatch):
@@ -41,5 +43,7 @@ class ThumbnailView(RESTDispatch):
         tmp.seek(0)
 
         response = HttpResponse(tmp.getvalue())
+        # 12 hour timeout?
+        response['Expires'] = http_date(time.time() + 60 * 60 * 12)
         response["Content-type"] = img.content_type
         return response

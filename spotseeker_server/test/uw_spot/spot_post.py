@@ -264,7 +264,7 @@ class UWSpotPOSTTest(TestCase):
             new_capacity = 10
 
             desc = 'This is a description'
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"true","description":"%s","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity, desc)
+            json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","description":"%s","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity, desc)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")

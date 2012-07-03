@@ -129,8 +129,6 @@ class SpotView(RESTDispatch):
                     spot.spottypes.add(value)
                 except:
                     pass
-        else:
-            errors.append("Spot types not found")
         
         if "location" in new_values:
             loc_vals = new_values["location"]
@@ -139,6 +137,7 @@ class SpotView(RESTDispatch):
                     spot.latitude = float(loc_vals["latitude"])
                     spot.longitude = float(loc_vals["longitude"])
                 except:
+                    pass
                     errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))
             else:
                 errors.append("Latitude and longitude not provided")
@@ -178,7 +177,8 @@ class SpotView(RESTDispatch):
 
         if "extended_info" in new_values:
             for item in new_values["extended_info"]:
-                SpotExtendedInfo.objects.create(key = item, value = new_values["extended_info"][item], spot=spot)
+                if (new_values["extended_info"][item]!= 'false') and (new_values["extended_info"][item]!='False'):
+                    SpotExtendedInfo.objects.create(key = item, value = new_values["extended_info"][item], spot=spot)
 
         try:
             available_hours = new_values["available_hours"]

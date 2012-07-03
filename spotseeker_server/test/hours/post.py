@@ -14,6 +14,10 @@ class SpotHoursPOSTTest(TestCase):
             post_obj = {
                 'name': "This spot has available hours",
                 'capacity': 4,
+                'location': {
+                    'latitude': '55',
+                    'longitude': '30',
+                },
                 'available_hours': {
                     'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
                     'tuesday': [["11:00", "14:00"]],
@@ -27,7 +31,6 @@ class SpotHoursPOSTTest(TestCase):
 
             c = Client()
             response = c.post("/api/v1/spot/", json.dumps(post_obj), content_type="application/json")
-
             get_response = c.get(response["Location"])
 
             self.assertEquals(get_response.status_code, 200, "OK in response to GETing the new spot")

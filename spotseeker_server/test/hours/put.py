@@ -16,6 +16,10 @@ class SpotHoursPUTTest(TestCase):
             put_obj = {
                 'name': "This spot has available hours",
                 'capacity': "4",
+                'location': {
+                     'latitude': '55',
+                     'longitude': '30',
+                },
                 'available_hours': {
                     'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
                     'tuesday': [["11:00", "14:00"]],

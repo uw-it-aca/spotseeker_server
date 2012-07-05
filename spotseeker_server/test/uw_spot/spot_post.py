@@ -16,7 +16,7 @@ class UWSpotPOSTTest(TestCase):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_whiteboards":"true","has_outlets":"false","manager":"Bob","organization":"UW"}}' % (new_name, new_capacity)
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_whiteboards":"true","has_outlets":"true","manager":"Bob","organization":"UW"}}' % (new_name, new_capacity)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
@@ -68,7 +68,7 @@ class UWSpotPOSTTest(TestCase):
 
             self.assertEquals(response.status_code, 400, "Not created because has_whiteboards field did not pass validation")
 
-            whiteboards = 'false'
+            whiteboards = 'true'
             json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_whiteboards":"%s","has_outlets":"true","manager":"John","organization":"UW"}}' % (new_name, new_capacity, whiteboards)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
@@ -91,7 +91,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 400, "Not created because has_outlets field did not pass validation")
 
             outlets = 'true'
-            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_whiteboards":"false","has_outlets":"%s","manager":"Harry","organization":"UW"}}' % (new_name, new_capacity, outlets)
+            json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_whiteboards":"true","has_outlets":"%s","manager":"Harry","organization":"UW"}}' % (new_name, new_capacity, outlets)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
@@ -143,7 +143,7 @@ class UWSpotPOSTTest(TestCase):
 
             self.assertEquals(response.status_code, 400, "Not created because has_displays field did not pass validation")
 
-            has_displays = 'false'
+            has_displays = 'true'
             json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"true","has_displays":"%s","manager":"Fred","organization":"UW"}}' % (new_name, new_capacity, has_displays)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
@@ -161,7 +161,7 @@ class UWSpotPOSTTest(TestCase):
 
             self.assertEquals(response.status_code, 400, "Not created because has_projector field did not pass validation")
 
-            has_projector = 'false'
+            has_projector = 'true'
             json_string = '{"name":"%s","capacity":"%s","extended_info":{"has_outlets":"true","has_projector":"%s","manager":"George","organization":"UW"}}' % (new_name, new_capacity, has_projector)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 

@@ -10,6 +10,13 @@ def validate_true(value):
         raise forms.ValidationError("%s can only be 'true'" % value)
 
 
+def validate_choices(value, choices):
+    """ Check that a value is one of a couple possible choices.
+    """
+    if not value in choices:
+        raise forms.ValidationError("Value must be one of %s" % choices)
+
+
 class ExtendedInfoField(forms.Field):
     def validate(self, value):
         # UW Spots must have extended_info
@@ -51,19 +58,16 @@ class ExtendedInfoField(forms.Field):
         # noise_level should be one of 'Silent', 'Low hum', 'Chatter', 'Rowdy', 'Variable'
         if "noise_level" in value:
             choices = ['silent', 'quiet', 'moderate', 'loud', 'variable']
-            if not value["noise_level"] in choices:
-                raise forms.ValidationError("Value for noise_level must be one of %s" % choices)
+            validate_choices(value['noise_level'], choices)
 
         # food_nearby should be one of 'In space', 'In building', 'In neighboring building', 'None nearby'
         if "food_nearby" in value:
-            choices = ['space', 'building', 'neighboring', 'none']
-            if not value["food_nearby"] in choices:
-                raise forms.ValidationError("Value for food_nearby must be one of %s" % choices)
+            choices = ['space', 'building', 'neighboring']
+            validate_choices(value['food_nearby'], choices)
 
         if "reservable" in value:
-            choices = ['true', 'reservations', 'false']
-            if not value["reservable"] in choices:
-                raise forms.ValidationError("Value for reservable must be one of %s" % choices)
+            choices = ['true', 'reservations']
+            validate_choices(value['reservable'], choices)
 
         return True
 

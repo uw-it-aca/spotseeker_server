@@ -17,12 +17,20 @@ def validate_choices(value, choices):
         raise forms.ValidationError("Value must be one of %s" % choices)
 
 
+def validate_int(value):
+    """ Ensure the value is an integer.
+    """
+    if not type(value) is int:
+        raise forms.ValidationError("Value must be an int")
+
+
 class ExtendedInfoField(forms.Field):
     def validate(self, value):
         # UW Spots must have extended_info
         if value is None:
             raise forms.ValidationError("You must have an extended_info section")
 
+        # orientation, location_description, access_notes, reserve_notes, hours_notes, may be any string
         # has_whiteboards should be 'true' or not exist
         if "has_whiteboards" in value:
             validate_true(value['has_whiteboards'])
@@ -31,7 +39,7 @@ class ExtendedInfoField(forms.Field):
         if "has_outlets" in value:
             validate_true(value['has_outlets'])
 
-        # printer_nearby should be 'true' or not exist
+        # has_printing  should be 'true' or not exist
         if "has_printing" in value:
             validate_true(value['has_printing'])
 
@@ -68,6 +76,10 @@ class ExtendedInfoField(forms.Field):
         if "reservable" in value:
             choices = ['true', 'reservations']
             validate_choices(value['reservable'], choices)
+
+        # num_computers should be an int
+        if "num_computers" in value:
+            validate_int(value['num_computers'])
 
         return True
 

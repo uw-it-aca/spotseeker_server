@@ -97,4 +97,18 @@ class UWSpotPUTTest(TestCase):
 
             updated_spot = Spot.objects.get(pk=self.spot.pk)
             self.assertEquals(updated_spot.name, intermediate_spot.name, "keeps the intermediate name w/ an outdated etag")
+
+    def test_extended_info(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+            c = Client()
+            new_name = "testing PUT name: {0}".format(random.random())
+            new_capacity = 20
+            json_string = '{"name":"%s","capacity":"%s", "location": {"latitude": 55, "longitude": 30}, "extended_info":{"has_outlets":"true"}}' % (new_name, new_capacity)
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, json_string, content_type="application/json", If_Match=etag)
+            spot_json = json.loads(response.content)
+            extended_info = {"has_outlets": "true"}
+            self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was successfully PUT")
             self.assertEquals(updated_spot.capacity, intermediate_spot.capacity, "keeps the intermediate capacity w/ an outdate etag")

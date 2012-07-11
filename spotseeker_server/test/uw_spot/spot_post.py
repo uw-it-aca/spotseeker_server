@@ -285,4 +285,4 @@ class UWSpotPOSTTest(TestCase):
             get_response = c.get(response["Location"])
             spot_json = json.loads(get_response.content)
             extended_info = {"has_outlets": "true"}
-            self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was succesffuly POSTed")  A
+            self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was succesffuly POSTed")

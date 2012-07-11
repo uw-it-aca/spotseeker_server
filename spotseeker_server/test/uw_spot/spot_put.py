@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
+import simplejson as json
 import random
 
 
@@ -111,4 +112,3 @@ class UWSpotPUTTest(TestCase):
             spot_json = json.loads(response.content)
             extended_info = {"has_outlets": "true"}
             self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was successfully PUT")
-            self.assertEquals(updated_spot.capacity, intermediate_spot.capacity, "keeps the intermediate capacity w/ an outdate etag")

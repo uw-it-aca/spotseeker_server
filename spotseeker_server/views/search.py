@@ -114,7 +114,7 @@ class SearchView(RESTDispatch):
                     except:
                         day, time = request.GET['open_at'].split(',')
                         day = day_dict[day]
-                        query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gte=time)
+                        query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
             elif key == "capacity":
                 try:

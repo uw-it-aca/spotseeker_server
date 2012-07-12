@@ -31,6 +31,7 @@ class SpotAuthAllOK(TestCase):
             etag = response["ETag"]
 
             spot_dict = json.loads(response.content)
+            spot_dict["location"] = {"latitude": 55, "longitude": -30}
             spot_dict['name'] = "Modifying all ok"
 
             response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag)

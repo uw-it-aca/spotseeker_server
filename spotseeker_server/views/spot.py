@@ -6,6 +6,7 @@ from spotseeker_server.require_auth import *
 import simplejson as json
 from django.db import transaction
 
+
 class SpotView(RESTDispatch):
     """ Performs actions on a Spot at /api/v1/spot/<spot id>.
     GET returns 200 with Spot details.
@@ -110,7 +111,7 @@ class SpotView(RESTDispatch):
         if "name" in new_values:
             if new_values["name"]:
                 spot.name = new_values["name"]
-            else: 
+            else:
                 errors.append("Invalid name")
         else:
             error.append("Name not provided")
@@ -129,7 +130,6 @@ class SpotView(RESTDispatch):
                     spot.spottypes.add(value)
                 except:
                     pass
-        
         if "location" in new_values:
             loc_vals = new_values["location"]
             if "latitude" in loc_vals and "longitude" in loc_vals:
@@ -138,6 +138,9 @@ class SpotView(RESTDispatch):
                     spot.longitude = float(loc_vals["longitude"])
                 except:
                     pass
+                    errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))
+            else:
+                errors.append("Latitude and longitude not provided")
 
             if "height_from_sea_level" in loc_vals:
                 try:
@@ -153,17 +156,19 @@ class SpotView(RESTDispatch):
                 spot.room_number = loc_vals["room_number"]
             if "description" in loc_vals:
                 spot.description = loc_vals["description"]
+        else:
+            errors.append("Location data not provided")
 
         if "organization" in new_values:
             spot.organization = new_values["organization"]
         if "manager" in new_values:
             spot.manager = new_values["manager"]
-       
+
         if len(errors) == 0:
             spot.save()
         else:
             spot.delete()
-            response = HttpResponse('{"error":"'+str(errors)+'"}')
+            response = HttpResponse('{"error":"' + str(errors) + '"}')
             response.status_code = 400
             return response
 
@@ -172,7 +177,7 @@ class SpotView(RESTDispatch):
 
         if "extended_info" in new_values:
             for item in new_values["extended_info"]:
-                SpotExtendedInfo.objects.create(key = item, value = new_values["extended_info"][item], spot=spot)
+                SpotExtendedInfo.objects.create(key=item, value=new_values["extended_info"][item], spot=spot)
 
         try:
             available_hours = new_values["available_hours"]

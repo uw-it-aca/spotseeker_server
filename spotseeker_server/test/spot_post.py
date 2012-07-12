@@ -16,7 +16,7 @@ class SpotPOSTTest(TestCase):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
-            response = c.post('/api/v1/spot/', '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", follow=False)
+            response = c.post('/api/v1/spot/', '{"name":"%s","capacity":"%d", "location": {"latitude": 50, "longitude": -30} }' % (new_name, new_capacity), content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 

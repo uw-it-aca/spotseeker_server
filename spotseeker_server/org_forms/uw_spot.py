@@ -94,7 +94,8 @@ class ExtendedInfoForm(forms.ModelForm):
         model = SpotExtendedInfo
 
     def clean_value(self):
-        return validate_uw_extended_info({self.data['key']: self.data['value']})
+        if validate_uw_extended_info({self.data['key']: self.data['value']}):
+            return self.data['value']
 
 
 class UWSpotForm(forms.Form):

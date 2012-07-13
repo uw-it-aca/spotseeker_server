@@ -1,5 +1,6 @@
 from django.contrib import admin
 from spotseeker_server.models import *
+from spotseeker_server.org_forms.uw_spot import ExtendedInfoForm
 
 
 class SpotAdmin(admin.ModelAdmin):
@@ -41,6 +42,7 @@ admin.site.register(SpotAvailableHours, SpotAvailableHoursAdmin)
 class SpotExtendedInfoAdmin(admin.ModelAdmin):
     """ The admin model for SpotExtendedInfo.
     """
+    form = ExtendedInfoForm
     list_display = ("spot", "key", "value")
     list_editable = ["key", "value"]
     list_filter = ["key", "spot"]

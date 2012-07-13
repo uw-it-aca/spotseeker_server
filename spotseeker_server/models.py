@@ -35,6 +35,7 @@ class Spot(models.Model):
     organization = models.CharField(max_length=50, blank=True)
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
+    last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
 
     def __unicode__(self):
         return self.name
@@ -106,7 +107,8 @@ class Spot(models.Model):
             "available_hours": available_hours,
             "organization": self.organization,
             "manager": self.manager,
-            "extended_info": extended_info
+            "extended_info": extended_info,
+            "last_modified": self.last_modified.isoformat()
         }
 
 
@@ -146,6 +148,7 @@ class SpotAvailableHours(models.Model):
                 self.end_time = max(h.end_time, self.end_time)
                 h.delete()
 
+        self.spot.save()  # Update the spot's last_modified
         super(SpotAvailableHours, self).save(*args, **kwargs)
 
 
@@ -161,6 +164,11 @@ class SpotExtendedInfo(models.Model):
 
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot, self.key, self.value)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        self.spot.save()  # Update the last_modified on the spot
+        super(SpotExtendedInfo, self).save(*args, **kwargs)
 
 
 class SpotImage(models.Model):

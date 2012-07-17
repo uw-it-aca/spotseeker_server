@@ -140,6 +140,13 @@ class SearchView(RESTDispatch):
                     if not request.META['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
 
+        limit = 20
+        if 'limit' in request.GET:
+            if request.GET['limit'] == '0':
+                limit = 0
+            else:
+                limit = int(request.GET['limit'])
+
         if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
             try:
                 g = Geod(ellps='clrk66')
@@ -162,6 +169,9 @@ class SearchView(RESTDispatch):
 
                 if len(distance_query) >  0:
                     query = distance_query
+                else:
+                    # If we're querying everything, let's make sure we only return a limited number of spaces...
+                    limit = 10
             except Exception as e:
                 if not request.META['SERVER_NAME'] == 'testserver':
                     print >> sys.stderr, "E: ", e
@@ -171,13 +181,6 @@ class SearchView(RESTDispatch):
 
         if not has_valid_search_param:
             return HttpResponse('[]')
-
-        limit = 20
-        if 'limit' in request.GET:
-            if request.GET['limit'] == '0':
-                limit = 0
-            else:
-                limit = int(request.GET['limit'])
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)

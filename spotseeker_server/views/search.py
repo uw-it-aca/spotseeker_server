@@ -34,30 +34,6 @@ class SearchView(RESTDispatch):
 
         query = Spot.objects.all()
 
-        if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
-            try:
-                g = Geod(ellps='clrk66')
-                top = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 0, request.GET['distance'])
-                right = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 90, request.GET['distance'])
-                bottom = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 180, request.GET['distance'])
-                left = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 270, request.GET['distance'])
-
-                top_limit = "%.8f" % top[1]
-                bottom_limit = "%.8f" % bottom[1]
-                left_limit = "%.8f" % left[0]
-                right_limit = "%.8f" % right[0]
-
-                query = query.filter(longitude__gte=left_limit)
-
-                query = query.filter(longitude__lte=right_limit)
-                query = query.filter(latitude__gte=bottom_limit)
-                query = query.filter(latitude__lte=top_limit)
-                has_valid_search_param = True
-            except Exception as e:
-                if not request.META['SERVER_NAME'] == 'testserver':
-                    print >> sys.stderr, "E: ", e
-                query = Spot.objects.all()
-
         day_dict = {"Sunday": "su",
                     "Monday": "m",
                     "Tuesday": "t",
@@ -163,6 +139,35 @@ class SearchView(RESTDispatch):
                 except Exception as e:
                     if not request.META['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
+
+        if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
+            try:
+                g = Geod(ellps='clrk66')
+                top = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 0, request.GET['distance'])
+                right = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 90, request.GET['distance'])
+                bottom = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 180, request.GET['distance'])
+                left = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 270, request.GET['distance'])
+
+                top_limit = "%.8f" % top[1]
+                bottom_limit = "%.8f" % bottom[1]
+                left_limit = "%.8f" % left[0]
+                right_limit = "%.8f" % right[0]
+
+                distance_query = query.filter(longitude__gte=left_limit)
+
+                distance_query = distance_query.filter(longitude__lte=right_limit)
+                distance_query = distance_query.filter(latitude__gte=bottom_limit)
+                distance_query = distance_query.filter(latitude__lte=top_limit)
+                has_valid_search_param = True
+
+                if len(distance_query) >  0:
+                    query = distance_query
+            except Exception as e:
+                if not request.META['SERVER_NAME'] == 'testserver':
+                    print >> sys.stderr, "E: ", e
+                #query = Spot.objects.all()
+
+
 
         if not has_valid_search_param:
             return HttpResponse('[]')

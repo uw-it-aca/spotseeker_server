@@ -136,6 +136,10 @@ class SpotView(RESTDispatch):
                 try:
                     spot.latitude = float(loc_vals["latitude"])
                     spot.longitude = float(loc_vals["longitude"])
+
+                    # The 2 up there are just to throw the exception below.  They need to not actually be floats
+                    spot.latitude = loc_vals["latitude"]
+                    spot.longitude = loc_vals["longitude"]
                 except:
                     pass
                     errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))

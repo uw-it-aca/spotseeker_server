@@ -95,7 +95,9 @@ class SearchView(RESTDispatch):
             elif key == "capacity":
                 try:
                     limit = int(request.GET["capacity"])
-                    query = query.filter(capacity__gte=limit)
+                    with_limit = Q(capacity__gte=limit)
+                    with_limit |= Q(capacity__isnull=True)
+                    query = query.filter(with_limit)
                     has_valid_search_param = True
                 except ValueError:
                     # This we don't care about - if someone passes "", or "twenty", just ignore it

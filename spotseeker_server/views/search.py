@@ -45,6 +45,8 @@ class SearchView(RESTDispatch):
         for key in request.GET:
             if re.search('^oauth_', key):
                 pass
+            elif key == "expand_radius":
+                pass
             elif key == "distance":
                 pass
             elif key == "center_latitude":

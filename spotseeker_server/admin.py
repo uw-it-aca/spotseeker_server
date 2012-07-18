@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.conf import settings
+from django.utils.importlib import import_module
 from spotseeker_server.models import *
 from spotseeker_server.org_forms.uw_spot import ExtendedInfoForm
 
@@ -42,7 +44,18 @@ admin.site.register(SpotAvailableHours, SpotAvailableHoursAdmin)
 class SpotExtendedInfoAdmin(admin.ModelAdmin):
     """ The admin model for SpotExtendedInfo.
     """
-    form = ExtendedInfoForm
+    if hasattr(settings, 'SPOTSEEKER_SPOT_FORM'):
+        module, attr = settings.SPOTSEEKER_SPOT_FORM.rsplit('.', 1)
+        try:
+            mod = import_module(module)
+        except ImportError, e:
+            raise ImproperlyConfigured('Error import module %s: "%s"' %
+                                       (module, e))
+        try:
+            FormModule = getattr(mod, 'ExtendedInfoForm')
+        except AttributeError:
+            raise ImproperlyConfigured('Module "%s" does not define a ExtendedInfoForm class.' % (module, attr))
+        form = FormModule
     list_display = ("spot", "key", "value")
     list_editable = ["key", "value"]
     list_filter = ["key", "spot"]

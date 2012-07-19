@@ -34,30 +34,6 @@ class SearchView(RESTDispatch):
 
         query = Spot.objects.all()
 
-        if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
-            try:
-                g = Geod(ellps='clrk66')
-                top = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 0, request.GET['distance'])
-                right = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 90, request.GET['distance'])
-                bottom = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 180, request.GET['distance'])
-                left = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 270, request.GET['distance'])
-
-                top_limit = "%.8f" % top[1]
-                bottom_limit = "%.8f" % bottom[1]
-                left_limit = "%.8f" % left[0]
-                right_limit = "%.8f" % right[0]
-
-                query = query.filter(longitude__gte=left_limit)
-
-                query = query.filter(longitude__lte=right_limit)
-                query = query.filter(latitude__gte=bottom_limit)
-                query = query.filter(latitude__lte=top_limit)
-                has_valid_search_param = True
-            except Exception as e:
-                if not request.META['SERVER_NAME'] == 'testserver':
-                    print >> sys.stderr, "E: ", e
-                query = Spot.objects.all()
-
         day_dict = {"Sunday": "su",
                     "Monday": "m",
                     "Tuesday": "t",
@@ -68,6 +44,8 @@ class SearchView(RESTDispatch):
         # Exclude things that get special consideration here, otherwise add a filter for the keys
         for key in request.GET:
             if re.search('^oauth_', key):
+                pass
+            elif key == "expand_radius":
                 pass
             elif key == "distance":
                 pass
@@ -116,10 +94,43 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
+            elif key == "extended_info:noise_level":
+                noise_levels = request.GET.getlist("extended_info:noise_level")
+
+                exclude_silent = True
+                exclude_quiet = True
+                exclude_moderate = True
+                exclude_loud = True
+                exclude_variable = True
+
+                for level in noise_levels:
+                    if "silent" == level:
+                        exclude_silent = False
+                    if "quiet" == level:
+                        exclude_quiet = False
+                        exclude_variable = False
+                    if "moderate" == level:
+                        exclude_quiet = False
+                        exclude_variable = False
+
+                if exclude_silent:
+                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="silent")
+                if exclude_quiet:
+                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="quiet")
+                if exclude_moderate:
+                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="moderate")
+                if exclude_loud:
+                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="loud")
+                if exclude_variable:
+                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="variable")
+
+
             elif key == "capacity":
                 try:
                     limit = int(request.GET["capacity"])
-                    query = query.filter(capacity__gte=limit)
+                    with_limit = Q(capacity__gte=limit)
+                    with_limit |= Q(capacity__isnull=True)
+                    query = query.filter(with_limit)
                     has_valid_search_param = True
                 except ValueError:
                     # This we don't care about - if someone passes "", or "twenty", just ignore it
@@ -164,15 +175,47 @@ class SearchView(RESTDispatch):
                     if not request.META['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
 
-        if not has_valid_search_param:
-            return HttpResponse('[]')
-
         limit = 20
         if 'limit' in request.GET:
             if request.GET['limit'] == '0':
                 limit = 0
             else:
                 limit = int(request.GET['limit'])
+
+        if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
+            try:
+                g = Geod(ellps='clrk66')
+                top = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 0, request.GET['distance'])
+                right = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 90, request.GET['distance'])
+                bottom = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 180, request.GET['distance'])
+                left = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 270, request.GET['distance'])
+
+                top_limit = "%.8f" % top[1]
+                bottom_limit = "%.8f" % bottom[1]
+                left_limit = "%.8f" % left[0]
+                right_limit = "%.8f" % right[0]
+
+                distance_query = query.filter(longitude__gte=left_limit)
+
+                distance_query = distance_query.filter(longitude__lte=right_limit)
+                distance_query = distance_query.filter(latitude__gte=bottom_limit)
+                distance_query = distance_query.filter(latitude__lte=top_limit)
+                has_valid_search_param = True
+
+                if len(distance_query) >  0 or 'expand_radius' not in request.GET:
+                    query = distance_query
+                else:
+                    # If we're querying everything, let's make sure we only return a limited number of spaces...
+                    limit = 10
+            except Exception as e:
+                if not request.META['SERVER_NAME'] == 'testserver':
+                    print >> sys.stderr, "E: ", e
+                #query = Spot.objects.all()
+
+
+
+        if not has_valid_search_param:
+            return HttpResponse('[]')
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)

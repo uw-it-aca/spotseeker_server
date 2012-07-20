@@ -53,7 +53,7 @@ class SpotPUTTest(TestCase):
             c = Client()
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 10
-            response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json")
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30} }' % (new_name, new_capacity), content_type="application/json")
             self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
 
             updated_spot = Spot.objects.get(pk=self.spot.pk)
@@ -70,7 +70,7 @@ class SpotPUTTest(TestCase):
             response = c.get(self.url)
             etag = response["ETag"]
 
-            response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", If_Match=etag)
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
             self.assertEquals(response.status_code, 200, "Accepts a valid json string")
 
             updated_spot = Spot.objects.get(pk=self.spot.pk)
@@ -91,23 +91,9 @@ class SpotPUTTest(TestCase):
             intermediate_spot.name = "This interferes w/ the PUT"
             intermediate_spot.save()
 
-            response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json", If_Match=etag)
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
             self.assertEquals(response.status_code, 409, "An outdated etag leads to a conflict")
 
             updated_spot = Spot.objects.get(pk=self.spot.pk)
             self.assertEquals(updated_spot.name, intermediate_spot.name, "keeps the intermediate name w/ an outdated etag")
             self.assertEquals(updated_spot.capacity, intermediate_spot.capacity, "keeps the intermediate capacity w/ an outdate etag")
-    def test_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-            c = Client()
-            
-            new_name = "testing PUT name: {0}".format(random.random())
-            new_capacity = 20
-            json_string='{"name":"%s","capacity":"%s", "extended_info":{"has_outlets":"false"}}' % (new_name, new_capacity)
-            extended_info=False 
-            response = c.get(self.url)
-            etag = response["ETag"]
-            response = c.put(self.url, json_string, content_type="application/json", If_Match=etag)
-            updated_spot = Spot.objects.get(pk=self.spot.pk)
-            self.assertEquals(updated_spot.spotextendedinfo_set.exists(), extended_info) 

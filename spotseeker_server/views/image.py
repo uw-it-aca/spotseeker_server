@@ -23,8 +23,8 @@ class ImageView(RESTDispatch):
             response = HttpResponse(FileWrapper(img.image))
             response["ETag"] = img.etag
 
-            # 12 hour timeout?
-            response['Expires'] = http_date(time.time() + 60 * 60 * 12)
+            # 7 day timeout?
+            response['Expires'] = http_date(time.time() + 60 * 60 * 24 * 7)
             response["Content-length"] = img.image.size
             response["Content-type"] = img.content_type
             return response

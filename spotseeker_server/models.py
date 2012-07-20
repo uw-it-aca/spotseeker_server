@@ -175,7 +175,7 @@ class SpotImage(models.Model):
     """ An image of a Spot. Multiple images can be associated with a Spot, and Spot objects have a 'Spot.spotimage_set' method that will return all SpotImage objects for the Spot.
     """
     description = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to="spot_images", height_field="height",
+    image = models.ImageField(upload_to="space_images", height_field="height",
                               width_field="width")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)

@@ -256,7 +256,7 @@ class UWSpotPOSTTest(TestCase):
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
-    def test_uw_field_reservable(self):
+    def test_uw_field_location_description(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                            SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
             c = Client()
@@ -264,13 +264,13 @@ class UWSpotPOSTTest(TestCase):
             new_capacity = 10
 
             desc = 'This is a description'
-            json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","description":"%s","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity, desc)
+            json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","location_description":"%s","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity, desc)
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
             spot = Spot.objects.get(name=new_name)
-            spot_desc = spot.spotextendedinfo_set.get(key='description').value
+            spot_desc = spot.spotextendedinfo_set.get(key='location_description').value
 
             self.assertEquals(desc, spot_desc, "The Spot's description matches what was POSTed.")
 

@@ -110,7 +110,7 @@ class SearchView(RESTDispatch):
                         exclude_quiet = False
                         exclude_variable = False
                     if "moderate" == level:
-                        exclude_quiet = False
+                        exclude_moderate = False
                         exclude_variable = False
 
                 if exclude_silent:

@@ -1,6 +1,6 @@
 Django==1.4
 South
-simplejson
+simplejson>=2.1
 PIL
 pyproj
 oauth2

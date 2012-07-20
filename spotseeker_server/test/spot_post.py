@@ -54,15 +54,3 @@ class SpotPOSTTest(TestCase):
             c = Client()
             response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 400)
-    def test_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-            c =Client()
-            new_name = "testing POST name: {0}".format(random.random())
-            new_capacity = 10
-            json_string = '{"name":"%s","capacity":"%s", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"false"}}' % (new_name, new_capacity)
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
-            get_response = c.get(response["Location"])
-            spot_json = json.loads(get_response.content)
-            extended_info={} 
-            self.assertEquals(spot_json["extended_info"],extended_info) 

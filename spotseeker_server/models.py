@@ -156,7 +156,7 @@ class SpotExtendedInfo(models.Model):
     """ Additional institution-provided metadata about a spot. If providing custom metadata, you should provide a validator for that data, as well.
     """
     key = models.CharField(max_length=50)
-    value = models.CharField(max_length=200)
+    value = models.CharField(max_length=255)
     spot = models.ForeignKey(Spot)
 
     class Meta:

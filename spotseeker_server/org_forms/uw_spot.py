@@ -87,6 +87,12 @@ def validate_uw_extended_info(value):
 
 
 class ExtendedInfoField(forms.Field):
+    def to_python(self, value):
+        for k in value.keys():
+            if value[k] == '':
+                del value[k]
+        return value
+
     def validate(self, value):
         return validate_uw_extended_info(value)
 

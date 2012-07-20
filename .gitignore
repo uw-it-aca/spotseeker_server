@@ -8,9 +8,13 @@
 /bin/
 /include/
 /lib/
+/lib64/
 
 # django project files added when following the Install-for-developers wiki page
 manage.py
 media/
 spotseeker/
 spotseeker.db
+
+# django project files added in production
+spotseeker_web

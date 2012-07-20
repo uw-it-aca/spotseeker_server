@@ -63,3 +63,17 @@ class SpotHoursOpenAtTest(TestCase):
                 spot_returned = True
 
         self.assertTrue(spot_returned, "Got the spot that is open later")
+
+        # Test that the spot is not returned if we search for open_at == spot_close
+        query = "%s,%s" % (query_day, spot_close)
+
+        response = c.get("/api/v1/spot", {'open_at': query})
+        spots = json.loads(response.content)
+
+        spot_returned = False
+
+        for s in spots:
+            if s['id'] == spot.pk:
+                spot_returned = True
+
+        self.assertTrue(not spot_returned, "The spot that closes at search time is not returned.")

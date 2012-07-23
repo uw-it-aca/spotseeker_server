@@ -188,7 +188,10 @@ class SpotImage(models.Model):
     upload_application = models.CharField(max_length=100)
 
     def __unicode__(self):
-        return self.description
+        if self.description:
+            return self.description
+        else:
+            return self.image.name
 
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(),

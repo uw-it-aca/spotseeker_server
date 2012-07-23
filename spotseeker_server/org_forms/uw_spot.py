@@ -35,7 +35,7 @@ def validate_uw_extended_info(value):
     # orientation, location_description, access_notes, reserve_notes, hours_notes, may be any string
     # has_whiteboards should be 'true' or not exist
     if "has_whiteboards" in value:
-        validate_true(value['has_whiteboards'],'has_whiteboards')
+        validate_true(value['has_whiteboards'], 'has_whiteboards')
 
     # has_outlets should be 'true' or not exist
     if "has_outlets" in value:
@@ -88,9 +88,10 @@ def validate_uw_extended_info(value):
 
 class ExtendedInfoField(forms.Field):
     def to_python(self, value):
-        for k in value.keys():
-            if value[k] == '':
-                del value[k]
+        if value is not None:
+            for k in value.keys():
+                if value[k] == '':
+                    del value[k]
         return value
 
     def validate(self, value):

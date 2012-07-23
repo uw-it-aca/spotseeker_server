@@ -133,7 +133,7 @@ class SpotAvailableHours(models.Model):
         verbose_name_plural = "Spot available hours"
 
     def __unicode__(self):
-        return "%s: %s, %s-%s" % (self.spot, self.day, self.start_time, self.end_time)
+        return "%s: %s, %s-%s" % (self.spot.name, self.day, self.start_time, self.end_time)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -163,7 +163,7 @@ class SpotExtendedInfo(models.Model):
         verbose_name_plural = "Spot extended info"
 
     def __unicode__(self):
-        return "%s[%s: %s]" % (self.spot, self.key, self.value)
+        return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
 
     def save(self, *args, **kwargs):
         self.full_clean()

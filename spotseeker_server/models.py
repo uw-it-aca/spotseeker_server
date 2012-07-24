@@ -133,7 +133,7 @@ class SpotAvailableHours(models.Model):
         verbose_name_plural = "Spot available hours"
 
     def __unicode__(self):
-        return "%s: %s, %s-%s" % (self.spot, self.day, self.start_time, self.end_time)
+        return "%s: %s, %s-%s" % (self.spot.name, self.day, self.start_time, self.end_time)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -156,14 +156,14 @@ class SpotExtendedInfo(models.Model):
     """ Additional institution-provided metadata about a spot. If providing custom metadata, you should provide a validator for that data, as well.
     """
     key = models.CharField(max_length=50)
-    value = models.CharField(max_length=200)
+    value = models.CharField(max_length=255)
     spot = models.ForeignKey(Spot)
 
     class Meta:
         verbose_name_plural = "Spot extended info"
 
     def __unicode__(self):
-        return "%s[%s: %s]" % (self.spot, self.key, self.value)
+        return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -175,7 +175,7 @@ class SpotImage(models.Model):
     """ An image of a Spot. Multiple images can be associated with a Spot, and Spot objects have a 'Spot.spotimage_set' method that will return all SpotImage objects for the Spot.
     """
     description = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to="spot_images", height_field="height",
+    image = models.ImageField(upload_to="space_images", height_field="height",
                               width_field="width")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
@@ -188,7 +188,10 @@ class SpotImage(models.Model):
     upload_application = models.CharField(max_length=100)
 
     def __unicode__(self):
-        return self.description
+        if self.description:
+            return self.description
+        else:
+            return self.image.name
 
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(),

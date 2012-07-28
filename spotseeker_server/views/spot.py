@@ -79,12 +79,12 @@ class SpotView(RESTDispatch):
 
     # These are utility methods for the HTTP methods
     def validate_etag(self, request, spot):
-        if not "If_Match" in request.META:
+        if not "HTTP_IF_MATCH" in request.META:
             response = HttpResponse('{"error":"If-Match header required"}')
             response.status_code = 409
             return response
 
-        if request.META["If_Match"] != spot.etag:
+        if request.META["HTTP_IF_MATCH"] != spot.etag or request.META["HTTP_IF_MATCH"] != spot.etag:
             response = HttpResponse('{"error":"Invalid ETag"}')
             response.status_code = 409
             return response

@@ -94,6 +94,8 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
+            elif key == "extended_info:reservable":
+                query = query.filter(spotextendedinfo__key="reservable", spotextendedinfo__value__in=['true', 'reservations'])
             elif key == "extended_info:noise_level":
                 noise_levels = request.GET.getlist("extended_info:noise_level")
 

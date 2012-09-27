@@ -189,9 +189,9 @@ class SpotImage(models.Model):
 
     def __unicode__(self):
         if self.description:
-            return self.description
+            return "%s" %self.description
         else:
-            return self.image.name
+            return "%s" %self.image.name
 
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(),
@@ -210,6 +210,12 @@ class SpotImage(models.Model):
         self.content_type = content_types[img.format]
 
         super(SpotImage, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        self.image.delete(save=False)
+
+        super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):
         return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)

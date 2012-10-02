@@ -3,7 +3,9 @@ import os
 import sys
 
 __doc__ = """
-Script to delete images labeled by a number ID.
+Script to delete images labeled by a number ID. This can be useful if only the
+web server has permission to make changes to the directory where media is
+uploaded.
 
 Usage: 
     Deleting a range of image_ids: python delimage.py [path] [range] [ext]
@@ -36,7 +38,10 @@ def main():
         print msg
         print "for help use -h or --help"
         sys.exit(2)
+
+    delimage(options)
     
+def delimage(options):
     path = None
     ext = None
     min = None

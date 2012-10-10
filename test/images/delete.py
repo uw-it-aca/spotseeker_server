@@ -3,7 +3,7 @@ from django.conf import settings
 from django.test.client import Client
 from django.core.files import File
 from spotseeker_server.models import Spot, SpotImage
-from os.path import abspath, dirname
+from os.path import abspath, dirname, isfile
 
 TEST_ROOT = abspath(dirname(__file__))
 
@@ -90,6 +90,8 @@ class SpotImageDELETETest(TestCase):
             response = c.delete(self.gif_url)
             self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
 
+            self.assertEqual(isfile(self.gif.image.path), False)
+
             try:
                 test_gif = SpotImage.objects.get(pk=self.gif.pk)
             except Exception as e:
@@ -111,6 +113,8 @@ class SpotImageDELETETest(TestCase):
             response = c.delete(self.jpeg_url)
             self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
 
+            self.assertEqual(isfile(self.jpeg.image.path), False)
+
             try:
                 test_jpeg = SpotImage.objects.get(pk=self.jpeg.pk)
             except Exception as e:
@@ -131,6 +135,8 @@ class SpotImageDELETETest(TestCase):
 
             response = c.delete(self.png_url)
             self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
+
+            self.assertEqual(isfile(self.png.image.path), False)
 
             try:
                 test_png = SpotImage.objects.get(pk=self.png.pk)

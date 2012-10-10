@@ -80,14 +80,29 @@ class SpotView(RESTDispatch):
     # These are utility methods for the HTTP methods
     def validate_etag(self, request, spot):
         if not "HTTP_IF_MATCH" in request.META:
-            response = HttpResponse('{"error":"If-Match header required"}')
-            response.status_code = 409
-            return response
+            if not "If_Match" in request.META:
+                response = HttpResponse('{"error":"If-Match header required"}')
+                response.status_code = 409
+                return response
 
-        if request.META["HTTP_IF_MATCH"] != spot.etag or request.META["HTTP_IF_MATCH"] != spot.etag:
+        try:
+            request.META["HTTP_IF_MATCH"] == spot.etag
+        except KeyError:
+            pass
+        except:
             response = HttpResponse('{"error":"Invalid ETag"}')
             response.status_code = 409
             return response
+
+        try:
+            request.META["If_Match"] == spot.etag
+        except KeyError:
+            pass
+        except:
+            response = HttpResponse('{"error":"Invalid ETag"}')
+            response.status_code = 409
+            return response
+
 
     @transaction.commit_on_success
     def build_and_save_from_input(self, request, spot):

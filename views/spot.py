@@ -84,21 +84,10 @@ class SpotView(RESTDispatch):
                 response = HttpResponse('{"error":"If-Match header required"}')
                 response.status_code = 409
                 return response
+            else:
+                request.META["HTTP_IF_MATCH"] = request.META["If_Match"]
 
-        try:
-            request.META["HTTP_IF_MATCH"] == spot.etag
-        except KeyError:
-            pass
-        except:
-            response = HttpResponse('{"error":"Invalid ETag"}')
-            response.status_code = 409
-            return response
-
-        try:
-            request.META["If_Match"] == spot.etag
-        except KeyError:
-            pass
-        except:
+        if request.META["HTTP_IF_MATCH"] != spot.etag:
             response = HttpResponse('{"error":"Invalid ETag"}')
             response.status_code = 409
             return response

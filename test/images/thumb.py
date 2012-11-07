@@ -249,7 +249,7 @@ class ImageThumbTest(TestCase):
     def test_constrain_gif(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             c = Client()
-            img_path = "%s/../resources/test_gif.gif" % TEST_ROOT
+            img_path = "%s/../resources/test_gif2.gif" % TEST_ROOT
             f = open(img_path)
             response = c.post(self.url, {"description": "This is a gif", "image": f})
             orig_im = Image.open(img_path)
@@ -295,7 +295,7 @@ class ImageThumbTest(TestCase):
             data = StringIO(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/gif", "Content type of same size thumbnail is gif")
-            self.assertEquals(im.size[0], 50, "Width on same size gif thumbnail is 50")
+            self.assertEquals(im.size[1], 75, "Height on same size gif thumbnail is 50")
             orig_ratio = orig_im.size[1] / orig_im.size[0]
             ratio = im.size[1] / im.size[0]
             self.assertEquals(ratio, orig_ratio, "Ratio on constrained gif thumbnail is the same")

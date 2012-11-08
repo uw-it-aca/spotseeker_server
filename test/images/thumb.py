@@ -246,6 +246,61 @@ class ImageThumbTest(TestCase):
             response = c.get(url)
             self.assertEquals(response.status_code, 404, "Give a 404 for a spot id that doesn't match the image's")
 
+    def test_constrain_png(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+            c = Client()
+            img_path = "%s/../resources/test_png2.png" % TEST_ROOT
+            f = open(img_path)
+            response = c.post(self.url, {"description": "This is a png", "image": f})
+            orig_im = Image.open(img_path)
+            f.close()
+
+            new_base_location = response["Location"]
+
+            # constrain width to 50
+            response = c.get("{0}/thumb/constrain/width:{1}".format(new_base_location, 50))
+            data = StringIO(response.content)
+            im = Image.open(data)
+            self.assertEquals(response["Content-type"], "image/png", "Content type of same size thumbnail is png")
+            self.assertEquals(im.size[0], 50, "Width on same size png thumbnail is 50")
+            orig_ratio = orig_im.size[1] / orig_im.size[0]
+            ratio = im.size[1] / im.size[0]
+            self.assertEquals(ratio, orig_ratio, "Ratio on constrained png thumbnail is the same")
+            self.assertEquals(im.format, 'PNG', "Actual type of same size thumbnail is still a png")
+
+            # constrain height to 50
+            response = c.get("{0}/thumb/constrain/height:{1}".format(new_base_location, 50))
+            data = StringIO(response.content)
+            im = Image.open(data)
+            self.assertEquals(response["Content-type"], "image/png", "Content type of same size thumbnail is png")
+            self.assertEquals(im.size[1], 50, "Height on same size png thumbnail is 50")
+            orig_ratio = orig_im.size[1] / orig_im.size[0]
+            ratio = im.size[1] / im.size[0]
+            self.assertEquals(ratio, orig_ratio, "Ratio on constrained png thumbnail is the same")
+            self.assertEquals(im.format, 'PNG', "Actual type of same size thumbnail is still a png")
+
+            # constrain width to 75, height to 50
+            response = c.get("{0}/thumb/constrain/width:{1},height:{2}".format(new_base_location, 75, 50))
+            data = StringIO(response.content)
+            im = Image.open(data)
+            self.assertEquals(response["Content-type"], "image/png", "Content type of same size thumbnail is png")
+            self.assertEquals(im.size[1], 50, "Height on same size png thumbnail is 50")
+            orig_ratio = orig_im.size[1] / orig_im.size[0]
+            ratio = im.size[1] / im.size[0]
+            self.assertEquals(ratio, orig_ratio, "Ratio on constrained png thumbnail is the same")
+            self.assertEquals(im.format, 'PNG', "Actual type of same size thumbnail is still a png")
+
+            # constrain height to 75, width to 50
+            response = c.get("{0}/thumb/constrain/height:{1},width:{2}".format(new_base_location, 75, 50))
+            data = StringIO(response.content)
+            im = Image.open(data)
+            self.assertEquals(response["Content-type"], "image/png", "Content type of same size thumbnail is png")
+            self.assertEquals(im.size[1], 75, "Height on same size png thumbnail is 50")
+            orig_ratio = orig_im.size[1] / orig_im.size[0]
+            ratio = im.size[1] / im.size[0]
+            self.assertEquals(ratio, orig_ratio, "Ratio on constrained png thumbnail is the same")
+            self.assertEquals(im.format, 'PNG', "Actual type of same size thumbnail is still a png")
+
     def test_constrain_gif(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             c = Client()

@@ -51,7 +51,7 @@ class ThumbnailView(RESTDispatch):
             thumb = im.resize((thumb_width, thumb_height), Image.ANTIALIAS)
 
         tmp = StringIO()
-        thumb.save(tmp, im.format)
+        thumb.save(tmp, im.format, quality=92)
         tmp.seek(0)
 
         response = HttpResponse(tmp.getvalue())

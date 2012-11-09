@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
-from spotseeker_server.models import Spot
+from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 
 
@@ -10,7 +10,7 @@ class SpotGETTest(TestCase):
     def setUp(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                            SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-            spot = Spot.objects.create(name="This is for testing GET")
+            spot = Spot.objects.create(name="This is for testing GET", latitude=55, longitude=30)
             spot.save()
             self.spot = spot
 
@@ -66,3 +66,14 @@ class SpotGETTest(TestCase):
             returned_spot = Spot.objects.get(pk=spot_dict['id'])
             self.assertEquals(response.status_code, 200, "Accepts a valid id")
             self.assertEquals(returned_spot, self.spot, "Returns the correct spot")
+
+    def test_duplicate_extended_info(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+
+            c = Client()
+            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=self.spot)
+            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=self.spot)
+            response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})
+            spots = json.loads(response.content)
+            self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_soda_fountain=true')

@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
+import simplejson as json
 import random
 
 
@@ -97,3 +98,27 @@ class SpotPUTTest(TestCase):
             updated_spot = Spot.objects.get(pk=self.spot.pk)
             self.assertEquals(updated_spot.name, intermediate_spot.name, "keeps the intermediate name w/ an outdated etag")
             self.assertEquals(updated_spot.capacity, intermediate_spot.capacity, "keeps the intermediate capacity w/ an outdate etag")
+
+    def test_no_duplicate_extended_info(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+            c = Client()
+            new_name = "testing PUT name: {0}".format(random.random())
+            new_capacity = 30
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30}, "extended_info": {"has_a_funky_beat": "true"} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30}, "extended_info": {"has_a_funky_beat": "true"} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="has_a_funky_beat")), 1, 'Only has 1 has_a_funky_beat SpotExtendedInfo object after 2 PUTs')
+
+            # TODO: this should be used in a GET test regarding the server sending back two results when there are duplicate extended_info objects.
+            """
+            response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude":30.1, "distance":100000, "extended_info:has_a_funky_beat":"true"})
+            spots = json.loads(response.content)
+            self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_a_funky_beat=true')
+            """

@@ -12,7 +12,16 @@ class ThumbnailView(RESTDispatch):
     """ Returns 200 with a thumbnail of a SpotImage.
     """
     @app_auth_required
-    def GET(self, request, spot_id, image_id, thumb_width, thumb_height):
+    def GET(self, request, spot_id, image_id, thumb_width=None, thumb_height=None, constrain=False):
+        if constrain is True:
+            # im.thumbnail needs two dimensions, and make the missing one bigger, since we'll still
+            # constrain to the smaller of the two
+            if thumb_width is None:
+                thumb_width = thumb_height * 999
+
+            if thumb_height is None:
+                thumb_height = thumb_width * 999
+
         try:
             img = SpotImage.objects.get(pk=image_id)
             spot = img.spot
@@ -36,10 +45,14 @@ class ThumbnailView(RESTDispatch):
         image = img.image
         im = Image.open(image.path)
 
-        thumb = im.resize((thumb_width, thumb_height), Image.ANTIALIAS)
+        if constrain is True:
+            im.thumbnail((thumb_width, thumb_height, Image.ANTIALIAS))
+            thumb = im
+        else:
+            thumb = im.resize((thumb_width, thumb_height), Image.ANTIALIAS)
 
         tmp = StringIO()
-        thumb.save(tmp, im.format)
+        thumb.save(tmp, im.format, quality=95)
         tmp.seek(0)
 
         response = HttpResponse(tmp.getvalue())

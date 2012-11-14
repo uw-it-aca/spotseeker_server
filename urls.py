@@ -6,6 +6,7 @@ from spotseeker_server.views.add_image import AddImageView
 from spotseeker_server.views.image import ImageView
 from spotseeker_server.views.thumbnail import ThumbnailView
 from spotseeker_server.views.null import NullView
+from spotseeker_server.views.all_spots import AllSpotsView
 
 urlpatterns = patterns('',
     url(r'v1/null$', NullView().run),

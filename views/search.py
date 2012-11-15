@@ -126,7 +126,6 @@ class SearchView(RESTDispatch):
                 if exclude_variable:
                     query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="variable")
 
-
             elif key == "capacity":
                 try:
                     limit = int(request.GET["capacity"])
@@ -204,7 +203,7 @@ class SearchView(RESTDispatch):
                 distance_query = distance_query.filter(latitude__lte=top_limit)
                 has_valid_search_param = True
 
-                if len(distance_query) >  0 or 'expand_radius' not in request.GET:
+                if len(distance_query) > 0 or 'expand_radius' not in request.GET:
                     query = distance_query
                 else:
                     # If we're querying everything, let's make sure we only return a limited number of spaces...
@@ -213,8 +212,6 @@ class SearchView(RESTDispatch):
                 if not request.META['SERVER_NAME'] == 'testserver':
                     print >> sys.stderr, "E: ", e
                 #query = Spot.objects.all()
-
-
 
         if not has_valid_search_param:
             return HttpResponse('[]')
@@ -226,7 +223,7 @@ class SearchView(RESTDispatch):
 
         response = []
 
-        for spot in query:
+        for spot in set(query):
             response.append(spot.json_data_structure())
 
         return HttpResponse(json.dumps(response))

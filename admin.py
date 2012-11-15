@@ -1,3 +1,4 @@
+from django.db import models
 from django.contrib import admin
 from django.conf import settings
 from django.utils.importlib import import_module
@@ -31,6 +32,18 @@ class SpotImageAdmin(admin.ModelAdmin):
     """
     exclude = ('content_type', 'width', 'height', 'etag',)
     list_filter = ["spot"]
+    actions = ['delete_model']
+
+    def get_actions(self, request):
+        actions = super(SpotImageAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def delete_model(self, request, queryset):
+        for spot_image in queryset.all():
+            spot_image.delete()
+    delete_model.short_description = "Delete selected spot images"
+
 admin.site.register(SpotImage, SpotImageAdmin)
 
 

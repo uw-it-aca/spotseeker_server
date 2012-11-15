@@ -122,10 +122,3 @@ class SpotPUTTest(TestCase):
 
             self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="has_a_funky_beat")), 1, 'Only has 1 has_a_funky_beat SpotExtendedInfo object after 3 PUTs')
             self.assertEquals(self.spot.spotextendedinfo_set.get(key="has_a_funky_beat").value, 'of_course', 'SpotExtendedInfo was updated to the latest value on put.')
-
-            # TODO: this should be used in a GET test regarding the server sending back two results when there are duplicate extended_info objects.
-            """
-            response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude":30.1, "distance":100000, "extended_info:has_a_funky_beat":"true"})
-            spots = json.loads(response.content)
-            self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_a_funky_beat=true')
-            """

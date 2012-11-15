@@ -13,15 +13,6 @@ class ThumbnailView(RESTDispatch):
     """
     @app_auth_required
     def GET(self, request, spot_id, image_id, thumb_width=None, thumb_height=None, constrain=False):
-        if constrain is True:
-            # im.thumbnail needs two dimensions, and make the missing one bigger, since we'll still
-            # constrain to the smaller of the two
-            if thumb_width is None:
-                thumb_width = thumb_height * 999
-
-            if thumb_height is None:
-                thumb_height = thumb_width * 999
-
         try:
             img = SpotImage.objects.get(pk=image_id)
             spot = img.spot
@@ -29,13 +20,20 @@ class ThumbnailView(RESTDispatch):
             if int(spot.pk) != int(spot_id):
                 raise Exception("Image Spot ID doesn't match spot id in url")
 
-            thumb_width = int(thumb_width)
-            thumb_height = int(thumb_height)
+            if constrain is True:
+                if thumb_width is None:
+                    thumb_width = img.width
+
+                if thumb_height is None:
+                    thumb_height = img.height
 
         except Exception as e:
             response = HttpResponse('{"error":"Bad Image URL"}')
             response.status_code = 404
             return response
+
+        thumb_width = int(thumb_width)
+        thumb_height = int(thumb_height)
 
         if thumb_height <= 0 or thumb_width <= 0:
             response = HttpResponse('{"error":"Bad Image URL"}')
@@ -52,7 +50,7 @@ class ThumbnailView(RESTDispatch):
             thumb = im.resize((thumb_width, thumb_height), Image.ANTIALIAS)
 
         tmp = StringIO()
-        thumb.save(tmp, im.format, quality=92)
+        thumb.save(tmp, im.format, quality=95)
         tmp.seek(0)
 
         response = HttpResponse(tmp.getvalue())

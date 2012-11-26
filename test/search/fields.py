@@ -198,3 +198,17 @@ class SpotSearchFieldTest(TestCase):
             self.assertTrue(spot4.pk in response_ids, 'Spot 4 is returned')
             self.assertTrue(spot5.pk not in response_ids, 'Spot 5 is not returned')
             self.assertEquals(len(spots), 4, 'Finds 4 matches searching for spots in Buildings A and B')
+
+    def test_duplicate_extended_info(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+            spot = Spot.objects.create(name="This is for testing GET", latitude=55, longitude=30)
+            spot.save()
+            self.spot = spot
+
+            c = Client()
+            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
+            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
+            response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})
+            spots = json.loads(response.content)
+            self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_soda_fountain=true')

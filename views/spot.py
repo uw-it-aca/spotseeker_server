@@ -92,7 +92,6 @@ class SpotView(RESTDispatch):
             response.status_code = 409
             return response
 
-
     @transaction.commit_on_success
     def build_and_save_from_input(self, request, spot):
         body = request.read()
@@ -185,7 +184,12 @@ class SpotView(RESTDispatch):
 
         if "extended_info" in new_values:
             for item in new_values["extended_info"]:
-                SpotExtendedInfo.objects.create(key=item, value=new_values["extended_info"][item], spot=spot)
+                try:
+                    info_obj = SpotExtendedInfo.objects.get(spot=spot, key=item)
+                    info_obj.value = new_values["extended_info"][item]
+                    info_obj.save()
+                except:
+                    SpotExtendedInfo.objects.create(key=item, value=new_values["extended_info"][item], spot=spot)
 
         try:
             available_hours = new_values["available_hours"]

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
-from spotseeker_server.models import Spot
+from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 
 
@@ -10,7 +10,7 @@ class SpotGETTest(TestCase):
     def setUp(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                            SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-            spot = Spot.objects.create(name="This is for testing GET")
+            spot = Spot.objects.create(name="This is for testing GET", latitude=55, longitude=30)
             spot.save()
             self.spot = spot
 

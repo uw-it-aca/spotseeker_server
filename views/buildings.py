@@ -4,6 +4,7 @@ from spotseeker_server.models import Spot
 from django.http import HttpResponse
 from django.core.exceptions import FieldError
 import simplejson as json
+import re
 
 
 class BuildingListView(RESTDispatch):
@@ -14,11 +15,14 @@ class BuildingListView(RESTDispatch):
     def GET(self, request):
         spots = Spot.objects.all()
         for key, value in request.GET.items():
-            try:
-                spots = Spot.objects.filter(**{key: value})
-            except FieldError:
-                # If a FieldError is thrown, the key is probably SpotExtendedInfo
-                spots = Spot.objects.filter(spotextendedinfo__key=key, spotextendedinfo__value=value)
+            if re.match(r'^oauth', key):
+                pass
+            else:
+                try:
+                    spots = Spot.objects.filter(**{key: value})
+                except FieldError:
+                    # If a FieldError is thrown, the key is probably SpotExtendedInfo
+                    spots = Spot.objects.filter(spotextendedinfo__key=key, spotextendedinfo__value=value)
 
         q = spots.values('building_name').distinct()
 

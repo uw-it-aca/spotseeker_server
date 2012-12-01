@@ -140,14 +140,12 @@ class SpotAvailableHours(models.Model):
 
         if self.start_time >= self.end_time:
             raise Exception("Invalid time range - start time must be before end time")
-
-        other_hours = SpotAvailableHours.objects.filter(spot=self.spot, day=self.day)
+        other_hours = SpotAvailableHours.objects.filter(spot=self.spot, day=self.day).exclude(id=self.id)
         for h in other_hours:
             if h.start_time <= self.start_time <= h.end_time or self.start_time <= h.start_time <= self.end_time:
                 self.start_time = min(h.start_time, self.start_time)
                 self.end_time = max(h.end_time, self.end_time)
                 h.delete()
-
         self.spot.save()  # Update the spot's last_modified
         super(SpotAvailableHours, self).save(*args, **kwargs)
 
@@ -189,9 +187,9 @@ class SpotImage(models.Model):
 
     def __unicode__(self):
         if self.description:
-            return "%s" %self.description
+            return "%s" % self.description
         else:
-            return "%s" %self.image.name
+            return "%s" % self.image.name
 
     def save(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(),

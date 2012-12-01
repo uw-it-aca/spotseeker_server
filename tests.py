@@ -30,6 +30,7 @@ from spotseeker_server.test.hours.open_until import SpotHoursOpenUntilTest
 from spotseeker_server.test.hours.open_now_location import SpotHoursOpenNowLocationTest
 from spotseeker_server.test.hours.open_now_location_attributes import SpotHoursOpenNowLocationAttributesTest
 from spotseeker_server.test.hours.overlap import SpotHoursOverlapTest
+from spotseeker_server.test.hours.modify import SpotHoursModifyTest
 from spotseeker_server.test.auth.all_ok import SpotAuthAllOK
 from spotseeker_server.test.auth.oauth import SpotAuthOAuth
 from spotseeker_server.test.auth.oauth_logger import SpotAuthOAuthLogger

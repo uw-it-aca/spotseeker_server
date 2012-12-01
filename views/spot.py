@@ -109,100 +109,134 @@ class SpotView(RESTDispatch):
             response.status_code = 400
             return response
 
-        errors = []
-        #Validate the data POST and record errors and don't make the spot
-        if "name" in new_values:
-            if new_values["name"]:
-                spot.name = new_values["name"]
+        existing_info = spot.json_data_structure()
+        for key in spot.json_data_structure():
+            if spot.json_data_structure().get(key) == None or spot.json_data_structure().get(key) == {} or spot.json_data_structure().get(key) == '' or spot.json_data_structure().get(key) == [] or key == 'last_modified' or key == 'eTag':
+                del existing_info[key]
+        if existing_info != new_values:
+            errors = []
+            #Validate the data POST and record errors and don't make the spot
+            if "name" in new_values:
+                if new_values["name"]:
+                    spot.name = new_values["name"]
+                else:
+                    errors.append("Invalid name")
             else:
-                errors.append("Invalid name")
-        else:
-            error.append("Name not provided")
+                error.append("Name not provided")
 
-        if "capacity" in new_values:
-            if new_values["capacity"]:
-                try:
-                    spot.capacity = int(new_values["capacity"])
-                except:
-                    pass
+            if "capacity" in new_values:
+                if new_values["capacity"]:
+                    try:
+                        spot.capacity = int(new_values["capacity"])
+                    except:
+                        pass
+            elif spot.capacity != None:
+                spot.capacity = None
 
-        if "type" in new_values:
-            for value in new_values["type"]:
-                try:
-                    value = SpotType.objects.get(name=value)
-                    spot.spottypes.add(value)
-                except:
-                    pass
-        if "location" in new_values:
-            loc_vals = new_values["location"]
-            if "latitude" in loc_vals and "longitude" in loc_vals:
-                try:
-                    spot.latitude = float(loc_vals["latitude"])
-                    spot.longitude = float(loc_vals["longitude"])
+            if "type" in new_values:
+                for value in new_values["type"]:
+                    try:
+                        value = SpotType.objects.get(name=value)
+                        spot.spottypes.add(value)
+                    except:
+                        pass
+            elif spot.spottypes != None:
+                spot.spottypes.remove()
 
-                    # The 2 up there are just to throw the exception below.  They need to not actually be floats
-                    spot.latitude = loc_vals["latitude"]
-                    spot.longitude = loc_vals["longitude"]
-                except:
-                    pass
-                    errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))
+            if "location" in new_values:
+                loc_vals = new_values["location"]
+                if "latitude" in loc_vals and "longitude" in loc_vals:
+                    try:
+                        spot.latitude = float(loc_vals["latitude"])
+                        spot.longitude = float(loc_vals["longitude"])
+
+                        # The 2 up there are just to throw the exception below.  They need to not actually be floats
+                        spot.latitude = loc_vals["latitude"]
+                        spot.longitude = loc_vals["longitude"]
+                    except:
+                        pass
+                        errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))
+                else:
+                    errors.append("Latitude and longitude not provided")
+
+                if "height_from_sea_level" in loc_vals:
+                    try:
+                        spot.height_from_sea_level = float(loc_vals["height_from_sea_level"])
+                    except:
+                        pass
+                elif spot.height_from_sea_level != None:
+                    spot.height_from_sea_level = None
+
+                if "building_name" in loc_vals:
+                    spot.building_name = loc_vals["building_name"]
+                elif spot.building_name != '':
+                    spot.building_name = ''
+                if "floor" in loc_vals:
+                    spot.floor = loc_vals["floor"]
+                elif spot.floor != '':
+                    spot.floor = ''
+                if "room_number" in loc_vals:
+                    spot.room_number = loc_vals["room_number"]
+                elif spot.room_number != '':
+                    spot.room_number = ''
+                if "description" in loc_vals:
+                    spot.description = loc_vals["description"]
+                # TO DO: see if there is a better way of doing the following check
+                else:
+                    try:
+                        if spot.description != None:
+                            spot.description = None
+                    except:
+                        pass
             else:
-                errors.append("Latitude and longitude not provided")
+                errors.append("Location data not provided")
 
-            if "height_from_sea_level" in loc_vals:
-                try:
-                    spot.height_from_sea_level = float(loc_vals["height_from_sea_level"])
-                except:
-                    pass
+            if "organization" in new_values:
+                spot.organization = new_values["organization"]
+            elif spot.organization != '':
+                spot.organization = ''
+            if "manager" in new_values:
+                spot.manager = new_values["manager"]
+            elif spot.manager != '':
+                spot.manager = ''
 
-            if "building_name" in loc_vals:
-                spot.building_name = loc_vals["building_name"]
-            if "floor" in loc_vals:
-                spot.floor = loc_vals["floor"]
-            if "room_number" in loc_vals:
-                spot.room_number = loc_vals["room_number"]
-            if "description" in loc_vals:
-                spot.description = loc_vals["description"]
-        else:
-            errors.append("Location data not provided")
+            if len(errors) == 0:
+                spot.save()
+            else:
+                spot.delete()
+                response = HttpResponse('{"error":"' + str(errors) + '"}')
+                response.status_code = 400
+                return response
 
-        if "organization" in new_values:
-            spot.organization = new_values["organization"]
-        if "manager" in new_values:
-            spot.manager = new_values["manager"]
+            queryset = SpotAvailableHours.objects.filter(spot=spot)
+            queryset.delete()
 
-        if len(errors) == 0:
-            spot.save()
-        else:
-            spot.delete()
-            response = HttpResponse('{"error":"' + str(errors) + '"}')
-            response.status_code = 400
-            return response
+            if "extended_info" in new_values:
+                for item in new_values["extended_info"]:
+                    try:
+                        info_obj = SpotExtendedInfo.objects.get(spot=spot, key=item)
+                        info_obj.value = new_values["extended_info"][item]
+                        info_obj.save()
+                    except:
+                        SpotExtendedInfo.objects.create(key=item, value=new_values["extended_info"][item], spot=spot)
+                for info in SpotExtendedInfo.objects.values():
+                    if info['key'] not in new_values['extended_info']:
+                        SpotExtendedInfo.objects.filter(key=info['key']).delete()
+            elif "extended_info" not in new_values:
+                SpotExtendedInfo.objects.all().delete()
 
-        queryset = SpotAvailableHours.objects.filter(spot=spot)
-        queryset.delete()
-
-        if "extended_info" in new_values:
-            for item in new_values["extended_info"]:
-                try:
-                    info_obj = SpotExtendedInfo.objects.get(spot=spot, key=item)
-                    info_obj.value = new_values["extended_info"][item]
-                    info_obj.save()
-                except:
-                    SpotExtendedInfo.objects.create(key=item, value=new_values["extended_info"][item], spot=spot)
-
-        try:
-            available_hours = new_values["available_hours"]
-            for day in [["m", "monday"],
-                        ["t", "tuesday"],
-                        ["w", "wednesday"],
-                        ["th", "thursday"],
-                        ["f", "friday"],
-                        ["sa", "saturday"],
-                        ["su", "sunday"]]:
-                if day[1] in available_hours:
-                    day_hours = available_hours[day[1]]
-                    for window in day_hours:
-                        SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
-        except:
-            pass
+            try:
+                available_hours = new_values["available_hours"]
+                for day in [["m", "monday"],
+                            ["t", "tuesday"],
+                            ["w", "wednesday"],
+                            ["th", "thursday"],
+                            ["f", "friday"],
+                            ["sa", "saturday"],
+                            ["su", "sunday"]]:
+                    if day[1] in available_hours:
+                        day_hours = available_hours[day[1]]
+                        for window in day_hours:
+                            SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
+            except:
+                pass

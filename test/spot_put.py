@@ -122,3 +122,57 @@ class SpotPUTTest(TestCase):
 
             self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="has_a_funky_beat")), 1, 'Only has 1 has_a_funky_beat SpotExtendedInfo object after 3 PUTs')
             self.assertEquals(self.spot.spotextendedinfo_set.get(key="has_a_funky_beat").value, 'of_course', 'SpotExtendedInfo was updated to the latest value on put.')
+
+    def test_deleted_spot_info(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+            c = Client()
+            new_name = "testing PUT name: {0}".format(random.random())
+            new_capacity = 30
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30}, "extended_info": {"eats_corn_pops": "true", "rages_hard": "true", "a": "true", "b": "true", "c": "true", "d": "true"} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="eats_corn_pops")), 1, 'Has 1 eats_corn_pops SpotExtendedInfo object after 1 PUT')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="rages_hard")), 1, 'Has 1 rages_hard SpotExtendedInfo object after 1 PUT')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="a")), 1, 'Has 1 a SpotExtendedInfo object after 1 PUT')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="b")), 1, 'Has 1 b SpotExtendedInfo object after 1 PUT')
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30}, "extended_info": {"eats_corn_pops": "true"} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="eats_corn_pops")), 1, 'Has 1 eats_corn_pops SpotExtendedInfo object after a PUT')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="rages_hard")), 0, 'Has 0 rages_hard SpotExtendedInfo object after a PUT and a DELETE')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="a")), 0, 'Has 0 a SpotExtendedInfo object after 1 PUT')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="b")), 0, 'Has 0 b SpotExtendedInfo object after 1 PUT')
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="eats_corn_pops")), 0, 'Has 0 eats_corn_pops SpotExtendedInfo object after a PUT and a DELETE')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="rages_hard")), 0, 'Has 0 rages_hard SpotExtendedInfo object after a PUT and a DELETE')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="a")), 0, 'Has 0 a SpotExtendedInfo object after 1 PUT')
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="b")), 0, 'Has 0 b SpotExtendedInfo object after 1 PUT')
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            self.assertEquals(len(self.spot.spotextendedinfo_set.filter(key="eats_corn_pops")), 0, 'Has 0 eats_corn_pops SpotExtendedInfo object after a PUT and a DELETE')
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "manager":"Yoda", "location": {"latitude": 55, "longitude": 30, "building_name": "Coruscant"} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            self.assertEquals(len(Spot.objects.get(name=new_name).manager), 4, 'Has 1 manager object after a PUT')
+            self.assertEquals(len(Spot.objects.get(name=new_name).building_name), 9, 'Has 1 building_name object after a PUT')
+
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30} }' % (new_name, new_capacity), content_type="application/json", If_Match=etag)
+
+            self.assertEquals(len(Spot.objects.get(name=new_name).manager), 0, 'Has 0 manager objects after a PUT and a DELETE')
+            self.assertEquals(len(Spot.objects.get(name=new_name).building_name), 0, 'Has 0 building_name objects after a PUT and a delete')

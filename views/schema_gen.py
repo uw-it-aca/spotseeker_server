@@ -10,17 +10,13 @@ def schema_gen(request):
         "id": "int",
         "uri": "uri",
         "name": "unicode",
-        "type": [
-            "study_room",
-            "study_area",
-            "cafe",
-            "outdoor",
-            "lounge",
-            "computer_lounge",
-            "production_studio",
-            "conference_classroom",
-            "open_space"
-        ],
+        "type": []
+    }
+
+    for spot_type in SpotType.objects.all():
+        schema["type"].append(spot_type.name)
+
+    schema.update({
         "longitude": "decimal",
         "latitude": "decimal",
         "height_from_sea_level": "decimal",
@@ -70,7 +66,7 @@ def schema_gen(request):
             "location_description": "unicode"
         },
         "last_modified": "datetime"
-    }
+    })
 
     #Spot.objects.all(), Spot.objects.iterator()
     #for every single spot:

@@ -5,18 +5,11 @@ import simplejson as json
 
 @app_auth_required
 def schema_gen(request):
-    
     schema = {
         "id": "int",
         "uri": "uri",
         "name": "unicode",
-        "type": []
-    }
-
-    for spot_type in SpotType.objects.all():
-        schema["type"].append(spot_type.name)
-
-    schema.update({
+        "type": [],
         "longitude": "decimal",
         "latitude": "decimal",
         "height_from_sea_level": "decimal",
@@ -45,28 +38,31 @@ def schema_gen(request):
         "available_hours": "hours_string",
         "organization": "unicode",
         "manager": "unicode",
-        "extended_info": {
-            "has_whiteboards": ['true'],
-            "has_outlets": ['true'],
-            "has_printing": ['true'],
-            "has_scanner": ['true'],
-            "has_displays": ['true'],
-            "has_projector": ['true'],
-            "has_computers": ['true'],
-            "has_natural_light": ['true'],
-            "food_nearby": ['space', 'building', 'neighboring'],
-            "num_computers": "int",
-            "reservable": ['true', 'reservations'],
-            "noise_level": ['silent', 'quiet', 'moderate', 'loud', 'variable'],
-            "access_notes": "unicode",
-            "hours_notes": "unicode",
-            "reservation_notes": "unicode",
-            "owner": "unicode",
-            "orientation": "unicode",
-            "location_description": "unicode"
-        },
-        "last_modified": "datetime"
+        "last_modified": "datetime",
+        "extended_info": {}
+    }
+
+    for spot_type in SpotType.objects.all():
+        schema["type"].append(spot_type.name)
+
+    for key in SpotExtendedInfo.objects.values("key").distinct():
+        schema["extended_info"].update({key["key"]: "unicode"})
+
+    schema["extended_info"].update({
+        "has_whiteboards": ['true'],
+        "has_outlets": ['true'],
+        "has_printing": ['true'],
+        "has_scanner": ['true'],
+        "has_displays": ['true'],
+        "has_projector": ['true'],
+        "has_computers": ['true'],
+        "has_natural_light": ['true'],
+        "food_nearby": ['space', 'building', 'neighboring'],
+        "num_computers": "int",
+        "reservable": ['true', 'reservations'],
+        "noise_level": ['silent', 'quiet', 'moderate', 'loud', 'variable'],
     })
+
 
     #Spot.objects.all(), Spot.objects.iterator()
     #for every single spot:

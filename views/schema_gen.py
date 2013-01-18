@@ -1,3 +1,4 @@
+from spotseeker_server.forms.spot import SpotForm
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
 from django.http import HttpResponse
@@ -19,8 +20,7 @@ def schema_gen(request):
         "description": "unicode",
         "capacity": "int",
         "display_access_restrictions": "unicode",
-        "images": [
-                    {  
+        "images": [{  
                         "id": "int",
                         "url": "uri",
                         "content-type": "unicode",
@@ -39,42 +39,26 @@ def schema_gen(request):
         "organization": "unicode",
         "manager": "unicode",
         "last_modified": "datetime",
+        "etag": "unicode",
         "extended_info": {}
     }
 
     for spot_type in SpotType.objects.all():
         schema["type"].append(spot_type.name)
 
-    for key in SpotExtendedInfo.objects.values("key").distinct():
-        schema["extended_info"].update({key["key"]: "unicode"})
+    try:
+        validated_ei = SpotForm({}).validated_extended_info
+        org_form_exists = True
+    except:
+        org_form_exists = False
 
-    schema["extended_info"].update({
-        "has_whiteboards": ['true'],
-        "has_outlets": ['true'],
-        "has_printing": ['true'],
-        "has_scanner": ['true'],
-        "has_displays": ['true'],
-        "has_projector": ['true'],
-        "has_computers": ['true'],
-        "has_natural_light": ['true'],
-        "food_nearby": ['space', 'building', 'neighboring'],
-        "num_computers": "int",
-        "reservable": ['true', 'reservations'],
-        "noise_level": ['silent', 'quiet', 'moderate', 'loud', 'variable'],
-    })
+    for key_dict in SpotExtendedInfo.objects.values("key").distinct():
+        key = key_dict["key"]
+        if org_form_exists and key in validated_ei:
+            schema["extended_info"].update({key: validated_ei[key]})
+        else:
+            schema["extended_info"].update({key: "unicode"})
 
-
-    #Spot.objects.all(), Spot.objects.iterator()
-    #for every single spot:
-        #for every single key: (schema.json_data_structure().iterkeys()???)
-            #if the key is extended_info:
-                #for every single extended_info key:
-                    #if the key doesnt exist in the meta spot's extended_info:
-                        #add the key to the meta spot with type(key) as the value
-            #if the key doesnt exist in the meta spot:
-                #add the key to the meta spot with type(key) as the value
-
-    #response["ETag"] = schema.etag
     response = HttpResponse(json.dumps(schema))
     response["Content-type"] = "application/json"
     return response

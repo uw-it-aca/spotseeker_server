@@ -2,6 +2,7 @@ from django import forms
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 
+
 # dict of all of the uw extended info with values that must be validated
 # and what all of the possible validated values are, or validated types
 validated_ei = {
@@ -19,6 +20,7 @@ validated_ei = {
     "noise_level": ['silent', 'quiet', 'moderate', 'loud', 'variable'],
 }
 
+
 def uw_validate(value, choices):
     """ Check to see if the value is one of the choices or if it is an int, else it throws a validation error
     """
@@ -29,7 +31,8 @@ def uw_validate(value, choices):
             raise forms.ValidationError("Value must be an int")
     elif not value in choices:
         raise forms.ValidationError("Value must be one of %s" % choices)
- 
+
+
 def validate_uw_extended_info(value):
     # TODO: access_restrictions require access_notes to be there, reservable requires reservation_notes
     # UW Spots must have extended_info

@@ -3,7 +3,29 @@ from django.test.client import Client
 from django.test import TestCase
 import simplejson as json
 
+
 class SpotSchemaTest(TestCase):
+    def test_regular_spot_info(self):
+        c = Client()
+        response = c.get("/api/v1/schema")
+        schema = json.loads(response.content)
+
+        self.assertEquals(schema["manager"], "unicode", "Schema Regular Spot Info matches the actual Regular Spot Info")
+        self.assertEquals(schema["capacity"], "int", "Schema Regular Spot Info matches the actual Regular Spot Info")
+        self.assertEquals(schema["latitude"], "decimal", "Schema Regular Spot Info matches the actual Regular Spot Info")
+        self.assertEquals(schema["last_modified"], "datetime", "Schema Regular Spot Info matches the actual Regular Spot Info")
+        self.assertEquals(schema["uri"], "uri", "Schema Regular Spot Info matches the actual Regular Spot Info")
+
+    def test_spot_image_info(self):
+        c = Client()
+        response = c.get("/api/v1/schema")
+        schema = json.loads(response.content)
+        schema_images = schema["images"]
+
+        self.assertEquals(schema_images[0]["description"], "unicode", "Schema Spot Image Info matches the actual Spot Image Info")
+        self.assertEquals(schema_images[0]["modification_date"], "datetime", "Schema Spot Image Info matches the actual Spot Image Info")
+        self.assertEquals(schema_images[0]["width"], "int", "Schema Spot Image Info matches the actual Spot Image Info")
+
     def test_spot_types(self):
         SpotType.objects.create(name="Jedi")
         SpotType.objects.create(name="Sith")

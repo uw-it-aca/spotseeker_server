@@ -11,10 +11,20 @@ def schema_gen(request):
     schema = {
         "uri": "uri",
         "available_hours": "hours_string",
+        "location": {},
         "type": [],
         "extended_info": {},
         "images": [],
     }
+
+    location_descriptors = [
+        "latitude",
+        "longitude",
+        "height_from_sea_level",
+        "building_name",
+        "floor",
+        "room_number"
+    ]
 
     internal_type_map = {
         "AutoField": "int",
@@ -50,9 +60,15 @@ def schema_gen(request):
     spot_field_array = models.get_model('spotseeker_server', 'Spot')._meta.fields
     for field in spot_field_array:
         if field.get_internal_type() in internal_type_map:
-            schema.update({field.name: internal_type_map[field.get_internal_type()]})
+            if field.name in location_descriptors:
+                schema["location"].update({field.name: internal_type_map[field.get_internal_type()]})
+            else:
+                schema.update({field.name: internal_type_map[field.get_internal_type()]})
         else:
-            schema.update({field.name: field.get_internal_type()})
+            if field.name in location_descriptors:
+                schema["location"].update({field.name: field.get_internal_type()})
+            else:
+                schema.update({field.name: field.get_internal_type()})
 
     # To grab info about spot images
     spot_image_field_array = models.get_model('spotseeker_server', 'SpotImage')._meta.fields

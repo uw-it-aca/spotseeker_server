@@ -12,9 +12,18 @@ class SpotSchemaTest(TestCase):
 
         self.assertEquals(schema["manager"], "unicode", "Schema Regular Spot Info matches the actual Regular Spot Info")
         self.assertEquals(schema["capacity"], "int", "Schema Regular Spot Info matches the actual Regular Spot Info")
-        self.assertEquals(schema["latitude"], "decimal", "Schema Regular Spot Info matches the actual Regular Spot Info")
         self.assertEquals(schema["last_modified"], "datetime", "Schema Regular Spot Info matches the actual Regular Spot Info")
         self.assertEquals(schema["uri"], "uri", "Schema Regular Spot Info matches the actual Regular Spot Info")
+
+    def test_location_spot_info(self):
+        c = Client()
+        response = c.get("/api/v1/schema")
+        schema = json.loads(response.content)
+        schema_location = schema["location"]
+
+        self.assertEquals(schema_location["latitude"], "decimal", "Schema Location Spot Info matches the actual Location Spot Info")
+        self.assertEquals(schema_location["room_number"], "unicode", "Schema Location Spot Info matches the actual Location Spot Info")
+        self.assertEquals(schema_location["floor"], "unicode", "Schema Location Spot Info matches the actual Location Spot Info")
 
     def test_spot_image_info(self):
         c = Client()

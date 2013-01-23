@@ -39,3 +39,4 @@ from spotseeker_server.test.auth.oauth_logger import SpotAuthOAuthLogger
 from spotseeker_server.test.uw_spot.spot_form import UWSpotFormTest
 from spotseeker_server.test.uw_spot.spot_post import UWSpotPOSTTest
 from spotseeker_server.test.uw_spot.spot_put import UWSpotPUTTest
+from spotseeker_server.test.uw_spot.schema import UWSpotSchemaTest

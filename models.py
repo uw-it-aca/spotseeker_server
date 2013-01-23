@@ -94,6 +94,8 @@ class Spot(models.Model):
             "name": self.name,
             "type": types,
             "location": {
+                # If any changes are made to this location dict, MAKE SURE to reflect those changes in the
+                # location_descriptors list in views/schema_gen.py
                 "latitude": self.latitude,
                 "longitude": self.longitude,
                 "height_from_sea_level": self.height_from_sea_level,

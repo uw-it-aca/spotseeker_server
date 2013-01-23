@@ -8,6 +8,12 @@ import simplejson as json
 
 @app_auth_required
 def schema_gen(request):
+    """ Json data that should contain every single piece of information that any spot might contain.
+        The keys will be what info spots might contains, and the values will be what the possible
+        types are for the actual values. If there is a list of values (even only a list of size 1)
+        those are the only values that will pass validations.
+    """
+
     schema = {
         "uri": "uri",
         "available_hours": "hours_string",

@@ -5,6 +5,7 @@ PIL
 pyproj
 oauth2
 oauth_provider
+pytz
 # django-oauth-plus
 
 # If you're using a MySQL database, you may also need mysql-python

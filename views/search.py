@@ -218,8 +218,13 @@ class SearchView(RESTDispatch):
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)
-            sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
-            query = sorted_list[:limit]
+            try:
+                sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
+                query = sorted_list[:limit]
+            except KeyError:
+                response =  HttpResponse('{"error":"missing required parameters for this type of search"}')
+                response.status_code = 400
+                return response
 
         response = []
 

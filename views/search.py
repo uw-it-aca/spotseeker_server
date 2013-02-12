@@ -1,7 +1,7 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
@@ -212,13 +212,18 @@ class SearchView(RESTDispatch):
                 if not request.META['SERVER_NAME'] == 'testserver':
                     print >> sys.stderr, "E: ", e
                 #query = Spot.objects.all()
+        elif 'distance' in request.GET or 'center_longitude' in request.GET or 'center_latitude' in request.GET:
+            if 'distance' not in request.GET or 'center_longitude' not in request.GET or 'center_latitude' not in request.GET:
+                # If distance, lat, or long are specified in the server request; all 3 must be present.
+                return HttpResponseBadRequest("Bad Request")
 
         if not has_valid_search_param:
             return HttpResponse('[]')
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)
-            sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
+            if 'center_longitude' in request.GET and 'center_latitude' in request.GET:
+                sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
             query = sorted_list[:limit]
 
         response = []

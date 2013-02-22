@@ -15,7 +15,7 @@ def schema_gen(request):
     """
 
     schema = {
-        "uri": "uri",
+        "uri": "auto",
         "available_hours": "hours_string",
         "location": {},
         "type": [],
@@ -65,7 +65,9 @@ def schema_gen(request):
     # To grab regular spot info
     spot_field_array = models.get_model('spotseeker_server', 'Spot')._meta.fields
     for field in spot_field_array:
-        if field.get_internal_type() in internal_type_map:
+        if field.auto_created or not field.editable or field.name == "etag":  # pk (id), auto_now=True, auto_now_add=True, and "etag"
+            schema.update({field.name: "auto"})
+        elif field.get_internal_type() in internal_type_map:
             if field.name in location_descriptors:
                 schema["location"].update({field.name: internal_type_map[field.get_internal_type()]})
             else:
@@ -76,11 +78,13 @@ def schema_gen(request):
             else:
                 schema.update({field.name: field.get_internal_type()})
 
-    # To grab info about spot images
+    # To grab spot image info
     spot_image_field_array = models.get_model('spotseeker_server', 'SpotImage')._meta.fields
     schema_image = {}
     for field in spot_image_field_array:
-        if field.get_internal_type() in internal_type_map:
+        if field.auto_created or not field.editable or field.name == "etag":  # pk (id), auto_now=True, auto_now_add=True, and "etag"
+            schema_image.update({field.name: "auto"})
+        elif field.get_internal_type() in internal_type_map:
             schema_image.update({field.name: internal_type_map[field.get_internal_type()]})
         else:
             schema_image.update({field.name: field.get_internal_type()})

@@ -3,8 +3,13 @@ from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server.views import spot as SpotView
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotHoursGETTest(TestCase):
 
     def setUp(self):
@@ -24,7 +29,8 @@ class SpotHoursGETTest(TestCase):
     def test_hours(self):
         """ Tests that a Spot's available hours can be retrieved successfully.
         """
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             url = "/api/v1/spot/%s" % self.spot.pk
             response = c.get(url)

@@ -4,15 +4,22 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server.views import spot as SpotView
+
+dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                   SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm')
 class UWSpotPOSTTest(TestCase):
     """ Tests creating a new Spot via POST.
     """
-
+    
     def test_valid_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -43,22 +50,19 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(spot_json["capacity"], new_capacity, "The right capacity was stored")
 
     def test_non_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             response = c.post('/api/v1/spot/', 'just a string', content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 400)
 
     def test_invalid_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 400)
 
     def test_uw_field_has_whiteboards(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -75,8 +79,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_outlets(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -96,8 +99,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_printing(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -114,8 +116,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_scanner(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -132,8 +133,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_displays(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -150,8 +150,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_projector(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -168,8 +167,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_computers(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -185,8 +183,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_num_computers(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -202,8 +199,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_natural_light(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -220,8 +216,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_noise_level(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -238,8 +233,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_food_nearby(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -256,8 +250,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_reservable(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -274,8 +267,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_location_description(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10

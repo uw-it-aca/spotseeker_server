@@ -4,15 +4,21 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server.views import spot as SpotView
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
 class SpotPOSTTest(TestCase):
     """ Tests creating a new Spot via POST.
     """
 
     def test_valid_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -42,22 +48,18 @@ class SpotPOSTTest(TestCase):
             self.assertEquals(spot_json["capacity"], new_capacity, "The right capacity was stored")
 
     def test_non_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-            c = Client()
-            response = c.post('/api/v1/spot/', 'just a string', content_type="application/json", follow=False)
-            self.assertEquals(response.status_code, 400)
+        c = Client()
+        response = c.post('/api/v1/spot/', 'just a string', content_type="application/json", follow=False)
+        self.assertEquals(response.status_code, 400)
 
     def test_invalid_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-            c = Client()
-            response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
-            self.assertEquals(response.status_code, 400)
+        c = Client()
+        response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
+        self.assertEquals(response.status_code, 400)
 
     def test_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(SpotView, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10

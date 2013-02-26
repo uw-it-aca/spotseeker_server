@@ -24,13 +24,19 @@ import datetime as alternate_date
 from decimal import *
 
 from time import *
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotHoursOpenNowLocationAttributesTest(TestCase):
 
     @skipIf(datetime.now().hour + 2 > 23 or datetime.now().hour < 2, "Skip open_now tests due to the time of day")
     def test_open_now(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             open_in_range_matched_spot = Spot.objects.create(name="Find this: Atlantic", latitude=Decimal('40.0000898315'), longitude=Decimal('-50.0'))
             open_in_range_no_match_spot = Spot.objects.create(name="Don't find this", latitude=Decimal('40.0000898315'), longitude=Decimal('-50.0'))
 

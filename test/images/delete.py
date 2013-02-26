@@ -19,10 +19,15 @@ from django.test.client import Client
 from django.core.files import File
 from spotseeker_server.models import Spot, SpotImage
 from os.path import abspath, dirname, isfile
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotImageDELETETest(TestCase):
     """ Tests DELETE of a SpotImage at /api/v1/spot/<spot id>/image/<image id>.
     """
@@ -59,14 +64,16 @@ class SpotImageDELETETest(TestCase):
         self.png_url = "%s/image/%s" % (self.url, self.png.pk)
 
     def test_bad_url(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             bad_url = "%s/image/aa" % self.url
             response = c.delete(bad_url)
             self.assertEquals(response.status_code, 404, "Rejects an invalid url")
 
     def test_wrong_spot_id(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             spot = Spot.objects.create(name="This is the wrong spot")
 
@@ -78,7 +85,8 @@ class SpotImageDELETETest(TestCase):
             self.assertEquals(response.status_code, 404, "Gives a 404 for a spot image that doesn't match the spot")
 
     def test_invalid_id_too_high(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
             #GIF
@@ -88,7 +96,8 @@ class SpotImageDELETETest(TestCase):
             self.assertEquals(response.status_code, 404, "Rejects a not-yet existant url")
 
     def test_actual_delete_with_etag(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
             #GIF
@@ -161,7 +170,8 @@ class SpotImageDELETETest(TestCase):
             self.assertIsNone(test_png, "Can't objects.get a deleted SpotImage")
 
     def test_actual_delete_no_etag(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
             #GIF
@@ -186,7 +196,8 @@ class SpotImageDELETETest(TestCase):
             self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
 
     def test_actual_delete_expired_etag(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
             #GIF

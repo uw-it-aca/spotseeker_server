@@ -18,12 +18,18 @@ from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotExtendedInfo, SpotType
 import simplejson as json
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotSearchFieldTest(TestCase):
 
     def test_fields(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             spot1 = Spot.objects.create(name="This is a searchable Name - OUGL")
             spot1.save()
 
@@ -83,21 +89,24 @@ class SpotSearchFieldTest(TestCase):
             self.assertEquals(spots[0]['id'], spot7.pk, "Finds spot7 w/ a whiteboard + odegaard")
 
     def test_invalid_field(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'invalid_field': 'OUGL'})
             self.assertEquals(response.status_code, 200, "Accepts an invalid field in query")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'extended_info:invalid_field': 'OUGL'})
             self.assertEquals(response.status_code, 200, "Accepts an invalid extended_info field in query")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_multi_value_field(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             natural = Spot.objects.create(name="Has field value: natural")
             attr = SpotExtendedInfo(key="lightingmultifieldtest", value="natural", spot=natural)
             attr.save()
@@ -152,7 +161,8 @@ class SpotSearchFieldTest(TestCase):
             self.assertEquals(len(spots), 4, 'Finds 4 matches for searching for 4 ids')
 
     def test_multi_type_spot(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             cafe_type = SpotType.objects.get_or_create(name='cafe_testing')[0]  # Index 0 because get_or_create returns a Tuple of value and T/F if it was created
             open_type = SpotType.objects.get_or_create(name='open_testing')[0]
@@ -187,7 +197,8 @@ class SpotSearchFieldTest(TestCase):
     def test_multi_building_search(self):
         """ Tests to be sure searching for spots in multiple buildings returns spots for all buildings.
         """
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             # Building A
             spot1 = Spot.objects.create(name='Room A403', building_name='Building A')
             spot2 = Spot.objects.create(name='Room A589', building_name='Building A')
@@ -215,15 +226,16 @@ class SpotSearchFieldTest(TestCase):
             self.assertEquals(len(spots), 4, 'Finds 4 matches searching for spots in Buildings A and B')
 
     def test_duplicate_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-            spot = Spot.objects.create(name="This is for testing GET", latitude=55, longitude=30)
-            spot.save()
-            self.spot = spot
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            with self.settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+                spot = Spot.objects.create(name="This is for testing GET", latitude=55, longitude=30)
+                spot.save()
+                self.spot = spot
 
-            c = Client()
-            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
-            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
-            response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})
-            spots = json.loads(response.content)
-            self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_soda_fountain=true')
+                c = Client()
+                SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
+                SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
+                response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})
+                spots = json.loads(response.content)
+                self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_soda_fountain=true')

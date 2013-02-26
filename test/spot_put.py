@@ -19,8 +19,14 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
 class SpotPUTTest(TestCase):
     """ Tests updating Spot information via PUT.
     """
@@ -34,22 +40,22 @@ class SpotPUTTest(TestCase):
         self.url = url
 
     def test_bad_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.put(self.url, 'this is just text', content_type="application/json", If_Match=self.spot.etag)
             self.assertEquals(response.status_code, 400, "Rejects non-json")
 
     def test_invalid_url(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.put("/api/v1/spot/aa", '{}', content_type="application/json")
             self.assertEquals(response.status_code, 404, "Rejects a non-numeric url")
 
     def test_invalid_id_too_high(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             test_id = self.spot.pk + 10000
             test_url = '/api/v1/spot/{0}'.format(test_id)
@@ -57,15 +63,15 @@ class SpotPUTTest(TestCase):
             self.assertEquals(response.status_code, 404, "Rejects an id that doesn't exist yet (no PUT to create)")
 
     def test_empty_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.put(self.url, '{}', content_type="application/json", If_Match=self.spot.etag)
             self.assertEquals(response.status_code, 400, "Rejects an empty body")
 
     def test_valid_json_no_etag(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 10
@@ -77,8 +83,8 @@ class SpotPUTTest(TestCase):
             self.assertEquals(updated_spot.capacity, self.spot.capacity, "no etag - same capacity")
 
     def test_valid_json_valid_etag(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 20
@@ -94,8 +100,8 @@ class SpotPUTTest(TestCase):
             self.assertEquals(updated_spot.capacity, new_capacity, "a valid PUT changes the capacity")
 
     def test_valid_json_outdated_etag(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 30
@@ -115,8 +121,8 @@ class SpotPUTTest(TestCase):
             self.assertEquals(updated_spot.capacity, intermediate_spot.capacity, "keeps the intermediate capacity w/ an outdate etag")
 
     def test_no_duplicate_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 30
@@ -139,8 +145,8 @@ class SpotPUTTest(TestCase):
             self.assertEquals(self.spot.spotextendedinfo_set.get(key="has_a_funky_beat").value, 'of_course', 'SpotExtendedInfo was updated to the latest value on put.')
 
     def test_deleted_spot_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 30
@@ -193,8 +199,8 @@ class SpotPUTTest(TestCase):
             self.assertEquals(len(Spot.objects.get(name=new_name).building_name), 0, 'Has 0 building_name objects after a PUT and a delete')
 
     def test_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 20

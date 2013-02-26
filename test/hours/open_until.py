@@ -1,3 +1,18 @@
+""" Copyright 2012, 2013 UW Information Technology, University of Washington
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+"""
+
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
@@ -66,11 +81,10 @@ class SpotHoursOpenUntilTest(TestCase):
 
         self.assertTrue(spot_returned, "Got the spot that is open later")
 
-
     def test_open_window_ok(self):
         spot = Spot.objects.create(name="Spot with window")
 
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="13:30:00");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="13:30:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Monday,13:30"})
@@ -84,12 +98,11 @@ class SpotHoursOpenUntilTest(TestCase):
 
         self.assertTrue(spot_returned, "Got the spot with the full window")
 
-
     def test_open_window_with_gap(self):
         spot = Spot.objects.create(name="Spot with window gap")
 
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="10:30:00");
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="11:30:00", end_time="13:30:00");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="10:30:00")
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="11:30:00", end_time="13:30:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Monday,13:30"})
@@ -103,12 +116,11 @@ class SpotHoursOpenUntilTest(TestCase):
 
         self.assertFalse(spot_returned, "Didn't find the spot with the gap")
 
-
     def test_open_window_multiple_days(self):
         spot = Spot.objects.create(name="Spot with window - multiple days")
 
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="14:00:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Tuesday,13:30"})
@@ -125,8 +137,8 @@ class SpotHoursOpenUntilTest(TestCase):
     def test_open_window_multiple_days_gap(self):
         spot = Spot.objects.create(name="Spot with window - multiple days")
 
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="22:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="22:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="14:00:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Tuesday,13:30"})
@@ -143,10 +155,10 @@ class SpotHoursOpenUntilTest(TestCase):
     def test_open_window_multiple_days_long(self):
         spot = Spot.objects.create(name="Spot with window - multiple days")
 
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="14:00:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Thursday,13:30"})
@@ -163,11 +175,11 @@ class SpotHoursOpenUntilTest(TestCase):
     def test_open_window_multiple_days_gap_long(self):
         spot = Spot.objects.create(name="Spot with window - multiple days")
 
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="14:00:00");
-        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="16:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="09:30:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="14:00:00")
+        SpotAvailableHours.objects.create(spot=spot, day="t", start_time="16:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="14:00:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Monday,09:30", 'open_until': "Thursday,13:30"})
@@ -184,10 +196,10 @@ class SpotHoursOpenUntilTest(TestCase):
     def test_open_window_around_weekend(self):
         spot = Spot.objects.create(name="Spot with window - multiple days")
 
-        SpotAvailableHours.objects.create(spot=spot, day="f", start_time="09:30:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="f", start_time="09:30:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="14:00:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Friday,09:30", 'open_until': "Monday,13:30"})
@@ -204,11 +216,11 @@ class SpotHoursOpenUntilTest(TestCase):
     def test_open_window_around_weekend_gap(self):
         spot = Spot.objects.create(name="Spot with window - multiple days")
 
-        SpotAvailableHours.objects.create(spot=spot, day="f", start_time="09:30:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="14:00:00");
-        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="16:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59");
-        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="14:00:00");
+        SpotAvailableHours.objects.create(spot=spot, day="f", start_time="09:30:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="14:00:00")
+        SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="16:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59")
+        SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="14:00:00")
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_at': "Friday,09:30", 'open_until': "Monday,13:30"})
@@ -221,5 +233,3 @@ class SpotHoursOpenUntilTest(TestCase):
                 spot_returned = True
 
         self.assertFalse(spot_returned, "Didn't find the spot w/ a gap over the weekend")
-
-

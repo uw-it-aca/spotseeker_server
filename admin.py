@@ -37,6 +37,19 @@ class SpotAdmin(admin.ModelAdmin):
                    "organization",
                    "manager"]
     exclude = ('etag',)
+
+    actions = ['delete_model']
+
+    def get_actions(self, request):
+        actions = super(SpotAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def delete_model(self, request, queryset):
+        for spot in queryset.all():
+            spot.delete()
+    delete_model.short_description = "Delete selected spots"
+
 admin.site.register(Spot, SpotAdmin)
 
 

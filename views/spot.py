@@ -93,7 +93,7 @@ class SpotView(RESTDispatch):
             return response
 
     @transaction.commit_on_success
-    def build_and_save_from_input(self, request, spot):  # I THINK THIS IS IT!
+    def build_and_save_from_input(self, request, spot):
         body = request.read()
         try:
             new_values = json.loads(body)
@@ -104,7 +104,6 @@ class SpotView(RESTDispatch):
 
         form = SpotForm(new_values)
         if not form.is_valid():
-            spot.delete()
             response = HttpResponse(json.dumps(form.errors))
             response.status_code = 400
             return response

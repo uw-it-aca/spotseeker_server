@@ -14,8 +14,8 @@ class SpotSchemaTest(TestCase):
 
             self.assertEquals(schema["manager"], "unicode", "Schema Regular Spot Info matches the actual Regular Spot Info")
             self.assertEquals(schema["capacity"], "int", "Schema Regular Spot Info matches the actual Regular Spot Info")
-            self.assertEquals(schema["last_modified"], "datetime", "Schema Regular Spot Info matches the actual Regular Spot Info")
-            self.assertEquals(schema["uri"], "uri", "Schema Regular Spot Info matches the actual Regular Spot Info")
+            self.assertEquals(schema["last_modified"], "auto", "Schema Regular Spot Info matches the actual Regular Spot Info")
+            self.assertEquals(schema["uri"], "auto", "Schema Regular Spot Info matches the actual Regular Spot Info")
 
     def test_location_spot_info(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
@@ -38,7 +38,7 @@ class SpotSchemaTest(TestCase):
             schema_image = schema["images"][0]
 
             self.assertEquals(schema_image["description"], "unicode", "Schema Spot Image Info matches the actual Spot Image Info")
-            self.assertEquals(schema_image["modification_date"], "datetime", "Schema Spot Image Info matches the actual Spot Image Info")
+            self.assertEquals(schema_image["modification_date"], "auto", "Schema Spot Image Info matches the actual Spot Image Info")
             self.assertEquals(schema_image["width"], "int", "Schema Spot Image Info matches the actual Spot Image Info")
 
     def test_spot_types(self):

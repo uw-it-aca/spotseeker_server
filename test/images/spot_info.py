@@ -9,7 +9,7 @@ import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
-from spotseeker_server.views import spot as SpotView
+from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
@@ -42,7 +42,7 @@ class SpotResourceImageTest(unittest.TestCase):
 
     def test_empty_image_data(self):
         dummy_cache = cache.get('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             spot = Spot.objects.create(name="A spot with no images")
 
             c = Client()
@@ -53,7 +53,7 @@ class SpotResourceImageTest(unittest.TestCase):
 
     def test_image_data(self):
         dummy_cache = cache.get('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get('/api/v1/spot/{0}'.format(self.spot.pk))
 

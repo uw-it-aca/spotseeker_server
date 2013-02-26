@@ -6,7 +6,7 @@ import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
-from spotseeker_server.views import spot as SpotView
+from spotseeker_server import models
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
@@ -15,7 +15,7 @@ class SpotHoursPOSTTest(TestCase):
 
     def test_hours(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             post_obj = {
                 'name': "This spot has available hours",
                 'capacity': 4,

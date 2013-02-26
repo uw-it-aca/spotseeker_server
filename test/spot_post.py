@@ -7,7 +7,7 @@ import random
 from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
-from spotseeker_server.views import spot as SpotView
+from spotseeker_server import models
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
@@ -18,7 +18,7 @@ class SpotPOSTTest(TestCase):
 
     def test_valid_json(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -59,7 +59,7 @@ class SpotPOSTTest(TestCase):
 
     def test_extended_info(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10

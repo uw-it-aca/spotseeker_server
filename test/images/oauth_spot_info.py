@@ -14,7 +14,7 @@ import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
-from spotseeker_server.views import spot as SpotView
+from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
@@ -26,7 +26,7 @@ class SpotResourceOAuthImageTest(unittest.TestCase):
 
     def test_oauth_attributes(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth'
 
             consumer_name = "Test consumer"

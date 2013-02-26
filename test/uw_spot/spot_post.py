@@ -7,7 +7,7 @@ import random
 from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
-from spotseeker_server.views import spot as SpotView
+from spotseeker_server import models
 
 dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
 
@@ -19,7 +19,7 @@ class UWSpotPOSTTest(TestCase):
     """
     
     def test_valid_json(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -50,19 +50,19 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(spot_json["capacity"], new_capacity, "The right capacity was stored")
 
     def test_non_json(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.post('/api/v1/spot/', 'just a string', content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 400)
 
     def test_invalid_json(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
             self.assertEquals(response.status_code, 400)
 
     def test_uw_field_has_whiteboards(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -79,7 +79,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_outlets(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -99,7 +99,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_printing(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -116,7 +116,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_scanner(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -133,7 +133,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_displays(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -150,7 +150,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_projector(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -167,7 +167,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_computers(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -183,7 +183,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_num_computers(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -199,7 +199,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_has_natural_light(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -216,7 +216,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_noise_level(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -233,7 +233,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_food_nearby(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -250,7 +250,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_reservable(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
@@ -267,7 +267,7 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
     def test_uw_field_location_description(self):
-        with patch.object(SpotView, 'cache', dummy_cache):
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10

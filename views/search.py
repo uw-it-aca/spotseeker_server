@@ -12,7 +12,6 @@ import re
 from time import *
 from datetime import datetime
 import sys
-from django.core.cache import cache
 
 
 class SearchView(RESTDispatch):
@@ -230,12 +229,7 @@ class SearchView(RESTDispatch):
         response = []
 
         for spot in set(query):
-            if (cache.get(spot.pk)):
-                spot_json = cache.get(spot.pk)
-            else:
-                spot_json = spot.json_data_structure()
-                cache.add(spot.pk, spot_json)
-            response.append(spot_json)
+            response.append(spot.json_data_structure())
 
         return HttpResponse(json.dumps(response))
 

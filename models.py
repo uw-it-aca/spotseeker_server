@@ -8,6 +8,7 @@ import random
 from PIL import Image
 from cStringIO import StringIO
 import oauth_provider.models
+from django.core.cache import cache
 
 
 class SpotType(models.Model):
@@ -41,6 +42,8 @@ class Spot(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        if cache.get(self.pk):
+            cache.delete(self.pk)
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         super(Spot, self).save(*args, **kwargs)
 
@@ -48,70 +51,78 @@ class Spot(models.Model):
         return "/api/v1/spot/{0}".format(self.pk)
 
     def json_data_structure(self):
-        extended_info = {}
-        info = SpotExtendedInfo.objects.filter(spot=self)
-        for attr in info:
-            extended_info[attr.key] = attr.value
+        spot_json = cache.get(self.pk)
+        if not spot_json:
+            extended_info = {}
+            info = SpotExtendedInfo.objects.filter(spot=self)
+            for attr in info:
+                extended_info[attr.key] = attr.value
 
-        available_hours = {
-            'monday': [],
-            'tuesday': [],
-            'wednesday': [],
-            'thursday': [],
-            'friday': [],
-            'saturday': [],
-            'sunday': [],
-        }
+            available_hours = {
+                'monday': [],
+                'tuesday': [],
+                'wednesday': [],
+                'thursday': [],
+                'friday': [],
+                'saturday': [],
+                'sunday': [],
+            }
 
-        hours = SpotAvailableHours.objects.filter(spot=self).order_by('start_time')
-        for window in hours:
-            available_hours[window.get_day_display()].append([window.start_time.strftime("%H:%M"), window.end_time.strftime("%H:%M")])
+            hours = SpotAvailableHours.objects.filter(spot=self).order_by('start_time')
+            for window in hours:
+                available_hours[window.get_day_display()].append([window.start_time.strftime("%H:%M"), window.end_time.strftime("%H:%M")])
 
-        images = []
-        spot_images = SpotImage.objects.filter(spot=self)
-        for img in spot_images:
-            images.append({
-                "id": img.pk,
-                "url": img.rest_url(),
-                "content-type": img.content_type,
-                "width": img.width,
-                "height": img.height,
-                "creation_date": format_date_time(time.mktime(img.creation_date.timetuple())),
-                "modification_date": format_date_time(time.mktime(img.modification_date.timetuple())),
-                "upload_user": img.upload_user,
-                "upload_application": img.upload_application,
-                "thumbnail_root": "{0}/thumb".format(img.rest_url()),
-                "description": img.description
-            })
-        types = []
-        spot_types = self.spottypes.all()
-        for t in spot_types:
-            types.append(t.name)
+            images = []
+            spot_images = SpotImage.objects.filter(spot=self)
+            for img in spot_images:
+                images.append({
+                    "id": img.pk,
+                    "url": img.rest_url(),
+                    "content-type": img.content_type,
+                    "width": img.width,
+                    "height": img.height,
+                    "creation_date": format_date_time(time.mktime(img.creation_date.timetuple())),
+                    "modification_date": format_date_time(time.mktime(img.modification_date.timetuple())),
+                    "upload_user": img.upload_user,
+                    "upload_application": img.upload_application,
+                    "thumbnail_root": "{0}/thumb".format(img.rest_url()),
+                    "description": img.description
+                })
+            types = []
+            spot_types = self.spottypes.all()
+            for t in spot_types:
+                types.append(t.name)
 
-        return {
-            "id": self.pk,
-            "uri": self.rest_url(),
-            "name": self.name,
-            "type": types,
-            "location": {
-                # If any changes are made to this location dict, MAKE SURE to reflect those changes in the
-                # location_descriptors list in views/schema_gen.py
-                "latitude": self.latitude,
-                "longitude": self.longitude,
-                "height_from_sea_level": self.height_from_sea_level,
-                "building_name": self.building_name,
-                "floor": self.floor,
-                "room_number": self.room_number,
-            },
-            "capacity": self.capacity,
-            "display_access_restrictions": self.display_access_restrictions,
-            "images": images,
-            "available_hours": available_hours,
-            "organization": self.organization,
-            "manager": self.manager,
-            "extended_info": extended_info,
-            "last_modified": self.last_modified.isoformat()
-        }
+            spot_json = {
+                "id": self.pk,
+                "uri": self.rest_url(),
+                "name": self.name,
+                "type": types,
+                "location": {
+                    # If any changes are made to this location dict, MAKE SURE to reflect those changes in the
+                    # location_descriptors list in views/schema_gen.py
+                    "latitude": self.latitude,
+                    "longitude": self.longitude,
+                    "height_from_sea_level": self.height_from_sea_level,
+                    "building_name": self.building_name,
+                    "floor": self.floor,
+                    "room_number": self.room_number,
+                },
+                "capacity": self.capacity,
+                "display_access_restrictions": self.display_access_restrictions,
+                "images": images,
+                "available_hours": available_hours,
+                "organization": self.organization,
+                "manager": self.manager,
+                "extended_info": extended_info,
+                "last_modified": self.last_modified.isoformat()
+            }
+            cache.add(self.pk, spot_json)
+        return spot_json
+
+    def delete(self, *args, **kwargs):
+        cache.delete(self.pk)
+        super(Spot, self).delete(*args, **kwargs)
 
 
 class SpotAvailableHours(models.Model):

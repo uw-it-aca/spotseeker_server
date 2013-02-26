@@ -5,7 +5,6 @@ from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 import simplejson as json
 from django.db import transaction
-from django.core.cache import cache
 
 
 class SpotView(RESTDispatch):
@@ -19,12 +18,7 @@ class SpotView(RESTDispatch):
     def GET(self, request, spot_id):
         try:
             spot = Spot.objects.get(pk=spot_id)
-            if (cache.get(spot_id)):
-                spot_json = cache.get(spot_id)
-            else:
-                spot_json = spot.json_data_structure()
-                cache.add(spot_id, spot_json)
-            response = HttpResponse(json.dumps(spot_json))
+            response = HttpResponse(json.dumps(spot.json_data_structure()))
             response["ETag"] = spot.etag
             response["Content-type"] = "application/json"
             return response
@@ -50,7 +44,6 @@ class SpotView(RESTDispatch):
     def PUT(self, request, spot_id):
         try:
             spot = Spot.objects.get(pk=spot_id)
-            cache.delete(spot_id)
         except Exception as e:
             response = HttpResponse('{"error":"Spot not found"}')
             response.status_code = 404
@@ -70,7 +63,6 @@ class SpotView(RESTDispatch):
     def DELETE(self, request, spot_id):
         try:
             spot = Spot.objects.get(pk=spot_id)
-            cache.delete(spot_id)
         except Exception as e:
             response = HttpResponse('{"error":"Spot not found"}')
             response.status_code = 404

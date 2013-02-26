@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
+""" Copyright 2012, 2013 UW Information Technology, University of Washington
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
 This provides a management command to django's manage.py called create_sample_spots that will generate a set of spots for testing.
 """
 from django.core.management.base import BaseCommand, CommandError
@@ -91,11 +105,11 @@ class Command(BaseCommand):
 
             outdoor_type = SpotType.objects.get_or_create(name="outdoor")[0]
             fish_patio = Spot.objects.create(name="FSH 2nd Floor Patio/Deck",
-                                               longitude=Decimal('-122.31659'),
-                                               latitude=Decimal('47.65289'),
-                                               building_name="Fishery Sciences",
-                                               floor="2nd floor",
-                                               capacity=12)
+                                             longitude=Decimal('-122.31659'),
+                                             latitude=Decimal('47.65289'),
+                                             building_name="Fishery Sciences",
+                                             floor="2nd floor",
+                                             capacity=12)
             fish_patio.spottypes.add(outdoor_type)
             fish_patio.save()
             fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=fish_patio)

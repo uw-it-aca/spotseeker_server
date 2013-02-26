@@ -1,3 +1,18 @@
+""" Copyright 2012, 2013 UW Information Technology, University of Washington
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+"""
+
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
@@ -9,7 +24,7 @@ class SpotHoursPUTTest(TestCase):
 
     def test_hours(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                       SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
             spot = Spot.objects.create(name="This spot has available hours")
             etag = spot.etag
 
@@ -17,8 +32,8 @@ class SpotHoursPUTTest(TestCase):
                 'name': "This spot has available hours",
                 'capacity': "4",
                 'location': {
-                     'latitude': '55',
-                     'longitude': '30',
+                    'latitude': '55',
+                    'longitude': '30',
                 },
                 'available_hours': {
                     'monday': [["00:00", "10:00"], ["11:00", "14:00"]],

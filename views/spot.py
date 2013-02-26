@@ -1,3 +1,18 @@
+""" Copyright 2012, 2013 UW Information Technology, University of Washington
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+"""
+
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot import SpotForm
 from spotseeker_server.models import *
@@ -111,7 +126,7 @@ class SpotView(RESTDispatch):
 
         existing_info = spot.json_data_structure()
         for key in spot.json_data_structure():
-            if spot.json_data_structure().get(key) == None or spot.json_data_structure().get(key) == {} or spot.json_data_structure().get(key) == '' or spot.json_data_structure().get(key) == [] or key == 'last_modified' or key == 'eTag':
+            if spot.json_data_structure().get(key) is None or spot.json_data_structure().get(key) == {} or spot.json_data_structure().get(key) == '' or spot.json_data_structure().get(key) == [] or key == 'last_modified' or key == 'eTag':
                 del existing_info[key]
         if existing_info != new_values:
             errors = []
@@ -130,7 +145,7 @@ class SpotView(RESTDispatch):
                         spot.capacity = int(new_values["capacity"])
                     except:
                         pass
-            elif spot.capacity != None:
+            elif spot.capacity is not None:
                 spot.capacity = None
 
             if "type" in new_values:
@@ -140,7 +155,7 @@ class SpotView(RESTDispatch):
                         spot.spottypes.add(value)
                     except:
                         pass
-            elif spot.spottypes != None:
+            elif spot.spottypes is not None:
                 spot.spottypes.remove()
 
             if "location" in new_values:
@@ -164,7 +179,7 @@ class SpotView(RESTDispatch):
                         spot.height_from_sea_level = float(loc_vals["height_from_sea_level"])
                     except:
                         pass
-                elif spot.height_from_sea_level != None:
+                elif spot.height_from_sea_level is not None:
                     spot.height_from_sea_level = None
 
                 if "building_name" in loc_vals:
@@ -184,7 +199,7 @@ class SpotView(RESTDispatch):
                 # TO DO: see if there is a better way of doing the following check
                 else:
                     try:
-                        if spot.description != None:
+                        if spot.description is not None:
                             spot.description = None
                     except:
                         pass

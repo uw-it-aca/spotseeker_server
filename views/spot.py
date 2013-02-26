@@ -119,7 +119,6 @@ class SpotView(RESTDispatch):
 
         form = SpotForm(new_values)
         if not form.is_valid():
-            spot.delete()
             response = HttpResponse(json.dumps(form.errors))
             response.status_code = 400
             return response

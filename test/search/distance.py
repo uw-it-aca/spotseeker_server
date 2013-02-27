@@ -19,75 +19,90 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 from decimal import *
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotSearchDistanceTest(TestCase):
 
     def test_invalid_latitude(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': "bad_data", 'center_longitude': -40, 'distance': 10})
             self.assertEquals(response.status_code, 200, "Accepts a query with bad latitude")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_longitude(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': "bad_data", 'distance': "10"})
             self.assertEquals(response.status_code, 200, "Accepts a query with bad longitude")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_height(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': -40, 'height_from_sea_level': "bad_data", 'distance': "10"})
             self.assertEquals(response.status_code, 200, "Accepts a query with bad height")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_distance(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': "30", 'center_longitude': "-40", 'distance': "bad_data"})
             self.assertEquals(response.status_code, 200, "Accepts a query with bad distance")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_longitude(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': 30, 'center_longitude': 190, 'distance': 10})
             self.assertEquals(response.status_code, 200, "Accepts a query with too large longitude")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_latitude(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': 100, 'center_longitude': -40, 'distance': 10})
             self.assertEquals(response.status_code, 200, "Accepts a query with too large latitude")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_negative_latitude(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': -100, 'center_longitude': -40, 'distance': 10})
             self.assertEquals(response.status_code, 200, "Accepts a query with too negative latitude")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_large_negative_longitude(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': 40, 'center_longitude': -190, 'distance': 10})
             self.assertEquals(response.status_code, 200, "Accepts a query with too negative longitude")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_no_params(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {})
             self.assertEquals(response.status_code, 200, "Accepts a query with no params")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_distances(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
 
             # Spots are in the atlantic to make them less likely to collide with actual spots
             center_lat = 30.000000

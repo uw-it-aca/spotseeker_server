@@ -23,15 +23,21 @@ from datetime import datetime
 import datetime as alternate_date
 
 from time import *
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotHoursOpenNowTest(TestCase):
     """ Tests that we can tell if a Spot is available now, based on it's Available Hours.
     """
 
     @skipIf(datetime.now().hour + 2 > 23 or datetime.now().hour < 2, "Skip open_now tests due to the time of day")
     def test_open_now(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             open_spot = Spot.objects.create(name="This spot is open now")
             no_hours_spot = Spot.objects.create(name="This spot has no hours")
             closed_spot = Spot.objects.create(name="This spot has hours, but is closed")

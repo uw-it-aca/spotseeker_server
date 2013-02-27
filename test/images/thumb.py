@@ -21,14 +21,20 @@ from spotseeker_server.models import Spot, SpotImage
 from cStringIO import StringIO
 from PIL import Image
 from os.path import abspath, dirname
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class ImageThumbTest(TestCase):
 
     def setUp(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             spot = Spot.objects.create(name="This is to test thumbnailing images")
             spot.save()
             self.spot = spot
@@ -37,7 +43,8 @@ class ImageThumbTest(TestCase):
             self.url = self.url
 
     def test_jpeg_thumbs(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
             response = c.post(self.url, {"description": "This is a jpeg", "image": f})
@@ -107,7 +114,8 @@ class ImageThumbTest(TestCase):
             self.assertEquals(response.status_code, 404, "404 for invalid height, jpeg")
 
     def test_png_thumbs(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             f = open("%s/../resources/test_png.png" % TEST_ROOT)
             response = c.post(self.url, {"description": "This is a png", "image": f})
@@ -177,7 +185,8 @@ class ImageThumbTest(TestCase):
             self.assertEquals(response.status_code, 404, "404 for invalid height, png")
 
     def test_gif_thumbs(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
             response = c.post(self.url, {"description": "This is a gif", "image": f})
@@ -247,7 +256,8 @@ class ImageThumbTest(TestCase):
             self.assertEquals(response.status_code, 404, "404 for invalid height, gif")
 
     def test_invalid_url(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             bad_spot = Spot.objects.create(name="This is the wrong spot")
 
@@ -262,7 +272,8 @@ class ImageThumbTest(TestCase):
             self.assertEquals(response.status_code, 404, "Give a 404 for a spot id that doesn't match the image's")
 
     def test_constrain_jpg(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             img_path = "%s/../resources/test_jpeg2.jpg" % TEST_ROOT
             f = open(img_path)
@@ -317,7 +328,8 @@ class ImageThumbTest(TestCase):
             self.assertEquals(im.format, 'JPEG', "Actual type of same size thumbnail is still a jpg")
 
     def test_constrain_png(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             img_path = "%s/../resources/test_png2.png" % TEST_ROOT
             f = open(img_path)
@@ -372,7 +384,8 @@ class ImageThumbTest(TestCase):
             self.assertEquals(im.format, 'PNG', "Actual type of same size thumbnail is still a png")
 
     def test_constrain_gif(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             c = Client()
             img_path = "%s/../resources/test_gif2.gif" % TEST_ROOT
             f = open(img_path)

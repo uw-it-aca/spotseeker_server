@@ -18,11 +18,17 @@ from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotExtendedInfo, SpotType
 import simplejson as json
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotSearchCapacityTest(TestCase):
     def test_capacity(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             spot1 = Spot.objects.create(name="capacity: 1", capacity=1)
             spot1.save()
 
@@ -146,3 +152,7 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_3, False)
             self.assertEquals(has_4, False)
             self.assertEquals(has_5, False)
+
+            response = c.get("/api/v1/spot", {'capacity': '1', 'limit': '4'})
+            #testing sorting by distance, which is impossible given no center
+            self.assertEquals(response.status_code, 400)

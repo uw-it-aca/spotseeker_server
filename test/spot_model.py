@@ -18,13 +18,19 @@ from django.conf import settings
 import random
 
 from spotseeker_server.models import Spot
+from django.test.utils import override_settings
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
 class SpotModelTest(TestCase):
 
     def test_json(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
             name = "This is a test spot: {0}".format(random.random())
 
             spot = Spot()

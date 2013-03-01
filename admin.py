@@ -55,8 +55,11 @@ class SpotImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        for spot_image in queryset.all():
-            spot_image.delete()
+        if type(queryset) == SpotImage:
+            queryset.delete()
+        else:
+            for spot_image in queryset.all():
+                spot_image.delete()
     delete_model.short_description = "Delete selected spot images"
 
 admin.site.register(SpotImage, SpotImageAdmin)

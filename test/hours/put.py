@@ -24,6 +24,7 @@ from mock import patch
 from django.core import cache
 from spotseeker_server import models
 
+
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
 class SpotHoursPUTTest(TestCase):
@@ -38,8 +39,8 @@ class SpotHoursPUTTest(TestCase):
                 'name': "This spot has available hours",
                 'capacity': "4",
                 'location': {
-                     'latitude': '55',
-                     'longitude': '30',
+                    'latitude': '55',
+                    'longitude': '30',
                 },
                 'available_hours': {
                     'monday': [["00:00", "10:00"], ["11:00", "14:00"]],

@@ -39,7 +39,6 @@ class JsonCachingTest(TestCase):
         self.spot1 = spot1
         self.url1 = '/api/v1/spot/{0}'.format(self.spot1.pk)
 
-
     def test_get_spot(self):
         """tests if spot jsons are cached on the server when a client requests them
         """
@@ -49,7 +48,7 @@ class JsonCachingTest(TestCase):
             response = client.get(self.url1)
             self.assertIsNotNone(self.cache.get(self.spot1.pk))
             cache1 = models.cache.get(self.spot1.pk)
-            self.assertEqual(cache1['name'], self.spot1.name)                 #verify proper cached content
+            self.assertEqual(cache1['name'], self.spot1.name)  # verify proper cached content
 
     def test_put_spot(self):
         """tests modifying spots through the api
@@ -57,11 +56,11 @@ class JsonCachingTest(TestCase):
         with patch.object(models, 'cache', self.cache):
             client = Client()
             self.cache.clear()
-            self.assertIsNone(self.cache.get(self.spot1.pk))   #cache should be emptied
+            self.assertIsNone(self.cache.get(self.spot1.pk))  # cache should be emptied
             response = client.get(self.url1)
             etag = response['ETag']
             response1 = client.put(self.url1, '{"name":"whoop whoop changed number 1"}', content_type="application/json", If_Match=etag)
-            self.assertIsNone(self.cache.get(self.spot1.pk))   #cache should be emptied of changed spot
+            self.assertIsNone(self.cache.get(self.spot1.pk))  # cache should be emptied of changed spot
 
     def test_delete_spot(self):
         """tests deleting spots through the api
@@ -72,7 +71,7 @@ class JsonCachingTest(TestCase):
             response = client.get(self.url1)
             etag = response["ETag"]
             the_pk = self.spot1.pk
-            self.assertIsNotNone(self.cache.get(the_pk))         #cached object should be there
+            self.assertIsNotNone(self.cache.get(the_pk))  # cached object should be there
             response = client.delete(self.url1, If_Match=etag)
             self.assertEquals(response.status_code, 200, "Gives a GONE in response to a valid delete")
 
@@ -82,7 +81,7 @@ class JsonCachingTest(TestCase):
                 test_spot = None
 
             self.assertIsNone(test_spot, "Can't objects.get a deleted spot")
-            self.assertIsNone(self.cache.get(the_pk))            #shouldn't be cached because its object is deleted
+            self.assertIsNone(self.cache.get(the_pk))  # shouldn't be cached because its object is deleted
 
     def test_delete_spot_directly(self):
         """tests deleting spots through the admin
@@ -92,9 +91,9 @@ class JsonCachingTest(TestCase):
             self.cache.clear()
             response = client.get(self.url1)
             the_pk = self.spot1.pk
-            self.assertIsNotNone(self.cache.get(the_pk))         #cached object should be there
+            self.assertIsNotNone(self.cache.get(the_pk))  # cached object should be there
             self.spot1.delete()
-            self.assertIsNone(self.cache.get(the_pk))            #shouldn't be there
+            self.assertIsNone(self.cache.get(the_pk))  # shouldn't be there
 
     def test_modify_spot(self):
         """tests modifying spots through the admin
@@ -102,12 +101,12 @@ class JsonCachingTest(TestCase):
         with patch.object(models, 'cache', self.cache):
             client = Client()
             self.cache.clear()
-            self.assertIsNone(self.cache.get(self.spot1.pk))   #cache should be emptied
+            self.assertIsNone(self.cache.get(self.spot1.pk))  # cache should be emptied
             json = self.spot1.json_data_structure()
             self.assertIsNotNone(self.cache.get(self.spot1.pk))
             self.spot1.name = "All-Blacks Haka War Dance"
             self.spot1.save()
-            self.assertIsNone(self.cache.get(self.spot1.pk))   #cache should be emptied of saved spot
+            self.assertIsNone(self.cache.get(self.spot1.pk))  # cache should be emptied of saved spot
 
     def test_spot_json_data_structure_cache(self):
         """tests that the caching happens in the json_data_structure model method

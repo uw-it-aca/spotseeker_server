@@ -32,7 +32,7 @@ dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
 class UWSpotPOSTTest(TestCase):
     """ Tests creating a new Spot via POST.
     """
-    
+
     def test_valid_json(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
@@ -313,3 +313,20 @@ class UWSpotPOSTTest(TestCase):
             spot_desc = spot.spotextendedinfo_set.get(key='location_description').value
 
             self.assertEquals(desc, spot_desc, "The Spot's description matches what was POSTed.")
+
+    def test_valid_json_but_invalid_extended_info(self):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+
+            json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            bad_json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude": -30},"extended_info":{"has_whiteboards":"true","has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB","manager":"Sam","organization":"UW"}}' % (new_name, new_capacity)
+            response = c.post('/api/v1/spot/', bad_json_string, content_type="application/json", follow=False)
+            self.assertEquals(response.status_code, 400, "Doesn't add spot info with invalid extended info")
+            self.assertEquals(Spot.objects.count(), 2, "Doesn't POST spots with invalid extended info")

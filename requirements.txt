@@ -11,3 +11,5 @@ simplejson>=2.1
 
 # If you're using a MySQL database, you may also need mysql-python
 # mysql-python
+cx_Oracle
+

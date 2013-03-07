@@ -263,7 +263,7 @@ class TrustedOAuthClient(models.Model):
     is_trusted = models.BooleanField()
 
     class Meta:
-        db_table = 'ss_server_trustedoauthclient'
+        db_name = 'ss_server_trustedoauthclient'
         verbose_name_plural = "Trusted OAuth clients"
 
     def __unicode__(self):

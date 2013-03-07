@@ -1,13 +1,13 @@
 Django==1.4
 mock
 oauth2
-#oauth_provider
+oauth_provider
 PIL
 pyproj
 pytz
 South
 simplejson>=2.1
-django-oauth-plus
+# django-oauth-plus
 
 # If you're using a MySQL database, you may also need mysql-python
 # mysql-python

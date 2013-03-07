@@ -31,6 +31,9 @@ class SpotType(models.Model):
     """
     name = models.SlugField(max_length=50)
 
+    class Meta:
+        db_table = 'ss_server_spottype'
+
     def __unicode__(self):
         return self.name
 
@@ -52,6 +55,9 @@ class Spot(models.Model):
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
     last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
+
+    class Meta:
+        db_table = 'ss_server_spot'
 
     def __unicode__(self):
         return self.name
@@ -158,6 +164,7 @@ class SpotAvailableHours(models.Model):
     end_time = models.TimeField()
 
     class Meta:
+        db_table = 'ss_server_spotavailablehours'
         verbose_name_plural = "Spot available hours"
 
     def __unicode__(self):
@@ -186,6 +193,7 @@ class SpotExtendedInfo(models.Model):
     spot = models.ForeignKey(Spot)
 
     class Meta:
+        db_table = 'ss_server_spotextendedinfo'
         verbose_name_plural = "Spot extended info"
 
     def __unicode__(self):
@@ -212,6 +220,9 @@ class SpotImage(models.Model):
     etag = models.CharField(max_length=40)
     upload_user = models.CharField(max_length=40)
     upload_application = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'ss_server_spotimage'
 
     def __unicode__(self):
         if self.description:
@@ -252,6 +263,7 @@ class TrustedOAuthClient(models.Model):
     is_trusted = models.BooleanField()
 
     class Meta:
+        db_name = 'ss_server_trustedoauthclient'
         verbose_name_plural = "Trusted OAuth clients"
 
     def __unicode__(self):

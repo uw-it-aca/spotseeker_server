@@ -5,7 +5,7 @@ oauth2
 PIL
 pyproj
 pytz
-# South
+South
 simplejson>=2.1
 django-oauth-plus
 

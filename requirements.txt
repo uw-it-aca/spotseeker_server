@@ -8,7 +8,7 @@ pytz
 # South
 simplejson>=2.1
 # django-oauth-plus
--e hg+https://bitbucket.org/stephen-butler/django-oauth-plus@oracle-fix
+-e hg+https://bitbucket.org/stephen-butler/django-oauth-plus@oracle-fix#egg=django-oauth-plus
 
 # If you're using a MySQL database, you may also need mysql-python
 # mysql-python

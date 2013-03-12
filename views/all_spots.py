@@ -29,4 +29,4 @@ class AllSpotsView(RESTDispatch):
         response = []
         for spot in spots:
             response.append(spot.json_data_structure())
-        return HttpResponse(response)
+        return HttpResponse(json.dumps(response))

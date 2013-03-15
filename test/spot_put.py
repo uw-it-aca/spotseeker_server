@@ -211,3 +211,24 @@ class SpotPUTTest(TestCase):
             spot_json = json.loads(response.content)
             extended_info = {"has_outlets": "true"}
             self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was successfully PUT")
+
+    def test_new_extended_info(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            new_name = "testing PUT name: {0}".format(random.random())
+            new_capacity = 20
+
+            json_string = '{"name":"%s","capacity":"%s", "location": {"latitude": 55, "longitude": 30}, "extended_info":{"has_outlets":"true"}}' % (new_name, new_capacity)
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, json_string, content_type="application/json", If_Match=etag)
+
+            new_json_string = '{"name":"%s","capacity":"%s", "location": {"latitude": 55, "longitude": 30}, "extended_info":{"has_outlets":"true", "ad":"New, never-before seen extended info!"}}' % (new_name, new_capacity)
+            response = c.get(self.url)
+            etag = response["ETag"]
+            response = c.put(self.url, new_json_string, content_type="application/json", If_Match=etag)
+
+            spot_json = json.loads(response.content)
+            extended_info = {"has_outlets": "true", "ad": "New, never-before seen extended info!"}
+            self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was successfully PUT")

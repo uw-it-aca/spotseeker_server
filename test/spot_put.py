@@ -216,19 +216,39 @@ class SpotPUTTest(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
-            new_name = "testing PUT name: {0}".format(random.random())
-            new_capacity = 20
+            json_string1 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_whiteboards":"true", "has_printing":"true", "has_di    splays":"true", "num_computers":"38", "has_natural_light":"true"}}' % ("testing POST name: {0}".format(random.random()))
+            response = c.post('/api/v1/spot/', json_string1, content_type="application/json", follow=False)
+            json_string2 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_outlets":"true", "has_scanner    ":"true", "has_projector":"true", "has_computers":"true"}}' % ("testing POST name: {0}".format(random.random()))
+            response = c.post('/api/v1/spot/', json_string2, content_type="application/json", follow=False)
+            json_string3 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_printing":"true", "has_projec    tor":"true", "num_computers":"15", "has_computers":"true", "has_natural_light":"true"}}' % ("testing POST name: {0}".format(random.random()))
+            response = c.post('/api/v1/spot/', json_string3, content_type="application/json", follow=False)
 
-            json_string = '{"name":"%s","capacity":"%s", "location": {"latitude": 55, "longitude": 30}, "extended_info":{"has_outlets":"true"}}' % (new_name, new_capacity)
-            response = c.get(self.url)
-            etag = response["ETag"]
-            response = c.put(self.url, json_string, content_type="application/json", If_Match=etag)
+            next_spot = Spot.objects.create(name="This is just to get the id")
+            next_spot.save()
+            next_pk = next_spot.pk
 
-            new_json_string = '{"name":"%s","capacity":"%s", "location": {"latitude": 55, "longitude": 30}, "extended_info":{"has_outlets":"true", "ad":"New, never-before seen extended info!"}}' % (new_name, new_capacity)
-            response = c.get(self.url)
-            etag = response["ETag"]
-            response = c.put(self.url, new_json_string, content_type="application/json", If_Match=etag)
+            url1 = '/api/v1/spot/{0}'.format(next_pk - 3)
+            url2 = '/api/v1/spot/{0}'.format(next_pk - 2)
+            url3 = '/api/v1/spot/{0}'.format(next_pk - 1)
 
-            spot_json = json.loads(response.content)
-            extended_info = {"has_outlets": "true", "ad": "New, never-before seen extended info!"}
-            self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was successfully PUT")
+            response = c.get(url1)
+            etag1 = response["ETag"]
+            response = c.get(url2)
+            etag2 = response["ETag"]
+            response = c.get(url3)
+            etag3 = response["ETag"]
+
+            response = c.put(url1, json_string3, content_type="application/json", If_Match=etag1)
+            response = c.put(url2, json_string1, content_type="application/json", If_Match=etag2)
+            response = c.put(url3, json_string2, content_type="application/json", If_Match=etag3)
+
+            response = c.get(url1)
+            spot_json1 = json.loads(response.content)
+            response = c.get(url2)
+            spot_json2 = json.loads(response.content)
+            response = c.get(url3)
+            spot_json3 = json.loads(response.content)
+
+            self.assertEquals(spot_json1["extended_info"], json.loads(json_string3)['extended_info'], "extended_info was succesffuly PUT")
+            self.assertEquals(spot_json2["extended_info"], json.loads(json_string1)['extended_info'], "extended_info was succesffuly PUT")
+            self.assertEquals(spot_json3["extended_info"], json.loads(json_string2)['extended_info'], "extended_info was succesffuly PUT")

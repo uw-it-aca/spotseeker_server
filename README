@@ -1,7 +1,6 @@
 SpaceScout is a project from the University of Washington.
 
-This is the server for the SpaceScout suite of applications. It stores space metadata and resources 
-as well as provides services to the SpaceScout web and mobile apps.
+This is the server for the SpaceScout suite of applications. It stores space metadata and resources as well as provides services to the SpaceScout web and mobile apps.
 
   Copyright 2012, 2013 UW Information Technology, University of Washington
 

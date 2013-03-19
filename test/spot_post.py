@@ -90,19 +90,15 @@ class SpotPOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             json_string1 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_whiteboards":"true", "has_printing":"true", "has_displays":"true", "num_computers":"38", "has_natural_light":"true"}}' % ("testing POST name: {0}".format(random.random()))
-            response = c.post('/api/v1/spot/', json_string1, content_type="application/json", follow=False)
+            response1 = c.post('/api/v1/spot/', json_string1, content_type="application/json", follow=False)
             json_string2 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_outlets":"true", "has_scanner":"true", "has_projector":"true", "has_computers":"true"}}' % ("testing POST name: {0}".format(random.random()))
-            response = c.post('/api/v1/spot/', json_string2, content_type="application/json", follow=False)
+            response2 = c.post('/api/v1/spot/', json_string2, content_type="application/json", follow=False)
             json_string3 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_printing":"true", "has_projector":"true", "num_computers":"15", "has_computers":"true", "has_natural_light":"true"}}' % ("testing POST name: {0}".format(random.random()))
-            response = c.post('/api/v1/spot/', json_string3, content_type="application/json", follow=False)
+            response3 = c.post('/api/v1/spot/', json_string3, content_type="application/json", follow=False)
 
-            next_spot = Spot.objects.create(name="This is just to get the id")
-            next_spot.save()
-            next_pk = next_spot.pk
-
-            url1 = '/api/v1/spot/{0}'.format(next_pk - 3)
-            url2 = '/api/v1/spot/{0}'.format(next_pk - 2)
-            url3 = '/api/v1/spot/{0}'.format(next_pk - 1)
+            url1 = response1["Location"]
+            url2 = response2["Location"]
+            url3 = response3["Location"]
 
             response = c.get(url1)
             spot_json1 = json.loads(response.content)

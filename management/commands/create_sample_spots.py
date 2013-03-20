@@ -48,6 +48,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="has_scanner", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_projector", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_computers", value="true", spot=art)
+            art_ada = SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=art)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=art)
             org = SpotExtendedInfo.objects.create(key="organization", value="Art", spot=art)
 
@@ -57,6 +58,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="true", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=art2)
             art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="true", spot=art2)
+            art_ada = SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=art2)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=art2)
             org = SpotExtendedInfo.objects.create(key="organization", value="Art", spot=art2)
 
@@ -72,6 +74,7 @@ class Command(BaseCommand):
             savery.spottypes.add(study_room_type)
             savery.save()
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=savery)
+            savery_outlets = SpotExtendedInfo.objects.create(key="campus", value="seattle2", spot=savery)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery)
             org = SpotExtendedInfo.objects.create(key="organization", value="Philosophy", spot=savery)
 
@@ -80,12 +83,14 @@ class Command(BaseCommand):
             savery2.save()
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=savery2)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery2)
+            mgr = SpotExtendedInfo.objects.create(key="campus", value="seattle2", spot=savery2)
             org = SpotExtendedInfo.objects.create(key="organization", value="Economics", spot=savery2)
 
             savery3 = Spot.objects.create(name="In Savery - #2", capacity=20, longitude=Decimal('-122.308014'), latitude=Decimal('47.657431'), building_name="Savery")
             savery3.spottypes.add(study_room_type)
             savery3.save()
             savery_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=savery3)
+            savery_outlets = SpotExtendedInfo.objects.create(key="campus", value="seattle2", spot=savery3)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=savery3)
             org = SpotExtendedInfo.objects.create(key="organization", value="Sociology", spot=savery3)
 
@@ -100,6 +105,7 @@ class Command(BaseCommand):
             fish_kitchen.spottypes.add(lounge_type)
             fish_kitchen.save()
             fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=fish_kitchen)
+            fish_outlets = SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=fish_kitchen)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=fish_kitchen)
             org = SpotExtendedInfo.objects.create(key="organization", value="Fisheries", spot=fish_kitchen)
 
@@ -113,6 +119,7 @@ class Command(BaseCommand):
             fish_patio.spottypes.add(outdoor_type)
             fish_patio.save()
             fish_outlets = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=fish_patio)
+            fish_outlets = SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=fish_patio)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=fish_patio)
             org = SpotExtendedInfo.objects.create(key="organization", value="Fisheries", spot=fish_patio)
 

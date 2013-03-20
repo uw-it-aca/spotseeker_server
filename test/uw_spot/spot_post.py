@@ -43,19 +43,11 @@ class UWSpotPOSTTest(TestCase):
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
-
-            # XXX - I'm not sure if anything below here is valid
             self.assertIn("Location", response, "The response has a location header")
 
-            # Assuming tests are sequential - make a spot, and the spot before it should be the POST
-            next_spot = Spot.objects.create(name="This is just to get the id")
-            next_spot.save()
+            self.spot = Spot.objects.get(name=new_name)
 
-            next_pk = next_spot.pk
-
-            post_pk = next_pk - 1
-
-            self.assertEquals(response["Location"], "http://testserver/api/v1/spot/{0}".format(post_pk), "The uri for the new spot is correct")
+            self.assertEquals(response["Location"], "http://testserver" + self.spot.rest_url(), "The uri for the new spot is correct")
 
             get_response = c.get(response["Location"])
             self.assertEquals(get_response.status_code, 200, "OK in response to GETing the new spot")

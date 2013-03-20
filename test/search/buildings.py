@@ -16,10 +16,12 @@
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
+from django.test.utils import override_settings
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class BuildingSearchTest(TestCase):
     """ Tests the /api/v1/buildings interface.
     """

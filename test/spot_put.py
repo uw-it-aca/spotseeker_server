@@ -211,3 +211,51 @@ class SpotPUTTest(TestCase):
             spot_json = json.loads(response.content)
             extended_info = {"has_outlets": "true"}
             self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was successfully PUT")
+
+    def test_new_extended_info(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            name1 = "testing POST name: %s" % random.random()
+            name2 = "testing POST name: %s" % random.random()
+            name3 = "testing POST name: %s" % random.random()
+            json_string1 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_whiteboards":"true", "has_printing":"true", "has_displays":"true", "num_computers":"38", "has_natural_light":"true"}}' % name1
+            response1 = c.post('/api/v1/spot/', json_string1, content_type="application/json", follow=False)
+            json_string2 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_outlets":"true", "has_scanner":"true", "has_projector":"true", "has_computers":"true"}}' % name2
+            response2 = c.post('/api/v1/spot/', json_string2, content_type="application/json", follow=False)
+            json_string3 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_printing":"true", "has_projector":"true", "num_computers":"15", "has_computers":"true", "has_natural_light":"true"}}' % name3
+            response3 = c.post('/api/v1/spot/', json_string3, content_type="application/json", follow=False)
+
+            url1 = response1["Location"]
+            url2 = response2["Location"]
+            url3 = response3["Location"]
+
+            response1 = c.get(url1)
+            etag1 = response1["ETag"]
+            response2 = c.get(url2)
+            etag2 = response2["ETag"]
+            response3 = c.get(url3)
+            etag3 = response3["ETag"]
+
+            new_json_string1 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_whiteboards":"true", "something_new":"true", "has_printing":"true", "has_displays":"true", "num_computers":"38", "has_natural_light":"true"}}' % name1
+            new_json_string2 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_outlets":"true", "has_scanner":"true", "has_projector":"true", "has_computers":"true", "another_new":"yep it is"}}' % name2
+            new_json_string3 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"also_new":"ok", "another_new":"bleh", "has_outlets":"true", "has_printing":"true", "has_projector":"true", "num_computers":"15", "has_computers":"true", "has_natural_light":"true"}}' % name3
+
+            response = c.put(url1, new_json_string1, content_type="application/json", If_Match=etag1)
+            response = c.put(url2, new_json_string2, content_type="application/json", If_Match=etag2)
+            response = c.put(url3, new_json_string3, content_type="application/json", If_Match=etag3)
+
+            new_response1 = c.get(url1)
+            spot_json1 = json.loads(new_response1.content)
+            new_response2 = c.get(url2)
+            spot_json2 = json.loads(new_response2.content)
+            new_response3 = c.get(url3)
+            spot_json3 = json.loads(new_response3.content)
+
+            self.assertEqual(spot_json1["extended_info"], json.loads(new_json_string1)['extended_info'], "extended_info was succesffuly PUT")
+            self.assertContains(new_response1, '"something_new": "true"')
+            self.assertEqual(spot_json2["extended_info"], json.loads(new_json_string2)['extended_info'], "extended_info was succesffuly PUT")
+            self.assertContains(new_response2, '"another_new": "yep it is"')
+            self.assertEqual(spot_json3["extended_info"], json.loads(new_json_string3)['extended_info'], "extended_info was succesffuly PUT")
+            self.assertContains(new_response3, '"also_new": "ok"')
+            self.assertContains(new_response3, '"another_new": "bleh"')

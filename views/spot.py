@@ -235,11 +235,11 @@ class SpotView(RESTDispatch):
                         info_obj.save()
                     except:
                         SpotExtendedInfo.objects.create(key=item, value=new_values["extended_info"][item], spot=spot)
-                for info in SpotExtendedInfo.objects.values():
+                for info in SpotExtendedInfo.objects.filter(spot=spot).values():
                     if info['key'] not in new_values['extended_info']:
-                        SpotExtendedInfo.objects.filter(key=info['key']).delete()
+                        SpotExtendedInfo.objects.filter(spot=spot, key=info['key']).delete()
             elif "extended_info" not in new_values:
-                SpotExtendedInfo.objects.all().delete()
+                SpotExtendedInfo.objects.filter(spot=spot).all().delete()
 
             try:
                 available_hours = new_values["available_hours"]

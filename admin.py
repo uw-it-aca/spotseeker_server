@@ -45,9 +45,12 @@ class SpotAdmin(admin.ModelAdmin):
         del actions['delete_selected']
         return actions
 
-    def delete_model(self, request, queryset):
-        for spot in queryset.all():
-            spot.delete()
+    def delete_model(self, request, spots):
+        if type(spots) is Spot:
+            spots.delete()
+        else:
+            for spot in spots.all():
+                spot.delete()
     delete_model.short_description = "Delete selected spots"
 
 admin.site.register(Spot, SpotAdmin)
@@ -68,8 +71,11 @@ class SpotImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        for spot_image in queryset.all():
-            spot_image.delete()
+        if type(queryset) == SpotImage:
+            queryset.delete()
+        else:
+            for spot_image in queryset.all():
+                spot_image.delete()
     delete_model.short_description = "Delete selected spot images"
 
 admin.site.register(SpotImage, SpotImageAdmin)

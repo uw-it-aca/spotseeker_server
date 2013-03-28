@@ -26,9 +26,11 @@ import simplejson as json
 import re
 from time import *
 from datetime import datetime
+import logging
 import sys
 
 # UIUC LDAP
+LOGGER = logging.getLogger(__name__)
 from org_filters.uiuc_ldap_client import get_res_street_address
 
 class SearchView(RESTDispatch):

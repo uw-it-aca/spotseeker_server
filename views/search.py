@@ -272,14 +272,17 @@ class SearchView(RESTDispatch):
         if email:
             full_address = get_res_street_address(email)
         for spot in all_the_spots: 
-            if net_id:
+            if email:
+# User not logged in
                 LOGGER.info("User is logged in. Show only spots they may access.")
                 address_restrictions = spot.spotextendedinfo_set.get(
                     key=UIUC_REQUIRE_ADDRESS)
+# This is not a restricted spot.
                 if len(address_restrictions) == 0:
                     response.append(spot.json_data_structure())
                     LOGGER.debug("Not restricted.")
                 else:
+# Assume only one uiuc restriction per spot.
                     restrict_rule = address_restrictions[0]
                     regex_text = restrict_rule.value
                     if re.match(full_address, regex_text):

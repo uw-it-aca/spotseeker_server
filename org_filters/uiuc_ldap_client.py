@@ -143,7 +143,7 @@ def get_person_ad_data(email_address):
         Get needed LDAP information
     '''
 	
-	if '@illinois.edu' in username:
+	if '@illinois.edu' in email_address:
 		# Remove the @illinois.edu from email_address to get NetID
 		net_id = email_address[:-13]
 	else:

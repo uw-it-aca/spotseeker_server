@@ -124,6 +124,20 @@ class InvalidLastNameError(ValueError):
 
 #---------------------------------------------------------------------------------------------------
 
+def get_res_street_address(email):
+    '''Return the Residence Hall street address 
+    for the student, if they have one.'''
+    raw_data = get_person_ad_data(email)
+    full_address = ''
+    address_keys =[
+             'uiucEduResHallAddressLine1',
+			 'uiucEduResHallAddressLine2',
+			 'uiucEduResHallAddressLine3',
+             ]
+    for key in address_keys:
+        full_address += raw_data[key]
+    return full_address
+
 def get_person_ad_data(net_id):
     '''
         Get needed LDAP information
@@ -194,5 +208,4 @@ def get_person_ad_data(net_id):
     LOGGER.debug("Returning AD data.")
          
     return return_data
-	
 	

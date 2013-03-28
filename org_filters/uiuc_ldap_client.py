@@ -124,12 +124,26 @@ class InvalidLastNameError(ValueError):
 
 #---------------------------------------------------------------------------------------------------
 
-def get_person_ad_data(net_id):
+def get_person_ad_data(email_address):
     '''
         Get needed LDAP information
     '''
+	
+	if '@illinois.edu' in username:
+		# Remove the @illinois.edu from email_address to get NetID
+		net_id = email_address[:-13]
+	else:
+        # Use the NetID as it was sent
+        net_id = email_address
+	
+	if net_id is None or len(net_id) <= 0 or len(net_id[0]) <= 0:
+		# NetID does not actually exist - proceed no further!
+		return None
+    if (re.match("^[a-z0-9-]{3,8}$", net_id[0].lower()) == None):
+		# NetID is in an imporper format - proceed no further!
+        return None
 
-    LOGGER.debug("Get AD connection.")
+	LOGGER.debug("Get AD connection.")
     ldap_conn = get_ldap_client()
     LOGGER.debug("AD connection: %s", str(ldap_conn))
 	

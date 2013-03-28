@@ -215,6 +215,10 @@ class SpotView(RESTDispatch):
                 spot.manager = new_values["manager"]
             elif spot.manager != '':
                 spot.manager = ''
+            if "external_id" in new_values:
+                spot.external_id = new_values["external_id"]
+            else:
+                spot.external_id = None
 
             if len(errors) == 0:
                 spot.save()

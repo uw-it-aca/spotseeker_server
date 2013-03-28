@@ -70,6 +70,8 @@ class SearchView(RESTDispatch):
                 pass
             elif key == "limit":
                 pass
+            elif key == "all_spaces":
+                pass
             elif key == "open_now":
                 if request.GET["open_now"]:
 

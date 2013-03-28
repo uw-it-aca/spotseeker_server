@@ -26,8 +26,12 @@ import simplejson as json
 import re
 from time import *
 from datetime import datetime
+import logging
 import sys
 
+# UIUC LDAP
+LOGGER = logging.getLogger(__name__)
+from org_filters.uiuc_ldap_client import get_res_street_address
 
 class SearchView(RESTDispatch):
     """ Handles searching for Spots with particular attributes based on a query string.
@@ -247,8 +251,45 @@ class SearchView(RESTDispatch):
 
         response = []
 
-        for spot in set(query):
-            response.append(spot.json_data_structure())
+
+# UIUC Residence Limits for Labs
+# --------------------------------
+# Remove any spots that the current user cannot use (i.e. login, print, etc)
+        # TODO: Add to settings...
+        # UIUC_REQUIRE_ADDRESS = settings.UIUC_REQUIRE_ADDRESS
+        UIUC_REQUIRE_ADDRESS = 'uiuc_require_address'
+
+# TODO: Net_ID needs to come from somehwere...
+
+        # Prefect restrictions
+        query = query.select_related('SpotExtendedInfo')
+
+        all_the_spots = set(query)
+
+        email = request.GET.get('email_address')
+
+        full_address = ''
+        if email:
+            full_address = get_res_street_address(email)
+        for spot in all_the_spots: 
+            if net_id:
+                LOGGER.info("User is logged in. Show only spots they may access.")
+                address_restrictions = spot.spotextendedinfo_set.get(
+                    key=UIUC_REQUIRE_ADDRESS)
+                if len(address_restrictions) == 0:
+                    response.append(spot.json_data_structure())
+                    LOGGER.debug("Not restricted.")
+                else:
+                    restrict_rule = address_restrictions[0]
+                    regex_text = restrict_rule.value
+                    if re.match(full_address, regex_text):
+                        response.append(spot.json_data_structure())
+                        LOGGER.debug("Restricted, user address matches.")
+                    else:
+                        LOGGER.debug("Restricted, no address match.")
+            else:
+                LOGGER.info("User is not logged in. Show all spots.")
+                response.append(spot.json_data_structure())
 
         return HttpResponse(json.dumps(response))
 

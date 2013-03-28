@@ -142,6 +142,15 @@ class SearchView(RESTDispatch):
                     query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="loud")
                 if exclude_variable:
                     query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="variable")
+            elif key == "extended_info:food_allowed":
+                food_allowed = request.GET["extended_info:food_allowed"]
+                if food_allowed:
+                    values = [food_allowed]
+                    if food_allowed == 'covered_drink':
+                        values.append('any')
+                    query = query.filter(spotextendedinfo__key="food_allowed", spotextendedinfo__value__in=values)
+
+                    has_valid_search_param = True
 
             elif key == "capacity":
                 try:

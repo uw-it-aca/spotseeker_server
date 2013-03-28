@@ -53,6 +53,9 @@ class SpotAdmin(admin.ModelAdmin):
                 spot.delete()
     delete_model.short_description = "Delete selected spots"
 
+    def clean_external_id(self):
+        return self.cleaned_data['external_id'] or None
+
 admin.site.register(Spot, SpotAdmin)
 
 

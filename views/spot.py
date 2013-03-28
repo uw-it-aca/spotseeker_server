@@ -32,7 +32,7 @@ class SpotView(RESTDispatch):
     @app_auth_required
     def GET(self, request, spot_id):
         try:
-            spot = Spot.objects.get(pk=spot_id)
+            spot = Spot.get_with_external(spot_id)
             response = HttpResponse(json.dumps(spot.json_data_structure()))
             response["ETag"] = spot.etag
             response["Content-type"] = "application/json"
@@ -58,7 +58,7 @@ class SpotView(RESTDispatch):
     @user_auth_required
     def PUT(self, request, spot_id):
         try:
-            spot = Spot.objects.get(pk=spot_id)
+            spot = Spot.get_with_external(spot_id)
         except Exception as e:
             response = HttpResponse('{"error":"Spot not found"}')
             response.status_code = 404
@@ -77,7 +77,7 @@ class SpotView(RESTDispatch):
     @user_auth_required
     def DELETE(self, request, spot_id):
         try:
-            spot = Spot.objects.get(pk=spot_id)
+            spot = Spot.get_with_external(spot_id)
         except Exception as e:
             response = HttpResponse('{"error":"Spot not found"}')
             response.status_code = 404

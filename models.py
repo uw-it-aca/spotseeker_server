@@ -52,6 +52,7 @@ class Spot(models.Model):
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
     last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
+    external_id = models.CharField(max_length=100, null=True, blank=True, default=None, unique=True)
 
     def __unicode__(self):
         return self.name
@@ -130,7 +131,8 @@ class Spot(models.Model):
                 "organization": self.organization,
                 "manager": self.manager,
                 "extended_info": extended_info,
-                "last_modified": self.last_modified.isoformat()
+                "last_modified": self.last_modified.isoformat(),
+                "external_id": self.external_id
             }
             cache.add(self.pk, spot_json)
         return spot_json
@@ -138,6 +140,13 @@ class Spot(models.Model):
     def delete(self, *args, **kwargs):
         cache.delete(self.pk)
         super(Spot, self).delete(*args, **kwargs)
+
+    @staticmethod
+    def get_with_external(spot_id):
+        if spot_id and str(spot_id).startswith('external:'):
+            return Spot.objects.get(external_id=spot_id[9:])
+        else:
+            return Spot.objects.get(pk=spot_id)
 
 
 class SpotAvailableHours(models.Model):

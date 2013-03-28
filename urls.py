@@ -25,7 +25,7 @@ from spotseeker_server.views.all_spots import AllSpotsView
 
 urlpatterns = patterns('',
     url(r'v1/null$', NullView().run),
-    url(r'v1/spot/(?P<spot_id>\d+)$', SpotView().run),
+    url(r'v1/spot/(?P<spot_id>(\d+|external:[\w\d]+))$', SpotView().run),
     url(r'v1/spot/?$', SearchView().run),
     url(r'v1/spot/all$', AllSpotsView().run),
     url(r'v1/buildings/?$', BuildingListView().run),

@@ -10,6 +10,7 @@ from ldap.ldapobject import ReconnectLDAPObject
 from django.conf import settings
 import logging
 import re
+from copy import deepcopy
 
 # SDG Standard Imports
 from sdg.directory import (
@@ -107,21 +108,30 @@ def get_ldap_client():
 
 #---------------------------------------------------------------------------------------------------
 
+def get_edu_types(eppn):
+    '''Return the uiucEduType values as a set'''
+    raw_data = get_person_ad_data(eppn)
+    if raw_data is not None and 'uiucEduType' in raw_data:
+        return set(raw_data['uiucEduType'])
+    else
+        return set()
+
 def get_res_street_address(eppn):
     '''Return the Residence Hall street address 
     for the student, if they have one.'''
     full_address = ''
     raw_data = get_person_ad_data(eppn)
     if len(raw_data) != 0:
-        address_keys =[
+        address_keys = [
                  'uiucEduResHallAddressLine1',
                  'uiucEduResHallAddressLine2',
                  'uiucEduResHallAddressLine3',
               ]
         for key in address_keys:
-            full_address += raw_data.get(key, '')
+            full_address += raw_data.get(key, [''])[0]
     return full_address
 
+PERSON_AD_DATA_CACHE = {}
 def get_person_ad_data(eppn):
     '''
         Get needed LDAP information
@@ -131,29 +141,33 @@ def get_person_ad_data(eppn):
         # NetID does not actually exist - proceed no further!
         return None
 
+    if eppn in PERSON_AD_DATA_CACHE:
+        return deepcopy(PERSON_AD_DATA_CACHE[eppn])
+
     LOGGER.debug("Get AD connection.")
     ldap_conn = get_ldap_client()
     LOGGER.debug("AD connection: %s", str(ldap_conn))
 	
-    filter_template_string = \
-        '(eduPersonPrincipalName=$eppn)'
-    return_attrs = \
-            ['uiucEduNetID',
-             'uiucEduResHallAddressLine1',
-             'uiucEduResHallAddressLine2',
-             'uiucEduResHallAddressLine3',
-             'uiucEduResHallAddressCity',
-             'uiucEduResHallAddressStateCode',
-             'uiucEduResHallAddressZipCode',
+    filter_template_string = '(eduPersonPrincipalName=$eppn)'
+    return_attrs = [
+            'uiucEduNetID',
+            'uiucEduType',
+            'uiucEduResHallAddressLine1',
+            'uiucEduResHallAddressLine2',
+            'uiucEduResHallAddressLine3',
+            'uiucEduResHallAddressCity',
+            'uiucEduResHallAddressStateCode',
+            'uiucEduResHallAddressZipCode',
             ]
 
     filter_template = Template(filter_template_string)
-    ldap_filter = filter_template.substitute({"eppn":ldap.filter.escape_filter_chars(eppn)})
-    LOGGER.debug("Person filter is: " + str(ldap_filter))
+    ldap_filter = filter_template.substitute({
+        "eppn": ldap.filter.escape_filter_chars(eppn)
+        })
+    LOGGER.debug("Person filter is: %s", ldap_filter)
 
     ##Perform the query
-    results = ldap_conn.lookup(ldap_filter,
-        attr_list = return_attrs)
+    results = ldap_conn.lookup(ldap_filter, attr_list=return_attrs)
         
     if not results:
         LOGGER.warning("No return from get_person_ad_data")
@@ -167,33 +181,19 @@ def get_person_ad_data(eppn):
         return None
         
     results = results[0][1]
-    return_data = {}
     
-    for fieldname in results:
-        # Grab the first value for the templates
-        if len(results[fieldname]) > 0:
-            return_data[fieldname] = results[fieldname][0]
-            if fieldname == 'uiucEduNetID':
-                LOGGER.debug("Fetched " + fieldname)
-                LOGGER.debug("YES! ")
-        else:
-            error_msg = fieldname + " returned with length zero " +\
-                "from AD. It will not be available in " + \
-                " the templates."
-            LOGGER.warn(error_msg)
+    for fieldname in results.keys():
+        # Checkf for 0 length values and delete those
+        if len(results[fieldname]) == 0:
+            LOGGER.warn("%s returned with length zero from AD. It will not be available in the templates.", fieldname)
+            del results[fieldname]
 
-        # Warn for any multivalue field.
-        if len(results[fieldname]) > 1:
-            error_msg = fieldname + " has multiple values in " +\
-                    "the AD. Only the first value is " +\
-                    "available in the page templates."
-            LOGGER.warn(error_msg)
-
-    if len(return_data) <= 0:
+    if len(results) <= 0:
         LOGGER.debug("No AD return data.")
         return None
 
     LOGGER.debug("Returning AD data.")
-         
-    return return_data
+    PERSON_AD_DATA_CACHE[eppn] = results
+
+    return deepcopy(results)
 	

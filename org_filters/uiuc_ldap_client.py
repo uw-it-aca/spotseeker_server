@@ -8,6 +8,7 @@ import ldap
 import ldap.filter
 from ldap.ldapobject import ReconnectLDAPObject
 from django.conf import settings
+from django.core.cache import cache
 import logging
 import re
 from copy import deepcopy
@@ -140,6 +141,12 @@ def get_person_ad_data(eppn):
         # NetID does not actually exist - proceed no further!
         return None
 
+    cache_key = "uiuc_ldap_client:get_person_ad_data:{0}".format(eppn)
+    results = cache.get(cache_key)
+    if results is not None:
+        LOGGER.debug("Using cached search for %s", eppn)
+        return results
+
     LOGGER.debug("Get AD connection.")
     ldap_conn = get_ldap_client()
     LOGGER.debug("AD connection: %s", str(ldap_conn))
@@ -189,6 +196,7 @@ def get_person_ad_data(eppn):
         return None
 
     LOGGER.debug("Returning AD data.")
+    cache.set(cache_key, results)
 
     return results
 	

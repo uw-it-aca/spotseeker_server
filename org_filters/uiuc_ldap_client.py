@@ -131,7 +131,6 @@ def get_res_street_address(eppn):
             full_address += raw_data.get(key, [''])[0]
     return full_address
 
-PERSON_AD_DATA_CACHE = {}
 def get_person_ad_data(eppn):
     '''
         Get needed LDAP information
@@ -140,9 +139,6 @@ def get_person_ad_data(eppn):
     if eppn is None or len(eppn) <= 0 or len(eppn[0]) <= 0:
         # NetID does not actually exist - proceed no further!
         return None
-
-    if eppn in PERSON_AD_DATA_CACHE:
-        return deepcopy(PERSON_AD_DATA_CACHE[eppn])
 
     LOGGER.debug("Get AD connection.")
     ldap_conn = get_ldap_client()
@@ -193,7 +189,6 @@ def get_person_ad_data(eppn):
         return None
 
     LOGGER.debug("Returning AD data.")
-    PERSON_AD_DATA_CACHE[eppn] = results
 
-    return deepcopy(results)
+    return results
 	

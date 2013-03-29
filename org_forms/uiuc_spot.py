@@ -16,9 +16,10 @@
 from django import forms
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
+import re
 
 
-# dict of all of the uw extended info with values that must be validated
+# dict of all of the uiuc extended info with values that must be validated
 # and what all of the possible validated values are, or validated types
 validated_ei = {
     "has_whiteboards": ['true'],
@@ -34,6 +35,7 @@ validated_ei = {
     "num_computers": "int",
     "reservable": ['true', 'reservations'],
     "noise_level": ['silent', 'quiet', 'moderate', 'loud', 'variable'],
+    "uiuc_require_address": "re",
 }
 
 
@@ -45,6 +47,11 @@ def uiuc_validate(value, choices):
             int(value)
         except:
             raise forms.ValidationError("Value must be an int")
+    if choices == "re":
+        try:
+            re.compile(value)
+        except:
+            raise forms.ValidationError("Value must be a regular expression")
     elif not value in choices:
         raise forms.ValidationError("Value must be one of %s" % choices)
 

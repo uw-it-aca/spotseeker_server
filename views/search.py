@@ -18,20 +18,38 @@ from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
+from django.utils.importlib import import_module
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
 from decimal import *
 import simplejson as json
-import re
 from time import *
 from datetime import datetime
-import logging
 import sys
 
-# UIUC LDAP
-LOGGER = logging.getLogger(__name__)
-from org_filters.uiuc_ldap_client import get_res_street_address
+class SearchViewFilters:
+    """ Stores filters using during searching. Define filters in the
+        settings module under SPOTSEEKER_SERVER_SEARCH_FILTERS.
+    """
+
+    filters = []
+    if hasattr(settings, 'SPOTSEEKER_SERVER_SEARCH_FILTERS'):
+        for modname in settings.SPOTSEEKER_SERVER_SEARCH_FILTERS:
+            try:
+                mod = import_module(modname)
+            except ImportError, e:
+                raise ImproperlyConfigured('Error importing module %s: "%s"' %
+                        (modname, e))
+
+            if not hasattr(mod, 'filter_query'):
+                raise ImproperlyConfigured('Module "%s" does nto defined a "filter_query" method.' %
+                        (modname))
+            if not hasattr(mod, 'filter_results'):
+                raise ImproperlyConfigured('Module "%s" does nto defined a "filter_results" method.' %
+                        (modname))
+
+            filters.append(mod)
 
 class SearchView(RESTDispatch):
     """ Handles searching for Spots with particular attributes based on a query string.
@@ -62,7 +80,7 @@ class SearchView(RESTDispatch):
                     "Saturday": "sa", }
         # Exclude things that get special consideration here, otherwise add a filter for the keys
         for key in request.GET:
-            if re.search('^oauth_', key):
+            if key.startswith('oauth_'):
                 pass
             elif key == "expand_radius":
                 pass
@@ -185,13 +203,15 @@ class SearchView(RESTDispatch):
                     q_obj |= type_q
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
-            elif re.search('^extended_info:', key):
+            elif key.startswith('extended_info:'):
                 kwargs = {
                     'spotextendedinfo__key': key[14:],
                     'spotextendedinfo__value__in': request.GET.getlist(key)
                 }
                 query = query.filter(**kwargs)
                 has_valid_search_param = True
+            elif key.startswith('org_filter:'):
+                pass
             elif key == "id":
                 query = query.filter(id__in=request.GET.getlist(key))
                 has_valid_search_param = True
@@ -247,6 +267,11 @@ class SearchView(RESTDispatch):
                 # If distance, lat, or long are specified in the server request; all 3 must be present.
                 return HttpResponseBadRequest("Bad Request")
 
+        for mod in SearchViewFilters.filters:
+            query, tmp_valid_search_param = mod.filter_query(request, query)
+            if tmp_valid_search_param:
+                has_valid_search_param = True
+
         if not has_valid_search_param:
             return HttpResponse('[]')
 
@@ -262,48 +287,16 @@ class SearchView(RESTDispatch):
 
         response = []
 
-
-# UIUC Residence Limits for Labs
-# --------------------------------
-# Remove any spots that the current user cannot use (i.e. login, print, etc)
-        # TODO: Add to settings...
-        # UIUC_REQUIRE_ADDRESS = settings.UIUC_REQUIRE_ADDRESS
-        UIUC_REQUIRE_ADDRESS = 'uiuc_require_address'
-
-# TODO: Net_ID needs to come from somehwere...
-
         # Prefect restrictions
         query = query.select_related('SpotExtendedInfo')
 
         all_the_spots = set(query)
 
-        email = request.GET.get('email_address')
+        for mod in SearchViewFilters.filters:
+            all_the_spots = mod.filter_results(request, all_the_spots)
 
-        full_address = ''
-        if email:
-            full_address = get_res_street_address(email)
-        for spot in all_the_spots: 
-            if email:
-# User not logged in
-                LOGGER.info("User is logged in. Show only spots they may access.")
-                address_restrictions = spot.spotextendedinfo_set.get(
-                    key=UIUC_REQUIRE_ADDRESS)
-# This is not a restricted spot.
-                if len(address_restrictions) == 0:
-                    response.append(spot.json_data_structure())
-                    LOGGER.debug("Not restricted.")
-                else:
-# Assume only one uiuc restriction per spot.
-                    restrict_rule = address_restrictions[0]
-                    regex_text = restrict_rule.value
-                    if re.match(full_address, regex_text):
-                        response.append(spot.json_data_structure())
-                        LOGGER.debug("Restricted, user address matches.")
-                    else:
-                        LOGGER.debug("Restricted, no address match.")
-            else:
-                LOGGER.info("User is not logged in. Show all spots.")
-                response.append(spot.json_data_structure())
+        for spot in all_the_spots:
+            response.append(spot.json_data_structure())
 
         return HttpResponse(json.dumps(response))
 

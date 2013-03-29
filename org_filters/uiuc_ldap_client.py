@@ -143,21 +143,21 @@ def get_person_ad_data(email_address):
         Get needed LDAP information
     '''
 	
-	if '@illinois.edu' in email_address:
-		# Remove the @illinois.edu from email_address to get NetID
-		net_id = email_address[:-13]
-	else:
+    if '@illinois.edu' in email_address:
+        # Remove the @illinois.edu from email_address to get NetID
+        net_id = email_address[:-13]
+    else:
         # Use the NetID as it was sent
         net_id = email_address
 	
-	if net_id is None or len(net_id) <= 0 or len(net_id[0]) <= 0:
-		# NetID does not actually exist - proceed no further!
-		return None
+    if net_id is None or len(net_id) <= 0 or len(net_id[0]) <= 0:
+        # NetID does not actually exist - proceed no further!
+        return None
     if (re.match("^[a-z0-9-]{3,8}$", net_id[0].lower()) == None):
-		# NetID is in an imporper format - proceed no further!
+        # NetID is in an imporper format - proceed no further!
         return None
 
-	LOGGER.debug("Get AD connection.")
+    LOGGER.debug("Get AD connection.")
     ldap_conn = get_ldap_client()
     LOGGER.debug("AD connection: %s", str(ldap_conn))
 	
@@ -166,12 +166,12 @@ def get_person_ad_data(email_address):
     return_attrs = \
             ['sAMAccountName',
              'uiucEduResHallAddressLine1',
-			 'uiucEduResHallAddressLine2',
-			 'uiucEduResHallAddressLine3',
-			 'uiucEduResHallAddressCity',
-			 'uiucEduResHallAddressStateCode',
-			 'uiucEduResHallAddressZipCode',
-			]
+             'uiucEduResHallAddressLine2',
+             'uiucEduResHallAddressLine3',
+             'uiucEduResHallAddressCity',
+             'uiucEduResHallAddressStateCode',
+             'uiucEduResHallAddressZipCode',
+            ]
 
     filter_template = Template(filter_template_string)
     ldap_filter = filter_template.substitute({"net_id":net_id})

@@ -2,6 +2,7 @@
 UIUC Residence Limits for Labs
 """
 import logging
+import re
 from spotseeker_server.org_filters.uiuc_ldap_client import get_res_street_address
 from spotseeker_server.models import SpotExtendedInfo
 

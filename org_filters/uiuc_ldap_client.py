@@ -73,12 +73,6 @@ class ScopeFixDirectoryConnection(DirectoryConnection):
                 (dn, DirectoryResponseDict(attr_dict)) for \
                 dn, attr_dict in result_list if dn is not None)
 
-class ScopeFixADConnection(ScopeFixDirectoryConnection):
-    '''Adds the lookup_by_netid method.'''
-    def lookup_by_netid(self, netid):
-        '''Search using sAMAccountName as NetID filter.'''
-        return self.lookup(ldap_filter='sAMAccountName=' + netid)
-
 class SDGADConnectionPool(object):
     '''
         Creates one Active Directory SDG Directory connection for use multiple times.
@@ -99,7 +93,7 @@ class SDGADConnectionPool(object):
         }
     ldap.set_option(ldap.OPT_REFERRALS, 0)
     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
-    conn = ScopeFixADConnection(**dictionary)
+    conn = ScopeFixDirectoryConnection(**dictionary)
     LOGGER.debug('Created shared SDG LDAP connection: %s', str(conn))
     # Search Scope defaults to 'subtree', which works for our purposes.
 
@@ -110,51 +104,30 @@ def get_ldap_client():
 
     return SDGADConnectionPool.conn
 
-class InvalidNetIDError(ValueError):
-    '''
-        Local Exception
-    '''
-    pass
-
-class InvalidLastNameError(ValueError):
-    '''
-        Local Exception
-    '''
-    pass
-
 #---------------------------------------------------------------------------------------------------
 
-def get_res_street_address(email):
+def get_res_street_address(eppn):
     '''Return the Residence Hall street address 
     for the student, if they have one.'''
-    raw_data = get_person_ad_data(email)
     full_address = ''
-    address_keys =[
-             'uiucEduResHallAddressLine1',
-			 'uiucEduResHallAddressLine2',
-			 'uiucEduResHallAddressLine3',
-             ]
-    for key in address_keys:
-        full_address += raw_data[key]
+    raw_data = get_person_ad_data(eppn)
+    if len(raw_data) != 0:
+        address_keys =[
+                 'uiucEduResHallAddressLine1',
+                 'uiucEduResHallAddressLine2',
+                 'uiucEduResHallAddressLine3',
+              ]
+        for key in address_keys:
+            full_address += raw_data.get(key, '')
     return full_address
 
-def get_person_ad_data(email_address):
+def get_person_ad_data(eppn):
     '''
         Get needed LDAP information
     '''
 	
-    if '@illinois.edu' in email_address:
-        # Remove the @illinois.edu from email_address to get NetID
-        net_id = email_address[:-13]
-    else:
-        # Use the NetID as it was sent
-        net_id = email_address
-	
-    if net_id is None or len(net_id) <= 0 or len(net_id[0]) <= 0:
+    if eppn is None or len(eppn) <= 0 or len(eppn[0]) <= 0:
         # NetID does not actually exist - proceed no further!
-        return None
-    if (re.match("^[a-z0-9-]{3,8}$", net_id[0].lower()) == None):
-        # NetID is in an imporper format - proceed no further!
         return None
 
     LOGGER.debug("Get AD connection.")
@@ -162,9 +135,9 @@ def get_person_ad_data(email_address):
     LOGGER.debug("AD connection: %s", str(ldap_conn))
 	
     filter_template_string = \
-        '(sAMAccountName=$net_id)'
+        '(eduPersonPrincipalName=$eppn)'
     return_attrs = \
-            ['sAMAccountName',
+            ['uiucEduNetID',
              'uiucEduResHallAddressLine1',
              'uiucEduResHallAddressLine2',
              'uiucEduResHallAddressLine3',
@@ -174,7 +147,7 @@ def get_person_ad_data(email_address):
             ]
 
     filter_template = Template(filter_template_string)
-    ldap_filter = filter_template.substitute({"net_id":net_id})
+    ldap_filter = filter_template.substitute({"eppn":ldap.filter.escape_filter_chars(eppn)})
     LOGGER.debug("Person filter is: " + str(ldap_filter))
 
     ##Perform the query
@@ -199,7 +172,7 @@ def get_person_ad_data(email_address):
         # Grab the first value for the templates
         if len(results[fieldname]) > 0:
             return_data[fieldname] = results[fieldname][0]
-            if fieldname == 'sAMAccountName':
+            if fieldname == 'uiucEduNetID':
                 LOGGER.debug("Fetched " + fieldname)
                 LOGGER.debug("YES! ")
         else:

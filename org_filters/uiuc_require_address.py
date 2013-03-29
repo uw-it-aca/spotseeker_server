@@ -17,8 +17,8 @@ def filter_query(request, query):
 def filter_results(request, spots):
     # Remove any spots that the current user cannot use (i.e. login, print, etc)
 
-    email = request.GET.get('org_filter:email_address')
-    if not email:
+    eppn = request.GET.get('org_filter:eppn')
+    if not eppn:
         LOGGER.info("User is not logged in. Show all spots.")
         result = spots
     else:
@@ -26,7 +26,7 @@ def filter_results(request, spots):
         LOGGER.info("User is logged in. Show only spots they may access.")
 
         result = set()
-        full_address = get_res_street_address(email)
+        full_address = get_res_street_address(eppn)
         for spot in spots: 
             address_restrictions = spot.spotextendedinfo_set.get(
                     key=UIUC_REQUIRE_ADDRESS)
@@ -38,7 +38,7 @@ def filter_results(request, spots):
                 # Assume only one uiuc restriction per spot.
                 restrict_rule = address_restrictions[0]
                 regex_text = restrict_rule.value
-                if re.match(regex_text, full_address):
+                if re.search(regex_text, full_address):
                     LOGGER.debug("Restricted, user address matches.")
                     result.add(spot)
                 else:

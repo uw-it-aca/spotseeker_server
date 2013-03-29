@@ -113,7 +113,7 @@ def get_edu_types(eppn):
     raw_data = get_person_ad_data(eppn)
     if raw_data is not None and 'uiucEduType' in raw_data:
         return set(raw_data['uiucEduType'])
-    else
+    else:
         return set()
 
 def get_res_street_address(eppn):

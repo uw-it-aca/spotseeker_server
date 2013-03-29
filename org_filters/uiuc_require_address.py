@@ -3,6 +3,7 @@ UIUC Residence Limits for Labs
 """
 import logging
 from spotseeker_server.org_filters.uiuc_ldap_client import get_res_street_address
+from spotseeker_server.models import SpotExtendedInfo
 
 # UIUC LDAP
 LOGGER = logging.getLogger(__name__)
@@ -28,21 +29,20 @@ def filter_results(request, spots):
         result = set()
         full_address = get_res_street_address(eppn)
         for spot in spots: 
-            address_restrictions = spot.spotextendedinfo_set.get(
+            try:
+                restrict_rule = spot.spotextendedinfo_set.get(
                     key=UIUC_REQUIRE_ADDRESS)
-            # This is not a restricted spot.
-            if len(address_restrictions) == 0:
-                LOGGER.debug("Not restricted.")
-                result.add(spot)
-            else:
-                # Assume only one uiuc restriction per spot.
-                restrict_rule = address_restrictions[0]
                 regex_text = restrict_rule.value
                 if re.search(regex_text, full_address):
                     LOGGER.debug("Restricted, user address matches.")
                     result.add(spot)
                 else:
                     LOGGER.debug("Restricted, no address match.")
-
+            except SpotExtendedInfo.MultipleObjectsReturned:
+                LOGGER.error("Spot %s has multiple %s values" % (spot, UIUC_REQUIRE_ADDRESS))
+            except SpotExtendedInfo.DoesNotExist:
+                # This is not a restricted spot.
+                LOGGER.debug("No restricted.")
+                result.add(spot)
     return result
 

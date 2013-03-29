@@ -5,6 +5,7 @@
 # Python library imports
 from string import Template
 import ldap
+import ldap.filter
 from ldap.ldapobject import ReconnectLDAPObject
 from django.conf import settings
 import logging

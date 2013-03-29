@@ -34,7 +34,7 @@ def filter_results(request, spots):
                 restrict_rule = spot.spotextendedinfo_set.get(
                     key=UIUC_REQUIRE_ADDRESS)
                 regex_text = restrict_rule.value
-                if re.search(regex_text, full_address):
+                if re.search(regex_text, full_address, re.I):
                     LOGGER.debug("Restricted, user address matches.")
                     result.add(spot)
                 else:

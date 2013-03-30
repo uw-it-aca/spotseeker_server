@@ -16,9 +16,9 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
+from spotseeker_server.org_filters.search import FilterChain
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
-from django.utils.importlib import import_module
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
@@ -27,29 +27,6 @@ import simplejson as json
 from time import *
 from datetime import datetime
 import sys
-
-class SearchViewFilters:
-    """ Stores filters using during searching. Define filters in the
-        settings module under SPOTSEEKER_SERVER_SEARCH_FILTERS.
-    """
-
-    filters = []
-    if hasattr(settings, 'SPOTSEEKER_SERVER_SEARCH_FILTERS'):
-        for modname in settings.SPOTSEEKER_SERVER_SEARCH_FILTERS:
-            try:
-                mod = import_module(modname)
-            except ImportError, e:
-                raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                        (modname, e))
-
-            if not hasattr(mod, 'filter_query'):
-                raise ImproperlyConfigured('Module "%s" does nto defined a "filter_query" method.' %
-                        (modname))
-            if not hasattr(mod, 'filter_results'):
-                raise ImproperlyConfigured('Module "%s" does nto defined a "filter_results" method.' %
-                        (modname))
-
-            filters.append(mod)
 
 class SearchView(RESTDispatch):
     """ Handles searching for Spots with particular attributes based on a query string.
@@ -69,6 +46,7 @@ class SearchView(RESTDispatch):
         if len(request.GET) == 0:
             return HttpResponse('[]')
 
+        chain = FilterChain(request)
         query = Spot.objects.all()
 
         day_dict = {"Sunday": "su",
@@ -93,6 +71,10 @@ class SearchView(RESTDispatch):
             elif key == "limit":
                 pass
             elif key == "all_spots":
+                pass
+            elif chain.filters_key(key):
+                # this needs to happen early, before any
+                # org_filter or extended_info
                 pass
             elif key == "open_now":
                 if request.GET["open_now"]:
@@ -210,8 +192,6 @@ class SearchView(RESTDispatch):
                 }
                 query = query.filter(**kwargs)
                 has_valid_search_param = True
-            elif key.startswith('org_filter:'):
-                pass
             elif key == "id":
                 query = query.filter(id__in=request.GET.getlist(key))
                 has_valid_search_param = True
@@ -226,6 +206,13 @@ class SearchView(RESTDispatch):
                     if not request.META['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
 
+        # Always prefetch the related extended info
+        query = query.select_related('SpotExtendedInfo')
+
+        query = chain.filter_query(query)
+        if chain.has_valid_search_param:
+            has_valid_search_param = True
+        
         limit = 20
         if 'limit' in request.GET:
             if request.GET['limit'] == '0':
@@ -267,11 +254,6 @@ class SearchView(RESTDispatch):
                 # If distance, lat, or long are specified in the server request; all 3 must be present.
                 return HttpResponseBadRequest("Bad Request")
 
-        for mod in SearchViewFilters.filters:
-            query, tmp_valid_search_param = mod.filter_query(request, query)
-            if tmp_valid_search_param:
-                has_valid_search_param = True
-
         if not has_valid_search_param:
             return HttpResponse('[]')
 
@@ -286,16 +268,10 @@ class SearchView(RESTDispatch):
                 return response
 
         response = []
+        spots = set(query)
+        spots = chain.filter_results(spots)
 
-        # Prefect restrictions
-        query = query.select_related('SpotExtendedInfo')
-
-        all_the_spots = set(query)
-
-        for mod in SearchViewFilters.filters:
-            all_the_spots = mod.filter_results(request, all_the_spots)
-
-        for spot in all_the_spots:
+        for spot in spots:
             response.append(spot.json_data_structure())
 
         return HttpResponse(json.dumps(response))

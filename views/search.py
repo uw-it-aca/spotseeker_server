@@ -115,37 +115,6 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
-            elif key == "extended_info:reservable":
-                query = query.filter(spotextendedinfo__key="reservable", spotextendedinfo__value__in=['true', 'reservations'])
-            elif key == "extended_info:noise_level":
-                noise_levels = request.GET.getlist("extended_info:noise_level")
-
-                exclude_silent = True
-                exclude_quiet = True
-                exclude_moderate = True
-                exclude_loud = True
-                exclude_variable = True
-
-                for level in noise_levels:
-                    if "silent" == level:
-                        exclude_silent = False
-                    if "quiet" == level:
-                        exclude_quiet = False
-                        exclude_variable = False
-                    if "moderate" == level:
-                        exclude_moderate = False
-                        exclude_variable = False
-
-                if exclude_silent:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="silent")
-                if exclude_quiet:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="quiet")
-                if exclude_moderate:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="moderate")
-                if exclude_loud:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="loud")
-                if exclude_variable:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="variable")
             elif key == "extended_info:food_allowed":
                 food_allowed = request.GET["extended_info:food_allowed"]
                 if food_allowed:
@@ -155,7 +124,6 @@ class SearchView(RESTDispatch):
                     query = query.filter(spotextendedinfo__key="food_allowed", spotextendedinfo__value__in=values)
 
                     has_valid_search_param = True
-
             elif key == "capacity":
                 try:
                     limit = int(request.GET["capacity"])

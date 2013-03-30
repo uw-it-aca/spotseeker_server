@@ -115,15 +115,6 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
-            elif key == "extended_info:food_allowed":
-                food_allowed = request.GET["extended_info:food_allowed"]
-                if food_allowed:
-                    values = [food_allowed]
-                    if food_allowed == 'covered_drink':
-                        values.append('any')
-                    query = query.filter(spotextendedinfo__key="food_allowed", spotextendedinfo__value__in=values)
-
-                    has_valid_search_param = True
             elif key == "capacity":
                 try:
                     limit = int(request.GET["capacity"])

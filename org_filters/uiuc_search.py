@@ -17,7 +17,24 @@ UIUC_REQUIRE_EDUTYPE = 'uiuc_require_edutype'
 class Filter(search.Filter):
     keys = set((
         'eppn',
+        'extended_info:food_allowed',
         ))
+
+    def filter_query(self, query):
+        if 'extended_info:food_allowed' in self.request.GET:
+            food_allowed = self.request.GET["extended_info:food_allowed"]
+            if food_allowed:
+                values = [food_allowed]
+                if food_allowed == 'covered_drink':
+                    values.append('any')
+                query = query.filter(
+                        spotextendedinfo__key="food_allowed",
+                        spotextendedinfo__value__in=values
+                        )
+
+                self.has_valid_search_param = True
+
+        return query
 
     def filter_results(self, spots):
         """

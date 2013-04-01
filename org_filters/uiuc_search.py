@@ -1,4 +1,6 @@
 """
+License: see UIUC_LICENSE.txt
+
 UIUC Search filters
 """
 import logging

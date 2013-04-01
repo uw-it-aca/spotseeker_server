@@ -1,3 +1,13 @@
+"""
+License: see UIUC_LICENSE.txt
+
+Support for Organization search filters. This allows you to hook into
+views/search
+"""
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.importlib import import_module
+
 class SearchFilter(object):
     """
     A search filter base class. Implementers should subclass this and
@@ -38,14 +48,6 @@ class SearchFilter(object):
         no modification occurred.
         """
         return spots
-
-"""
-Support for Organization search filters. This allows you to hook into
-views/search
-"""
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.importlib import import_module
 
 class SearchFilterChain(object):
     """

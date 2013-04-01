@@ -1,5 +1,7 @@
 '''
-    Provides the search_ldap method
+License: see UIUC_LICENSE.txt
+
+Provides the search_ldap method
 '''
 
 # Python library imports

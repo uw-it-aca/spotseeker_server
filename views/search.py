@@ -60,6 +60,10 @@ class SearchView(RESTDispatch):
         for key in request.GET:
             if key.startswith('oauth_'):
                 pass
+            elif chain.filters_key(key):
+                # this needs to happen early, before any
+                # org_filter or extended_info
+                pass
             elif key == "expand_radius":
                 pass
             elif key == "distance":
@@ -71,10 +75,6 @@ class SearchView(RESTDispatch):
             elif key == "limit":
                 pass
             elif key == "all_spots":
-                pass
-            elif chain.filters_key(key):
-                # this needs to happen early, before any
-                # org_filter or extended_info
                 pass
             elif key == "open_now":
                 if request.GET["open_now"]:

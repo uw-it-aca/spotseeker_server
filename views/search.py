@@ -74,7 +74,7 @@ class SearchView(RESTDispatch):
                 pass
             elif key == "limit":
                 pass
-            elif key == "all_spots":
+            elif key == "open_anytime":
                 pass
             elif key == "open_now":
                 if request.GET["open_now"]:

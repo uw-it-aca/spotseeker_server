@@ -1,6 +1,6 @@
-from spotseeker_server.org_filters import search
+from spotseeker_server.org_filters import SearchFilter
 
-class Filter(search.Filter):
+class Filter(SearchFilter):
     keys = set((
         'extended_info:reservable',
         'extended_info:noise_level',

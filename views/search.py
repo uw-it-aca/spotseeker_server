@@ -16,7 +16,7 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
-from spotseeker_server.org_filters.search import FilterChain
+from spotseeker_server.org_filters import SearchFilterChain
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
 from spotseeker_server.require_auth import *
@@ -46,7 +46,7 @@ class SearchView(RESTDispatch):
         if len(request.GET) == 0:
             return HttpResponse('[]')
 
-        chain = FilterChain(request)
+        chain = SearchFilterChain(request)
         query = Spot.objects.all()
 
         day_dict = {"Sunday": "su",

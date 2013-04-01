@@ -5,7 +5,7 @@ import logging
 import re
 from spotseeker_server.org_filters.uiuc_ldap_client import get_res_street_address, get_edu_types
 from spotseeker_server.models import SpotExtendedInfo
-from spotseeker_server.org_filters import search
+from spotseeker_server.org_filters import SearchFilter
 
 # UIUC LDAP
 LOGGER = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ LOGGER = logging.getLogger(__name__)
 UIUC_REQUIRE_ADDRESS = 'uiuc_require_address'
 UIUC_REQUIRE_EDUTYPE = 'uiuc_require_edutype'
 
-class Filter(search.Filter):
+class Filter(SearchFilter):
     keys = set((
         'eppn',
         'extended_info:food_allowed',

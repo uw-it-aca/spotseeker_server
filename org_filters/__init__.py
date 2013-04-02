@@ -20,6 +20,7 @@ class SearchFilter(object):
         has_valid_search_param: If, in filter_query, we encountered a
             search parameter that will limit the query.
             Default: False.
+        keys: set of keys this filter handles.
     """
 
     keys = set()
@@ -60,6 +61,7 @@ class SearchFilterChain(object):
             search parameter that will limit the query.
             Default: False.
         filters: array of filter instances.
+        keys: set of keys this filter chain handles.
     """
 
     filters = []
@@ -95,7 +97,6 @@ class SearchFilterChain(object):
 
         self.filters = []
         for fclass in SearchFilterChain.filters:
-            print("fclass = {0}".format(fclass))
             self.filters.append(fclass(request))
 
     def filter_query(self, query):

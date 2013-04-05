@@ -46,4 +46,6 @@ class BuildingListView(RESTDispatch):
             buildings.append(building["building_name"])
 
         buildings.sort()
-        return HttpResponse(json.dumps(buildings))
+        response = HttpResponse(json.dumps(buildings))
+        response["Content-type"] = "application/json"
+        return response

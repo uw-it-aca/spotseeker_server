@@ -29,4 +29,6 @@ class AllSpotsView(RESTDispatch):
         response = []
         for spot in spots:
             response.append(spot.json_data_structure())
-        return HttpResponse(json.dumps(response))
+        response = HttpResponse(json.dumps(response))
+        response["Content-type"] = "application/json"
+        return response

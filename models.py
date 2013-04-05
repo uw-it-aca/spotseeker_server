@@ -24,6 +24,7 @@ from PIL import Image
 from cStringIO import StringIO
 import oauth_provider.models
 from django.core.cache import cache
+import re
 
 
 class SpotType(models.Model):
@@ -58,6 +59,9 @@ class Spot(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        if self.external_id is not None and not re.match(r'^[\w-]*$', self.external_id):
+            raise ValidationError("External ID must only be letters, numbers, underscores, and hyphens")
+
         if cache.get(self.pk):
             cache.delete(self.pk)
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()

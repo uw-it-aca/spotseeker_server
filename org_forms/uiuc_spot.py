@@ -90,7 +90,7 @@ class ExtendedInfoForm(forms.ModelForm):
             return self.data['value']
 
 
-class UWSpotForm(forms.Form):
+class UIUCSpotForm(forms.Form):
     class Meta:
         model = Spot
         fields = ('name', 'capacity')

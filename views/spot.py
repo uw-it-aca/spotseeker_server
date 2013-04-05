@@ -13,7 +13,8 @@
     limitations under the License.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from __future__ import print_function
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError
 from spotseeker_server.forms.spot import SpotForm
 from spotseeker_server.forms.spot_extended_info import SpotExtendedInfoForm
 from spotseeker_server.models import *
@@ -32,61 +33,29 @@ class SpotView(RESTDispatch):
     """
     @app_auth_required
     def GET(self, request, spot_id):
-        try:
-            spot = Spot.get_with_external(spot_id)
-            response = HttpResponse(json.dumps(spot.json_data_structure()))
-            response["ETag"] = spot.etag
-            response["Content-type"] = "application/json"
-            return response
-        except:
-            response = HttpResponse("Spot not found")
-            response.status_code = 404
-            return response
-
-    @user_auth_required
-    def POST(self, request):
-        spot = Spot.objects.create()
-
-        error_response = self.build_and_save_from_input(request, spot)
-        if error_response:
-            return error_response
-
-        response = HttpResponse()
-        response.status_code = 201
-        response["Location"] = spot.rest_url()
+        spot = Spot.get_with_external(spot_id)
+        response = HttpResponse(json.dumps(spot.json_data_structure()))
+        response["ETag"] = spot.etag
+        response["Content-type"] = "application/json"
         return response
 
     @user_auth_required
+    def POST(self, request):
+        return self.build_and_save_from_input(request, None)
+
+    @user_auth_required
     def PUT(self, request, spot_id):
-        try:
-            spot = Spot.get_with_external(spot_id)
-        except Exception as e:
-            response = HttpResponse('{"error":"Spot not found"}')
-            response.status_code = 404
-            return response
+        spot = Spot.get_with_external(spot_id)
 
-        error_response = self.validate_etag(request, spot)
-        if error_response:
-            return error_response
+        self.validate_etag(request, spot)
 
-        error_response = self.build_and_save_from_input(request, spot)
-        if error_response:
-            return error_response
-
-        return self.GET(request, spot_id)
+        return self.build_and_save_from_input(request, spot)
 
     @user_auth_required
     def DELETE(self, request, spot_id):
-        try:
-            spot = Spot.get_with_external(spot_id)
-        except Exception as e:
-            response = HttpResponse('{"error":"Spot not found"}')
-            response.status_code = 404
-            return response
+        spot = Spot.get_with_external(spot_id)
 
-        error_response = self.validate_etag(request, spot)
-        if error_response:
-            return error_response
+        self.validate_etag(request, spot)
 
         spot.delete()
         response = HttpResponse()
@@ -97,16 +66,12 @@ class SpotView(RESTDispatch):
     def validate_etag(self, request, spot):
         if not "HTTP_IF_MATCH" in request.META:
             if not "If_Match" in request.META:
-                response = HttpResponse('{"error":"If-Match header required"}')
-                response.status_code = 409
-                return response
+                raise RESTException("If-Match header required", 400)
             else:
                 request.META["HTTP_IF_MATCH"] = request.META["If_Match"]
 
         if request.META["HTTP_IF_MATCH"] != spot.etag:
-            response = HttpResponse('{"error":"Invalid ETag"}')
-            response.status_code = 409
-            return response
+            raise RESTException("Invalid ETag", 409)
 
     @transaction.commit_on_success
     def build_and_save_from_input(self, request, spot):
@@ -114,15 +79,18 @@ class SpotView(RESTDispatch):
         try:
             json_values = json.loads(body)
         except Exception as e:
-            response = HttpResponse('{"error":"Unable to parse JSON"}')
-            response.status_code = 400
-            return response
+            raise RESTException("Unable to parse JSON", status_code=400)
 
-        # Save the spot types for later
-        new_types = set(json_values.pop('type', []))
-        old_types = set()
-        if spot is not None:
-            old_types = set(t.name for t in spot.spottypes)
+        # Fix up the spot types array into IDs
+        types = json_values.pop('type', None)
+        if types is not None:
+            if isinstance(types, basestring):
+                types = (types,)
+
+            json_values['spottypes'] = []
+            for typename in types:
+                t = SpotType.objects.get(name=typename)
+                json_values['spottypes'].append(t.pk)
 
         # Unnest the location object
         if 'location' in json_values:
@@ -131,89 +99,91 @@ class SpotView(RESTDispatch):
             del json_values['location']
 
         # Save the extended_info for later
-        new_extended_info = json_values.pop('extended_info', {})
+        new_extended_info = json_values.pop('extended_info', None)
         old_extended_info = {}
         if spot is not None:
-            old_extended_info = dict([(e.key: e.value) for e in spot.spotextendedinfo_set])
+            old_extended_info = dict((e.key, e.value) for e in spot.spotextendedinfo_set.all())
 
         # Save the available hours for later
-        available_hours = json_values.pop('available_hours', [])
+        available_hours = json_values.pop('available_hours', None)
 
         # Remve excluded fields
         excludefields = set(SpotForm.Meta.exclude)
-        for fieldname in excludeset:
+        for fieldname in excludefields:
             if fieldname in json_values:
                 del json_values[fieldname]
 
         if spot is None:
             form = SpotForm(json_values)
+            is_new = True
         else:
             # Copy over the existing values
             for field in spot._meta.fields:
-                if fieldname in excludefields:
+                if field.name in excludefields:
                     continue
                 if not field.name in json_values:
                     json_values[field.name] = getattr(spot, field.name)
 
+            # spottypes is not included in the above copy, do it manually
+            if not 'spottypes' in json_values:
+                json_values['spottypes'] = [t.pk for t in spot.spottypes.all()]
+
             form = SpotForm(json_values, instance=spot)
+            is_new = False
 
         if not form.is_valid():
-            response = HttpResponse(json.dumps(form.errors))
-            response.status_code = 400
-            return response
+            raise RESTFormInvalidError(form)
 
         spot = form.save()
 
-        # sync spot types
-        for typename in (new_types - old_types):
-            try:
-                t = SpotType.objects.get(name=typename)
-                spot.spottypes.add(typename)
-            except SpotType.DoesNotExist:
-                response = HttpResponse(json.dumps({'error': "Spot type '{0}' does not exist".format(typename)}))
-                response.status_code = 400
-                return response
-        for typename in (old_types - new_types):
-            try:
-                t = SpotType.objects.get(name=typename)
-                spot.spottypes.remove(t)
-            except SpotType.DoesNotExist:
-                # removing something that doesn't exist isn't an error
-                pass
-
         # sync extended info
-        for key in new_extended_info:
-            value = new_extended_info[value]
+        if new_extended_info is not None:
+            # first, loop over the new extended info and either:
+            # - add items that are new
+            # - update items that are old
+            for key in new_extended_info:
+                value = new_extended_info[value]
 
-            if not key in old_extended_info:
-                eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value})
-            elif value == old_extended_info[key]:
-                continue
-            else:
-                ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
-                eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value}, instance=ei)
+                if not key in old_extended_info:
+                    eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value})
+                elif value == old_extended_info[key]:
+                    continue
+                else:
+                    ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
+                    eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value}, instance=ei)
 
-            if not eiform.is_valid():
-                response = HttpResponse(json.dumps(form.errors))
-                response.status_code = 400
-                return response
+                if not eiform.is_valid():
+                    raise RESTFormInvalidError(form)
             
-            ei = eiform.save()
-        for key in (old_extended_info.keys() - new_extended_info.keys()):
-            try:
-                ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
-                ei.delete()
-            except SpotExtendedInfo.DoesNotExist:
-                # removing something that does not exist isn't an error
-                pass
+                ei = eiform.save()
+            # Now loop over the different in the keys and remove old
+            # items that aren't present in the new set
+            for key in (set(old_extended_info.keys()) - set(new_extended_info.keys())):
+                try:
+                    ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
+                    ei.delete()
+                except SpotExtendedInfo.DoesNotExist:
+                    # removing something that does not exist isn't an error
+                    pass
 
-        queryset = SpotAvailableHours.objects.filter(spot=spot)
-        queryset.delete()
+        # sync available hours
+        if available_hours is not None:
+            queryset = SpotAvailableHours.objects.filter(spot=spot)
+            queryset.delete()
 
-        for day in SpotAvailableHours.day.choices:
-            if not day[1] in available_hours:
-                continue
+            for day in SpotAvailableHours.day.choices:
+                if not day[1] in available_hours:
+                    continue
 
-            day_hours = available_hours[day[1]]
-            for window in day_hours:
-                SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
+                day_hours = available_hours[day[1]]
+                for window in day_hours:
+                    SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
+
+        response = HttpResponse(json.dumps(spot.json_data_structure()))
+        if is_new:
+            response.status_code = 201
+        else:
+            response.status_code = 200
+        response["ETag"] = spot.etag
+        response["Content-type"] = 'application/json'
+        return response

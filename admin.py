@@ -38,7 +38,6 @@ class SpotAdmin(admin.ModelAdmin):
                    "building_name",
                    "organization",
                    "manager"]
-    exclude = ('etag',)
 
     actions = ['delete_model']
 

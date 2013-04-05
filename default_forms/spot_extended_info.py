@@ -15,6 +15,7 @@
 
 from django import forms
 from spotseeker_server.models import SpotExtendedInfo
+import re
 
 
 class DefaultSpotExtendedInfoForm(forms.ModelForm):

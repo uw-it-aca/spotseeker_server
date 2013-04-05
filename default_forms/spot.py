@@ -34,7 +34,9 @@ class DefaultSpotForm(forms.ModelForm):
 
     def clean_capacity(self):
         capacity = self.cleaned_data['capacity']
-        if capacity < 0:
+        if capacity is None:
+            pass
+        elif capacity < 0:
             raise forms.ValidationError("Capacity must be non-negative")
         elif capacity == 0:
             capacity = None

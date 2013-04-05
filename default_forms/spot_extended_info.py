@@ -20,3 +20,9 @@ from spotseeker_server.models import SpotExtendedInfo
 class DefaultSpotExtendedInfoForm(forms.ModelForm):
     class Meta:
         model = SpotExtendedInfo
+
+    def clean_key(self):
+        key = self.cleaned_data['key'].strip()
+        if not re.match(r'^[a-z0-9_-]+$', key, re.I):
+            raise forms.ValidationError("Key must be only alphanumerics, underscores, and hyphens")
+        return key

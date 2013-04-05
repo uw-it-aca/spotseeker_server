@@ -158,6 +158,5 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_5, False)
 
             response = c.get("/api/v1/spot", {'capacity': '1', 'limit': '4'})
-            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             #testing sorting by distance, which is impossible given no center
             self.assertEquals(response.status_code, 400)

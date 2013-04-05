@@ -42,10 +42,14 @@ class SearchView(RESTDispatch):
         has_valid_search_param = False
 
         if not form.is_valid():
-            return HttpResponse('[]')
+            response = HttpResponse('[]')
+            response["Content-type"] = "application/json"
+            return response
 
         if len(request.GET) == 0:
-            return HttpResponse('[]')
+            response = HttpResponse('[]')
+            response["Content-type"] = "application/json"
+            return response
 
         query = Spot.objects.all()
 
@@ -233,7 +237,8 @@ class SearchView(RESTDispatch):
                 return HttpResponseBadRequest("Bad Request")
 
         if not has_valid_search_param:
-            return HttpResponse('[]')
+            response = HttpResponse('[]')
+            response["Content-type"] = "application/json"
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)
@@ -250,7 +255,9 @@ class SearchView(RESTDispatch):
         for spot in set(query):
             response.append(spot.json_data_structure())
 
-        return HttpResponse(json.dumps(response))
+        response = HttpResponse(json.dumps(response))
+        response["Content-type"] = "application/json"
+        return response
 
     def distance(self, spot, longitude, latitude):
         g = Geod(ellps='clrk66')

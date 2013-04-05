@@ -53,47 +53,34 @@ def uiuc_validate(value, choices):
         except:
             raise forms.ValidationError("Value must be a regular expression")
     elif not value in choices:
-        raise forms.ValidationError("Value must be one of %s" % choices)
-
-
-def validate_uiuc_extended_info(value):
-    # TODO: access_restrictions require access_notes to be there, reservable requires reservation_notes
-    # UW Spots must have extended_info
-    if value is None:
-        raise forms.ValidationError("You must have an extended_info section")
-
-    # orientation, location_description, access_notes, reserve_notes, hours_notes, may be any string
-    for key in validated_ei:
-        if key in value:
-            uiuc_validate(value[key], validated_ei[key])
-    return True
-
-
-class ExtendedInfoField(forms.Field):
-    def to_python(self, value):
-        if value is not None:
-            for k in value.keys():
-                if value[k] == '':
-                    del value[k]
-        return value
-
-    def validate(self, value):
-        return validate_uiuc_extended_info(value)
+        raise forms.ValidationError("Value must be one of: {0}".format('; '.join(choices)))
 
 
 class ExtendedInfoForm(forms.ModelForm):
     class Meta:
         model = SpotExtendedInfo
 
+    def clean_key(self):
+        key = self.cleaned_data['key']
+        if not re.match(r'^[a-z0-9_-]+$', key, re.I):
+            raise forms.ValidationError("Key must be only alphanumerics, underscores, and hyphens")
+        return key
+
     def clean_value(self):
-        if validate_uiuc_extended_info({self.data['key']: self.data['value']}):
-            return self.data['value']
+        key = self.cleaned_data['key']
+        value = self.cleaned_data['value']
+
+        if key in validated_ei:
+            uiuc_validate(value, validated_ei[key])
+
+        return value
 
 
-class UIUCSpotForm(forms.Form):
+class UIUCSpotForm(forms.ModelForm):
     class Meta:
         model = Spot
-        fields = ('name', 'capacity')
 
     validated_extended_info = validated_ei
-    extended_info = ExtendedInfoField()
+
+    def clean_external_id(self):
+        return self.cleaned_data['external_id'] or None

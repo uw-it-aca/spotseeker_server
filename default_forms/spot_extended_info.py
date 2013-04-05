@@ -14,12 +14,9 @@
 """
 
 from django import forms
-from spotseeker_server.models import Spot
+from spotseeker_server.models import SpotExtendedInfo
 
 
-class DefaultSpotForm(forms.ModelForm):
+class DefaultSpotExtendedInfoForm(forms.ModelForm):
     class Meta:
-        model = Spot
-
-    def clean_external_id(self):
-        return self.cleaned_data['external_id'] or None
+        model = SpotExtendedInfo

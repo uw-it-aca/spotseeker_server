@@ -26,6 +26,10 @@ import oauth_provider.models
 from django.core.cache import cache
 import re
 
+def validate_external_id(external_id):
+    if external_id is not None and not re.match(r'^[\w-]*$', str(external_id)):
+        raise ValidationError("External ID must only be letters, numbers, underscores, and hyphens")
+
 
 class SpotType(models.Model):
     """ The type of Spot.
@@ -53,15 +57,12 @@ class Spot(models.Model):
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
     last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
-    external_id = models.CharField(max_length=100, null=True, blank=True, default=None, unique=True)
+    external_id = models.CharField(max_length=100, null=True, blank=True, default=None, unique=True, validators=[validate_external_id])
 
     def __unicode__(self):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.external_id is not None and not re.match(r'^[\w-]*$', self.external_id):
-            raise ValidationError("External ID must only be letters, numbers, underscores, and hyphens")
-
         if cache.get(self.pk):
             cache.delete(self.pk)
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()

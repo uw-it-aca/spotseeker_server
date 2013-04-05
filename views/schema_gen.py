@@ -111,7 +111,7 @@ def schema_gen(request):
 
     # To grab all of the extended info
     try:
-        validated_ei = SpotForm({}).validated_extended_info
+        validated_ei = SpotForm.validated_extended_info
         org_form_exists = True
     except:
         org_form_exists = False

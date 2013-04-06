@@ -25,10 +25,21 @@ from cStringIO import StringIO
 import oauth_provider.models
 from django.core.cache import cache
 import re
+from functools import wraps
 
 def validate_external_id(external_id):
     if external_id is not None and not re.match(r'^[\w-]*$', str(external_id)):
         raise ValidationError("External ID must only be letters, numbers, underscores, and hyphens")
+
+def update_etag(func):
+    """Any model with an ETag can decorate an instance method with
+    this to have a new ETag automatically generated. It's up to the
+    wrapped function, however, to call save()."""
+    def _newETag(*args, **kwargs):
+        self = args[0]
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        return func(*args, **kwargs)
+    return wraps(func)(_newETag)
 
 
 class SpotType(models.Model):
@@ -62,10 +73,10 @@ class Spot(models.Model):
     def __unicode__(self):
         return self.name
 
+    @update_etag
     def save(self, *args, **kwargs):
         if cache.get(self.pk):
             cache.delete(self.pk)
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
@@ -241,10 +252,8 @@ class SpotImage(models.Model):
         else:
             return "%s" % self.image.name
 
+    @update_etag
     def save(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(),
-                                                    time.time())).hexdigest()
-
         try:
             if self.image.file.multiple_chunks():
                 img = Image.open(self.image.file.temporary_file_path())
@@ -261,8 +270,8 @@ class SpotImage(models.Model):
 
         super(SpotImage, self).save(*args, **kwargs)
 
+    @update_etag
     def delete(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
         self.image.delete(save=False)
 
         super(SpotImage, self).delete(*args, **kwargs)

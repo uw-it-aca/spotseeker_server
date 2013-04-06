@@ -17,12 +17,14 @@ from spotseeker_server.models import *
 from django.test.client import Client
 from django.test import TestCase
 import simplejson as json
+from mock import *
 
+from spotseeker_server.org_forms.uw_spot import UWSpotForm
 
+@patch('spotseeker_server.views.schema_gen.SpotForm', UWSpotForm)
 class UWSpotSchemaTest(TestCase):
     def test_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             test_spot = Spot.objects.create(id=1, name="Test")
 
             SpotExtendedInfo.objects.create(spot=test_spot, key="noise_level", value=["silent", "quiet", "moderate", "loud", "variable"])

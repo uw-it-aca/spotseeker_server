@@ -34,7 +34,7 @@ class JsonCachingTest(TestCase):
     def setUp(self):
         self.cache = cache.get_cache('django.core.cache.backends.locmem.LocMemCache')
         self.cache.clear()
-        spot1 = Spot.objects.create(name="This is for testing cache number 1")
+        spot1 = Spot.objects.create(name="This is for testing cache number 1", latitude="0", longitude="0")
         spot1.save()
         self.spot1 = spot1
         self.url1 = '/api/v1/spot/{0}'.format(self.spot1.pk)
@@ -60,7 +60,12 @@ class JsonCachingTest(TestCase):
             response = client.get(self.url1)
             etag = response['ETag']
             response1 = client.put(self.url1, '{"name":"whoop whoop changed number 1"}', content_type="application/json", If_Match=etag)
-            self.assertIsNone(self.cache.get(self.spot1.pk))  # cache should be emptied of changed spot
+            # cache should be empty or current
+            cache1 = self.cache.get(self.spot1.pk)
+            if cache1 is not None:
+                self.assertEqual(cache1['name'], 'whoop whoop changed number 1', "Cache is up to date")
+            else:
+                self.assertIsNone(cache1, "Cache is empty")
 
     def test_delete_spot(self):
         """tests deleting spots through the api

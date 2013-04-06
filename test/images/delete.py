@@ -176,21 +176,21 @@ class SpotImageDELETETest(TestCase):
 
             #GIF
             response = c.delete(self.gif_url)
-            self.assertEquals(response.status_code, 409, "Deleting w/o an etag is a conflict")
+            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
 
             response = c.get(self.gif_url)
             self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
 
             #JPEG
             response = c.delete(self.jpeg_url)
-            self.assertEquals(response.status_code, 409, "Deleting w/o an etag is a conflict")
+            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
 
             response = c.get(self.jpeg_url)
             self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
 
             #PNG
             response = c.delete(self.png_url)
-            self.assertEquals(response.status_code, 409, "Deleting w/o an etag is a conflict")
+            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
 
             response = c.get(self.png_url)
             self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")

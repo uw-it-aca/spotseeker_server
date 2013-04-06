@@ -216,9 +216,14 @@ class SpotExtendedInfo(models.Model):
 class SpotImage(models.Model):
     """ An image of a Spot. Multiple images can be associated with a Spot, and Spot objects have a 'Spot.spotimage_set' method that will return all SpotImage objects for the Spot.
     """
+    CONTENT_TYPES = {
+            "JPEG": "image/jpeg",
+            "GIF": "image/gif",
+            "PNG": "image/png",
+    }
+
     description = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to="space_images", height_field="height",
-                              width_field="width")
+    image = models.ImageField(upload_to="space_images")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
@@ -239,17 +244,19 @@ class SpotImage(models.Model):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(),
                                                     time.time())).hexdigest()
 
-        content_types = {"JPEG": "image/jpeg", "GIF": "image/gif",
-                         "PNG": "image/png"}
-        if self.image.file.multiple_chunks():
-            img = Image.open(self.image.file.temporary_file_path())
-        else:
-            img = Image.open(self.image)
+        try:
+            if self.image.file.multiple_chunks():
+                img = Image.open(self.image.file.temporary_file_path())
+            else:
+                img = Image.open(self.image)
+        except:
+            raise ValidationError('Not a valid image format')
 
-        if not img.format in content_types:
+        if not img.format in SpotImage.CONTENT_TYPES:
             raise ValidationError('Not an accepted image format')
 
-        self.content_type = content_types[img.format]
+        self.content_type = SpotImage.CONTENT_TYPES[img.format]
+        self.width, self.height = img.size
 
         super(SpotImage, self).save(*args, **kwargs)
 

@@ -17,7 +17,7 @@ from django import forms
 from django.dispatch import receiver
 from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.default_forms.spot import DefaultSpotForm, DefaultSpotExtendedInfoForm
-from spotseeker_server.views.spot import post_build
+from spotseeker_server.dispatch import spot_post_build
 import simplejson as json
 import re
 
@@ -77,7 +77,7 @@ class UIUCSpotForm(DefaultSpotForm):
     validated_extended_info = validated_ei
 
 
-@receiver(post_build, sender=UIUCSpotForm)
+@receiver(spot_post_build, sender=UIUCSpotForm)
 def uiuc_validate_has_extended_info(sender, **kwargs):
     """
     After a spot REST request has been processed, validate that it contained

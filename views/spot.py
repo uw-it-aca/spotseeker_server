@@ -21,13 +21,9 @@ from spotseeker_server.require_auth import *
 import simplejson as json
 from django.db import transaction
 import django.dispatch
+from spotseeker_server.dispatch import spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
 
-pre_build = django.dispatch.Signal(providing_args=['request', 'json_values', 'spot', 'stash', 'partial_update'])
-pre_save = django.dispatch.Signal(providing_args=['request', 'json_values', 'spot', 'stash', 'partial_update'])
-post_build = django.dispatch.Signal(providing_args=['request', 'response', 'spot', 'stash', 'partial_update'])
-post_save = django.dispatch.Signal(providing_args=['request', 'spot', 'stash', 'partial_update'])
-
-@django.dispatch.receiver(pre_save, dispatch_uid='spotseeker_server.views.spot.build_available_hours')
+@django.dispatch.receiver(spot_pre_save, dispatch_uid='spotseeker_server.views.spot.build_available_hours')
 def _build_available_hours(sender, **kwargs):
     """Save the available hours for later"""
     json_values = kwargs['json_values']
@@ -36,7 +32,7 @@ def _build_available_hours(sender, **kwargs):
     stash['available_hours'] = json_values.pop('available_hours', None)
 
 
-@django.dispatch.receiver(pre_save, dispatch_uid='spotseeker_server.views.spot.build_extended_info')
+@django.dispatch.receiver(spot_pre_save, dispatch_uid='spotseeker_server.views.spot.build_extended_info')
 def _build_extended_info(sender, **kwargs):
     """Get the new and old extended info dicts, returned as tuples"""
     json_values = kwargs['json_values']
@@ -58,7 +54,7 @@ def _build_extended_info(sender, **kwargs):
     stash['old_extended_info'] = old_extended_info
 
 
-@django.dispatch.receiver(post_save, dispatch_uid='spotseeker_server.views.spot.save_available_hours')
+@django.dispatch.receiver(spot_post_save, dispatch_uid='spotseeker_server.views.spot.save_available_hours')
 def _save_available_hours(sender, **kwargs):
     """Sync the available hours for the spot"""
     spot = kwargs['spot']
@@ -87,7 +83,7 @@ def _save_available_hours(sender, **kwargs):
                 )
 
 
-@django.dispatch.receiver(post_save, dispatch_uid='spotseeker_server.views.spot.save_extended_info')
+@django.dispatch.receiver(spot_post_save, dispatch_uid='spotseeker_server.views.spot.save_extended_info')
 def _save_extended_info(sender, **kwargs):
     """Sync the extended info for the spot"""
     spot = kwargs['spot']
@@ -181,7 +177,7 @@ class SpotView(RESTDispatch):
         stash = {}
         is_new = spot is None
 
-        pre_build.send(
+        spot_pre_build.send(
                 sender=SpotForm,
                 request=request,
                 json_values=json_values,
@@ -193,7 +189,7 @@ class SpotView(RESTDispatch):
         self._build_spot_types(json_values, spot, partial_update)
         self._build_spot_location(json_values)
 
-        pre_save.send(
+        spot_pre_save.send(
                 sender=SpotForm,
                 request=request,
                 json_values=json_values,
@@ -226,7 +222,7 @@ class SpotView(RESTDispatch):
 
         spot = form.save()
 
-        post_save.send(
+        spot_post_save.send(
                 sender=SpotForm,
                 request=request,
                 spot=spot,
@@ -244,7 +240,7 @@ class SpotView(RESTDispatch):
         response["ETag"] = spot.etag
         response["Content-type"] = 'application/json'
 
-        post_build.send(
+        spot_post_build.send(
                 sender=SpotForm,
                 request=request,
                 response=response,

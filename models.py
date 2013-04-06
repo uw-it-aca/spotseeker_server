@@ -44,7 +44,7 @@ class Spot(models.Model):
     """ Represents a place for students to study.
     """
     name = models.CharField(max_length=100, blank=True)
-    spottypes = models.ManyToManyField(SpotType, max_length=50, related_name='spots')
+    spottypes = models.ManyToManyField(SpotType, max_length=50, related_name='spots', blank=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)

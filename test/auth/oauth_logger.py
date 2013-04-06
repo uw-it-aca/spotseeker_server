@@ -25,6 +25,7 @@ import logging
 import hashlib
 import time
 import random
+from contextlib import nested
 
 from oauth_provider.models import Consumer
 import oauth2
@@ -33,6 +34,8 @@ from mock import patch
 from django.core import cache
 from spotseeker_server import models
 
+import spotseeker_server.auth.oauth as ss_oauth
+import spotseeker_server.auth.all_ok as ss_all_ok
 
 class SpotAuthOAuthLogger(TestCase):
     def setUp(self):
@@ -63,7 +66,8 @@ class SpotAuthOAuthLogger(TestCase):
     def test_log_value_2_legged(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth'):
+            with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
+                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
 
                 consumer_name = "Test consumer"
 
@@ -103,8 +107,8 @@ class SpotAuthOAuthLogger(TestCase):
     def test_log_trusted_3_legged(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth',
-                               SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+            with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
+                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
                 consumer_name = "Trusted test consumer"
 
                 key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
@@ -154,7 +158,9 @@ class SpotAuthOAuthLogger(TestCase):
     def test_invalid(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth'):
+            with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
+                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
+
 
                 c = Client()
                 response = c.get(self.url)

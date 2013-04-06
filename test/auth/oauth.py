@@ -27,9 +27,11 @@ from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
+import spotseeker_server.auth.oauth as ss_oauth
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth')
+@patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application)
+@patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)
 class SpotAuthOAuth(TestCase):
 
     def setUp(self):

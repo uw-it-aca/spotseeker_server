@@ -41,9 +41,6 @@ class BuildingListView(RESTDispatch):
 
         q = spots.values('building_name').distinct()
 
-        buildings = []
-        for building in list(q):
-            buildings.append(building["building_name"])
-
+        buildings = [b['building_name'] for b in q]
         buildings.sort()
         return HttpResponse(json.dumps(buildings))

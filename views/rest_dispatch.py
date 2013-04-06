@@ -69,3 +69,13 @@ class RESTDispatch:
             response.status_code = 500
 
         return response
+
+    def validate_etag(self, request, obj):
+        if not "HTTP_IF_MATCH" in request.META:
+            if not "If_Match" in request.META:
+                raise RESTException("If-Match header required", 400)
+            else:
+                request.META["HTTP_IF_MATCH"] = request.META["If_Match"]
+
+        if request.META["HTTP_IF_MATCH"] != obj.etag:
+            raise RESTException("Invalid ETag", 409)

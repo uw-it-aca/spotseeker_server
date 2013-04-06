@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
 from django.utils.http import http_date
@@ -28,32 +28,24 @@ class ThumbnailView(RESTDispatch):
     """
     @app_auth_required
     def GET(self, request, spot_id, image_id, thumb_width=None, thumb_height=None, constrain=False):
-        try:
-            img = SpotImage.objects.get(pk=image_id)
-            spot = img.spot
+        img = SpotImage.objects.get(pk=image_id)
+        spot = img.spot
 
-            if int(spot.pk) != int(spot_id):
-                raise Exception("Image Spot ID doesn't match spot id in url")
+        if int(spot.pk) != int(spot_id):
+            raise Exception("Image Spot ID doesn't match spot id in url")
 
-            if constrain is True:
-                if thumb_width is None:
-                    thumb_width = img.width
+        if constrain is True:
+            if thumb_width is None:
+                thumb_width = img.width
 
-                if thumb_height is None:
-                    thumb_height = img.height
-
-        except Exception as e:
-            response = HttpResponse('{"error":"Bad Image URL"}')
-            response.status_code = 404
-            return response
+            if thumb_height is None:
+                thumb_height = img.height
 
         thumb_width = int(thumb_width)
         thumb_height = int(thumb_height)
 
         if thumb_height <= 0 or thumb_width <= 0:
-            response = HttpResponse('{"error":"Bad Image URL"}')
-            response.status_code = 404
-            return response
+            raise RESTException("Bad image constraints", 400)
 
         image = img.image
         im = Image.open(image.path)

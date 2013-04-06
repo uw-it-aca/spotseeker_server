@@ -13,10 +13,25 @@
     limitations under the License.
 """
 
-from spotseeker_server.default_forms.spot import DefaultSpotForm
+from spotseeker_server.default_forms.spot import DefaultSpotForm, DefaultSpotExtendedInfoForm
 from django.utils.importlib import import_module
 from django.conf import settings
 
+if hasattr(settings, 'SPOTSEEKER_SPOTEXTENDEDINFO_FORM'):
+    # This is all taken from django's static file finder
+    module, attr = settings.SPOTSEEKER_SPOTEXTENDEDINFO_FORM.rsplit('.', 1)
+    try:
+        mod = import_module(module)
+    except ImportError, e:
+        raise ImproperlyConfigured('Error importing module %s: "%s"' %
+                                   (module, e))
+    try:
+        SpotExtendedInfoForm = getattr(mod, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Module "%s" does not define a "%s" '
+                                   'class.' % (module, attr))
+else:
+    SpotExtendedInfoForm = DefaultSpotExtendedInfoForm
 
 if hasattr(settings, 'SPOTSEEKER_SPOT_FORM'):
     # This is all taken from django's static file finder

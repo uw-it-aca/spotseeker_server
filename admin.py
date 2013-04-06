@@ -18,8 +18,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.utils.importlib import import_module
 from spotseeker_server.models import *
-from spotseeker_server.forms.spot import SpotForm
-from spotseeker_server.forms.spot_extended_info import SpotExtendedInfoForm
+from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 
 class SpotAdmin(admin.ModelAdmin):
     """ The admin model for a Spot.

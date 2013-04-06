@@ -14,8 +14,7 @@
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError
-from spotseeker_server.forms.spot import SpotForm
-from spotseeker_server.forms.spot_extended_info import SpotExtendedInfoForm
+from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *

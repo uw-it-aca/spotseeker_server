@@ -157,8 +157,7 @@ class Spot(models.Model):
 class SpotAvailableHours(models.Model):
     """ The hours a Spot is available, i.e. the open or closed hours for the building the spot is located in.
     """
-    spot = models.ForeignKey(Spot)
-    day = models.CharField(max_length=3, choices=(
+    DAY_CHOICES = (
         ('m', 'monday'),
         ('t', 'tuesday'),
         ('w', 'wednesday'),
@@ -166,7 +165,10 @@ class SpotAvailableHours(models.Model):
         ('f', 'friday'),
         ('sa', 'saturday'),
         ('su', 'sunday'),
-    ))
+    )
+
+    spot = models.ForeignKey(Spot)
+    day = models.CharField(max_length=3, choices=DAY_CHOICES)
 
     start_time = models.TimeField()
     end_time = models.TimeField()

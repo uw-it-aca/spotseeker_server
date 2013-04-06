@@ -14,9 +14,11 @@
 """
 
 from django import forms
+from django.dispatch import receiver
 from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.default_forms.spot import DefaultSpotForm
 from spotseeker_server.default_forms.spot_extended_info import DefaultSpotExtendedInfoForm
+from spotseeker_server.views.spot import post_build
 import simplejson as json
 import re
 
@@ -74,3 +76,14 @@ class UIUCSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
 
 class UIUCSpotForm(DefaultSpotForm):
     validated_extended_info = validated_ei
+
+
+@receiver(post_build, sender=UIUCSpotForm)
+def uiuc_validate_has_extended_info(sender, **kwargs):
+    """
+    After a spot REST request has been processed, validate that it contained
+    some extended info.
+    """
+    spot = kwargs['spot']
+    if SpotExtendedInfo.objects.filter(spot=spot).count() <= 0:
+        raise forms.ValidationError("UIUCSpot must have extended info")

@@ -58,15 +58,18 @@ def uiuc_validate(value, choices):
         raise forms.ValidationError("Value must be one of: {0}".format('; '.join(choices)))
 
 
-class ExtendedInfoForm(DefaultSpotExtendedInfoForm):
-    def clean_value(self):
+class UIUCSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
+    def clean(self):
+        cleaned_data = super(UIUCSpotExtendedInfoForm, self).clean()
+
+        # Have to check value here since we look at multiple items
         key = self.cleaned_data['key']
         value = self.cleaned_data['value']
 
         if key in validated_ei:
             uiuc_validate(value, validated_ei[key])
 
-        return value
+        return cleaned_data
 
 
 class UIUCSpotForm(DefaultSpotForm):

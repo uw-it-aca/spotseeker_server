@@ -13,7 +13,6 @@
     limitations under the License.
 """
 
-from __future__ import print_function
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError
 from spotseeker_server.forms.spot import SpotForm
 from spotseeker_server.forms.spot_extended_info import SpotExtendedInfoForm
@@ -22,6 +21,114 @@ from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 import simplejson as json
 from django.db import transaction
+import django.dispatch
+
+pre_build = django.dispatch.Signal(providing_args=['request', 'json_values', 'spot', 'stash', 'partial_update'])
+pre_save = django.dispatch.Signal(providing_args=['request', 'json_values', 'spot', 'stash', 'partial_update'])
+post_build = django.dispatch.Signal(providing_args=['request', 'response', 'spot', 'stash', 'partial_update'])
+post_save = django.dispatch.Signal(providing_args=['request', 'spot', 'stash', 'partial_update'])
+
+@django.dispatch.receiver(pre_save, dispatch_uid='spotseeker_server.views.spot.build_available_hours')
+def _build_available_hours(sender, **kwargs):
+    """Save the available hours for later"""
+    json_values = kwargs['json_values']
+    stash = kwargs['stash']
+
+    stash['available_hours'] = json_values.pop('available_hours', None)
+
+
+@django.dispatch.receiver(pre_save, dispatch_uid='spotseeker_server.views.spot.build_extended_info')
+def _build_extended_info(sender, **kwargs):
+    """Get the new and old extended info dicts, returned as tuples"""
+    json_values = kwargs['json_values']
+    spot = kwargs['spot']
+    stash = kwargs['stash']
+
+    new_extended_info = json_values.pop('extended_info', None)
+    if new_extended_info is not None:
+        for key in new_extended_info.keys():
+            value = new_extended_info[key]
+            if value is None or str(value) == '':
+                del new_extended_info[key]
+
+    old_extended_info = {}
+    if spot is not None:
+        old_extended_info = dict((ei.key, ei.value) for ei in spot.spotextendedinfo_set.all())
+    
+    stash['new_extended_info'] = new_extended_info
+    stash['old_extended_info'] = old_extended_info
+
+
+@django.dispatch.receiver(post_save, dispatch_uid='spotseeker_server.views.spot.save_available_hours')
+def _save_available_hours(sender, **kwargs):
+    """Sync the available hours for the spot"""
+    spot = kwargs['spot']
+    partial_update = kwargs['partial_update']
+    stash = kwargs['stash']
+
+    available_hours = stash['available_hours']
+    
+    if partial_update and available_hours is None:
+        return
+
+    SpotAvailableHours.objects.filter(spot=spot).delete()
+
+    if available_hours is not None:
+        for day in SpotAvailableHours.DAY_CHOICES:
+            if not day[1] in available_hours:
+                continue
+
+            day_hours = available_hours[day[1]]
+            for window in day_hours:
+                SpotAvailableHours.objects.create(
+                        spot=spot,
+                        day=day[0],
+                        start_time=window[0],
+                        end_time=window[1]
+                )
+
+
+@django.dispatch.receiver(post_save, dispatch_uid='spotseeker_server.views.spot.save_extended_info')
+def _save_extended_info(sender, **kwargs):
+    """Sync the extended info for the spot"""
+    spot = kwargs['spot']
+    partial_update = kwargs['partial_update']
+    stash = kwargs['stash']
+
+    new_extended_info = stash['new_extended_info']
+    old_extended_info = stash['old_extended_info']
+
+    if new_extended_info is None:
+        if not partial_update:
+            SpotExtendedInfo.objects.filter(spot=spot).delete()
+    else:
+        # first, loop over the new extended info and either:
+        # - add items that are new
+        # - update items that are old
+        for key in new_extended_info:
+            value = new_extended_info[key]
+
+            ei = None
+            if key in old_extended_info:
+                if value == old_extended_info[key]:
+                    continue
+                else:
+                    ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
+
+            eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value}, instance=ei)
+            if not eiform.is_valid():
+                raise RESTFormInvalidError(eiform)
+            
+            ei = eiform.save()
+        # Now loop over the different in the keys and remove old
+        # items that aren't present in the new set
+        for key in (set(old_extended_info.keys()) - set(new_extended_info.keys())):
+            try:
+                ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
+                ei.delete()
+            except SpotExtendedInfo.DoesNotExist:
+                # removing something that does not exist isn't an error
+                pass
 
 
 class SpotView(RESTDispatch):
@@ -71,31 +178,30 @@ class SpotView(RESTDispatch):
         except Exception as e:
             raise RESTException("Unable to parse JSON", status_code=400)
 
-        # Fix up the spot types array into IDs
-        types = json_values.pop('type', None)
-        if types is not None:
-            if isinstance(types, basestring):
-                types = (types,)
+        partial_update = False
+        stash = {}
+        is_new = spot is None
 
-            json_values['spottypes'] = []
-            for typename in types:
-                t = SpotType.objects.get(name=typename)
-                json_values['spottypes'].append(t.pk)
+        pre_build.send(
+                sender=SpotForm,
+                request=request,
+                json_values=json_values,
+                spot=spot,
+                partial_update=partial_update,
+                stash=stash
+        )
 
-        # Unnest the location object
-        if 'location' in json_values:
-            for loc_key in json_values['location']:
-                json_values[loc_key] = json_values['location'][loc_key]
-            del json_values['location']
+        self._build_spot_types(json_values, spot, partial_update)
+        self._build_spot_location(json_values)
 
-        # Save the extended_info for later
-        new_extended_info = json_values.pop('extended_info', None)
-        old_extended_info = {}
-        if spot is not None:
-            old_extended_info = dict((ei.key, ei.value) for ei in spot.spotextendedinfo_set.all())
-
-        # Save the available hours for later
-        available_hours = json_values.pop('available_hours', None)
+        pre_save.send(
+                sender=SpotForm,
+                request=request,
+                json_values=json_values,
+                spot=spot,
+                partial_update=partial_update,
+                stash=stash
+        )
 
         # Remve excluded fields
         excludefields = set(SpotForm.Meta.exclude)
@@ -103,10 +209,7 @@ class SpotView(RESTDispatch):
             if fieldname in json_values:
                 del json_values[fieldname]
 
-        if spot is None:
-            form = SpotForm(json_values)
-            is_new = True
-        else:
+        if spot is not None and partial_update:
             # Copy over the existing values
             for field in spot._meta.fields:
                 if field.name in excludefields:
@@ -118,58 +221,19 @@ class SpotView(RESTDispatch):
             if not 'spottypes' in json_values:
                 json_values['spottypes'] = [t.pk for t in spot.spottypes.all()]
 
-            form = SpotForm(json_values, instance=spot)
-            is_new = False
-
+        form = SpotForm(json_values, instance=spot)
         if not form.is_valid():
             raise RESTFormInvalidError(form)
 
         spot = form.save()
 
-        # sync extended info
-        if new_extended_info is None:
-            # TODO: I don't believe this is the correct thing to do
-            SpotExtendedInfo.objects.filter(spot=spot).delete()
-        else:
-            # first, loop over the new extended info and either:
-            # - add items that are new
-            # - update items that are old
-            for key in new_extended_info:
-                value = new_extended_info[key]
-
-                if not key in old_extended_info:
-                    eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value})
-                elif value == old_extended_info[key]:
-                    continue
-                else:
-                    ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
-                    eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value}, instance=ei)
-
-                if not eiform.is_valid():
-                    raise RESTFormInvalidError(eiform)
-            
-                ei = eiform.save()
-            # Now loop over the different in the keys and remove old
-            # items that aren't present in the new set
-            for key in (set(old_extended_info.keys()) - set(new_extended_info.keys())):
-                try:
-                    ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
-                    ei.delete()
-                except SpotExtendedInfo.DoesNotExist:
-                    # removing something that does not exist isn't an error
-                    pass
-
-        # sync available hours
-        if available_hours is not None:
-            SpotAvailableHours.objects.filter(spot=spot).delete()
-
-            for day in SpotAvailableHours.DAY_CHOICES:
-                if not day[1] in available_hours:
-                    continue
-
-                day_hours = available_hours[day[1]]
-                for window in day_hours:
-                    SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
+        post_save.send(
+                sender=SpotForm,
+                request=request,
+                spot=spot,
+                partial_update=partial_update,
+                stash=stash
+        )
 
         if is_new:
             response = HttpResponse()
@@ -180,4 +244,37 @@ class SpotView(RESTDispatch):
             response.status_code = 200
         response["ETag"] = spot.etag
         response["Content-type"] = 'application/json'
+
+        post_build.send(
+                sender=SpotForm,
+                request=request,
+                response=response,
+                spot=spot,
+                partial_update=partial_update,
+                stash=stash
+        )
+
         return response
+
+    def _build_spot_location(self, json_values):
+        """Unnest the location JSON object"""
+        if 'location' in json_values:
+            for key in json_values['location']:
+                json_values[key] = json_values['location'][key]
+            del json_values['location']
+
+    def _build_spot_types(self, json_values, spot, partial_update):
+        """Fixup the 'type' array into IDs"""
+        types = json_values.pop('type', None)
+        if not partial_update and types is None:
+            types = ()
+        elif isinstance(types, basestring):
+            types = (types,)
+
+        if not partial_update or (partial_update and types is not None):
+            json_values['spottypes'] = []
+            for name in types:
+                t = SpotType.objects.get(name=name)
+                json_values['spottypes'].append(t.pk)
+
+

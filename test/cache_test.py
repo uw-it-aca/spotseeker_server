@@ -59,7 +59,7 @@ class JsonCachingTest(TestCase):
             self.assertIsNone(self.cache.get(self.spot1.pk))  # cache should be emptied
             response = client.get(self.url1)
             etag = response['ETag']
-            response1 = client.put(self.url1, '{"name":"whoop whoop changed number 1"}', content_type="application/json", If_Match=etag)
+            response1 = client.put(self.url1, '{"name":"whoop whoop changed number 1", "latitude": 0, "longitude": 0}', content_type="application/json", If_Match=etag, Foo='Bar')
             # cache should be empty or current
             cache1 = self.cache.get(self.spot1.pk)
             if cache1 is not None:

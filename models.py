@@ -35,10 +35,9 @@ def update_etag(func):
     """Any model with an ETag can decorate an instance method with
     this to have a new ETag automatically generated. It's up to the
     wrapped function, however, to call save()."""
-    def _newETag(*args, **kwargs):
-        self = args[0]
+    def _newETag(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-        return func(*args, **kwargs)
+        return func(self, *args, **kwargs)
     return wraps(func)(_newETag)
 
 
@@ -102,28 +101,10 @@ class Spot(models.Model):
 
             hours = SpotAvailableHours.objects.filter(spot=self).order_by('start_time')
             for window in hours:
-                available_hours[window.get_day_display()].append([window.start_time.strftime("%H:%M"), window.end_time.strftime("%H:%M")])
+                available_hours[window.get_day_display()].append(window.json_data_structure())
 
-            images = []
-            spot_images = SpotImage.objects.filter(spot=self)
-            for img in spot_images:
-                images.append({
-                    "id": img.pk,
-                    "url": img.rest_url(),
-                    "content-type": img.content_type,
-                    "width": img.width,
-                    "height": img.height,
-                    "creation_date": format_date_time(time.mktime(img.creation_date.timetuple())),
-                    "modification_date": format_date_time(time.mktime(img.modification_date.timetuple())),
-                    "upload_user": img.upload_user,
-                    "upload_application": img.upload_application,
-                    "thumbnail_root": "{0}/thumb".format(img.rest_url()),
-                    "description": img.description
-                })
-            types = []
-            spot_types = self.spottypes.all()
-            for t in spot_types:
-                types.append(t.name)
+            images = [img.json_data_structure() for img in SpotImage.objects.filter(spot=self)]
+            types = [t.name for t in self.spottypes.all()]
 
             spot_json = {
                 "id": self.pk,
@@ -190,6 +171,9 @@ class SpotAvailableHours(models.Model):
     def __unicode__(self):
         return "%s: %s, %s-%s" % (self.spot.name, self.day, self.start_time, self.end_time)
 
+    def json_data_structure(self):
+        return [self.start_time.strftime("%H:%M"), self.end_time.strftime("%H:%M")]
+
     def save(self, *args, **kwargs):
         self.full_clean()
 
@@ -251,6 +235,21 @@ class SpotImage(models.Model):
             return "%s" % self.description
         else:
             return "%s" % self.image.name
+
+    def json_data_structure(self):
+        return {
+                "id": self.pk,
+                "url": self.rest_url(),
+                "content-type": self.content_type,
+                "width": self.width,
+                "height": self.height,
+                "creation_date": self.creation_date.isoformat(),
+                "modification_date": self.modification_date.isoformat(),
+                "upload_user": self.upload_user,
+                "upload_application": self.upload_application,
+                "thumbnail_root": "{0}/thumb".format(self.rest_url()),
+                "description": self.description
+                }
 
     @update_etag
     def save(self, *args, **kwargs):

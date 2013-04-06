@@ -14,6 +14,7 @@
 """
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.conf import settings
 from django.http import HttpResponse
 import simplejson as json
 import traceback
@@ -57,24 +58,38 @@ class RESTDispatch:
                 raise RESTException("Method not allowed", 405)
 
         except ObjectDoesNotExist as odne:
-            response = HttpResponse(json.dumps({"error": odne.message}))
+            json_values = self.json_error(odne)
+            response = HttpResponse(json.dumps(json_values))
             response.status_code = 404
+
         except ValidationError as ve:
-            response = HttpResponse(json.dumps({"error": ve.message}))
+            json_values = self.json_error(ve)
+            response = HttpResponse(json.dumps(json_values))
             response.status_code = 400
+
         except RESTFormInvalidError as fie:
-            json_values = fie.form.errors
-            json_values['error'] = fie.message
+            json_values = self.json_error(fie)
+            json_values.update(fie.form.errors)
             response = HttpResponse(json.dumps(json_values))
             response.status_code = fie.status_code
+
         except RESTException as rest_e:
-            response = HttpResponse(json.dumps({"error": rest_e.message}))
+            json_values = self.json_error(rest_e)
+            response = HttpResponse(json.dumps(json_values))
             response.status_code = rest_e.status_code
+
         except Exception as e:
-            response = HttpResponse(json.dumps({"error": e.message}))
+            json_values = self.json_error(e)
+            response = HttpResponse(json.dumps(json_values))
             response.status_code = 500
 
         return response
+
+    def json_error(self, ex):
+        json_values = {"error": ex.message}
+        if getattr(settings, 'DEBUG', False):
+            json_values['stack'] = traceback.format_exc().splitlines()
+        return json_values
 
     def validate_etag(self, request, obj):
         if not "HTTP_IF_MATCH" in request.META:

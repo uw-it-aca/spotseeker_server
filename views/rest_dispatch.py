@@ -13,9 +13,10 @@
     limitations under the License.
 """
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import HttpResponse
 import simplejson as json
+import traceback
 
 
 class RESTException(Exception):
@@ -31,7 +32,7 @@ class RESTException(Exception):
 class RESTFormInvalidError(RESTException):
     """Thrown when a form is invalid, and holds all the errors."""
     def __init__(self, form):
-        super(RESTFormInvalidError, self).__init__("Form is invalid", 422)
+        super(RESTFormInvalidError, self).__init__("Form is invalid", 400)
         self.form = form
 
 
@@ -58,8 +59,13 @@ class RESTDispatch:
         except ObjectDoesNotExist as odne:
             response = HttpResponse(json.dumps({"error": odne.message}))
             response.status_code = 404
+        except ValidationError as ve:
+            response = HttpResponse(json.dumps({"error": ve.message}))
+            response.status_code = 400
         except RESTFormInvalidError as fie:
-            response = HttpResponse(json.dumps({"error": fie.form.errors}))
+            json_values = fie.form.errors
+            json_values['error'] = fie.message
+            response = HttpResponse(json.dumps(json_values))
             response.status_code = fie.status_code
         except RESTException as rest_e:
             response = HttpResponse(json.dumps({"error": rest_e.message}))

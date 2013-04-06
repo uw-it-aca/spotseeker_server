@@ -32,7 +32,7 @@ class ThumbnailView(RESTDispatch):
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise Exception("Image Spot ID doesn't match spot id in url")
+            raise RESTException("Image Spot ID doesn't match spot id in url", 404)
 
         if constrain is True:
             if thumb_width is None:

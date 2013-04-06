@@ -14,6 +14,8 @@
 """
 
 from django import forms
+from spotseeker_server.default_forms.spot import DefaultSpotForm
+from spotseeker_server.default_forms.spot_extended_info import DefaultSpotExtendedInfoForm
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 import re
@@ -49,32 +51,19 @@ def uw_validate(value, choices):
         raise forms.ValidationError("Value must be one of: {0}".format('; '.join(choices)))
 
 
-class ExtendedInfoForm(forms.ModelForm):
-    class Meta:
-        model = SpotExtendedInfo
+class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
+    def clean(self):
+        cleaned_data = super(UWSpotExtendedInfoForm, self).clean()
 
-    def clean_key(self):
-        key = self.cleaned_data['key']
-        if not re.match(r'^[a-z0-9_-]+$', key, re.I):
-            raise forms.ValidationError("Key must be only alphanumerics, underscores, and hyphens")
-        return key
-
-    def clean_value(self):
+        # Have to check value here since we look at multiple items
         key = self.cleaned_data['key']
         value = self.cleaned_data['value']
 
         if key in validated_ei:
             uw_validate(value, validated_ei[key])
 
-        return value
+        return cleaned_data
 
 
-
-class UWSpotForm(forms.ModelForm):
-    class Meta:
-        model = Spot
-
+class UWSpotForm(DefaultSpotForm):
     validated_extended_info = validated_ei
-
-    def clean_external_id(self):
-        return self.cleaned_data['external_id'] or None

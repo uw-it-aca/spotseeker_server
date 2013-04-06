@@ -31,7 +31,7 @@ class AddImageView(RESTDispatch):
             raise RESTException("No image", 400)
 
         args = {}
-        args['upload_app'] = request.META.get('SS_OAUTH_CONSUMER_NAME', '')
+        args['upload_application'] = request.META.get('SS_OAUTH_CONSUMER_NAME', '')
         args['upload_user'] = request.META.get('SS_OAUTH_USER', '')
         args['description'] = request.POST.get('description', '')
         args['image'] = request.FILES['image']

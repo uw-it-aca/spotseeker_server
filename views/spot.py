@@ -92,7 +92,7 @@ class SpotView(RESTDispatch):
         new_extended_info = json_values.pop('extended_info', None)
         old_extended_info = {}
         if spot is not None:
-            old_extended_info = dict((e.key, e.value) for e in spot.spotextendedinfo_set.all())
+            old_extended_info = dict((ei.key, ei.value) for ei in spot.spotextendedinfo_set.all())
 
         # Save the available hours for later
         available_hours = json_values.pop('available_hours', None)
@@ -127,12 +127,15 @@ class SpotView(RESTDispatch):
         spot = form.save()
 
         # sync extended info
-        if new_extended_info is not None:
+        if new_extended_info is None:
+            # TODO: I don't believe this is the correct thing to do
+            SpotExtendedInfo.objects.filter(spot=spot).delete()
+        else:
             # first, loop over the new extended info and either:
             # - add items that are new
             # - update items that are old
             for key in new_extended_info:
-                value = new_extended_info[value]
+                value = new_extended_info[key]
 
                 if not key in old_extended_info:
                     eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value})
@@ -143,7 +146,7 @@ class SpotView(RESTDispatch):
                     eiform = SpotExtendedInfoForm({'spot':spot.pk, 'key':key, 'value':value}, instance=ei)
 
                 if not eiform.is_valid():
-                    raise RESTFormInvalidError(form)
+                    raise RESTFormInvalidError(eiform)
             
                 ei = eiform.save()
             # Now loop over the different in the keys and remove old
@@ -158,10 +161,9 @@ class SpotView(RESTDispatch):
 
         # sync available hours
         if available_hours is not None:
-            queryset = SpotAvailableHours.objects.filter(spot=spot)
-            queryset.delete()
+            SpotAvailableHours.objects.filter(spot=spot).delete()
 
-            for day in SpotAvailableHours.day.choices:
+            for day in SpotAvailableHours.DAY_CHOICES:
                 if not day[1] in available_hours:
                     continue
 
@@ -169,10 +171,12 @@ class SpotView(RESTDispatch):
                 for window in day_hours:
                     SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
 
-        response = HttpResponse(json.dumps(spot.json_data_structure()))
         if is_new:
+            response = HttpResponse()
             response.status_code = 201
+            response['Location'] = spot.rest_url()
         else:
+            response = HttpResponse(json.dumps(spot.json_data_structure()))
             response.status_code = 200
         response["ETag"] = spot.etag
         response["Content-type"] = 'application/json'

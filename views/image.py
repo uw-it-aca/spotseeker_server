@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from django.http import HttpResponse
 from django.utils.http import http_date
 from django.core.servers.basehttp import FileWrapper
@@ -34,7 +34,7 @@ class ImageView(RESTDispatch):
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise Exception("Image Spot ID doesn't match spot id in url")
+            raise RESTException("Image Spot ID doesn't match spot id in url", 404)
 
         response = HttpResponse(FileWrapper(img.image))
         response["ETag"] = img.etag
@@ -51,7 +51,7 @@ class ImageView(RESTDispatch):
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise Exception("Image Spot ID doesn't match spot id in url")
+            raise RESTException("Image Spot ID doesn't match spot id in url", 404)
 
         self.validate_etag(request, img)
 
@@ -74,7 +74,7 @@ class ImageView(RESTDispatch):
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise Exception("Image Spot ID doesn't match spot id in url")
+            raise RESTException("Image Spot ID doesn't match spot id in url", 404)
 
         self.validate_etag(request, img)
 

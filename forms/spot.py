@@ -16,6 +16,7 @@
 from spotseeker_server.default_forms.spot import DefaultSpotForm, DefaultSpotExtendedInfoForm
 from django.utils.importlib import import_module
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 if hasattr(settings, 'SPOTSEEKER_SPOTEXTENDEDINFO_FORM'):
     # This is all taken from django's static file finder

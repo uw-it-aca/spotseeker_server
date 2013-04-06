@@ -16,7 +16,7 @@
 from spotseeker_server.default_forms.spot_search import DefaultSpotSearchForm
 from django.utils.importlib import import_module
 from django.conf import settings
-
+from django.core.exceptions import ImproperlyConfigured
 
 class SpotSearchForm(object):
     def __new__(*args, **named_args):

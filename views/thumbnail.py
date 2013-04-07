@@ -21,25 +21,49 @@ from spotseeker_server.require_auth import *
 from cStringIO import StringIO
 import Image
 import time
+import re
 
+RE_WIDTH = re.compile(r'width:(\d+)')
+RE_HEIGHT = re.compile(r'height:(\d+)')
+RE_WIDTHxHEIGHT = re.compile(r'^(\d+)x(\d+)$')
 
 class ThumbnailView(RESTDispatch):
     """ Returns 200 with a thumbnail of a SpotImage.
     """
     @app_auth_required
-    def GET(self, request, spot_id, image_id, thumb_width=None, thumb_height=None, constrain=False):
+    def GET(self, request, spot_id, image_id, thumb_dimensions=None, constrain=False):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
             raise RESTException("Image Spot ID doesn't match spot id in url", 404)
 
-        if constrain is True:
-            if thumb_width is None:
-                thumb_width = img.width
+        if thumb_dimensions is None:
+            raise RESTException("Image constraints required", 400)
 
-            if thumb_height is None:
+        thumb_width = None
+        thumb_height = None
+        if constrain is True:
+            m = RE_WIDTH.search(thumb_dimensions)
+            if m:
+                thumb_width = m.group(1)
+            m = RE_HEIGHT.search(thumb_dimensions)
+            if m:
+                thumb_height = m.group(1)
+
+            if thumb_width is None and thumb_height is None:
+                raise RESTException("Image constraints required", 400)
+            elif thumb_width is None:
+                thumb_width = img.width
+            elif thumb_height is None:
                 thumb_height = img.height
+        else:
+            m = RE_WIDTHxHEIGHT.match(thumb_dimensions)
+            if not m:
+                raise RESTException("Image constraints required", 400)
+            else:
+                thumb_width = m.group(1)
+                thumb_height = m.group(2)
 
         thumb_width = int(thumb_width)
         thumb_height = int(thumb_height)

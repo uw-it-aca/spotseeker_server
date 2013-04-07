@@ -101,19 +101,17 @@ class ImageThumbTest(TestCase):
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 0))
             self.assertEquals(response.status_code, 400, "400 for no width or height, jpeg")
 
-            # Normally a 400, but this doesn't match one of the URL patterns so it
-            # returns 404 Spot Not Found 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, -100))
-            self.assertEquals(response.status_code, 404, "404 for negative height, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for negative height, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, -100, 100))
-            self.assertEquals(response.status_code, 404, "404 for negative width, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for negative width, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, "a", 100))
-            self.assertEquals(response.status_code, 404, "404 for invalid width, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for invalid width, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, "a"))
-            self.assertEquals(response.status_code, 404, "404 for invalid height, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for invalid height, jpeg")
 
     def test_png_thumbs(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
@@ -174,19 +172,17 @@ class ImageThumbTest(TestCase):
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 0))
             self.assertEquals(response.status_code, 400, "400 for no width or height, png")
 
-            # Normally a 400, but this doesn't match one of the URL patterns so it
-            # returns 404 Spot Not Found 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, -100))
-            self.assertEquals(response.status_code, 404, "404 for negative height, png")
+            self.assertEquals(response.status_code, 400, "400 for negative height, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, -100, 100))
-            self.assertEquals(response.status_code, 404, "404 for negative width, png")
+            self.assertEquals(response.status_code, 400, "400 for negative width, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, "a", 100))
-            self.assertEquals(response.status_code, 404, "404 for invalid width, png")
+            self.assertEquals(response.status_code, 400, "400 for invalid width, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, "a"))
-            self.assertEquals(response.status_code, 404, "404 for invalid height, png")
+            self.assertEquals(response.status_code, 400, "400 for invalid height, png")
 
     def test_gif_thumbs(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
@@ -247,19 +243,17 @@ class ImageThumbTest(TestCase):
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 0))
             self.assertEquals(response.status_code, 400, "400 for no width or height, gif")
 
-            # Normally a 400, but this doesn't match one of the URL patterns so it
-            # returns 404 Spot Not Found 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, -100))
-            self.assertEquals(response.status_code, 404, "404 for negative height, gif")
+            self.assertEquals(response.status_code, 400, "400 for negative height, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, -100, 100))
-            self.assertEquals(response.status_code, 404, "404 for negative width, gif")
+            self.assertEquals(response.status_code, 400, "400 for negative width, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, "a", 100))
-            self.assertEquals(response.status_code, 404, "404 for invalid width, gif")
+            self.assertEquals(response.status_code, 400, "400 for invalid width, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, "a"))
-            self.assertEquals(response.status_code, 404, "404 for invalid height, gif")
+            self.assertEquals(response.status_code, 400, "400 for invalid height, gif")
 
     def test_invalid_url(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')

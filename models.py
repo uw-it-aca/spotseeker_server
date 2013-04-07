@@ -15,6 +15,7 @@
 
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 import hashlib
 import datetime
 import time
@@ -79,7 +80,7 @@ class Spot(models.Model):
         super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
-        return "/api/v1/spot/{0}".format(self.pk)
+        return reverse('spot', kwargs={'spot_id': self.pk})
 
     def json_data_structure(self):
         spot_json = cache.get(self.pk)
@@ -247,7 +248,7 @@ class SpotImage(models.Model):
                 "modification_date": self.modification_date.isoformat(),
                 "upload_user": self.upload_user,
                 "upload_application": self.upload_application,
-                "thumbnail_root": "{0}/thumb".format(self.rest_url()),
+                "thumbnail_root": reverse('spot-image-thumb', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk}).rstrip('/'),
                 "description": self.description
                 }
 
@@ -276,7 +277,7 @@ class SpotImage(models.Model):
         super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):
-        return "{0}/image/{1}".format(self.spot.rest_url(), self.pk)
+        return reverse('spot-image', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk})
 
 
 class TrustedOAuthClient(models.Model):

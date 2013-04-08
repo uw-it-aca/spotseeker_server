@@ -13,12 +13,11 @@
     limitations under the License.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
 from spotseeker_server.forms.spot import SpotForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
-import simplejson as json
 
 
 class AllSpotsView(RESTDispatch):
@@ -26,4 +25,4 @@ class AllSpotsView(RESTDispatch):
     @app_auth_required
     def GET(self, request):
         spots = [s.json_data_structure() for s in Spot.objects.all()]
-        return HttpResponse(json.dumps(spots))
+        return JSONResponse(spots)

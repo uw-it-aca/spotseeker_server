@@ -13,13 +13,13 @@
     limitations under the License.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError, JSONResponse
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
-import simplejson as json
 from django.db import transaction
+import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
 
@@ -136,9 +136,8 @@ class SpotView(RESTDispatch):
     @app_auth_required
     def GET(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
-        response = HttpResponse(json.dumps(spot.json_data_structure()))
+        response = JSONResponse(spot.json_data_structure())
         response["ETag"] = spot.etag
-        response["Content-type"] = "application/json"
         return response
 
     @user_auth_required
@@ -231,14 +230,11 @@ class SpotView(RESTDispatch):
         )
 
         if is_new:
-            response = HttpResponse()
-            response.status_code = 201
+            response = HttpResponse(status=201)
             response['Location'] = spot.rest_url()
         else:
-            response = HttpResponse(json.dumps(spot.json_data_structure()))
-            response.status_code = 200
+            response = JSONResponse(spot.json_data_structure(), status=200)
         response["ETag"] = spot.etag
-        response["Content-type"] = 'application/json'
 
         spot_post_build.send(
                 sender=SpotForm,

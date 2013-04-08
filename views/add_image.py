@@ -38,8 +38,7 @@ class AddImageView(RESTDispatch):
 
         image = spot.spotimage_set.create(**args)
 
-        response = HttpResponse()
-        response.status_code = 201
+        response = HttpResponse(status=201)
         response["Location"] = image.rest_url()
 
         return response

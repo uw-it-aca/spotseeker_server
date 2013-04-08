@@ -20,6 +20,22 @@ import simplejson as json
 import traceback
 
 
+class JSONResponse(HttpResponse):
+    """
+    A standard HttpResponse that will serialize the body to JSON
+    and set the content-type to 'application/json'
+    """
+
+    def __init__(self, content='', *args, **kwargs):
+        if content != '':
+            content = json.dumps(content)
+
+        if not kwargs.get('content_type', None):
+            kwargs['content_type'] = 'application/json'
+
+        super(JSONResponse, self).__init__(content, *args, **kwargs)
+
+
 class RESTException(Exception):
     """
     Can be thrown inside RESTful methods. Accepts a specific
@@ -59,29 +75,24 @@ class RESTDispatch:
 
         except ObjectDoesNotExist as odne:
             json_values = self.json_error(odne)
-            response = HttpResponse(json.dumps(json_values))
-            response.status_code = 404
+            response = JSONResponse(json_values, status=404)
 
         except ValidationError as ve:
             json_values = self.json_error(ve)
-            response = HttpResponse(json.dumps(json_values))
-            response.status_code = 400
+            response = JSONResponse(json_values, status=400)
 
         except RESTFormInvalidError as fie:
             json_values = self.json_error(fie)
             json_values.update(fie.form.errors)
-            response = HttpResponse(json.dumps(json_values))
-            response.status_code = fie.status_code
+            response = JSONResponse(json_values, status=fie.status_code)
 
         except RESTException as rest_e:
             json_values = self.json_error(rest_e)
-            response = HttpResponse(json.dumps(json_values))
-            response.status_code = rest_e.status_code
+            response = JSONResponse(json_values, status=rest_e.status_code)
 
         except Exception as e:
             json_values = self.json_error(e)
-            response = HttpResponse(json.dumps(json_values))
-            response.status_code = 500
+            response = JSONResponse(json_values, status=500)
 
         return response
 

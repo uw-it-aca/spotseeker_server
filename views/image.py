@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, JSONResponse
 from django.http import HttpResponse
 from django.utils.http import http_date
 from django.core.servers.basehttp import FileWrapper
@@ -80,7 +80,4 @@ class ImageView(RESTDispatch):
 
         img.delete()
 
-        response = HttpResponse()
-        response.status_code = 200
-
-        return response
+        return HttpResponse(status=200)

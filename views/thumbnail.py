@@ -84,8 +84,7 @@ class ThumbnailView(RESTDispatch):
         thumb.save(tmp, im.format, quality=95)
         tmp.seek(0)
 
-        response = HttpResponse(tmp.getvalue())
+        response = HttpResponse(tmp.getvalue(), content_type=img.content_type)
         # 7 day timeout?
         response['Expires'] = http_date(time.time() + 60 * 60 * 24 * 7)
-        response["Content-type"] = img.content_type
         return response

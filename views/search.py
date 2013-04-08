@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, JSONResponse
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
 from spotseeker_server.org_filters import SearchFilterChain
@@ -23,7 +23,6 @@ from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
 from decimal import *
-import simplejson as json
 from time import *
 from datetime import datetime
 import sys
@@ -41,10 +40,10 @@ class SearchView(RESTDispatch):
         has_valid_search_param = False
 
         if not form.is_valid():
-            return HttpResponse('[]')
+            return JSONResponse([])
 
         if len(request.GET) == 0:
-            return HttpResponse('[]')
+            return JSONResponse([])
 
         chain = SearchFilterChain(request)
         query = Spot.objects.all()
@@ -211,10 +210,10 @@ class SearchView(RESTDispatch):
         elif 'distance' in request.GET or 'center_longitude' in request.GET or 'center_latitude' in request.GET:
             if 'distance' not in request.GET or 'center_longitude' not in request.GET or 'center_latitude' not in request.GET:
                 # If distance, lat, or long are specified in the server request; all 3 must be present.
-                return HttpResponseBadRequest("Bad Request")
+                raise RESTException("Must specify latitude, longitude, and distance", 400)
 
         if not has_valid_search_param:
-            return HttpResponse('[]')
+            return JSONResponse([])
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)
@@ -222,9 +221,7 @@ class SearchView(RESTDispatch):
                 sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
                 query = sorted_list[:limit]
             except KeyError:
-                response = HttpResponse('{"error":"missing required parameters for this type of search"}')
-                response.status_code = 400
-                return response
+                raise RESTException("missing required parameters for this type of search", 400)
 
         response = []
         spots = set(query)
@@ -233,7 +230,7 @@ class SearchView(RESTDispatch):
         for spot in spots:
             response.append(spot.json_data_structure())
 
-        return HttpResponse(json.dumps(response))
+        return JSONResponse(response)
 
     def distance(self, spot, longitude, latitude):
         g = Geod(ellps='clrk66')

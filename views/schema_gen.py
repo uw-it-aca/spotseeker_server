@@ -18,7 +18,7 @@ from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from django.db import models
-import simplejson as json
+from spotseeker_server.views.rest_dispatch import JSONResponse
 
 
 @app_auth_required
@@ -122,6 +122,4 @@ def schema_gen(request):
         else:
             schema["extended_info"].update({key: "unicode"})
 
-    response = HttpResponse(json.dumps(schema))
-    response["Content-type"] = "application/json"
-    return response
+    return JSONResponse(schema)

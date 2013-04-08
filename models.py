@@ -255,21 +255,19 @@ class SpotImage(models.Model):
 
     @update_etag
     def save(self, *args, **kwargs):
-        if isinstance(self.image, UploadedFile):
-            # New file uploaded to the model. Update the attributes
-            try:
-                if self.image.file.multiple_chunks():
-                    img = Image.open(self.image.file.temporary_file_path())
-                else:
-                    img = Image.open(self.image)
-            except:
-                raise ValidationError('Not a valid image format')
+        try:
+            if isinstance(self.image, UploadedFile) and self.image.file.multiple_chunks():
+                img = Image.open(self.image.file.temporary_file_path())
+            else:
+                img = Image.open(self.image)
+        except:
+            raise ValidationError('Not a valid image format')
 
-            if not img.format in SpotImage.CONTENT_TYPES:
-                raise ValidationError('Not an accepted image format')
+        if not img.format in SpotImage.CONTENT_TYPES:
+            raise ValidationError('Not an accepted image format')
 
-            self.content_type = SpotImage.CONTENT_TYPES[img.format]
-            self.width, self.height = img.size
+        self.content_type = SpotImage.CONTENT_TYPES[img.format]
+        self.width, self.height = img.size
 
         super(SpotImage, self).save(*args, **kwargs)
 

@@ -11,6 +11,13 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: move some of the URL parameter parsing into
+        here to simplify the URL patterns; adapt to the new RESTDispatch
+        framework.
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException

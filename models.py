@@ -11,6 +11,16 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: add external_id support; create decorator
+        for updating the etag; make spottypes not required; use
+        reverse() to build URLs; re-organize some of the JSON
+        serialization code; add DAY_CHOICES; add unique constraint on
+        extended info (spot, key); re-work SpotImage save so that the
+        proper exception is thrown on an invalid image type.
 """
 
 from django.db import models

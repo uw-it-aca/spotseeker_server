@@ -11,6 +11,14 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: adapt to the new RESTDispatch framework;
+        add dispatch hooks and use them for extended info and
+        available hours; add support for partial updates to a spot;
+        add external_id support.
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError, JSONResponse

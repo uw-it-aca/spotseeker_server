@@ -11,6 +11,15 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: add JSONResponse subclass of HttpResponse;
+        add some exceptions for subclass views to raise; simplify
+        choosing a method to call; catch exceptions and return them
+        to the client (always with an error field); move etag
+        validation to here.
 """
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError

@@ -11,6 +11,14 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: adapt to the new RESTDispatch framework;
+        remove some needless use of regex; add open_anytime option;
+        move some UW options into new org_filter; add org_filter
+        support (hooks).
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, JSONResponse

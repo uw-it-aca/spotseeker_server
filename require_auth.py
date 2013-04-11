@@ -11,6 +11,12 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: only load the auth modules once on app
+        initialization.
 """
 
 from django.http import HttpResponse

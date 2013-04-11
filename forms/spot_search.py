@@ -11,6 +11,11 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: add import for ImproperlyConfigured.
 """
 
 from spotseeker_server.default_forms.spot_search import DefaultSpotSearchForm

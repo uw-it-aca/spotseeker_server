@@ -11,6 +11,13 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: added external_id support; moved some URL
+        patterns into the ThumbnailView; added names for reverse()
+        support.
 """
 
 from django.conf.urls.defaults import patterns, include, url

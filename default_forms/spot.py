@@ -11,6 +11,12 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: added data validation; made the forms
+        useful for the admin interface.
 """
 
 from decimal import Decimal

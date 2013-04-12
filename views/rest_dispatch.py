@@ -37,7 +37,10 @@ class JSONResponse(HttpResponse):
 
     def __init__(self, content='', *args, **kwargs):
         if content != '':
-            content = json.dumps(content)
+            if getattr(settings, 'DEBUG', False):
+                content = json.dumps(content, sort_keys=True, indent=4 * ' ')
+            else:
+                content = json.dumps(content)
 
         if not kwargs.get('content_type', None):
             kwargs['content_type'] = 'application/json'

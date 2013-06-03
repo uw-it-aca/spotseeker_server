@@ -96,22 +96,32 @@ class Command(BaseCommand):
                 # Updates the num_machines_available extended_info field for spots that have corresponding labstats.
                 stats = WSDL.Proxy(settings.LABSTATS_URL)
                 groups = stats.GetGroupedCurrentStats().GroupStat
-                #for g in groups:
-                    #g.groupName g.availableCount g.groupId g.inUseCount g.offCount g.percentInUse g.totalCount g.unavailableCount
 
-                labstats_spaces = Spot.objects.exclude(id=0)  # change to (external_id="") after testing
+                # TODO: when UIUC's changes with the external_id have been merged in, update the following
+                # to use the external_id field instead of the labstats_id extended_info field
+
+                #labstats_spaces = Spot.objects.exclude(external_id="") < -- for after the UIUC changes
+                labstats_spaces = Spot.objects.filter(spotextendedinfo__key="labstats_id")  # delete this after external_id is used
+
                 for space in labstats_spaces:
                     try:
                         for g in groups:
-                            if space.organization == g.groupName:  # change to "space.external_id ==" after testing
+                            # Available data fields froms the labstats groups:
+                            # g.groupName g.availableCount g.groupId g.inUseCount g.offCount g.percentInUse g.totalCount g.unavailableCount
+
+                            # if space.external_id == g.groupName: <-- for after the UIUC changes
+                            if space.spotextendedinfo_set.get(key="labstats_id").value == g.groupName:  # delete this after external_id is used
+
                                 if not SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_total"):
                                     SpotExtendedInfo.objects.create(spot=space, key="__auto_labstats_available", value=g.availableCount)
                                     SpotExtendedInfo.objects.create(spot=space, key="__auto_labstats_total", value=g.totalCount)
                                     SpotExtendedInfo.objects.create(spot=space, key="__auto_labstats_off", value=g.offCount)
+
                                 else:
                                     SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_available").update(value=g.availableCount)
                                     SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_total").update(value=g.totalCount)
                                     SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_off").update(value=g.offCount)
+
                     except Exception as ex:
                         logger.debug("An error occured updating labstats spots: %s", str(ex))
 

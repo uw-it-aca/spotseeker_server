@@ -46,6 +46,7 @@ class SpotSearchCapacityTest(TestCase):
 
             c = Client()
             response = c.get("/api/v1/spot", {'capacity': '', 'name': 'capacity'})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False
@@ -73,6 +74,7 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_5, True)
 
             response = c.get("/api/v1/spot", {'capacity': '1'})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False
@@ -100,6 +102,7 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_5, True)
 
             response = c.get("/api/v1/spot", {'capacity': '49'})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False
@@ -127,6 +130,7 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_5, True)
 
             response = c.get("/api/v1/spot", {'capacity': '501'})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False

@@ -35,6 +35,7 @@ from time import *
 from datetime import datetime
 import sys
 
+
 class SearchView(RESTDispatch):
     """ Handles searching for Spots with particular attributes based on a query string.
     """
@@ -52,7 +53,6 @@ class SearchView(RESTDispatch):
 
         if len(request.GET) == 0:
             return JSONResponse([])
-
         chain = SearchFilterChain(request)
         query = Spot.objects.all()
 
@@ -178,7 +178,7 @@ class SearchView(RESTDispatch):
         query = chain.filter_query(query)
         if chain.has_valid_search_param:
             has_valid_search_param = True
-        
+
         limit = 20
         if 'limit' in request.GET:
             if request.GET['limit'] == '0':

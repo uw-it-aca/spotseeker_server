@@ -17,9 +17,20 @@ from spotseeker_server.models import *
 from django.test.client import Client
 from django.test import TestCase
 import simplejson as json
+from mock import patch
+from django.core import cache
+from spotseeker_server import models
 
 
 class SpotSchemaTest(TestCase):
+    def test_content_type(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            url = "/api/v1/schema"
+            response = c.get(url)
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
+
     def test_regular_spot_info(self):
         with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                            SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):

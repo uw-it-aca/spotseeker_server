@@ -58,6 +58,10 @@ class SpotGETTest(TestCase):
             response = c.get(url)
             self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
 
+            url = "/api/v1/spot/all"
+            response = c.get(url)
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
+
     def test_etag(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):

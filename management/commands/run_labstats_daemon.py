@@ -30,8 +30,8 @@ class Command(BaseCommand):
         make_option('--update-delay',
                     dest='update_delay',
                     type='float',
-                    default=60,
-                    help='The number of seconds between update attempts.'),
+                    default=1,
+                    help='The number of minutes between update attempts.'),
         make_option('--run-once',
                     dest='run_once',
                     default=False,
@@ -92,16 +92,15 @@ class Command(BaseCommand):
             if run_once:
                 self.create_stop_file()
 
+            # TODO: when UIUC's changes with the external_id have been merged in, update the following
+            # to use the external_id field instead of the labstats_id extended_info field
+
+            #labstats_spaces = Spot.objects.exclude(external_id="") < -- for after the UIUC changes
+            labstats_spaces = Spot.objects.filter(spotextendedinfo__key="labstats_id")  # delete this after external_id is used
             try:
                 # Updates the num_machines_available extended_info field for spots that have corresponding labstats.
                 stats = WSDL.Proxy(settings.LABSTATS_URL)
                 groups = stats.GetGroupedCurrentStats().GroupStat
-
-                # TODO: when UIUC's changes with the external_id have been merged in, update the following
-                # to use the external_id field instead of the labstats_id extended_info field
-
-                #labstats_spaces = Spot.objects.exclude(external_id="") < -- for after the UIUC changes
-                labstats_spaces = Spot.objects.filter(spotextendedinfo__key="labstats_id")  # delete this after external_id is used
 
                 for space in labstats_spaces:
                     try:
@@ -112,26 +111,36 @@ class Command(BaseCommand):
                             # if space.external_id == g.groupName: <-- for after the UIUC changes
                             if space.spotextendedinfo_set.get(key="labstats_id").value == g.groupName:  # delete this after external_id is used
 
-                                if not SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_total"):
-                                    SpotExtendedInfo.objects.create(spot=space, key="__auto_labstats_available", value=g.availableCount)
-                                    SpotExtendedInfo.objects.create(spot=space, key="__auto_labstats_total", value=g.totalCount)
-                                    SpotExtendedInfo.objects.create(spot=space, key="__auto_labstats_off", value=g.offCount)
+                                if not SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_total"):
+                                    SpotExtendedInfo.objects.create(spot=space, key="auto_labstats_available", value=g.availableCount)
+                                    SpotExtendedInfo.objects.create(spot=space, key="auto_labstats_total", value=g.totalCount)
+                                    SpotExtendedInfo.objects.create(spot=space, key="auto_labstats_off", value=g.offCount)
 
                                 else:
-                                    SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_available").update(value=g.availableCount)
-                                    SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_total").update(value=g.totalCount)
-                                    SpotExtendedInfo.objects.filter(spot=space, key="__auto_labstats_off").update(value=g.offCount)
+                                    SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_available").update(value=g.availableCount)
+                                    SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_total").update(value=g.totalCount)
+                                    SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_off").update(value=g.offCount)
 
                     except Exception as ex:
-                        logger.debug("An error occured updating labstats spots: %s", str(ex))
+                        SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_available").delete()
+                        SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_total").delete()
+                        SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_off").delete()
+                        logger.debug("An error occured updating labstats spot %s: %s", (space.name, str(ex)))
 
             except Exception as ex:
+                for space in labstats_spaces:
+                    SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_available").delete()
+                    SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_total").delete()
+                    SpotExtendedInfo.objects.filter(spot=space, key="auto_labstats_off").delete()
                 logger.debug("Error getting labstats stats: %s", str(ex))
 
             if not run_once:
-                time.sleep(update_delay)
-                if self.should_stop():
-                    sys.exit()
+                for i in range(update_delay * 60):
+                    if self.should_stop():
+                        sys.exit()
+                    else:
+                        time.sleep(1)
+
             else:
                 sys.exit()
 

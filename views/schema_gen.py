@@ -117,17 +117,17 @@ class SchemaGenView(RESTDispatch):
         for spot_type in SpotType.objects.all():
             schema["type"].append(spot_type.name)
 
-    # To grab all of the extended info
-    try:
-        validated_ei = SpotForm.validated_extended_info
-        org_form_exists = True
-    except:
-        org_form_exists = False
-    for key_dict in SpotExtendedInfo.objects.values("key").distinct():
-        key = key_dict["key"]
-        if org_form_exists and key in validated_ei:
-            schema["extended_info"].update({key: validated_ei[key]})
-        else:
-            schema["extended_info"].update({key: "unicode"})
+        # To grab all of the extended info
+        try:
+            validated_ei = SpotForm.validated_extended_info
+            org_form_exists = True
+        except:
+            org_form_exists = False
+        for key_dict in SpotExtendedInfo.objects.values("key").distinct():
+            key = key_dict["key"]
+            if org_form_exists and key in validated_ei:
+                schema["extended_info"].update({key: validated_ei[key]})
+            else:
+                schema["extended_info"].update({key: "unicode"})
 
-    return JSONResponse(schema)
+        return JSONResponse(schema)

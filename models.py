@@ -111,6 +111,7 @@ class Spot(models.Model):
             spot_json = {
                 "id": self.pk,
                 "uri": self.rest_url(),
+                "etag": self.etag,
                 "name": self.name,
                 "type": types,
                 "location": {

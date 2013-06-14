@@ -274,5 +274,8 @@ class SpotView(RESTDispatch):
         if not partial_update or (partial_update and types is not None):
             json_values['spottypes'] = []
             for name in types:
-                t = SpotType.objects.get(name=name)
-                json_values['spottypes'].append(t.pk)
+                try:
+                    t = SpotType.objects.get(name=name)
+                    json_values['spottypes'].append(t.pk)
+                except:
+                    pass

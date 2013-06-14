@@ -39,9 +39,11 @@ from django.core.cache import cache
 import re
 from functools import wraps
 
+
 def validate_external_id(external_id):
     if external_id is not None and not re.match(r'^[\w-]*$', str(external_id)):
         raise ValidationError("External ID must only be letters, numbers, underscores, and hyphens")
+
 
 def update_etag(func):
     """Any model with an ETag can decorate an instance method with
@@ -78,7 +80,7 @@ class Spot(models.Model):
     objects = SpotManager()
 
     name = models.CharField(max_length=100, blank=True)
-    spottypes = models.ManyToManyField(SpotType, max_length=50, related_name='spots', blank=True)
+    spottypes = models.ManyToManyField(SpotType, max_length=50, related_name='spots', blank=True, null=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
@@ -231,9 +233,9 @@ class SpotImage(models.Model):
     """ An image of a Spot. Multiple images can be associated with a Spot, and Spot objects have a 'Spot.spotimage_set' method that will return all SpotImage objects for the Spot.
     """
     CONTENT_TYPES = {
-            "JPEG": "image/jpeg",
-            "GIF": "image/gif",
-            "PNG": "image/png",
+        "JPEG": "image/jpeg",
+        "GIF": "image/gif",
+        "PNG": "image/png",
     }
 
     description = models.CharField(max_length=200, blank=True)
@@ -256,18 +258,18 @@ class SpotImage(models.Model):
 
     def json_data_structure(self):
         return {
-                "id": self.pk,
-                "url": self.rest_url(),
-                "content-type": self.content_type,
-                "width": self.width,
-                "height": self.height,
-                "creation_date": self.creation_date.isoformat(),
-                "modification_date": self.modification_date.isoformat(),
-                "upload_user": self.upload_user,
-                "upload_application": self.upload_application,
-                "thumbnail_root": reverse('spot-image-thumb', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk}).rstrip('/'),
-                "description": self.description
-                }
+            "id": self.pk,
+            "url": self.rest_url(),
+            "content-type": self.content_type,
+            "width": self.width,
+            "height": self.height,
+            "creation_date": self.creation_date.isoformat(),
+            "modification_date": self.modification_date.isoformat(),
+            "upload_user": self.upload_user,
+            "upload_application": self.upload_application,
+            "thumbnail_root": reverse('spot-image-thumb', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk}).rstrip('/'),
+            "description": self.description
+        }
 
     @update_etag
     def save(self, *args, **kwargs):

@@ -29,5 +29,7 @@ class AllSpotsView(RESTDispatch):
 
     @app_auth_required
     def GET(self, request):
-        spots = [s.json_data_structure() for s in Spot.objects.all()]
+        spots = []
+        for spot in Spot.objects.all():
+            spots.append(spot.json_data_structure())
         return JSONResponse(spots)

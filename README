@@ -1,5 +1,7 @@
 SpaceScout is a project from the University of Washington.
 
+This is the server for the SpaceScout suite of applications. It stores space metadata and resources as well as provides services to the SpaceScout web and mobile apps.
+
   Copyright 2012, 2013 UW Information Technology, University of Washington
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +15,3 @@ SpaceScout is a project from the University of Washington.
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-
-
-The current official repository is located at
-
-https://github.com/vegitron/spotseeker-server

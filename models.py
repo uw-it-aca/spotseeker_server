@@ -129,8 +129,12 @@ class Spot(models.Model):
             for window in hours:
                 available_hours[window.get_day_display()].append(window.json_data_structure())
 
-            images = [img.json_data_structure() for img in SpotImage.objects.filter(spot=self)]
-            types = [t.name for t in self.spottypes.all()]
+            images = []
+            for img in SpotImage.objects.filter(spot=self):
+                images.append(img.json_data_structure())
+            types = []
+            for t in self.spottypes.all():
+                types.append(t.name)
 
             spot_json = {
                 "id": self.pk,

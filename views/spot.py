@@ -144,7 +144,7 @@ class SpotView(RESTDispatch):
     """
     @app_auth_required
     def GET(self, request, spot_id):
-        spot = Spot.objects.get_with_external(spot_id)
+        spot = Spot.get_with_external(spot_id)
         response = JSONResponse(spot.json_data_structure())
         response["ETag"] = spot.etag
         return response
@@ -155,7 +155,7 @@ class SpotView(RESTDispatch):
 
     @user_auth_required
     def PUT(self, request, spot_id):
-        spot = Spot.objects.get_with_external(spot_id)
+        spot = Spot.get_with_external(spot_id)
 
         self.validate_etag(request, spot)
 
@@ -163,7 +163,7 @@ class SpotView(RESTDispatch):
 
     @user_auth_required
     def DELETE(self, request, spot_id):
-        spot = Spot.objects.get_with_external(spot_id)
+        spot = Spot.get_with_external(spot_id)
 
         self.validate_etag(request, spot)
 

@@ -64,21 +64,9 @@ class SpotType(models.Model):
         return self.name
 
 
-class SpotManager(models.Manager):
-    """ Adds methods specifically for fetching spots.
-    """
-    def get_with_external(self, spot_id):
-        if spot_id and str(spot_id).startswith('external:'):
-            return self.get(external_id=spot_id[9:])
-        else:
-            return self.get(pk=spot_id)
-
-
 class Spot(models.Model):
     """ Represents a place for students to study.
     """
-    objects = SpotManager()
-
     name = models.CharField(max_length=100, blank=True)
     spottypes = models.ManyToManyField(SpotType, max_length=50, related_name='spots', blank=True, null=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
@@ -168,6 +156,13 @@ class Spot(models.Model):
     def delete(self, *args, **kwargs):
         cache.delete(self.pk)
         super(Spot, self).delete(*args, **kwargs)
+
+    @staticmethod
+    def get_with_external(spot_id):
+        if spot_id and str(spot_id).startswith('external:'):
+            return Spot.objects.get(external_id=spot_id[9:])
+        else:
+            return Spot.objects.get(pk=spot_id)
 
 
 class SpotAvailableHours(models.Model):

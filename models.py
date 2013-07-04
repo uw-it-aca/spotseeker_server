@@ -25,6 +25,7 @@
 
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_slug
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
 import hashlib
@@ -38,11 +39,6 @@ import oauth_provider.models
 from django.core.cache import cache
 import re
 from functools import wraps
-
-
-def validate_external_id(external_id):
-    if external_id is not None and not re.match(r'^[\w-]*$', str(external_id)):
-        raise ValidationError("External ID must only be letters, numbers, underscores, and hyphens")
 
 
 def update_etag(func):
@@ -81,7 +77,7 @@ class Spot(models.Model):
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
     last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
-    external_id = models.CharField(max_length=100, null=True, blank=True, default=None, unique=True, validators=[validate_external_id])
+    external_id = models.CharField(max_length=100, null=True, blank=True, default=None, unique=True, validators=[validate_slug])
 
     def __unicode__(self):
         return self.name

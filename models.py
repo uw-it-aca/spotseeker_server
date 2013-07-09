@@ -213,6 +213,7 @@ class SpotExtendedInfo(models.Model):
 
     class Meta:
         verbose_name_plural = "Spot extended info"
+        unique_together = ('spot', 'key')
 
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)

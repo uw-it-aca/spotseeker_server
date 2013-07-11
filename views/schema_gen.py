@@ -37,6 +37,11 @@ class SchemaGenView(RESTDispatch):
             types are for the actual values. If there is a list of values (even only a list of size 1)
             those are the only values that will pass validations.
         """
+        if request.META['SERVER_NAME'] == 'testserver':
+            # Dirty hack to make SpotForm unit tests pass because the SpotForm
+            # module is only imported on initialization so the @patch decorator
+            # doesn't work unless you reimport the modules
+            from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
         schema = {
             "uri": "auto",
             "available_hours": "hours_string",

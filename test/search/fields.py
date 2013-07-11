@@ -238,18 +238,20 @@ class SpotSearchFieldTest(TestCase):
             self.assertTrue(spot5.pk not in response_ids, 'Spot 5 is not returned')
             self.assertEquals(len(spots), 4, 'Finds 4 matches searching for spots in Buildings A and B')
 
-    def test_duplicate_extended_info(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
-                spot = Spot.objects.create(name="This is for testing GET", latitude=55, longitude=30)
-                spot.save()
-                self.spot = spot
+    # This unit test is currently invalid, as of dbdb3def8046a4f52e5bb23194423e913397e92f - if we decide duplicate keys should be allowed again, this may become valid.
+    #def test_duplicate_extended_info(self):
+    #    dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+    #    with patch.object(models, 'cache', dummy_cache):
+    #        with self.settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+    #            spot = Spot.objects.create(name="This is for testing GET", latitude=55, longitude=30)
+    #            spot.save()
+    #            self.spot = spot
 
-                c = Client()
-                SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
-                SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
-                response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})
-                self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
-                spots = json.loads(response.content)
-                self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_soda_fountain=true')
+    #            c = Client()
+    #            import pdb; pdb.set_trace()
+    #            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
+    #            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
+    #            response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})
+    #            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
+    #            spots = json.loads(response.content)
+    #            self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_soda_fountain=true')

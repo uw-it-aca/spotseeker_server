@@ -11,12 +11,16 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: adapt to a simplier RESTDispatch framework.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
-from django.core.exceptions import ValidationError
 from spotseeker_server.require_auth import *
 from PIL import Image
 
@@ -26,40 +30,20 @@ class AddImageView(RESTDispatch):
     """
     @user_auth_required
     def POST(self, request, spot_id):
-        try:
-            spot = Spot.objects.get(pk=spot_id)
-        except:
-            response = HttpResponse('{"error":"Spot not found"}')
-            response.status_code = 404
-            return response
+        spot = Spot.objects.get(pk=spot_id)
 
         if not "image" in request.FILES:
-            response = HttpResponse('"error":"No image"}')
-            response.status_code = 400
-            return response
+            raise RESTException("No image", 400)
 
-        try:
-            upload_user = ''
-            upload_app = ''
-            if 'SS_OAUTH_CONSUMER_NAME' in request.META:
-                upload_app = request.META['SS_OAUTH_CONSUMER_NAME']
-            if 'SS_OAUTH_USER' in request.META:
-                upload_user = request.META['SS_OAUTH_USER']
-            image = spot.spotimage_set.create(image=request.FILES["image"], upload_user=upload_user, upload_application=upload_app)
-        except ValidationError:
-            response = HttpResponse('"error":"Not an accepted image format"}')
-            response.status_code = 400
-            return response
-        except Exception as e:
-            response = HttpResponse('"error":"Not an accepted image format"}')
-            response.status_code = 400
-            return response
+        args = {}
+        args['upload_application'] = request.META.get('SS_OAUTH_CONSUMER_NAME', '')
+        args['upload_user'] = request.META.get('SS_OAUTH_USER', '')
+        args['description'] = request.POST.get('description', '')
+        args['image'] = request.FILES['image']
 
-        if "description" in request.POST:
-            image.description = request.POST["description"]
+        image = spot.spotimage_set.create(**args)
 
-        response = HttpResponse()
-        response.status_code = 201
+        response = HttpResponse(status=201)
         response["Location"] = image.rest_url()
 
         return response

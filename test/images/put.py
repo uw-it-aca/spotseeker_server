@@ -171,7 +171,7 @@ class SpotImagePUTTest(TestCase):
                 f = open("%s/../resources/test_gif2.gif" % TEST_ROOT)
                 new_gif_name = "testing PUT name: {0}".format(random.random())
                 response = c.put(self.gif_url, {"description": new_gif_name, "image": f})
-                self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+                self.assertEquals(response.status_code, 400, "Bad request w/o an etag")
 
                 updated_img = SpotImage.objects.get(pk=self.gif.pk)
                 self.assertEquals(updated_img.image, self.gif.image, "No etag - same image")
@@ -180,7 +180,7 @@ class SpotImagePUTTest(TestCase):
                 f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
                 new_jpeg_name = "testing PUT name: {0}".format(random.random())
                 response = c.put(self.gif_url, {"description": new_jpeg_name, "image": f})
-                self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+                self.assertEquals(response.status_code, 400, "Bad request w/o an etag")
 
                 updated_img = SpotImage.objects.get(pk=self.jpeg.pk)
                 self.assertEquals(updated_img.description, self.jpeg.description, "No etag - same image")
@@ -189,7 +189,7 @@ class SpotImagePUTTest(TestCase):
                 f = open("%s/../resources/test_png2.png" % TEST_ROOT)
                 new_png_name = "testing PUT name: {0}".format(random.random())
                 response = c.put(self.gif_url, {"description": new_png_name, "image": f})
-                self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+                self.assertEquals(response.status_code, 400, "Bad request w/o an etag")
 
                 updated_img = SpotImage.objects.get(pk=self.png.pk)
                 self.assertEquals(updated_img.description, self.png.description, "No etag - same image")

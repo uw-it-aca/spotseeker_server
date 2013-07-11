@@ -11,19 +11,26 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: adapt to the new RESTDispatch framework;
+        remove some needless use of regex; add open_anytime option;
+        move some UW options into new org_filter; add org_filter
+        support (hooks).
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, JSONResponse
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
+from spotseeker_server.org_filters import SearchFilterChain
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
 from decimal import *
-import simplejson as json
-import re
 from time import *
 from datetime import datetime
 import sys
@@ -42,11 +49,11 @@ class SearchView(RESTDispatch):
         has_valid_search_param = False
 
         if not form.is_valid():
-            return HttpResponse('[]')
+            return JSONResponse([])
 
         if len(request.GET) == 0:
-            return HttpResponse('[]')
-
+            return JSONResponse([])
+        chain = SearchFilterChain(request)
         query = Spot.objects.all()
 
         day_dict = {"Sunday": "su",
@@ -58,7 +65,11 @@ class SearchView(RESTDispatch):
                     "Saturday": "sa", }
         # Exclude things that get special consideration here, otherwise add a filter for the keys
         for key in request.GET:
-            if re.search('^oauth_', key):
+            if key.startswith('oauth_'):
+                pass
+            elif chain.filters_key(key):
+                # this needs to happen early, before any
+                # org_filter or extended_info
                 pass
             elif key == "expand_radius":
                 pass
@@ -109,38 +120,6 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
-            elif key == "extended_info:reservable":
-                query = query.filter(spotextendedinfo__key="reservable", spotextendedinfo__value__in=['true', 'reservations'])
-            elif key == "extended_info:noise_level":
-                noise_levels = request.GET.getlist("extended_info:noise_level")
-
-                exclude_silent = True
-                exclude_quiet = True
-                exclude_moderate = True
-                exclude_loud = True
-                exclude_variable = True
-
-                for level in noise_levels:
-                    if "silent" == level:
-                        exclude_silent = False
-                    if "quiet" == level:
-                        exclude_quiet = False
-                        exclude_variable = False
-                    if "moderate" == level:
-                        exclude_moderate = False
-                        exclude_variable = False
-
-                if exclude_silent:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="silent")
-                if exclude_quiet:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="quiet")
-                if exclude_moderate:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="moderate")
-                if exclude_loud:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="loud")
-                if exclude_variable:
-                    query = query.exclude(spotextendedinfo__key="noise_level", spotextendedinfo__value__iexact="variable")
-
             elif key == "capacity":
                 try:
                     limit = int(request.GET["capacity"])
@@ -170,7 +149,7 @@ class SearchView(RESTDispatch):
                     q_obj |= type_q
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
-            elif re.search('^extended_info:', key):
+            elif key.startswith('extended_info:'):
                 kwargs = {
                     'spotextendedinfo__key': key[14:],
                     'spotextendedinfo__value__in': request.GET.getlist(key)
@@ -190,6 +169,13 @@ class SearchView(RESTDispatch):
                 except Exception as e:
                     if not request.META['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
+
+        # Always prefetch the related extended info
+        query = query.select_related('SpotExtendedInfo')
+
+        query = chain.filter_query(query)
+        if chain.has_valid_search_param:
+            has_valid_search_param = True
 
         limit = 20
         if 'limit' in request.GET:
@@ -230,10 +216,10 @@ class SearchView(RESTDispatch):
         elif 'distance' in request.GET or 'center_longitude' in request.GET or 'center_latitude' in request.GET:
             if 'distance' not in request.GET or 'center_longitude' not in request.GET or 'center_latitude' not in request.GET:
                 # If distance, lat, or long are specified in the server request; all 3 must be present.
-                return HttpResponseBadRequest("Bad Request")
+                raise RESTException("Must specify latitude, longitude, and distance", 400)
 
         if not has_valid_search_param:
-            return HttpResponse('[]')
+            return JSONResponse([])
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)
@@ -241,16 +227,16 @@ class SearchView(RESTDispatch):
                 sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
                 query = sorted_list[:limit]
             except KeyError:
-                response = HttpResponse('{"error":"missing required parameters for this type of search"}')
-                response.status_code = 400
-                return response
+                raise RESTException("missing required parameters for this type of search", 400)
 
         response = []
+        spots = set(query)
+        spots = chain.filter_results(spots)
 
-        for spot in set(query):
+        for spot in spots:
             response.append(spot.json_data_structure())
 
-        return HttpResponse(json.dumps(response))
+        return JSONResponse(response)
 
     def distance(self, spot, longitude, latitude):
         g = Geod(ellps='clrk66')

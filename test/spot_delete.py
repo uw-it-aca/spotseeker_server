@@ -84,7 +84,7 @@ class SpotDELETETest(TestCase):
             c = Client()
 
             response = c.delete(self.url)
-            self.assertEquals(response.status_code, 409, "Deleting w/o an etag is a conflict")
+            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
 
             response = c.get(self.url)
             self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")

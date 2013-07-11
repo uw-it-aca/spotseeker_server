@@ -45,6 +45,7 @@ class SpotSearchFieldTest(TestCase):
             c = Client()
             response = c.get("/api/v1/spot", {'name': 'OUGL'})
             self.assertEquals(response.status_code, 200, "Accepts name query")
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 3, 'Find 3 matches for OUGL')
 
@@ -71,6 +72,7 @@ class SpotSearchFieldTest(TestCase):
 
             response = c.get("/api/v1/spot", {'extended_info:has_whiteboards': True})
             self.assertEquals(response.status_code, 200, "Accepts whiteboards query")
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 1, 'Finds 1 match for whiteboards')
 
@@ -83,6 +85,7 @@ class SpotSearchFieldTest(TestCase):
 
             response = c.get("/api/v1/spot", {'extended_info:has_whiteboards': True, 'name': 'odegaard under'})
             self.assertEquals(response.status_code, 200, "Accepts whiteboards + name query")
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 1, 'Finds 1 match for whiteboards + odegaard')
 
@@ -94,6 +97,7 @@ class SpotSearchFieldTest(TestCase):
             c = Client()
             response = c.get("/api/v1/spot", {'invalid_field': 'OUGL'})
             self.assertEquals(response.status_code, 200, "Accepts an invalid field in query")
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_invalid_extended_info(self):
@@ -102,6 +106,7 @@ class SpotSearchFieldTest(TestCase):
             c = Client()
             response = c.get("/api/v1/spot", {'extended_info:invalid_field': 'OUGL'})
             self.assertEquals(response.status_code, 200, "Accepts an invalid extended_info field in query")
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
     def test_multi_value_field(self):
@@ -123,21 +128,25 @@ class SpotSearchFieldTest(TestCase):
 
             c = Client()
             response = c.get("/api/v1/spot", {'extended_info:lightingmultifieldtest': 'natural'})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 1, 'Finds 1 match for lightingmultifieldtest - natural')
             self.assertEquals(spots[0]['id'], natural.pk, "Finds natural light spot")
 
             response = c.get("/api/v1/spot", {'extended_info:lightingmultifieldtest': 'artificial'})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 1, 'Finds 1 match for lightingmultifieldtest - artificial')
             self.assertEquals(spots[0]['id'], artificial.pk, "Finds artificial light spot")
 
             response = c.get("/api/v1/spot", {'extended_info:lightingmultifieldtest': 'other'})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 1, 'Finds 1 match for lightingmultifieldtest - other')
             self.assertEquals(spots[0]['id'], other.pk, "Finds other light spot")
 
             response = c.get("/api/v1/spot", {'extended_info:lightingmultifieldtest': ('other', 'natural')})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 2, 'Finds 2 match for lightingmultifieldtest - other + natural')
 
@@ -157,6 +166,7 @@ class SpotSearchFieldTest(TestCase):
                    Spot.objects.all()[3].id,)
 
             response = c.get("/api/v1/spot", {'id': ids})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 4, 'Finds 4 matches for searching for 4 ids')
 
@@ -183,14 +193,17 @@ class SpotSearchFieldTest(TestCase):
             spot4.save()
 
             response = c.get("/api/v1/spot", {"type": "cafe_testing"})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 2, 'Finds 2 matches for searching for type cafe_test')
 
             response = c.get("/api/v1/spot", {"type": "open_testing"})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 2, 'Finds 2 matches for searching for type open_test')
 
             response = c.get("/api/v1/spot", {"type": ["cafe_testing", "open_testing"]})
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 3, 'Finds 3 matches for searching for cafe_test and open_test')
 
@@ -237,5 +250,6 @@ class SpotSearchFieldTest(TestCase):
                 SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
                 SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
                 response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})
+                self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
                 spots = json.loads(response.content)
                 self.assertEquals(len(spots), 1, 'Finds 1 match searching on has_soda_fountain=true')

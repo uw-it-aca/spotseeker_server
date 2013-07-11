@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
@@ -24,10 +24,13 @@ from mock import patch
 from django.core import cache
 from spotseeker_server import models
 
+from spotseeker_server.org_forms.uw_spot import UWSpotForm, UWSpotExtendedInfoForm
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm')
-class UWSpotPUTTest(TestCase):
+
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@patch('spotseeker_server.views.spot.SpotForm', UWSpotForm)
+@patch('spotseeker_server.views.spot.SpotExtendedInfoForm', UWSpotExtendedInfoForm)
+class UWSpotPUTTest(TransactionTestCase):
     """ Tests updating Spot information via PUT.
     """
 
@@ -76,7 +79,7 @@ class UWSpotPUTTest(TestCase):
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 10
             response = c.put(self.url, '{{"name":"{0}","capacity":"{1}"}}'.format(new_name, new_capacity), content_type="application/json")
-            self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+            self.assertEquals(response.status_code, 400, "Bad request w/o an etag")
 
             updated_spot = Spot.objects.get(pk=self.spot.pk)
             self.assertEquals(updated_spot.name, self.spot.name, "No etag - same name")

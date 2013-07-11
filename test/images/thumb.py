@@ -93,25 +93,25 @@ class ImageThumbTest(TestCase):
             self.assertEquals(im.format, 'JPEG', "Actual type of 200x200 jpeg 'thumbnail' is still a jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, 0))
-            self.assertEquals(response.status_code, 404, "404 for no height, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for no height, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 100))
-            self.assertEquals(response.status_code, 404, "404 for no width, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for no width, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 0))
-            self.assertEquals(response.status_code, 404, "404 for no width or height, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for no width or height, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, -100))
-            self.assertEquals(response.status_code, 404, "404 for negative height, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for negative height, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, -100, 100))
-            self.assertEquals(response.status_code, 404, "404 for negative width, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for negative width, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, "a", 100))
-            self.assertEquals(response.status_code, 404, "404 for invalid width, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for invalid width, jpeg")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, "a"))
-            self.assertEquals(response.status_code, 404, "404 for invalid height, jpeg")
+            self.assertEquals(response.status_code, 400, "400 for invalid height, jpeg")
 
     def test_png_thumbs(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
@@ -164,25 +164,25 @@ class ImageThumbTest(TestCase):
             self.assertEquals(im.format, 'PNG', "Actual type of 200x200 png 'thumbnail' is still a png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, 0))
-            self.assertEquals(response.status_code, 404, "404 for no height, png")
+            self.assertEquals(response.status_code, 400, "400 for no height, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 100))
-            self.assertEquals(response.status_code, 404, "404 for no width, png")
+            self.assertEquals(response.status_code, 400, "400 for no width, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 0))
-            self.assertEquals(response.status_code, 404, "404 for no width or height, png")
+            self.assertEquals(response.status_code, 400, "400 for no width or height, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, -100))
-            self.assertEquals(response.status_code, 404, "404 for negative height, png")
+            self.assertEquals(response.status_code, 400, "400 for negative height, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, -100, 100))
-            self.assertEquals(response.status_code, 404, "404 for negative width, png")
+            self.assertEquals(response.status_code, 400, "400 for negative width, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, "a", 100))
-            self.assertEquals(response.status_code, 404, "404 for invalid width, png")
+            self.assertEquals(response.status_code, 400, "400 for invalid width, png")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, "a"))
-            self.assertEquals(response.status_code, 404, "404 for invalid height, png")
+            self.assertEquals(response.status_code, 400, "400 for invalid height, png")
 
     def test_gif_thumbs(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
@@ -235,25 +235,25 @@ class ImageThumbTest(TestCase):
             self.assertEquals(im.format, 'GIF', "Actual type of 200x200 gif 'thumbnail' is still a gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, 0))
-            self.assertEquals(response.status_code, 404, "404 for no height, gif")
+            self.assertEquals(response.status_code, 400, "400 for no height, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 100))
-            self.assertEquals(response.status_code, 404, "404 for no width, gif")
+            self.assertEquals(response.status_code, 400, "400 for no width, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 0, 0))
-            self.assertEquals(response.status_code, 404, "404 for no width or height, gif")
+            self.assertEquals(response.status_code, 400, "400 for no width or height, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, -100))
-            self.assertEquals(response.status_code, 404, "404 for negative height, gif")
+            self.assertEquals(response.status_code, 400, "400 for negative height, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, -100, 100))
-            self.assertEquals(response.status_code, 404, "404 for negative width, gif")
+            self.assertEquals(response.status_code, 400, "400 for negative width, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, "a", 100))
-            self.assertEquals(response.status_code, 404, "404 for invalid width, gif")
+            self.assertEquals(response.status_code, 400, "400 for invalid width, gif")
 
             response = c.get("{0}/thumb/{1}x{2}".format(new_base_location, 100, "a"))
-            self.assertEquals(response.status_code, 404, "404 for invalid height, gif")
+            self.assertEquals(response.status_code, 400, "400 for invalid height, gif")
 
     def test_invalid_url(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')

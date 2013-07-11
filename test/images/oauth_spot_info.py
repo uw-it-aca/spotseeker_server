@@ -30,6 +30,8 @@ from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
+import spotseeker_server.auth.oauth as ss_oauth
+from contextlib import nested
 
 TEST_ROOT = abspath(dirname(__file__))
 
@@ -42,30 +44,30 @@ class SpotResourceOAuthImageTest(unittest.TestCase):
     def test_oauth_attributes(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.oauth'
+            with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
+                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
 
-            consumer_name = "Test consumer"
+                consumer_name = "Test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+                key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+                secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
 
-            create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
-            trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted=True)
+                create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
+                trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted=True)
 
-            consumer = oauth2.Consumer(key=key, secret=secret)
+                consumer = oauth2.Consumer(key=key, secret=secret)
 
-            req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='POST', http_url="http://testserver/api/v1/spot/{0}/image/".format(self.spot.pk))
+                req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='POST', http_url="http://testserver/api/v1/spot/{0}/image/".format(self.spot.pk))
 
-            oauth_header = req.to_header()
-            c = Client()
+                oauth_header = req.to_header()
+                c = Client()
 
-            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-            response = c.post("/api/v1/spot/{0}/image".format(self.spot.pk),
-                              {"description": "oauth image", "image": f},
-                              HTTP_AUTHORIZATION=oauth_header['Authorization'],
-                              HTTP_XOAUTH_USER="pmichaud")
+                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+                response = c.post("/api/v1/spot/{0}/image".format(self.spot.pk),
+                                  {"description": "oauth image", "image": f},
+                                  HTTP_AUTHORIZATION=oauth_header['Authorization'],
+                                  HTTP_XOAUTH_USER="pmichaud")
 
-            settings.SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
 
             response = c.get('/api/v1/spot/{0}'.format(self.spot.pk))
 

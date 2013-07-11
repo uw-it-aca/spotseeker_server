@@ -11,15 +11,128 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: adapt to the new RESTDispatch framework;
+        add dispatch hooks and use them for extended info and
+        available hours; add support for partial updates to a spot;
+        add external_id support.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
-from spotseeker_server.forms.spot import SpotForm
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError, JSONResponse
+from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
-import simplejson as json
 from django.db import transaction
+import simplejson as json
+import django.dispatch
+from spotseeker_server.dispatch import spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+
+
+@django.dispatch.receiver(spot_pre_save, dispatch_uid='spotseeker_server.views.spot.build_available_hours')
+def _build_available_hours(sender, **kwargs):
+    """Save the available hours for later"""
+    json_values = kwargs['json_values']
+    stash = kwargs['stash']
+
+    stash['available_hours'] = json_values.pop('available_hours', None)
+
+
+@django.dispatch.receiver(spot_pre_save, dispatch_uid='spotseeker_server.views.spot.build_extended_info')
+def _build_extended_info(sender, **kwargs):
+    """Get the new and old extended info dicts, returned as tuples"""
+    json_values = kwargs['json_values']
+    spot = kwargs['spot']
+    stash = kwargs['stash']
+
+    new_extended_info = json_values.pop('extended_info', None)
+    if new_extended_info is not None:
+        for key in new_extended_info.keys():
+            value = new_extended_info[key]
+            if value is None or unicode(value) == '':
+                del new_extended_info[key]
+
+    old_extended_info = {}
+    if spot is not None:
+        old_extended_info = dict((ei.key, ei.value) for ei in spot.spotextendedinfo_set.all())
+
+    stash['new_extended_info'] = new_extended_info
+    stash['old_extended_info'] = old_extended_info
+
+
+@django.dispatch.receiver(spot_post_save, dispatch_uid='spotseeker_server.views.spot.save_available_hours')
+def _save_available_hours(sender, **kwargs):
+    """Sync the available hours for the spot"""
+    spot = kwargs['spot']
+    partial_update = kwargs['partial_update']
+    stash = kwargs['stash']
+
+    available_hours = stash['available_hours']
+
+    if partial_update and available_hours is None:
+        return
+
+    SpotAvailableHours.objects.filter(spot=spot).delete()
+
+    if available_hours is not None:
+        for day in SpotAvailableHours.DAY_CHOICES:
+            if not day[1] in available_hours:
+                continue
+
+            day_hours = available_hours[day[1]]
+            for window in day_hours:
+                SpotAvailableHours.objects.create(
+                    spot=spot,
+                    day=day[0],
+                    start_time=window[0],
+                    end_time=window[1]
+                )
+
+
+@django.dispatch.receiver(spot_post_save, dispatch_uid='spotseeker_server.views.spot.save_extended_info')
+def _save_extended_info(sender, **kwargs):
+    """Sync the extended info for the spot"""
+    spot = kwargs['spot']
+    partial_update = kwargs['partial_update']
+    stash = kwargs['stash']
+
+    new_extended_info = stash['new_extended_info']
+    old_extended_info = stash['old_extended_info']
+
+    if new_extended_info is None:
+        if not partial_update:
+            SpotExtendedInfo.objects.filter(spot=spot).delete()
+    else:
+        # first, loop over the new extended info and either:
+        # - add items that are new
+        # - update items that are old
+        for key in new_extended_info:
+            value = new_extended_info[key]
+
+            ei = None
+            if key in old_extended_info:
+                if value == old_extended_info[key]:
+                    continue
+                else:
+                    ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
+
+            eiform = SpotExtendedInfoForm({'spot': spot.pk, 'key': key, 'value': value}, instance=ei)
+            if not eiform.is_valid():
+                raise RESTFormInvalidError(eiform)
+
+            ei = eiform.save()
+        # Now loop over the different in the keys and remove old
+        # items that aren't present in the new set
+        for key in (set(old_extended_info.keys()) - set(new_extended_info.keys())):
+            try:
+                ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
+                ei.delete()
+            except SpotExtendedInfo.DoesNotExist:
+                # removing something that does not exist isn't an error
+                pass
 
 
 class SpotView(RESTDispatch):
@@ -31,61 +144,28 @@ class SpotView(RESTDispatch):
     """
     @app_auth_required
     def GET(self, request, spot_id):
-        try:
-            spot = Spot.objects.get(pk=spot_id)
-            response = HttpResponse(json.dumps(spot.json_data_structure()))
-            response["ETag"] = spot.etag
-            response["Content-type"] = "application/json"
-            return response
-        except:
-            response = HttpResponse("Spot not found")
-            response.status_code = 404
-            return response
-
-    @user_auth_required
-    def POST(self, request):
-        spot = Spot.objects.create()
-
-        error_response = self.build_and_save_from_input(request, spot)
-        if error_response:
-            return error_response
-
-        response = HttpResponse()
-        response.status_code = 201
-        response["Location"] = spot.rest_url()
+        spot = Spot.get_with_external(spot_id)
+        response = JSONResponse(spot.json_data_structure())
+        response["ETag"] = spot.etag
         return response
 
     @user_auth_required
+    def POST(self, request):
+        return self.build_and_save_from_input(request, None)
+
+    @user_auth_required
     def PUT(self, request, spot_id):
-        try:
-            spot = Spot.objects.get(pk=spot_id)
-        except Exception as e:
-            response = HttpResponse('{"error":"Spot not found"}')
-            response.status_code = 404
-            return response
+        spot = Spot.get_with_external(spot_id)
 
-        error_response = self.validate_etag(request, spot)
-        if error_response:
-            return error_response
+        self.validate_etag(request, spot)
 
-        error_response = self.build_and_save_from_input(request, spot)
-        if error_response:
-            return error_response
-
-        return self.GET(request, spot_id)
+        return self.build_and_save_from_input(request, spot)
 
     @user_auth_required
     def DELETE(self, request, spot_id):
-        try:
-            spot = Spot.objects.get(pk=spot_id)
-        except Exception as e:
-            response = HttpResponse('{"error":"Spot not found"}')
-            response.status_code = 404
-            return response
+        spot = Spot.get_with_external(spot_id)
 
-        error_response = self.validate_etag(request, spot)
-        if error_response:
-            return error_response
+        self.validate_etag(request, spot)
 
         spot.delete()
         response = HttpResponse()
@@ -93,166 +173,115 @@ class SpotView(RESTDispatch):
         return response
 
     # These are utility methods for the HTTP methods
-    def validate_etag(self, request, spot):
-        if not "HTTP_IF_MATCH" in request.META:
-            if not "If_Match" in request.META:
-                response = HttpResponse('{"error":"If-Match header required"}')
-                response.status_code = 409
-                return response
-            else:
-                request.META["HTTP_IF_MATCH"] = request.META["If_Match"]
-
-        if request.META["HTTP_IF_MATCH"] != spot.etag:
-            response = HttpResponse('{"error":"Invalid ETag"}')
-            response.status_code = 409
-            return response
-
     @transaction.commit_on_success
     def build_and_save_from_input(self, request, spot):
+        if request.META['SERVER_NAME'] == 'testserver':
+            # Dirty hack to make SpotForm unit tests pass because the SpotForm
+            # module is only imported on initialization so the @patch decorator
+            # doesn't work unless you reimport the modules
+            from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
+
         body = request.read()
         try:
-            new_values = json.loads(body)
+            json_values = json.loads(body)
         except Exception as e:
-            response = HttpResponse('{"error":"Unable to parse JSON"}')
-            response.status_code = 400
-            return response
+            raise RESTException("Unable to parse JSON", status_code=400)
 
-        form = SpotForm(new_values)
+        partial_update = False
+        stash = {}
+        is_new = spot is None
+
+        spot_pre_build.send(
+            sender=SpotForm,
+            request=request,
+            json_values=json_values,
+            spot=spot,
+            partial_update=partial_update,
+            stash=stash
+        )
+
+        self._build_spot_types(json_values, spot, partial_update)
+        self._build_spot_location(json_values)
+
+        spot_pre_save.send(
+            sender=SpotForm,
+            request=request,
+            json_values=json_values,
+            spot=spot,
+            partial_update=partial_update,
+            stash=stash
+        )
+
+        # Remve excluded fields
+        excludefields = set(SpotForm.Meta.exclude)
+        for fieldname in excludefields:
+            if fieldname in json_values:
+                del json_values[fieldname]
+
+        if spot is not None and partial_update:
+            # Copy over the existing values
+            for field in spot._meta.fields:
+                if field.name in excludefields:
+                    continue
+                if not field.name in json_values:
+                    json_values[field.name] = getattr(spot, field.name)
+
+            # spottypes is not included in the above copy, do it manually
+            if not 'spottypes' in json_values:
+                json_values['spottypes'] = [t.pk for t in spot.spottypes.all()]
+
+        form = SpotForm(json_values, instance=spot)
         if not form.is_valid():
-            if request.method == 'POST':
-                spot.delete()
-            response = HttpResponse(json.dumps(form.errors))
-            response.status_code = 400
-            return response
+            raise RESTFormInvalidError(form)
 
-        existing_info = spot.json_data_structure()
-        for key in spot.json_data_structure():
-            if spot.json_data_structure().get(key) is None or spot.json_data_structure().get(key) == {} or spot.json_data_structure().get(key) == '' or spot.json_data_structure().get(key) == [] or key == 'last_modified' or key == 'eTag':
-                del existing_info[key]
-        if existing_info != new_values:
-            errors = []
-            #Validate the data POST and record errors and don't make the spot
-            if "name" in new_values:
-                if new_values["name"]:
-                    spot.name = new_values["name"]
-                else:
-                    errors.append("Invalid name")
-            else:
-                error.append("Name not provided")
+        spot = form.save()
 
-            if "capacity" in new_values:
-                if new_values["capacity"]:
-                    try:
-                        spot.capacity = int(new_values["capacity"])
-                    except:
-                        pass
-            elif spot.capacity is not None:
-                spot.capacity = None
+        spot_post_save.send(
+            sender=SpotForm,
+            request=request,
+            spot=spot,
+            partial_update=partial_update,
+            stash=stash
+        )
 
-            if "type" in new_values:
-                for value in new_values["type"]:
-                    try:
-                        value = SpotType.objects.get(name=value)
-                        spot.spottypes.add(value)
-                    except:
-                        pass
-            elif spot.spottypes is not None:
-                spot.spottypes.remove()
+        if is_new:
+            response = HttpResponse(status=201)
+            response['Location'] = spot.rest_url()
+        else:
+            response = JSONResponse(spot.json_data_structure(), status=200)
+        response["ETag"] = spot.etag
 
-            if "location" in new_values:
-                loc_vals = new_values["location"]
-                if "latitude" in loc_vals and "longitude" in loc_vals:
-                    try:
-                        spot.latitude = float(loc_vals["latitude"])
-                        spot.longitude = float(loc_vals["longitude"])
+        spot_post_build.send(
+            sender=SpotForm,
+            request=request,
+            response=response,
+            spot=spot,
+            partial_update=partial_update,
+            stash=stash
+        )
 
-                        # The 2 up there are just to throw the exception below.  They need to not actually be floats
-                        spot.latitude = loc_vals["latitude"]
-                        spot.longitude = loc_vals["longitude"]
-                    except:
-                        pass
-                        errors.append("Invalid latitude and longitude: %s, %s" % (loc_vals["latitude"], loc_vals["longitude"]))
-                else:
-                    errors.append("Latitude and longitude not provided")
+        return response
 
-                if "height_from_sea_level" in loc_vals:
-                    try:
-                        spot.height_from_sea_level = float(loc_vals["height_from_sea_level"])
-                    except:
-                        pass
-                elif spot.height_from_sea_level is not None:
-                    spot.height_from_sea_level = None
+    def _build_spot_location(self, json_values):
+        """Unnest the location JSON object"""
+        if 'location' in json_values:
+            for key in json_values['location']:
+                json_values[key] = json_values['location'][key]
+            del json_values['location']
 
-                if "building_name" in loc_vals:
-                    spot.building_name = loc_vals["building_name"]
-                elif spot.building_name != '':
-                    spot.building_name = ''
-                if "floor" in loc_vals:
-                    spot.floor = loc_vals["floor"]
-                elif spot.floor != '':
-                    spot.floor = ''
-                if "room_number" in loc_vals:
-                    spot.room_number = loc_vals["room_number"]
-                elif spot.room_number != '':
-                    spot.room_number = ''
-                if "description" in loc_vals:
-                    spot.description = loc_vals["description"]
-                # TO DO: see if there is a better way of doing the following check
-                else:
-                    try:
-                        if spot.description is not None:
-                            spot.description = None
-                    except:
-                        pass
-            else:
-                errors.append("Location data not provided")
+    def _build_spot_types(self, json_values, spot, partial_update):
+        """Fixup the 'type' array into IDs"""
+        types = json_values.pop('type', None)
+        if not partial_update and types is None:
+            types = ()
+        elif isinstance(types, basestring):
+            types = (types,)
 
-            if "organization" in new_values:
-                spot.organization = new_values["organization"]
-            elif spot.organization != '':
-                spot.organization = ''
-            if "manager" in new_values:
-                spot.manager = new_values["manager"]
-            elif spot.manager != '':
-                spot.manager = ''
-
-            if len(errors) == 0:
-                spot.save()
-            else:
-                spot.delete()
-                response = HttpResponse('{"error":"' + str(errors) + '"}')
-                response.status_code = 400
-                return response
-
-            queryset = SpotAvailableHours.objects.filter(spot=spot)
-            queryset.delete()
-
-            if "extended_info" in new_values:
-                for item in new_values["extended_info"]:
-                    try:
-                        info_obj = SpotExtendedInfo.objects.get(spot=spot, key=item)
-                        info_obj.value = new_values["extended_info"][item]
-                        info_obj.save()
-                    except:
-                        SpotExtendedInfo.objects.create(key=item, value=new_values["extended_info"][item], spot=spot)
-                for info in SpotExtendedInfo.objects.filter(spot=spot).values():
-                    if info['key'] not in new_values['extended_info']:
-                        SpotExtendedInfo.objects.filter(spot=spot, key=info['key']).delete()
-            elif "extended_info" not in new_values:
-                SpotExtendedInfo.objects.filter(spot=spot).all().delete()
-
-            try:
-                available_hours = new_values["available_hours"]
-                for day in [["m", "monday"],
-                            ["t", "tuesday"],
-                            ["w", "wednesday"],
-                            ["th", "thursday"],
-                            ["f", "friday"],
-                            ["sa", "saturday"],
-                            ["su", "sunday"]]:
-                    if day[1] in available_hours:
-                        day_hours = available_hours[day[1]]
-                        for window in day_hours:
-                            SpotAvailableHours.objects.create(spot=spot, day=day[0], start_time=window[0], end_time=window[1])
-            except:
-                pass
+        if not partial_update or (partial_update and types is not None):
+            json_values['spottypes'] = []
+            for name in types:
+                try:
+                    t = SpotType.objects.get(name=name)
+                    json_values['spottypes'].append(t.pk)
+                except:
+                    pass

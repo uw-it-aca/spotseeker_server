@@ -11,6 +11,12 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+    
+    sbutler1@illinois.edu: use the same forms as used for REST.
+
 """
 
 from django.db import models
@@ -18,13 +24,14 @@ from django.contrib import admin
 from django.conf import settings
 from django.utils.importlib import import_module
 from spotseeker_server.models import *
-from spotseeker_server.org_forms.uw_spot import ExtendedInfoForm
-
+from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 
 class SpotAdmin(admin.ModelAdmin):
     """ The admin model for a Spot.
     The ETag is excluded because it is generated on Spot save.
     """
+    form = SpotForm
+
     list_display = ("name",
                     "building_name",
                     "floor",
@@ -36,7 +43,6 @@ class SpotAdmin(admin.ModelAdmin):
                    "building_name",
                    "organization",
                    "manager"]
-    exclude = ('etag',)
 
     actions = ['delete_model']
 
@@ -91,18 +97,8 @@ admin.site.register(SpotAvailableHours, SpotAvailableHoursAdmin)
 class SpotExtendedInfoAdmin(admin.ModelAdmin):
     """ The admin model for SpotExtendedInfo.
     """
-    if hasattr(settings, 'SPOTSEEKER_EXTENDEDINFO_FORM'):
-        module, attr = settings.SPOTSEEKER_EXTENDEDINFO_FORM.rsplit('.', 1)
-        try:
-            mod = import_module(module)
-        except ImportError, e:
-            raise ImproperlyConfigured('Error import module %s: "%s"' %
-                                       (module, e))
-        try:
-            FormModule = getattr(mod, attr)
-        except AttributeError:
-            raise ImproperlyConfigured('Module "%s" does not define a "%s" class.' % (module, attr))
-        form = FormModule
+    form = SpotExtendedInfoForm
+
     list_display = ("spot", "key", "value")
     list_editable = ["key", "value"]
     list_filter = ["key", "spot"]

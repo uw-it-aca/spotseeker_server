@@ -11,15 +11,19 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: adapt to the new RESTDispatch framework;
+        remove needless use of regex.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
+from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot
 from django.http import HttpResponse
 from django.core.exceptions import FieldError
-import simplejson as json
-import re
 
 
 class BuildingListView(RESTDispatch):
@@ -30,7 +34,7 @@ class BuildingListView(RESTDispatch):
     def GET(self, request):
         spots = Spot.objects.all()
         for key, value in request.GET.items():
-            if re.match(r'^oauth', key):
+            if key.startswith('oauth_'):
                 pass
             else:
                 try:
@@ -41,9 +45,6 @@ class BuildingListView(RESTDispatch):
 
         q = spots.values('building_name').distinct()
 
-        buildings = []
-        for building in list(q):
-            buildings.append(building["building_name"])
-
+        buildings = [b['building_name'] for b in q]
         buildings.sort()
-        return HttpResponse(json.dumps(buildings))
+        return JSONResponse(buildings)

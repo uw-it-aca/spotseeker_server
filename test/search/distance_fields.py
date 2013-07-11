@@ -41,6 +41,7 @@ class SpotSearchDistanceFieldTest(TestCase):
             c = Client()
             response = c.get("/api/v1/spot", {'center_latitude': center_lat, 'center_longitude': center_long, 'distance': 12, 'name': 'Atlantic'})
             self.assertEquals(response.status_code, 200, "Accepts the distance query")
+            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 1, "Returns 1 spot")
 

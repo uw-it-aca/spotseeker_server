@@ -11,30 +11,47 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: load the forms on application load, not every
+        request for a form.
 """
 
-from spotseeker_server.default_forms.spot import DefaultSpotForm
+from spotseeker_server.default_forms.spot import DefaultSpotForm, DefaultSpotExtendedInfoForm
 from django.utils.importlib import import_module
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
+if hasattr(settings, 'SPOTSEEKER_SPOTEXTENDEDINFO_FORM'):
+    # This is all taken from django's static file finder
+    module, attr = settings.SPOTSEEKER_SPOTEXTENDEDINFO_FORM.rsplit('.', 1)
+    try:
+        mod = import_module(module)
+    except ImportError, e:
+        raise ImproperlyConfigured('Error importing module %s: "%s"' %
+                                   (module, e))
+    try:
+        SpotExtendedInfoForm = getattr(mod, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Module "%s" does not define a "%s" '
+                                   'class.' % (module, attr))
+else:
+    SpotExtendedInfoForm = DefaultSpotExtendedInfoForm
 
-class SpotForm(object):
-    def __new__(*args, **named_args):
-
-        if hasattr(settings, 'SPOTSEEKER_SPOT_FORM'):
-            # This is all taken from django's static file finder
-            module, attr = settings.SPOTSEEKER_SPOT_FORM.rsplit('.', 1)
-            try:
-                mod = import_module(module)
-            except ImportError, e:
-                raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                           (module, e))
-            try:
-                FormModule = getattr(mod, attr)
-            except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "%s" '
-                                           'class.' % (module, attr))
-
-            return FormModule(args[1])
-        else:
-            return DefaultSpotForm(args[1])
+if hasattr(settings, 'SPOTSEEKER_SPOT_FORM'):
+    # This is all taken from django's static file finder
+    module, attr = settings.SPOTSEEKER_SPOT_FORM.rsplit('.', 1)
+    try:
+        mod = import_module(module)
+    except ImportError, e:
+        raise ImproperlyConfigured('Error importing module %s: "%s"' %
+                                   (module, e))
+    try:
+        SpotForm = getattr(mod, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Module "%s" does not define a "%s" '
+                                   'class.' % (module, attr))
+else:
+    SpotForm = DefaultSpotForm

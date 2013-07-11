@@ -76,7 +76,7 @@ class SpotPUTTest(TestCase):
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 10
             response = c.put(self.url, '{"name":"%s","capacity":"%d", "location": {"latitude": 55, "longitude": 30} }' % (new_name, new_capacity), content_type="application/json")
-            self.assertEquals(response.status_code, 409, "Conflict w/o an etag")
+            self.assertEquals(response.status_code, 400, "Bad request w/o an etag")
 
             updated_spot = Spot.objects.get(pk=self.spot.pk)
             self.assertEquals(updated_spot.name, self.spot.name, "No etag - same name")

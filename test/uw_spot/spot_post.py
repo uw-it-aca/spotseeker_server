@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot
@@ -24,12 +24,16 @@ from mock import patch
 from django.core import cache
 from spotseeker_server import models
 
+import spotseeker_server.views.spot as spot_view
+from spotseeker_server.org_forms.uw_spot import UWSpotForm, UWSpotExtendedInfoForm
+
 dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm')
-class UWSpotPOSTTest(TestCase):
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@patch('spotseeker_server.views.spot.SpotForm', UWSpotForm)
+@patch('spotseeker_server.views.spot.SpotExtendedInfoForm', UWSpotExtendedInfoForm)
+class UWSpotPOSTTest(TransactionTestCase):
     """ Tests creating a new Spot via POST.
     """
 
@@ -307,18 +311,16 @@ class UWSpotPOSTTest(TestCase):
             self.assertEquals(desc, spot_desc, "The Spot's description matches what was POSTed.")
 
     def test_valid_json_but_invalid_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                           SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm'):
-            c = Client()
-            new_name = "testing POST name: {0}".format(random.random())
-            new_capacity = 10
+        c = Client()
+        new_name = "testing POST name: {0}".format(random.random())
+        new_capacity = 10
 
-            json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity)
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
-            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+        json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity)
+        response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+        self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+        response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
-            bad_json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude": -30},"extended_info":{"has_whiteboards":"true","has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB","manager":"Sam","organization":"UW"}}' % (new_name, new_capacity)
-            response = c.post('/api/v1/spot/', bad_json_string, content_type="application/json", follow=False)
-            self.assertEquals(response.status_code, 400, "Doesn't add spot info with invalid extended info")
-            self.assertEquals(Spot.objects.count(), 2, "Doesn't POST spots with invalid extended info")
+        bad_json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude": -30},"extended_info":{"has_whiteboards":"true","has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB","manager":"Sam","organization":"UW"}}' % (new_name, new_capacity)
+        response = c.post('/api/v1/spot/', bad_json_string, content_type="application/json", follow=False)
+        self.assertEquals(response.status_code, 400, "Doesn't add spot info with invalid extended info")
+        self.assertEquals(Spot.objects.count(), 2, "Doesn't POST spots with invalid extended info")

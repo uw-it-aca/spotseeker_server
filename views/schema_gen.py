@@ -11,6 +11,12 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+    Changes
+    =================================================================
+
+    sbutler1@illinois.edu: adapt to the new RESTDispatch framework;
+        adapt to the new form style.
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch
@@ -19,8 +25,7 @@ from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from django.db import models
-import simplejson as json
-import re
+from spotseeker_server.views.rest_dispatch import JSONResponse
 
 
 class SchemaGenView(RESTDispatch):
@@ -114,7 +119,7 @@ class SchemaGenView(RESTDispatch):
 
         # To grab all of the extended info
         try:
-            validated_ei = SpotForm({}).validated_extended_info
+            validated_ei = SpotForm.validated_extended_info
             org_form_exists = True
         except:
             org_form_exists = False
@@ -125,6 +130,4 @@ class SchemaGenView(RESTDispatch):
             else:
                 schema["extended_info"].update({key: "unicode"})
 
-        response = HttpResponse(json.dumps(schema))
-        response["Content-type"] = "application/json"
-        return response
+        return JSONResponse(schema)

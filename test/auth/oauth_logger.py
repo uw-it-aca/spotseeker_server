@@ -21,22 +21,24 @@ import re
 import simplejson as json
 import StringIO
 import logging
-
 import hashlib
 import time
 import random
 from contextlib import nested
-
 from oauth_provider.models import Consumer
 import oauth2
 from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
-
 import spotseeker_server.auth.oauth as ss_oauth
 import spotseeker_server.auth.all_ok as ss_all_ok
+from spotseeker_server.default_forms.spot import DefaultSpotForm as default_spot
+from spotseeker_server.default_forms.spot import DefaultSpotExtendedInfoForm as default_spotei
 
+
+@patch('spotseeker_server.forms.spot.SpotForm', default_spot)
+@patch('spotseeker_server.forms.spot.SpotExtendedInfoForm', default_spotei)
 class SpotAuthOAuthLogger(TestCase):
     def setUp(self):
         spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10)
@@ -67,7 +69,7 @@ class SpotAuthOAuthLogger(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
-                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
+                        patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
 
                 consumer_name = "Test consumer"
 
@@ -108,7 +110,7 @@ class SpotAuthOAuthLogger(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
-                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
+                        patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
                 consumer_name = "Trusted test consumer"
 
                 key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
@@ -159,8 +161,7 @@ class SpotAuthOAuthLogger(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
-                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
-
+                        patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
 
                 c = Client()
                 response = c.get(self.url)

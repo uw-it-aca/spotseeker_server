@@ -22,15 +22,10 @@ from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
-import spotseeker_server.auth.all_ok as ss_all_ok
-from spotseeker_server.default_forms.spot import DefaultSpotForm as default_spot
-from spotseeker_server.default_forms.spot import DefaultSpotExtendedInfoForm as default_spotei
 
 
-@patch('spotseeker_server.forms.spot.SpotForm', default_spot)
-@patch('spotseeker_server.forms.spot.SpotExtendedInfoForm', default_spotei)
-@patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_all_ok.authenticate_application)
-@patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_all_ok.authenticate_user)
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
 class SpotHoursPOSTTest(TestCase):
 
     def test_hours(self):

@@ -17,6 +17,10 @@
 
     sbutler1@illinois.edu: only load the auth modules once on app
         initialization.
+    ^ This is being reverted back to being loaded every time. After
+    profiling, it didn't seem like there was hardly any speed
+    difference, and only loading this once on application load
+    breaks our unit tests.
 """
 
 from django.http import HttpResponse
@@ -28,31 +32,27 @@ from functools import wraps
 
 from django.conf import settings
 
-if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
-    module = settings.SPOTSEEKER_AUTH_MODULE
-    try:
-        mod = import_module(module)
-    except ImportError, e:
-        raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                   (module, e))
-
-    try:
-        APP_AUTH_METHOD = getattr(mod, "authenticate_application")
-    except AttributeError:
-        raise ImproperlyConfigured('Module "%s" does not define a "authenticate_application" method.' % module)
-
-    try:
-        USER_AUTH_METHOD = getattr(mod, "authenticate_user")
-    except AttributeError:
-        raise ImproperlyConfigured('Module "%s" does not define a "authenticate_user" method.' % module)
-else:
-    APP_AUTH_METHOD = spotseeker_server.auth.all_ok.authenticate_application
-    USER_AUTH_METHOD = spotseeker_server.auth.all_ok.authenticate_user
 
 def app_auth_required(func):
 
     def _checkAuth(*args, **kwargs):
-        bad_response = APP_AUTH_METHOD(*args, **kwargs)
+        if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
+            module = settings.SPOTSEEKER_AUTH_MODULE
+            try:
+                mod = import_module(module)
+            except ImportError, e:
+                raise ImproperlyConfigured('Error importing module %s: "%s"' %
+                                           (module, e))
+
+            try:
+                method = getattr(mod, "authenticate_application")
+            except AttributeError:
+                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_application" method.' % module)
+
+            bad_response = method(*args, **kwargs)
+        else:
+            bad_response = spotseeker_server.auth.all_ok.authenticate_application(*args, **kwargs)
+
         if bad_response:
             return bad_response
         else:
@@ -63,7 +63,23 @@ def app_auth_required(func):
 def user_auth_required(func):
 
     def _checkAuth(*args, **kwargs):
-        bad_response = USER_AUTH_METHOD(*args, **kwargs)
+        if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
+            module = settings.SPOTSEEKER_AUTH_MODULE
+            try:
+                mod = import_module(module)
+            except ImportError, e:
+                raise ImproperlyConfigured('Error importing module %s: "%s"' %
+                                           (module, e))
+
+            try:
+                method = getattr(mod, "authenticate_user")
+            except AttributeError:
+                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_user" method.' % module)
+
+            bad_response = method(*args, **kwargs)
+        else:
+            bad_response = spotseeker_server.auth.all_ok.authenticate_user(*args, **kwargs)
+
         if bad_response:
             return bad_response
         else:

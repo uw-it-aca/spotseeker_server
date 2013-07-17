@@ -52,8 +52,8 @@ class SpotExtendedInfoForm(object):
 
 
 class SpotForm(object):
-    def __new__(*args, **named_args):
-
+    @staticmethod
+    def implementation():
         if hasattr(settings, 'SPOTSEEKER_SPOT_FORM'):
             # This is all taken from django's static file finder
             module, attr = settings.SPOTSEEKER_SPOT_FORM.rsplit('.', 1)
@@ -68,6 +68,10 @@ class SpotForm(object):
                 raise ImproperlyConfigured('Module "%s" does not define a "%s" '
                                            'class.' % (module, attr))
 
-            return SpotForm(args[1])
+            return SpotForm
         else:
-            return DefaultSpotForm(args[1])
+            return DefaultSpotForm
+
+    def __new__(*args, **named_args):
+        return SpotForm.implementation()(args[1])
+

@@ -207,7 +207,7 @@ class SpotView(RESTDispatch):
         )
 
         # Remve excluded fields
-        excludefields = set(SpotForm.Meta.exclude)
+        excludefields = set(SpotForm.implementation().Meta.exclude)
         for fieldname in excludefields:
             if fieldname in json_values:
                 del json_values[fieldname]

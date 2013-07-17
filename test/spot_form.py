@@ -15,30 +15,22 @@
 
 from django.test import TestCase
 from spotseeker_server.default_forms.spot import DefaultSpotForm
+from spotseeker_server.forms.spot import SpotForm
 from django.conf import settings
-from mock import patch
-from spotseeker_server.default_forms.spot import DefaultSpotForm as default_spot
-import spotseeker_server.auth.all_ok as ss_all_ok
 
-@patch('spotseeker_server.forms.spot.SpotForm', default_spot)
-@patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_all_ok.authenticate_application)
-@patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_all_ok.authenticate_user)
+
 class SpotFormTest(TestCase):
-    """
-    this class doesn't import SpotForm at the top and instead allows the methods
-    to import SpotForm themselves.  This way, we can patch the SpotForm object for
-    the duration of the test to use the DefaultSpotForm instead of whatever is
-    defined in local_settings
-    """
 
     def test_default(self):
-        from spotseeker_server.forms.spot import SpotForm
-        form = SpotForm({})
-        self.assertEqual(form.__class__, DefaultSpotForm({}).__class__, "Tests shouldn't be run with a defined SPOTSEEKER_SPOT_FORM")
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+            form = SpotForm({})
+            self.assertEqual(form.__class__, DefaultSpotForm({}).__class__, "Tests shouldn't be run with a defined SPOTSEEKER_SPOT_FORM")
 
     def test_errors(self):
-        from spotseeker_server.forms.spot import SpotForm
-        form = SpotForm({})
-        errors = form.errors
-        self.assertTrue("name" in errors, "Default spot form requires a spot name")
-        self.assertFalse("capacity" in errors, "Default spot form doesn't require a spot name")
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
+            form = SpotForm({})
+            errors = form.errors
+            self.assertTrue("name" in errors, "Default spot form requires a spot name")
+            self.assertFalse("capacity" in errors, "Default spot form doesn't require a spot name")

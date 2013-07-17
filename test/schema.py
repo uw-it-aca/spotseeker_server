@@ -20,12 +20,8 @@ import simplejson as json
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
-from spotseeker_server.default_forms.spot import DefaultSpotForm as default_spot
-from spotseeker_server.default_forms.spot import DefaultSpotExtendedInfoForm as default_spotei
 
 
-@patch('spotseeker_server.forms.spot.SpotForm', default_spot)
-@patch('spotseeker_server.forms.spot.SpotExtendedInfoForm', default_spotei)
 class SpotSchemaTest(TestCase):
     def test_content_type(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
@@ -36,7 +32,8 @@ class SpotSchemaTest(TestCase):
             self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
 
     def test_regular_spot_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
             c = Client()
             response = c.get("/api/v1/schema")
             schema = json.loads(response.content)
@@ -47,7 +44,8 @@ class SpotSchemaTest(TestCase):
             self.assertEquals(schema["uri"], "auto", "Schema Regular Spot Info matches the actual Regular Spot Info")
 
     def test_location_spot_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
             c = Client()
             response = c.get("/api/v1/schema")
             schema = json.loads(response.content)
@@ -58,7 +56,8 @@ class SpotSchemaTest(TestCase):
             self.assertEquals(schema_location["floor"], "unicode", "Schema Location Spot Info matches the actual Location Spot Info")
 
     def test_spot_image_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
             c = Client()
             response = c.get("/api/v1/schema")
             schema = json.loads(response.content)
@@ -69,7 +68,8 @@ class SpotSchemaTest(TestCase):
             self.assertEquals(schema_image["width"], "int", "Schema Spot Image Info matches the actual Spot Image Info")
 
     def test_spot_types(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
             SpotType.objects.create(name="Jedi")
             SpotType.objects.create(name="Sith")
 
@@ -88,7 +88,8 @@ class SpotSchemaTest(TestCase):
             self.assertEquals(len(schema_types), 3, "Schema SpotType matches the actual SpotType")
 
     def test_extended_info(self):
-        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+        with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                           SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'):
             test_spot = Spot.objects.create(id=1, name="Test")
 
             SpotExtendedInfo.objects.create(spot=test_spot, key="noise_level", value=["silent", "quiet", "moderate", "loud", "variable"])

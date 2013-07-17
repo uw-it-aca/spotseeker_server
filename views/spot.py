@@ -175,12 +175,6 @@ class SpotView(RESTDispatch):
     # These are utility methods for the HTTP methods
     @transaction.commit_on_success
     def build_and_save_from_input(self, request, spot):
-        if request.META['SERVER_NAME'] == 'testserver':
-            # Dirty hack to make SpotForm unit tests pass because the SpotForm
-            # module is only imported on initialization so the @patch decorator
-            # doesn't work unless you reimport the modules
-            from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
-
         body = request.read()
         try:
             json_values = json.loads(body)

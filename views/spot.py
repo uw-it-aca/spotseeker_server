@@ -186,7 +186,7 @@ class SpotView(RESTDispatch):
         is_new = spot is None
 
         spot_pre_build.send(
-            sender=SpotForm,
+            sender=SpotForm.implementation(),
             request=request,
             json_values=json_values,
             spot=spot,
@@ -198,7 +198,7 @@ class SpotView(RESTDispatch):
         self._build_spot_location(json_values)
 
         spot_pre_save.send(
-            sender=SpotForm,
+            sender=SpotForm.implementation(),
             request=request,
             json_values=json_values,
             spot=spot,
@@ -231,7 +231,7 @@ class SpotView(RESTDispatch):
         spot = form.save()
 
         spot_post_save.send(
-            sender=SpotForm,
+            sender=SpotForm.implementation(),
             request=request,
             spot=spot,
             partial_update=partial_update,
@@ -246,7 +246,7 @@ class SpotView(RESTDispatch):
         response["ETag"] = spot.etag
 
         spot_post_build.send(
-            sender=SpotForm,
+            sender=SpotForm.implementation(),
             request=request,
             response=response,
             spot=spot,

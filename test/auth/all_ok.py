@@ -44,6 +44,7 @@ class SpotAuthAllOK(TestCase):
             self.assertEquals(returned_spot, self.spot, "Returns the correct spot")
 
     @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
+    @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
     def test_put(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):

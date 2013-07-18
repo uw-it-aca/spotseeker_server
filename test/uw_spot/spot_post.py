@@ -24,15 +24,10 @@ from mock import patch
 from django.core import cache
 from spotseeker_server import models
 
-import spotseeker_server.views.spot as spot_view
-from spotseeker_server.org_forms.uw_spot import UWSpotForm, UWSpotExtendedInfoForm
-
-dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-@patch('spotseeker_server.views.spot.SpotForm', UWSpotForm)
-@patch('spotseeker_server.views.spot.SpotExtendedInfoForm', UWSpotExtendedInfoForm)
+@override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm')
+@override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm')
 class UWSpotPOSTTest(TransactionTestCase):
     """ Tests creating a new Spot via POST.
     """

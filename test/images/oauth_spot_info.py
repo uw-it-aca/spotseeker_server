@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from django.utils import unittest
+from django.test import TestCase
 from django.test.client import Client
 from os.path import abspath, dirname
 from spotseeker_server.models import Spot, SpotImage, TrustedOAuthClient
@@ -26,17 +26,14 @@ import hashlib
 import time
 import oauth2
 import simplejson as json
-from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
-import spotseeker_server.auth.oauth as ss_oauth
-from contextlib import nested
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-class SpotResourceOAuthImageTest(unittest.TestCase):
+class SpotResourceOAuthImageTest(TestCase):
     def setUp(self):
         spot = Spot.objects.create(name="This is to test images in the spot resource, with oauth")
         self.spot = spot
@@ -44,8 +41,7 @@ class SpotResourceOAuthImageTest(unittest.TestCase):
     def test_oauth_attributes(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            with nested(patch('spotseeker_server.require_auth.APP_AUTH_METHOD', ss_oauth.authenticate_application),
-                    patch('spotseeker_server.require_auth.USER_AUTH_METHOD', ss_oauth.authenticate_user)):
+            with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth'):
 
                 consumer_name = "Test consumer"
 
@@ -68,12 +64,12 @@ class SpotResourceOAuthImageTest(unittest.TestCase):
                                   HTTP_AUTHORIZATION=oauth_header['Authorization'],
                                   HTTP_XOAUTH_USER="pmichaud")
 
+            with self.settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
+                response = c.get('/api/v1/spot/{0}'.format(self.spot.pk))
 
-            response = c.get('/api/v1/spot/{0}'.format(self.spot.pk))
+                spot_dict = json.loads(response.content)
 
-            spot_dict = json.loads(response.content)
+                self.assertEquals(len(spot_dict["images"]), 1, "Has 1 image")
 
-            self.assertEquals(len(spot_dict["images"]), 1, "Has 1 image")
-
-            self.assertEquals(spot_dict["images"][0]["upload_application"], "Test consumer", "Image has the proper upload application")
-            self.assertEquals(spot_dict["images"][0]["upload_user"], "pmichaud", "Image has the proper upload user")
+                self.assertEquals(spot_dict["images"][0]["upload_application"], "Test consumer", "Image has the proper upload application")
+                self.assertEquals(spot_dict["images"][0]["upload_user"], "pmichaud", "Image has the proper upload user")

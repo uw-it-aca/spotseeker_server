@@ -30,8 +30,8 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 class SpotExtendedInfoForm(object):
-    def __new__(*args, **named_args):
-
+    @staticmethod
+    def implementation():
         if hasattr(settings, 'SPOTSEEKER_SPOTEXTENDEDINFO_FORM'):
             # This is all taken from django's static file finder
             module, attr = settings.SPOTSEEKER_SPOTEXTENDEDINFO_FORM.rsplit('.', 1)
@@ -45,10 +45,12 @@ class SpotExtendedInfoForm(object):
             except AttributeError:
                 raise ImproperlyConfigured('Module "%s" does not define a "%s" '
                                            'class.' % (module, attr))
-
-            return SpotExtendedInfoForm(args[1])
+            return SpotExtendedInfoForm
         else:
-            return DefaultSpotExtendedInfoForm(args[1])
+            return DefaultSpotExtendedInfoForm
+
+    def __new__(*args, **named_args):
+        return SpotExtendedInfoForm.implementation()(args[1])
 
 
 class SpotForm(object):
@@ -67,11 +69,9 @@ class SpotForm(object):
             except AttributeError:
                 raise ImproperlyConfigured('Module "%s" does not define a "%s" '
                                            'class.' % (module, attr))
-
             return SpotForm
         else:
             return DefaultSpotForm
 
     def __new__(*args, **named_args):
         return SpotForm.implementation()(args[1])
-

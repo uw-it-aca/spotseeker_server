@@ -14,7 +14,7 @@
 
     Changes
     =================================================================
-    
+
     sbutler1@illinois.edu: use the same forms as used for REST.
 
 """
@@ -26,11 +26,12 @@ from django.utils.importlib import import_module
 from spotseeker_server.models import *
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 
+
 class SpotAdmin(admin.ModelAdmin):
     """ The admin model for a Spot.
     The ETag is excluded because it is generated on Spot save.
     """
-    form = SpotForm
+    form = SpotForm.implementation()
 
     list_display = ("name",
                     "building_name",
@@ -97,7 +98,7 @@ admin.site.register(SpotAvailableHours, SpotAvailableHoursAdmin)
 class SpotExtendedInfoAdmin(admin.ModelAdmin):
     """ The admin model for SpotExtendedInfo.
     """
-    form = SpotExtendedInfoForm
+    form = SpotExtendedInfoForm.implementation()
 
     list_display = ("spot", "key", "value")
     list_editable = ["key", "value"]

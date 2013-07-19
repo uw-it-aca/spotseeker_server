@@ -16,7 +16,7 @@
 from django.test import TransactionTestCase
 from django.conf import settings
 from django.test.client import Client
-from spotseeker_server.models import Spot
+from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 import random
 from django.test.utils import override_settings
@@ -34,6 +34,7 @@ class UWSpotPUTTest(TransactionTestCase):
 
     def setUp(self):
         spot = Spot.objects.create(name="This is for testing PUT")
+        SpotExtendedInfo.objects.create(spot=spot, key="aw_yisss", value="breadcrumbs")
         spot.save()
         self.spot = spot
 

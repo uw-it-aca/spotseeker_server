@@ -248,7 +248,6 @@ class SpotSearchFieldTest(TestCase):
     #            self.spot = spot
 
     #            c = Client()
-    #            import pdb; pdb.set_trace()
     #            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
     #            SpotExtendedInfo.objects.create(key='has_soda_fountain', value='true', spot=spot)
     #            response = c.get("/api/v1/spot", {"center_latitude": 55.1, "center_longitude": 30.1, "distance": 100000, "extended_info:has_soda_fountain": "true"})

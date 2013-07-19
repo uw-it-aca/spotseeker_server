@@ -49,8 +49,8 @@ class SpotExtendedInfoForm(object):
         else:
             return DefaultSpotExtendedInfoForm
 
-    def __new__(*args, **named_args):
-        return SpotExtendedInfoForm.implementation()(args[1])
+    def __new__(*args, **kwargs):
+        return SpotExtendedInfoForm.implementation()(args[1], **kwargs)
 
 
 class SpotForm(object):
@@ -73,5 +73,5 @@ class SpotForm(object):
         else:
             return DefaultSpotForm
 
-    def __new__(*args, **named_args):
-        return SpotForm.implementation()(args[1])
+    def __new__(*args, **kwargs):
+        return SpotForm.implementation()(args[1], **kwargs)

@@ -51,7 +51,8 @@ from spotseeker_server.test.hours.modify import SpotHoursModifyTest
 from spotseeker_server.test.auth.all_ok import SpotAuthAllOK
 from spotseeker_server.test.auth.oauth import SpotAuthOAuth
 from spotseeker_server.test.auth.oauth_logger import SpotAuthOAuthLogger
-from spotseeker_server.test.uw_spot.spot_form import UWSpotFormTest
+# UWSpotFormTest in it's current form is invalid w/ the UIUC changes - See SPOT-1022
+#from spotseeker_server.test.uw_spot.spot_form import UWSpotFormTest
 from spotseeker_server.test.uw_spot.spot_post import UWSpotPOSTTest
 from spotseeker_server.test.uw_spot.spot_put import UWSpotPUTTest
 from spotseeker_server.test.uw_spot.schema import UWSpotSchemaTest

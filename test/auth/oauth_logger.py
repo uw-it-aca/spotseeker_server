@@ -35,6 +35,8 @@ from django.core import cache
 from spotseeker_server import models
 
 
+@override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
+@override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
 class SpotAuthOAuthLogger(TestCase):
     def setUp(self):
         spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10)

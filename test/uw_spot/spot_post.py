@@ -306,16 +306,31 @@ class UWSpotPOSTTest(TransactionTestCase):
             self.assertEquals(desc, spot_desc, "The Spot's description matches what was POSTed.")
 
     def test_valid_json_but_invalid_extended_info(self):
-        c = Client()
-        new_name = "testing POST name: {0}".format(random.random())
-        new_capacity = 10
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
 
-        json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity)
-        response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
-        self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
-        response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+            json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30},"extended_info":{"has_outlets":"true","manager":"Patty","organization":"UW"}}' % (new_name, new_capacity)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
-        bad_json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude": -30},"extended_info":{"has_whiteboards":"true","has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB","manager":"Sam","organization":"UW"}}' % (new_name, new_capacity)
-        response = c.post('/api/v1/spot/', bad_json_string, content_type="application/json", follow=False)
-        self.assertEquals(response.status_code, 400, "Doesn't add spot info with invalid extended info")
-        self.assertEquals(Spot.objects.count(), 2, "Doesn't POST spots with invalid extended info")
+            bad_json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude": -30},"extended_info":{"has_whiteboards":"true","has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB","manager":"Sam","organization":"UW"}}' % (new_name, new_capacity)
+            response = c.post('/api/v1/spot/', bad_json_string, content_type="application/json", follow=False)
+            self.assertEquals(response.status_code, 400, "Doesn't add spot info with invalid extended info")
+            self.assertEquals(Spot.objects.count(), 2, "Doesn't POST spots with invalid extended info")
+
+    def test_valid_json_but_no_extended_info(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            new_capacity = 10
+
+            json_string = '{"name":"%s","capacity":"%s","location": {"latitude": 55, "longitude":-30}}' % (new_name, new_capacity)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            error_message = json.loads(response.content)['error']
+            self.assertEquals(error_message, "UWSpot must have extended info", "Doesn't add spot info with invalid extended info")

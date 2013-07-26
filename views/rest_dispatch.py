@@ -109,7 +109,15 @@ class RESTDispatch:
         return response
 
     def json_error(self, ex):
-        json_values = {"error": ex.message}
+        if ex.message:
+            json_values = {"error": ex.message}
+        elif len(ex.messages) > 0:
+            messages = ""
+            for message in ex.messages:
+                messages += (str(message) + " ")
+            json_values = {"error": messages.strip()}
+        else:
+            json_values = {"error": str(type(ex).__name__)}
         if getattr(settings, 'DEBUG', False):
             json_values['stack'] = traceback.format_exc().splitlines()
         return json_values

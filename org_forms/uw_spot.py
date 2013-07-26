@@ -38,6 +38,7 @@ validated_ei = {
     "has_projector": ['true'],
     "has_computers": ['true'],
     "has_natural_light": ['true'],
+    "has_labstats": ['true'],
     "food_nearby": ['space', 'building', 'neighboring'],
     "num_computers": "int",
     "reservable": ['true', 'reservations'],

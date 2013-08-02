@@ -238,6 +238,9 @@ class SpotView(RESTDispatch):
             stash=stash
         )
 
+        # gets the current etag
+        spot = Spot.get_with_external(spot.pk)
+
         if is_new:
             response = HttpResponse(status=201)
             response['Location'] = spot.rest_url()

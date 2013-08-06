@@ -287,7 +287,7 @@ class SpotImage(models.Model):
     @update_etag
     def delete(self, *args, **kwargs):
         self.image.delete(save=False)
-
+        cache.delete(self.pk)
         super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):

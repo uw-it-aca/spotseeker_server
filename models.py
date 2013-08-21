@@ -84,9 +84,9 @@ class Spot(models.Model):
 
     @update_etag
     def save(self, *args, **kwargs):
-        super(Spot, self).save(*args, **kwargs)
         if cache.get(self.pk):
             cache.delete(self.pk)
+        super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
@@ -150,8 +150,8 @@ class Spot(models.Model):
         return spot_json
 
     def delete(self, *args, **kwargs):
-        super(Spot, self).delete(*args, **kwargs)
         cache.delete(self.pk)
+        super(Spot, self).delete(*args, **kwargs)
 
     @staticmethod
     def get_with_external(spot_id):

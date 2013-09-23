@@ -42,7 +42,7 @@ validated_ei = {
     "food_nearby": ['space', 'building', 'neighboring'],
     "num_computers": "int",
     "reservable": ['true', 'reservations'],
-    "noise_level": ['silent', 'quiet', 'moderate', 'loud', 'variable'],
+    "noise_level": ['silent', 'quiet', 'moderate', 'variable'],
     "campus": ['seattle', 'tacoma', 'bothell'],
 }
 

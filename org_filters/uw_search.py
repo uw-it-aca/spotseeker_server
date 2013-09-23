@@ -41,7 +41,6 @@ class Filter(SearchFilter):
             exclude_silent = True
             exclude_quiet = True
             exclude_moderate = True
-            exclude_loud = True
             exclude_variable = True
 
             for level in noise_levels:
@@ -70,12 +69,6 @@ class Filter(SearchFilter):
                 query = query.exclude(
                         spotextendedinfo__key="noise_level",
                         spotextendedinfo__value__iexact="moderate"
-                        )
-
-            if exclude_loud:
-                query = query.exclude(
-                        spotextendedinfo__key="noise_level",
-                        spotextendedinfo__value__iexact="loud"
                         )
 
             if exclude_variable:

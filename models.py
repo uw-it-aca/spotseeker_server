@@ -84,8 +84,7 @@ class Spot(models.Model):
 
     @update_etag
     def save(self, *args, **kwargs):
-        if cache.get(self.pk):
-            cache.delete(self.pk)
+        cache.delete(self.pk)
         super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
@@ -287,7 +286,7 @@ class SpotImage(models.Model):
     @update_etag
     def delete(self, *args, **kwargs):
         self.image.delete(save=False)
-        cache.delete(self.pk)
+        cache.delete(self.spot.pk)
         super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):

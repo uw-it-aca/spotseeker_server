@@ -14,13 +14,13 @@
 """
 
 from django.conf import settings
-from django.utils import unittest
+from django.test import TestCase
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import datetime
 
 
-class SpotHoursModifyTest(unittest.TestCase):
+class SpotHoursModifyTest(TestCase):
     """ Tests that when open hours are submitted that overlap with other open hours for a Spot, the previous Spot hours are adjusted rather than having multiple AvailableHours hanging around.
     """
     def setUp(self):

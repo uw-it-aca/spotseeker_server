@@ -13,25 +13,25 @@
     limitations under the License.
 """
 
-from django.utils import unittest
-from django.conf import settings
-from django.test.client import Client
-from django.core.files import File
-from spotseeker_server.models import Spot, SpotImage
 from cStringIO import StringIO
-from PIL import Image
-from os.path import abspath, dirname
-import random
+from django.conf import settings
+from django.core import cache
+from django.core.files import File
+from django.test import TestCase
+from django.test.client import Client
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
+from os.path import abspath, dirname
+from PIL import Image
+from spotseeker_server.models import Spot, SpotImage
 from spotseeker_server import models
+import random
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-class SpotImageGETTest(unittest.TestCase):
+class SpotImageGETTest(TestCase):
 
     def setUp(self):
         spot = Spot.objects.create(name="This is to test getting images")

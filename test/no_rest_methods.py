@@ -13,11 +13,11 @@
     limitations under the License.
 """
 
-from django.utils import unittest
+from django.test import TestCase
 from django.test.client import Client
 
 
-class NoRESTMethodsTest(unittest.TestCase):
+class NoRESTMethodsTest(TestCase):
     def test_no_GET(self):
         c = Client()
         response = c.get("/api/v1/null")

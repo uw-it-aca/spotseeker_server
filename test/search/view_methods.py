@@ -13,11 +13,11 @@
     limitations under the License.
 """
 
-from django.utils import unittest
+from django.test import TestCase
 from spotseeker_server.views.search import SearchView
 
 
-class SpotSearchViewMethodsTest(unittest.TestCase):
+class SpotSearchViewMethodsTest(TestCase):
     def test_2_day_range(self):
         view = SearchView()
         days = view.get_days_in_range("m", "t")

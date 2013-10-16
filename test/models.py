@@ -14,14 +14,14 @@
 """
 
 from django.core.files import File
-from django.utils import unittest
-from spotseeker_server.models import *
+from django.test import TestCase
 from os.path import abspath, dirname
+from spotseeker_server.models import *
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-class SpotModelToStringTests(unittest.TestCase):
+class SpotModelToStringTests(TestCase):
     def test_spot(self):
         spot = Spot.objects.create(name="This is the test name")
 

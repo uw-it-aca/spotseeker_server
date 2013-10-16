@@ -1,0 +1,9 @@
+<form method="POST">
+    {% csrf_token %}
+    Do you want {{ consumer }} to be able to act as you?
+    <br />
+    <input type="hidden" name="oauth_token" value="{{ token }}" />
+    <input type="checkbox" checked="checked" name="authorize_access" value="1"> Yes
+    <br />
+    <input type="submit" name="accept" value="Continue"/>
+</form>

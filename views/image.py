@@ -69,6 +69,8 @@ class ImageView(RESTDispatch):
             img.image = request.FILES["image"]
         if "description" in request.POST:
             img.description = request.POST["description"]
+        if "display_index" in request.POST:
+            img.display_index = request.POST["display_index"]
         img.save()
 
         return self.GET(request, spot_id, image_id)

@@ -13,38 +13,38 @@
     limitations under the License.
 """
 
-from django.utils import unittest
-from django.test.client import Client
 from django.conf import settings
-from os.path import abspath, dirname
-from spotseeker_server.models import Spot, SpotImage
+from django.core import cache
 from django.core.files import File
-from PIL import Image
-import simplejson as json
+from django.test import TestCase
+from django.test.client import Client
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
+from os.path import abspath, dirname
+from PIL import Image
 from spotseeker_server import models
+from spotseeker_server.models import Spot, SpotImage
+import simplejson as json
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
-class SpotResourceImageTest(unittest.TestCase):
+class SpotResourceImageTest(TestCase):
 
     def setUp(self):
         spot = Spot.objects.create(name="This is to test images in the spot resource")
         self.spot = spot
 
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image=File(f))
+        gif = SpotImage.objects.create(description="This is the GIF test", display_index=1, spot=spot, image=File(f))
         f.close()
 
         self.gif = gif
 
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = SpotImage.objects.create(description="This is the JPEG test", spot=spot, image=File(f))
+        jpeg = SpotImage.objects.create(description="This is the JPEG test", display_index=0,spot=spot, image=File(f))
         f.close()
 
         self.jpeg = jpeg
@@ -56,7 +56,7 @@ class SpotResourceImageTest(unittest.TestCase):
         self.png = png
 
     def test_empty_image_data(self):
-        dummy_cache = cache.get('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             spot = Spot.objects.create(name="A spot with no images")
 
@@ -66,8 +66,24 @@ class SpotResourceImageTest(unittest.TestCase):
 
             self.assertEquals(len(spot_dict["images"]), 0, "Has an empty array for a spot w/ no images")
 
+    def test_image_order(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            response = c.get('/api/v1/spot/{0}'.format(self.spot.pk))
+
+            spot_dict = json.loads(response.content)
+
+            images_fr_json = spot_dict['images']
+            images_fr_db = SpotImage.objects.filter(spot=self.spot).order_by('display_index')
+
+            # I'm not entirely happy with this batch of assertions, but right now don't have any better ideas
+            self.assertEquals(images_fr_json[0]['description'], 'This is the PNG test', "Image with display index None is returned first")
+            self.assertEquals(images_fr_json[1]['description'], 'This is the JPEG test', "Image with display index 0 is returned second")
+            self.assertEquals(images_fr_json[2]['description'], 'This is the GIF test', "Image with display index 1 is returned third")
+
     def test_image_data(self):
-        dummy_cache = cache.get('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get('/api/v1/spot/{0}'.format(self.spot.pk))
@@ -91,6 +107,7 @@ class SpotResourceImageTest(unittest.TestCase):
                     self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
                     self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
                     self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
+                    self.assertEquals(image["display_index"], 1, "Image is at display index 1")
 
                 if image["id"] == self.png.pk:
                     has_png = True
@@ -103,6 +120,7 @@ class SpotResourceImageTest(unittest.TestCase):
                     self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
                     self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
                     self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
+                    self.assertEquals(image["display_index"], 2, "Image is at display index 2")
 
                 if image["id"] == self.jpeg.pk:
                     has_jpg = True
@@ -115,6 +133,7 @@ class SpotResourceImageTest(unittest.TestCase):
                     self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
                     self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
                     self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
+                    self.assertEquals(image["display_index"], 0, "Image is at display index 0")
 
             self.assertEquals(has_gif, True, "Found the gif")
             self.assertEquals(has_jpg, True, "Found the jpg")

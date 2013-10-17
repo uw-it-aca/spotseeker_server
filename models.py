@@ -113,7 +113,7 @@ class Spot(models.Model):
                 available_hours[window.get_day_display()].append(window.json_data_structure())
 
             images = []
-            for img in SpotImage.objects.filter(spot=self):
+            for img in SpotImage.objects.filter(spot=self).order_by('display_index'):
                 images.append(img.json_data_structure())
             types = []
             for t in self.spottypes.all():
@@ -233,6 +233,7 @@ class SpotImage(models.Model):
     }
 
     description = models.CharField(max_length=200, blank=True)
+    display_index = models.PositiveIntegerField(null=True, blank=True)
     image = models.ImageField(upload_to="space_images")
     spot = models.ForeignKey(Spot)
     content_type = models.CharField(max_length=40)
@@ -262,7 +263,8 @@ class SpotImage(models.Model):
             "upload_user": self.upload_user,
             "upload_application": self.upload_application,
             "thumbnail_root": reverse('spot-image-thumb', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk}).rstrip('/'),
-            "description": self.description
+            "description": self.description,
+            "display_index": self.display_index
         }
 
     @update_etag

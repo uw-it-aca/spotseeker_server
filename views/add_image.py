@@ -39,6 +39,7 @@ class AddImageView(RESTDispatch):
         args['upload_application'] = request.META.get('SS_OAUTH_CONSUMER_NAME', '')
         args['upload_user'] = request.META.get('SS_OAUTH_USER', '')
         args['description'] = request.POST.get('description', '')
+        args['display_index'] = request.POST.get('display_index')
         args['image'] = request.FILES['image']
 
         image = spot.spotimage_set.create(**args)

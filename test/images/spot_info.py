@@ -24,6 +24,7 @@ from os.path import abspath, dirname
 from PIL import Image
 from spotseeker_server import models
 from spotseeker_server.models import Spot, SpotImage
+import datetime
 import simplejson as json
 
 TEST_ROOT = abspath(dirname(__file__))
@@ -96,6 +97,7 @@ class SpotResourceImageTest(TestCase):
             has_png = False
             has_jpg = False
             for image in spot_dict["images"]:
+                one_sec = datetime.timedelta(seconds=1)
                 if image["id"] == self.gif.pk:
                     has_gif = True
                     self.assertEquals(image["url"], "/api/v1/spot/{0}/image/{1}".format(self.spot.pk, self.gif.pk))
@@ -104,10 +106,17 @@ class SpotResourceImageTest(TestCase):
                     img = Image.open("%s/../resources/test_gif.gif" % TEST_ROOT)
                     self.assertEquals(image["width"], img.size[0], "Includes the gif width")
                     self.assertEquals(image["height"], img.size[1], "Includes the gif height")
-                    self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
+
+                    # I have no idea if this will fail under TZs other than UTC, but here we go
+                    # Creation and modification dates will NOT be the same, but should hopefully be w/in one second
+                    create = datetime.datetime.strptime(image["creation_date"], "%Y-%m-%dT%H:%M:%S.%f+00:00")
+                    mod = datetime.datetime.strptime(image["modification_date"], "%Y-%m-%dT%H:%M:%S.%f+00:00")
+                    delta = mod - create
+                    self.assertTrue(delta < one_sec, "creation_date and modification_date are less than one second apart")
+
                     self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
                     self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
-                    self.assertEquals(image["display_index"], 1, "Image is at display index 1")
+                    self.assertEquals(image["display_index"], 1, "Image has display index 1")
 
                 if image["id"] == self.png.pk:
                     has_png = True
@@ -117,10 +126,16 @@ class SpotResourceImageTest(TestCase):
                     img = Image.open("%s/../resources/test_png.png" % TEST_ROOT)
                     self.assertEquals(image["width"], img.size[0], "Includes the png width")
                     self.assertEquals(image["height"], img.size[1], "Includes the png height")
-                    self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
+
+                    # I have no idea if this will fail under TZs other than UTC, but here we go
+                    # Creation and modification dates will NOT be the same, but should hopefully be w/in one second
+                    create = datetime.datetime.strptime(image["creation_date"], "%Y-%m-%dT%H:%M:%S.%f+00:00")
+                    mod = datetime.datetime.strptime(image["modification_date"], "%Y-%m-%dT%H:%M:%S.%f+00:00")
+                    delta = mod - create
+                    self.assertTrue(delta < one_sec, "creation_date and modification_date are less than one second apart")
+
                     self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
                     self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
-                    self.assertEquals(image["display_index"], 2, "Image is at display index 2")
 
                 if image["id"] == self.jpeg.pk:
                     has_jpg = True
@@ -130,10 +145,17 @@ class SpotResourceImageTest(TestCase):
                     img = Image.open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
                     self.assertEquals(image["width"], img.size[0], "Includes the jpeg width")
                     self.assertEquals(image["height"], img.size[1], "Includes the jpeg height")
-                    self.assertEquals(image["creation_date"], image["modification_date"], "Has the same modification and creation date")
+
+                    # I have no idea if this will fail under TZs other than UTC, but here we go
+                    # Creation and modification dates will NOT be the same, but should hopefully be w/in one second
+                    create = datetime.datetime.strptime(image["creation_date"], "%Y-%m-%dT%H:%M:%S.%f+00:00")
+                    mod = datetime.datetime.strptime(image["modification_date"], "%Y-%m-%dT%H:%M:%S.%f+00:00")
+                    delta = mod - create
+                    self.assertTrue(delta < one_sec, "creation_date and modification_date are less than one second apart")
+
                     self.assertEquals(image["upload_user"], "", "Lists an empty upload user")
                     self.assertEquals(image["upload_application"], "", "Lists an empty upload application")
-                    self.assertEquals(image["display_index"], 0, "Image is at display index 0")
+                    self.assertEquals(image["display_index"], 0, "Image has display index 0")
 
             self.assertEquals(has_gif, True, "Found the gif")
             self.assertEquals(has_jpg, True, "Found the jpg")

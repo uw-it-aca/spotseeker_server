@@ -13,18 +13,19 @@
     limitations under the License.
 """
 
-from django.test import TestCase
 from django.conf import settings
+from django.core import cache
+from django.test import TestCase
 from django.test.client import Client
-from spotseeker_server.models import Spot
-import random
-from os.path import abspath, dirname
-import tempfile
-import shutil
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
+from os.path import abspath, dirname
 from spotseeker_server import models
+from spotseeker_server.models import Spot
+import json
+import random
+import shutil
+import tempfile
 
 TEST_ROOT = abspath(dirname(__file__))
 
@@ -75,6 +76,44 @@ class SpotImagePOSTTest(TestCase):
                 f.close()
 
                 self.assertEquals(response.status_code, 201, "Gives a Created response to posting a png")
+
+    def test_display_index(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+                c = Client()
+                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+                response = c.post(self.url, {"description": "This is a jpeg", "display_index": 1,"image": f})
+                f.close()
+
+                self.assertEquals(response.status_code, 201, "Gives a Created response to posting a jpeg")
+
+                response = c.get(self.spot.rest_url())
+                spot_dict = json.loads(response.content)
+                self.assertEquals(spot_dict['images'].__len__(), 1, "Spot has only 1 SpotImage")
+                self.assertEquals(spot_dict['images'][0]['display_index'], 1, "Image created with a display index of 1 has a display index of 1")
+
+    def test_no_display_index(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+                c = Client()
+                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+                response = c.post(self.url, {"description": "This is a jpeg", "image": f})
+                f.close()
+                self.assertEquals(response.status_code, 201, "Gives a Created response to posting a jpeg")
+                f = open("%s/../resources/test_png.png" % TEST_ROOT)
+                response = c.post(self.url, {"description": "This is a png", "image": f})
+                f.close()
+                self.assertEquals(response.status_code, 201, "Gives a Created response to posting a png")
+
+                response = c.get(self.spot.rest_url())
+                spot_dict = json.loads(response.content)
+                self.assertEquals(spot_dict['images'].__len__(), 2, "Spot has 2 SpotImages")
+                self.assertEquals(spot_dict['images'][0]['display_index'], 0, "First returned spot has a display index of 0")
+                self.assertEquals(spot_dict['images'][0]['description'], "This is a jpeg", "First returned spot is the jpeg")
+                self.assertEquals(spot_dict['images'][1]['display_index'], 1, "Second returned spot has a display index of 1")
+                self.assertEquals(spot_dict['images'][1]['description'], "This is a png", "First returned spot is the png")
 
     def test_invalid_image_type(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')

@@ -283,6 +283,7 @@ class SpotImage(models.Model):
         self.content_type = SpotImage.CONTENT_TYPES[img.format]
         self.width, self.height = img.size
 
+        cache.delete(self.spot.pk)
         super(SpotImage, self).save(*args, **kwargs)
 
     @update_etag

@@ -28,6 +28,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_slug
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 import hashlib
 import datetime
 import time
@@ -293,6 +294,13 @@ class SpotImage(models.Model):
 
     def rest_url(self):
         return reverse('spot-image', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk})
+
+
+class FavoriteSpot(models.Model):
+    """ A FavoriteSpot associates a User and Spot.
+    """
+    user = models.ForeignKey(User)
+    spot = models.ForeignKey(Spot)
 
 
 class TrustedOAuthClient(models.Model):

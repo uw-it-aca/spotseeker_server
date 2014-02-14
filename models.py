@@ -161,6 +161,18 @@ class Spot(models.Model):
             return Spot.objects.get(pk=spot_id)
 
 
+class FavoriteSpot(models.Model):
+    """ A FavoriteSpot associates a User and Spot.
+    """
+    user = models.ForeignKey(User)
+    spot = models.ForeignKey(Spot)
+
+    def json_data_structure(self):
+        """ Returns the JSON for the Spot that is a Favorite.
+        """
+        return self.spot.json_data_structure();
+
+
 class SpotAvailableHours(models.Model):
     """ The hours a Spot is available, i.e. the open or closed hours for the building the spot is located in.
     """
@@ -294,13 +306,6 @@ class SpotImage(models.Model):
 
     def rest_url(self):
         return reverse('spot-image', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk})
-
-
-class FavoriteSpot(models.Model):
-    """ A FavoriteSpot associates a User and Spot.
-    """
-    user = models.ForeignKey(User)
-    spot = models.ForeignKey(Spot)
 
 
 class TrustedOAuthClient(models.Model):

@@ -33,17 +33,23 @@ class FavoriteSpotTest(TestCase):
             # create user
             self.user = User.objects.create_user('favoriter', 'nobody@nowhere.net', 'password')
             self.user.save()
-            # create spot
+            # create spots
             self.spot = models.Spot.objects.create(name="This is for testing Favorites", latitude=55, longitude=30)
             self.spot.save()
+            self.spot2 = models.Spot.objects.create(name="This is for testing multiple Favorites", latitude=56, longitude=56)
+            self.spot2.save()
             # create favorite and assign to user
             self.fav1 = models.FavoriteSpot.objects.create(user=self.user, spot=self.spot)
             self.fav1.save()
+            self.fav2 = models.FavoriteSpot.objects.create(user=self.user, spot=self.spot2)
+            self.fav2.save()
 
     def tearDown(self):
         self.user.delete()
         self.spot.delete()
+        self.spot2.delete()
         self.fav1.delete()
+        self.fav2.delete()
 
     def test_json(self):
         """ FavoriteSpots should return JSON for the Spot that was fovorited.
@@ -57,12 +63,17 @@ class FavoriteSpotTest(TestCase):
             # compare
             self.assertEqual(spot_json, fav1_json, "The same JSON is returned by both the Spot and the FavoriteSpot")
 
+            # get JSON from FavoriteSpot via User
+            fav1 = self.user.favoritespot_set.get(pk=self.fav1.pk)
+            fav1_json = fav1.json_data_structure()
+            # get JSON from Spot
+            spot_json = self.spot.json_data_structure()
+            # compare
+            self.assertEqual(spot_json, fav1_json, "The same JSON is returned by both the Spot and the FavoriteSpot")
+
     def test_user_and_spot(self):
-        """You should be able to get a favorited spot's JSON via the user that favorited it.
-        """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            self.assertEqual(self.fav1.user, self.user, "The user is the same when retrieved from the Favorite")
-            self.assertEqual(self.fav1.spot, self.spot, "The spot is the same when retrieved from the Favorite")
             # make sure a user can have multiple FavoriteSpots, but not to the same Spot
             # make sure two users can Favorite the same Spot, but not have the same FavoriteSpot
+            pass

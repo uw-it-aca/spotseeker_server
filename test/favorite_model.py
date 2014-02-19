@@ -75,5 +75,9 @@ class FavoriteSpotTest(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             # make sure a user can have multiple FavoriteSpots, but not to the same Spot
-            # make sure two users can Favorite the same Spot, but not have the same FavoriteSpot
-            pass
+            queryset = self.user.favoritespot_set.all()
+            orig_favs = list(queryset)
+            fav3 = models.FavoriteSpot.objects.create(user=self.user, spot=self.spot)
+            fav3.save()
+            new_favs = list(queryset)
+            self.assertEqual(orig_favs, new_favs, "There are no duplicate favorites")

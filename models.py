@@ -172,6 +172,12 @@ class FavoriteSpot(models.Model):
         """
         return self.spot.json_data_structure();
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        spots = self.user.favoritespot_set.all()
+        if self.spot in spots:
+            raise ValidationError("This Spot has already been favorited")
+
 
 class SpotAvailableHours(models.Model):
     """ The hours a Spot is available, i.e. the open or closed hours for the building the spot is located in.

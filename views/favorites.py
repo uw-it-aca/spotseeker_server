@@ -26,18 +26,11 @@ class FavoritesView(RESTDispatch):
     GET returns 200 with a list of spots.
     """
     @user_auth_required
-    def GET(self, request):
-        user = self._get_user(request)
-        favorites = []
-
-        objects = FavoriteSpot.objects.filter(user = user)
-
-        for fav in objects:
-            if hasattr(fav, 'spot'):
-                json = fav.spot.json_data_structure()
-                favorites.append(fav.spot.json_data_structure())
-
-        return JSONResponse(favorites)
+    def GET(self, request, spot_id = None):
+        if spot_id is None:
+            return self._get_all_favorites(request)
+        else:
+            return self._get_is_favorite(request, spot_id)
 
     @user_auth_required
     def PUT(self, request, spot_id):
@@ -67,3 +60,26 @@ class FavoritesView(RESTDispatch):
         user = User.objects.get(username=username)
 
         return user
+
+    def _get_all_favorites(self, request):
+        user = self._get_user(request)
+        favorites = []
+
+        objects = FavoriteSpot.objects.filter(user = user)
+
+        for fav in objects:
+            if hasattr(fav, 'spot'):
+                json = fav.spot.json_data_structure()
+                favorites.append(fav.spot.json_data_structure())
+
+        return JSONResponse(favorites)
+
+    def _get_is_favorite(self, request, spot_id):
+        user = self._get_user(request)
+        spot = Spot.objects.get(pk=spot_id)
+
+        fav = FavoriteSpot.objects.filter(user=user, spot=spot)
+        if len(fav):
+            return JSONResponse(True)
+        return JSONResponse(False)
+

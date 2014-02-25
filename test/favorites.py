@@ -159,3 +159,53 @@ class FavoritesTest(TestCase):
         spot1.delete()
         spot2.delete()
 
+
+    def test_single_get(self):
+        user, created = User.objects.get_or_create(username="fav_test5")
+        self.assertEquals(created, True)
+
+        spot1 = Spot.objects.create(name="This is for testing Fav 8")
+        spot2 = Spot.objects.create(name="This is for testing Fav 9")
+        spot3 = Spot.objects.create(name="This is for testing Fav 10")
+
+        c = Client()
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test5")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 0, "No initial favorites")
+
+        url = "/api/v1/user/me/favorite/%s" % spot1.pk
+        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test5")
+
+        url = "/api/v1/user/me/favorite/%s" % spot1.pk
+        response = c.get(url, TESTING_OAUTH_USER="fav_test5")
+        favorite = json.loads(response.content)
+        self.assertEquals(favorite, True, "One favorite added")
+
+        url = "/api/v1/user/me/favorite/%s" % spot2.pk
+        response = c.get(url, TESTING_OAUTH_USER="fav_test5")
+        favorite = json.loads(response.content)
+        self.assertEquals(favorite, False, "Not a fav")
+
+
+        url = "/api/v1/user/me/favorite/%s" % spot3.pk
+        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test5")
+
+        url = "/api/v1/user/me/favorite/%s" % spot1.pk
+        response = c.get(url, TESTING_OAUTH_USER="fav_test5")
+        favorite = json.loads(response.content)
+        self.assertEquals(favorite, True, "One favorite added")
+
+        url = "/api/v1/user/me/favorite/%s" % spot2.pk
+        response = c.get(url, TESTING_OAUTH_USER="fav_test5")
+        favorite = json.loads(response.content)
+        self.assertEquals(favorite, False, "Not a fav")
+
+        url = "/api/v1/user/me/favorite/%s" % spot3.pk
+        response = c.get(url, TESTING_OAUTH_USER="fav_test5")
+        favorite = json.loads(response.content)
+        self.assertEquals(favorite, True, "Another favorite added")
+
+        spot1.delete()
+        spot2.delete()
+        spot3.delete()

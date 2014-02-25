@@ -79,3 +79,43 @@ class FavoritesTest(TestCase):
         spot1.delete()
         spot2.delete()
 
+    def test_put(self):
+        user, created = User.objects.get_or_create(username="fav_test3")
+        self.assertEquals(created, True)
+
+        spot1 = Spot.objects.create(name="This is for testing Fav 4")
+        spot2 = Spot.objects.create(name="This is for testing Fav 5")
+
+        c = Client()
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test3")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 0, "No initial favorites")
+
+        url = "/api/v1/user/me/favorite/%s" % spot1.pk
+        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test3")
+
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test3")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 1, "One favorite added")
+
+        url = "/api/v1/user/me/favorite/%s" % spot1.pk
+        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test3")
+
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test3")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 1, "No double dipping")
+
+        url = "/api/v1/user/me/favorite/%s" % spot2.pk
+        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test3")
+
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test3")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 2, "Both added")
+
+        spot1.delete()
+        spot2.delete()
+

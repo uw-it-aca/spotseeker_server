@@ -27,19 +27,36 @@ class FavoritesView(RESTDispatch):
     """
     @user_auth_required
     def GET(self, request):
-        if not 'SS_OAUTH_USER' in request.META:
-            raise Exception("missing oauth user - improper auth backend?")
-        username = request.META['SS_OAUTH_USER']
-
-        user = User.objects.get(username=username)
-
+        user = self._get_user(request)
         favorites = []
 
         objects = FavoriteSpot.objects.filter(user = user)
 
         for fav in objects:
-            json = fav.spot.json_data_structure()
-
-            favorites.append(fav.spot.json_data_structure())
+            if hasattr(fav, 'spot'):
+                json = fav.spot.json_data_structure()
+                favorites.append(fav.spot.json_data_structure())
 
         return JSONResponse(favorites)
+
+    @user_auth_required
+    def PUT(self, request, spot_id):
+        try:
+            user = self._get_user(request)
+        except Exception as ex:
+            print ex
+        spot = Spot.objects.get(pk=spot_id)
+
+        fav, created = FavoriteSpot.objects.get_or_create(user=user, spot=spot)
+        return JSONResponse(True)
+
+
+    def _get_user(self, request):
+        if not 'SS_OAUTH_USER' in request.META:
+            print request.META
+            raise Exception("missing oauth user - improper auth backend?")
+        username = request.META['SS_OAUTH_USER']
+
+        user = User.objects.get(username=username)
+
+        return user

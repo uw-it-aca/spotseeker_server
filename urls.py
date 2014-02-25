@@ -30,6 +30,7 @@ from spotseeker_server.views.thumbnail import ThumbnailView
 from spotseeker_server.views.null import NullView
 from spotseeker_server.views.all_spots import AllSpotsView
 from spotseeker_server.views.schema_gen import SchemaGenView
+from spotseeker_server.views.favorites import FavoritesView
 
 urlpatterns = patterns('',
     url(r'v1/null$', NullView().run),
@@ -42,4 +43,6 @@ urlpatterns = patterns('',
     url(r'v1/spot/(?P<spot_id>\d+)/image/(?P<image_id>\d+)$', ImageView().run, name='spot-image'),
     url(r'v1/spot/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/constrain/(?P<thumb_dimensions>.+)?$', ThumbnailView().run, {'constrain': True}),
     url(r'v1/spot/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/(?P<thumb_dimensions>.+)?$', ThumbnailView().run, name='spot-image-thumb'),
+    url(r'v1/user/me/favorites/?$', FavoritesView().run),
+    url(r'v1/user/me/favorite/(?P<spot_id>\d+)$', FavoritesView().run),
 )

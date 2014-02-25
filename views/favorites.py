@@ -41,15 +41,22 @@ class FavoritesView(RESTDispatch):
 
     @user_auth_required
     def PUT(self, request, spot_id):
-        try:
-            user = self._get_user(request)
-        except Exception as ex:
-            print ex
+        user = self._get_user(request)
         spot = Spot.objects.get(pk=spot_id)
 
         fav, created = FavoriteSpot.objects.get_or_create(user=user, spot=spot)
         return JSONResponse(True)
 
+    @user_auth_required
+    def DELETE(self, request, spot_id):
+        user = self._get_user(request)
+        spot = Spot.objects.get(pk=spot_id)
+
+        fav = FavoriteSpot.objects.filter(user=user, spot=spot)
+        for obj in fav:
+            fav.delete()
+
+        return JSONResponse("")
 
     def _get_user(self, request):
         if not 'SS_OAUTH_USER' in request.META:

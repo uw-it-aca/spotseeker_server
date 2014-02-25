@@ -119,3 +119,43 @@ class FavoritesTest(TestCase):
         spot1.delete()
         spot2.delete()
 
+    def test_delete(self):
+        user, created = User.objects.get_or_create(username="fav_test4")
+        self.assertEquals(created, True)
+
+        spot1 = Spot.objects.create(name="This is for testing Fav 6")
+        spot2 = Spot.objects.create(name="This is for testing Fav 7")
+
+        c = Client()
+        url = "/api/v1/user/me/favorite/%s" % spot1.pk
+        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test4")
+
+        url = "/api/v1/user/me/favorite/%s" % spot2.pk
+        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test4")
+
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test4")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 2, "Both added")
+
+        url = "/api/v1/user/me/favorite/%s" % spot1.pk
+        response = c.delete(url, TESTING_OAUTH_USER="fav_test4")
+
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test4")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 1, "one removed")
+        self.assertEquals(favorites[0]["name"], spot2.name)
+
+
+        url = "/api/v1/user/me/favorite/%s" % spot2.pk
+        response = c.delete(url, TESTING_OAUTH_USER="fav_test4")
+
+        url = "/api/v1/user/me/favorites"
+        response = c.get(url, TESTING_OAUTH_USER="fav_test4")
+        favorites = json.loads(response.content)
+        self.assertEquals(len(favorites), 0, "all gone")
+
+        spot1.delete()
+        spot2.delete()
+

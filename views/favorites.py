@@ -20,6 +20,9 @@ from spotseeker_server.models import Spot, FavoriteSpot
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.views.decorators.cache import never_cache
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FavoritesView(RESTDispatch):
     """ Performs actions on the user's favorites, at /api/v1/user/me/favorites.
@@ -37,6 +40,8 @@ class FavoritesView(RESTDispatch):
         user = self._get_user(request)
         spot = Spot.objects.get(pk=spot_id)
 
+        log_message = "user: %s; spot_id: %s; favorite added" % (user.username, spot.pk)
+        logger.info(log_message)
         fav, created = FavoriteSpot.objects.get_or_create(user=user, spot=spot)
         return JSONResponse(True)
 
@@ -49,6 +54,8 @@ class FavoritesView(RESTDispatch):
         for obj in fav:
             fav.delete()
 
+        log_message = "user: %s; spot_id: %s; favorite removed" % (user.username, spot.pk)
+        logger.info(log_message)
         return JSONResponse("")
 
     def _get_user(self, request):

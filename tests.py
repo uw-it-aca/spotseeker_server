@@ -1,4 +1,4 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
+""" Copyright 2012-2014 UW Information Technology, University of Washington
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -61,3 +61,4 @@ from spotseeker_server.test.uw_spot.schema import UWSpotSchemaTest
 from spotseeker_server.test.cache_test import JsonCachingTest
 
 from spotseeker_server.test.favorites import FavoritesTest
+from spotseeker_server.test.share_space import ShareSpaceTest

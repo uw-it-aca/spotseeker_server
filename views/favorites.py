@@ -18,7 +18,6 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
 from spotseeker_server.require_auth import user_auth_required
 from spotseeker_server.models import Spot, FavoriteSpot
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from django.views.decorators.cache import never_cache
 import logging
 
@@ -57,16 +56,6 @@ class FavoritesView(RESTDispatch):
         log_message = "user: %s; spot_id: %s; favorite removed" % (user.username, spot.pk)
         logger.info(log_message)
         return JSONResponse("")
-
-    def _get_user(self, request):
-        if not 'SS_OAUTH_USER' in request.META:
-            print request.META
-            raise Exception("missing oauth user - improper auth backend?")
-        username = request.META['SS_OAUTH_USER']
-
-        user = User.objects.get(username=username)
-
-        return user
 
     def _get_all_favorites(self, request):
         user = self._get_user(request)

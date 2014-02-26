@@ -22,10 +22,13 @@ from spotseeker_server.models import FavoriteSpot, Spot
 from mock import patch
 from spotseeker_server import models
 from django.core import cache
+from django.core import mail
 import json
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
+                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm',
+                   EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+                   )
 class ShareSpaceTest(TestCase):
     def test_basic_oks(self):
         spot = Spot.objects.create(name="This is for testing Sharing 1")
@@ -42,6 +45,9 @@ class ShareSpaceTest(TestCase):
 
         self.assertEquals(response.status_code, 200, "200 w/ valid data")
         self.assertEquals(response.content, "true", "yup, sent")
+
+        self.assertEquals(mail.outbox[0].to[0], 'vegitron@gmail.com', 'right to')
+        mail.outbox = []
 
     def test_missing_email(self):
         spot = Spot.objects.create(name="This is for testing Sharing 2")

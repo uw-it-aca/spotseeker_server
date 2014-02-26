@@ -15,10 +15,15 @@
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse, RESTException
+from django.core.mail import EmailMultiAlternatives
 from spotseeker_server.require_auth import user_auth_required
 from spotseeker_server.models import Spot
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import get_template
+from django.template import Context
 import json
 import logging
 
@@ -50,5 +55,26 @@ class ShareSpaceView(RESTDispatch):
 
         log_message = "user: %s; spot_id: %s; recipient: %s; space suggested" % (user.username, spot.pk, send_to)
         logger.info(log_message)
+
+
+        context = Context({
+            'user_name': user.username,
+            'space_name': spot.name,
+            'space_url': spot.sharing_url(user_from = user),
+            'comment': comment,
+        })
+
+        subject_template = get_template('email/share_space/subject.txt')
+        text_template = get_template('email/share_space/plain_text.txt')
+        html_template = get_template('email/share_space/html.html')
+
+        subject = subject_template.render(context)
+        text_content = text_template.render(context)
+        html_content = html_template.render(context)
+        to = send_to
+        from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
 
         return JSONResponse(True)

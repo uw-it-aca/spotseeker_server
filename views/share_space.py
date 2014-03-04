@@ -68,7 +68,7 @@ class ShareSpaceView(RESTDispatch):
         text_template = get_template('email/share_space/plain_text.txt')
         html_template = get_template('email/share_space/html.html')
 
-        subject = subject_template.render(context)
+        subject = subject_template.render(context).rstrip()
         text_content = text_template.render(context)
         html_content = html_template.render(context)
         to = send_to

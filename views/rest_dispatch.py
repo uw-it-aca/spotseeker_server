@@ -110,17 +110,11 @@ class RESTDispatch:
         return response
 
     def json_error(self, ex):
-        if ex.message:
-            json_values = {"error": ex.message}
-        elif len(ex.messages) > 0:
-            messages = ""
-            for message in ex.messages:
-                messages += (str(message) + " ")
-            json_values = {"error": messages.strip()}
-        else:
-            json_values = {"error": str(type(ex).__name__)}
+        json_values = {"error": str(ex)}
+
         if getattr(settings, 'DEBUG', False):
             json_values['stack'] = traceback.format_exc().splitlines()
+
         return json_values
 
     def validate_etag(self, request, obj):
@@ -142,4 +136,3 @@ class RESTDispatch:
         user = User.objects.get(username=username)
 
         return user
-

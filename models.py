@@ -28,6 +28,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_slug
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 import hashlib
 import datetime
 import time
@@ -89,6 +90,9 @@ class Spot(models.Model):
 
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
+
+    def sharing_url(self, user_from):
+        return '/need/a/url'
 
     def json_data_structure(self):
         spot_json = cache.get(self.pk)
@@ -158,6 +162,24 @@ class Spot(models.Model):
             return Spot.objects.get(external_id=spot_id[9:])
         else:
             return Spot.objects.get(pk=spot_id)
+
+
+class FavoriteSpot(models.Model):
+    """ A FavoriteSpot associates a User and Spot.
+    """
+    user = models.ForeignKey(User)
+    spot = models.ForeignKey(Spot)
+
+    def json_data_structure(self):
+        """ Returns the JSON for the Spot that is a Favorite.
+        """
+        return self.spot.json_data_structure();
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        spots = self.user.favoritespot_set.all()
+        if self.spot in spots:
+            raise ValidationError("This Spot has already been favorited")
 
 
 class SpotAvailableHours(models.Model):

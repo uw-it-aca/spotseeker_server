@@ -1,4 +1,4 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
+""" Copyright 2012-2014 UW Information Technology, University of Washington
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
         validation to here.
 """
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import HttpResponse
@@ -109,17 +110,11 @@ class RESTDispatch:
         return response
 
     def json_error(self, ex):
-        if ex.message:
-            json_values = {"error": ex.message}
-        elif len(ex.messages) > 0:
-            messages = ""
-            for message in ex.messages:
-                messages += (str(message) + " ")
-            json_values = {"error": messages.strip()}
-        else:
-            json_values = {"error": str(type(ex).__name__)}
+        json_values = {"error": str(ex)}
+
         if getattr(settings, 'DEBUG', False):
             json_values['stack'] = traceback.format_exc().splitlines()
+
         return json_values
 
     def validate_etag(self, request, obj):
@@ -131,3 +126,13 @@ class RESTDispatch:
 
         if request.META["HTTP_IF_MATCH"] != obj.etag:
             raise RESTException("Invalid ETag", 409)
+
+    def _get_user(self, request):
+        if not 'SS_OAUTH_USER' in request.META:
+            print request.META
+            raise Exception("missing oauth user - improper auth backend?")
+        username = request.META['SS_OAUTH_USER']
+
+        user = User.objects.get(username=username)
+
+        return user

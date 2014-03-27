@@ -1,4 +1,4 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
+""" Copyright 2012-2014 UW Information Technology, University of Washington
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ from spotseeker_server.test.spot_put import SpotPUTTest
 from spotseeker_server.test.spot_delete import SpotDELETETest
 from spotseeker_server.test.spot_post import SpotPOSTTest
 from spotseeker_server.test.spot_get import SpotGETTest
+from spotseeker_server.test.favorite_model import FavoriteSpotTest
 from spotseeker_server.test.no_rest_methods import NoRESTMethodsTest
 from spotseeker_server.test.schema import SpotSchemaTest
 from spotseeker_server.test.images.get import SpotImageGETTest
@@ -58,3 +59,6 @@ from spotseeker_server.test.uw_spot.spot_post import UWSpotPOSTTest
 from spotseeker_server.test.uw_spot.spot_put import UWSpotPUTTest
 from spotseeker_server.test.uw_spot.schema import UWSpotSchemaTest
 from spotseeker_server.test.cache_test import JsonCachingTest
+
+from spotseeker_server.test.favorites import FavoritesTest
+from spotseeker_server.test.share_space import ShareSpaceTest

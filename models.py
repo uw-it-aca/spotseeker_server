@@ -327,3 +327,22 @@ class TrustedOAuthClient(models.Model):
 
     def __unicode__(self):
         return self.consumer.name
+
+
+class SpaceReview(models.Model):
+    space = models.ForeignKey(Spot)
+    reviewer = models.ForeignKey(User, related_name='reviewer')
+    published_by = models.ForeignKey(User, related_name='published_by')
+    review = models.CharField(max_length=1000)
+    rating = models.IntegerField()
+    date_submitted = models.DateTimeField(auto_now_add=True)
+    date_published = models.DateTimeField()
+    is_published = models.BooleanField()
+
+    def json_data_structure(self):
+        return {
+            'reviewer': self.reviewer.username,
+            'review': self.review,
+            'rating': self.rating,
+            'date_submitted': self.date_submitted.isoformat(),
+        }

@@ -13,11 +13,11 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('space', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Spot'])),
             ('reviewer', self.gf('django.db.models.fields.related.ForeignKey')(related_name='reviewer', to=orm['auth.User'])),
-            ('published_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='published_by', to=orm['auth.User'])),
+            ('published_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='published_by', null=True, to=orm['auth.User'])),
             ('review', self.gf('django.db.models.fields.CharField')(max_length=1000)),
             ('rating', self.gf('django.db.models.fields.IntegerField')()),
             ('date_submitted', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('date_published', self.gf('django.db.models.fields.DateTimeField')()),
+            ('date_published', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('is_published', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal('spotseeker_server', ['SpaceReview'])
@@ -84,11 +84,11 @@ class Migration(SchemaMigration):
         },
         'spotseeker_server.spacereview': {
             'Meta': {'object_name': 'SpaceReview'},
-            'date_published': ('django.db.models.fields.DateTimeField', [], {}),
+            'date_published': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'date_submitted': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'published_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'published_by'", 'to': "orm['auth.User']"}),
+            'published_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'published_by'", 'null': 'True', 'to': "orm['auth.User']"}),
             'rating': ('django.db.models.fields.IntegerField', [], {}),
             'review': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
             'reviewer': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'reviewer'", 'to': "orm['auth.User']"}),

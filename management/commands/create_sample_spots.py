@@ -109,6 +109,8 @@ class Command(BaseCommand):
                 date_published = datetime.now(),
                 is_published = False)
 
+            SpotExtendedInfo.objects.create(key="aggregate_rating", value="4.5", spot=art)
+            SpotExtendedInfo.objects.create(key="review_count", value="2", spot=art)
 
             study_room_type = SpotType.objects.get_or_create(name="study_room")[0]
             tacoma = Spot.objects.create(name="WCG #1", capacity=20, longitude=Decimal('-122.437212'), latitude=Decimal('47.246213'), building_name="tacoma")

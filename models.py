@@ -332,11 +332,11 @@ class TrustedOAuthClient(models.Model):
 class SpaceReview(models.Model):
     space = models.ForeignKey(Spot)
     reviewer = models.ForeignKey(User, related_name='reviewer')
-    published_by = models.ForeignKey(User, related_name='published_by')
+    published_by = models.ForeignKey(User, related_name='published_by', null=True)
     review = models.CharField(max_length=1000)
     rating = models.IntegerField()
     date_submitted = models.DateTimeField(auto_now_add=True)
-    date_published = models.DateTimeField()
+    date_published = models.DateTimeField(null=True)
     is_published = models.BooleanField()
 
     def json_data_structure(self):

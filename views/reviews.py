@@ -18,10 +18,29 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, J
 from spotseeker_server.models import Spot, SpaceReview
 from spotseeker_server.require_auth import user_auth_required, app_auth_required
 from django.http import HttpResponse
+import json
 
 class ReviewsView(RESTDispatch):
     @user_auth_required
     def POST(self, request, spot_id):
+        user = self._get_user(request)
+        space = Spot.objects.get(pk=spot_id)
+
+        body = request.read()
+        try:
+            json_values = json.loads(body)
+        except Exception as e:
+            raise RESTException("Unable to parse JSON", status_code=400)
+
+        rating = json_values['rating']
+        review = json_values['review']
+
+        new_review = SpaceReview.objects.create(space = space,
+                                                reviewer = user,
+                                                review = review,
+                                                rating = rating,
+                                                is_published = False)
+
         response = HttpResponse("OK")
         return response
 

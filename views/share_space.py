@@ -24,7 +24,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.http import urlquote
 import json
+import socket
+import re
 import logging
 
 logger = logging.getLogger(__name__)
@@ -49,18 +52,32 @@ class ShareSpaceView(RESTDispatch):
         if '@' not in send_to:
             raise RESTException("Invalid 'to'", status_code=400)
 
+        send_from = json_values['from'] if 'from' in json_values else None
+        if send_from and '@' not in send_from:
+            raise RESTException("Invalid 'from'", status_code=400)
+
         comment = ''
         if 'comment' in json_values:
             comment = json_values['comment']
 
+        if 'share_url' in json_values:
+            share_url = json_values['share_url']
+        else:
+            server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
+            path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
+            path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
+            path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
+            share_url = "http://%s%s" % (server, path)
+
         log_message = "user: %s; spot_id: %s; recipient: %s; space suggested" % (user.username, spot.pk, send_to)
         logger.info(log_message)
 
-
         context = Context({
             'user_name': user.username,
-            'space_name': spot.name,
-            'space_url': spot.sharing_url(user_from = user),
+            'spot_name': spot.name,
+            'spot_building': spot.building_name,
+            'spot_floor': spot.floor,
+            'share_url': share_url,
             'comment': comment,
         })
 
@@ -68,12 +85,17 @@ class ShareSpaceView(RESTDispatch):
         text_template = get_template('email/share_space/plain_text.txt')
         html_template = get_template('email/share_space/html.html')
 
-        subject = subject_template.render(context).rstrip()
+        subject = json_values['subject'] if 'subject' in json_values else subject_template.render(context).rstrip()
         text_content = text_template.render(context)
         html_content = html_template.render(context)
         to = send_to
         from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+
+        headers = {}
+        if send_from:
+            headers['Reply-To'] = send_from
+
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
         msg.attach_alternative(html_content, "text/html")
         msg.send()
 

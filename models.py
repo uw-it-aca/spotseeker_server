@@ -91,9 +91,6 @@ class Spot(models.Model):
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
 
-    def sharing_url(self, user_from):
-        return '/need/a/url'
-
     def json_data_structure(self):
         spot_json = cache.get(self.pk)
         if not spot_json:

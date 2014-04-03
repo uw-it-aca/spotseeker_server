@@ -1,7 +1,15 @@
-{{ user_name }} suggests you check out a space in SpaceScout!
-
-{{ space_name }}
-{{ space_url }}
+Hello.
 
 {{ comment }}
+
+I found this space throuh SpaceScout that I think you will be interested in.
+
+{{ spot_name }},
+{{ spot_building }}, Floor {{ spot_floor }}
+
+You can access details of this space directly using this URL - {{ share_url }}
+
+Download the SpaceScout app from iTunes. https://itunes.apple.com/us/app/spacescout/id551472160
+
+
 

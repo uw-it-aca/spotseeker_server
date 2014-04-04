@@ -51,6 +51,7 @@ class ImageView(RESTDispatch):
         return response
 
     @user_auth_required
+    @admin_auth_required
     def PUT(self, request, spot_id, image_id):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
@@ -76,6 +77,7 @@ class ImageView(RESTDispatch):
         return self.GET(request, spot_id, image_id)
 
     @user_auth_required
+    @admin_auth_required
     def DELETE(self, request, spot_id, image_id):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot

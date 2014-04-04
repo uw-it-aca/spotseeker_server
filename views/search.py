@@ -40,6 +40,7 @@ class SearchView(RESTDispatch):
     """ Handles searching for Spots with particular attributes based on a query string.
     """
     @user_auth_required
+    @admin_auth_required
     def POST(self, request):
         return SpotView().run(request)
 

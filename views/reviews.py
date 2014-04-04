@@ -16,8 +16,9 @@
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, JSONResponse
 from spotseeker_server.models import Spot, SpaceReview
-from spotseeker_server.require_auth import user_auth_required, app_auth_required
+from spotseeker_server.require_auth import user_auth_required, app_auth_required, admin_auth_required
 from django.http import HttpResponse
+from datetime import datetime
 import json
 
 class ReviewsView(RESTDispatch):
@@ -37,9 +38,10 @@ class ReviewsView(RESTDispatch):
 
         new_review = SpaceReview.objects.create(space = space,
                                                 reviewer = user,
-                                                review = review,
+                                                original_review = review,
                                                 rating = rating,
-                                                is_published = False)
+                                                is_published = False,
+                                                is_deleted = False)
 
         response = HttpResponse("OK")
         return response
@@ -52,9 +54,41 @@ class ReviewsView(RESTDispatch):
         # reviews
 
         reviews = []
-        objects = SpaceReview.objects.filter(space=space, is_published=True)
+        objects = SpaceReview.objects.filter(space=space, is_published=True, is_deleted=False)
 
         for review in objects:
             reviews.append(review.json_data_structure())
 
         return JSONResponse(reviews)
+
+class UnpublishedReviewsView(RESTDispatch):
+    @user_auth_required
+    @admin_auth_required
+    def GET(self, request):
+        reviews = []
+        objects = SpaceReview.objects.filter(is_published=False, is_deleted=False)
+
+        for review in objects:
+            reviews.append(review.full_json_data_structure())
+
+        return JSONResponse(reviews)
+
+    @user_auth_required
+    @admin_auth_required
+    def POST(self, request):
+        data = json.loads(request.body)
+
+        review = SpaceReview.objects.get(id=data["review_id"])
+        review.review = data['review']
+        review.published_by = request.user
+        if data['publish']:
+            review.date_published = datetime.now()
+
+        review.is_published = data['publish']
+        review.is_deleted = data['delete']
+
+        review.save()
+        review.space.update_rating()
+
+        return JSONResponse('')
+

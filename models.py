@@ -24,6 +24,7 @@
 """
 
 from django.db import models
+from django.db.models import Sum, Count
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_slug
 from django.core.files.uploadedfile import UploadedFile
@@ -148,6 +149,22 @@ class Spot(models.Model):
             }
             cache.add(self.pk, spot_json)
         return spot_json
+
+    def update_rating(self):
+        data = SpaceReview.objects.filter(space=self, is_published=True, is_deleted=False).aggregate(total=Sum('rating'), count=Count('rating'))
+        
+        if not data['total']:
+            return
+
+        # Round down to .5 stars:
+        new_rating = int(2 * data['total'] / data['count']) / 2.0
+        extended_info = SpotExtendedInfo.objects.get(spot=self, key="rating", )
+        if extended_info:
+            extended_info.value = new_rating
+            extended_info.save()
+
+        else:
+            extended_info = SpotExtendedInfo.objects.create(spot=self, key="rating", value=new_rating)
 
     def delete(self, *args, **kwargs):
         cache.delete(self.pk)
@@ -330,11 +347,13 @@ class SpaceReview(models.Model):
     space = models.ForeignKey(Spot)
     reviewer = models.ForeignKey(User, related_name='reviewer')
     published_by = models.ForeignKey(User, related_name='published_by', null=True)
-    review = models.CharField(max_length=1000)
+    review = models.CharField(max_length=1000, default="")
+    original_review = models.CharField(max_length=1000, default="")
     rating = models.IntegerField()
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_published = models.DateTimeField(null=True)
     is_published = models.BooleanField()
+    is_deleted = models.BooleanField()
 
     def json_data_structure(self):
         return {
@@ -343,3 +362,22 @@ class SpaceReview(models.Model):
             'rating': self.rating,
             'date_submitted': self.date_submitted.isoformat(),
         }
+
+    def full_json_data_structure(self):
+        data = {
+            'id': self.pk,
+            'space_name': self.space.name,
+            'space_id': self.space.pk,
+            'reviewer': self.reviewer.username,
+            'review': self.review,
+            'rating': self.rating,
+            'original_review': self.original_review,
+            'date_submitted': self.date_submitted.isoformat(),
+            'is_published': self.is_published,
+            'is_deleted': self.is_deleted,
+        }
+
+        if self.is_published:
+            data['date_published'] = self.date_published.isoformat()
+
+        return data

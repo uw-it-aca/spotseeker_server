@@ -18,7 +18,9 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, J
 from spotseeker_server.models import Spot, SpaceReview
 from spotseeker_server.require_auth import user_auth_required, app_auth_required, admin_auth_required
 from django.http import HttpResponse
+from django.contrib.auth.models import User
 from datetime import datetime
+from django.utils import timezone
 import json
 
 class ReviewsView(RESTDispatch):
@@ -36,6 +38,9 @@ class ReviewsView(RESTDispatch):
         rating = json_values['rating']
         review = json_values['review']
 
+        if rating > 5 or rating < 1:
+            return HttpResponse(status=400)
+
         new_review = SpaceReview.objects.create(space = space,
                                                 reviewer = user,
                                                 original_review = review,
@@ -43,7 +48,7 @@ class ReviewsView(RESTDispatch):
                                                 is_published = False,
                                                 is_deleted = False)
 
-        response = HttpResponse("OK")
+        response = HttpResponse("OK", status=201)
         return response
 
     @app_auth_required
@@ -77,15 +82,17 @@ class UnpublishedReviewsView(RESTDispatch):
     @admin_auth_required
     def POST(self, request):
         data = json.loads(request.body)
+        user = self._get_user(request)
 
         review = SpaceReview.objects.get(id=data["review_id"])
         review.review = data['review']
-        review.published_by = request.user
+        review.published_by = user
         if data['publish']:
-            review.date_published = datetime.now()
+            review.date_published = timezone.now()
 
         review.is_published = data['publish']
-        review.is_deleted = data['delete']
+        if "delete" in data:
+            review.is_deleted = data['delete']
 
         review.save()
         review.space.update_rating()

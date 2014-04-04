@@ -105,7 +105,8 @@ def admin_auth_required(func):
             return bad_response
 
         request = args[1]
-        if request.user.username not in admins:
+        username = request.META['SS_OAUTH_USER']
+        if username not in admins:
             return bad_response
 
         return func(*args, **kwargs)

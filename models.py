@@ -361,11 +361,12 @@ class SpaceReview(models.Model):
     is_deleted = models.BooleanField()
 
     def json_data_structure(self):
+        submitted = self.date_submitted.replace(microsecond = 0)
         return {
             'reviewer': self.reviewer.username,
             'review': self.review,
             'rating': self.rating,
-            'date_submitted': self.date_submitted.isoformat(),
+            'date_submitted':submitted.isoformat(),
         }
 
     def full_json_data_structure(self):

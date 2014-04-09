@@ -59,10 +59,12 @@ class ReviewsView(RESTDispatch):
         # reviews
 
         reviews = []
-        objects = SpaceReview.objects.filter(space=space, is_published=True, is_deleted=False)
+        objects = SpaceReview.objects.filter(space=space, is_published=True)
 
         for review in objects:
-            reviews.append(review.json_data_structure())
+            # seems to be a bug in sqlite3's handling of False booleans?
+            if not review.is_deleted:
+                reviews.append(review.json_data_structure())
 
         return JSONResponse(reviews)
 

@@ -48,8 +48,18 @@ class ShareSpaceView(RESTDispatch):
         if 'to' not in json_values:
             raise RESTException("Missing 'to'", status_code=400)
 
-        send_to = json_values['to']
-        if '@' not in send_to:
+        raw_send_to = json_values['to']
+        if type(raw_send_to).__name__ == "str":
+            raw_send_to = [ raw_send_to ]
+
+        has_valid_to = False
+        send_to = []
+        for address in raw_send_to:
+            if '@' in address:
+                send_to.append(address)
+                has_valid_to = True
+
+        if not has_valid_to:
             raise RESTException("Invalid 'to'", status_code=400)
 
         send_from = json_values['from'] if 'from' in json_values else None
@@ -60,43 +70,44 @@ class ShareSpaceView(RESTDispatch):
         if 'comment' in json_values:
             comment = json_values['comment']
 
-        if 'share_url' in json_values:
-            share_url = json_values['share_url']
-        else:
-            server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
-            path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
-            path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
-            path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
-            share_url = "http://%s%s" % (server, path)
 
-        log_message = "user: %s; spot_id: %s; recipient: %s; space suggested" % (user.username, spot.pk, send_to)
-        logger.info(log_message)
+        for to in send_to:
+            if 'share_url' in json_values:
+                share_url = json_values['share_url']
+            else:
+                server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
+                path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
+                path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
+                path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
+                share_url = "http://%s%s" % (server, path)
 
-        context = Context({
-            'user_name': user.username,
-            'spot_name': spot.name,
-            'spot_building': spot.building_name,
-            'spot_floor': spot.floor,
-            'share_url': share_url,
-            'comment': comment,
-        })
+            log_message = "user: %s; spot_id: %s; recipient: %s; space suggested" % (user.username, spot.pk, send_to)
+            logger.info(log_message)
 
-        subject_template = get_template('email/share_space/subject.txt')
-        text_template = get_template('email/share_space/plain_text.txt')
-        html_template = get_template('email/share_space/html.html')
+            context = Context({
+                'user_name': user.username,
+                'spot_name': spot.name,
+                'spot_building': spot.building_name,
+                'spot_floor': spot.floor,
+                'share_url': share_url,
+                'comment': comment,
+            })
 
-        subject = json_values['subject'] if 'subject' in json_values else subject_template.render(context).rstrip()
-        text_content = text_template.render(context)
-        html_content = html_template.render(context)
-        to = send_to
-        from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
+            subject_template = get_template('email/share_space/subject.txt')
+            text_template = get_template('email/share_space/plain_text.txt')
+            html_template = get_template('email/share_space/html.html')
 
-        headers = {}
-        if send_from:
-            headers['Reply-To'] = send_from
+            subject = json_values['subject'] if 'subject' in json_values else subject_template.render(context).rstrip()
+            text_content = text_template.render(context)
+            html_content = html_template.render(context)
+            from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
 
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
+            headers = {}
+            if send_from:
+                headers['Reply-To'] = send_from
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
 
         return JSONResponse(True)

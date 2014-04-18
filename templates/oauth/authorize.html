@@ -1,5 +1,6 @@
 {% if bypass_auth %}
 <form method="POST" id="auth_form">
+    {% csrf_token %}
     <input type="hidden" name="oauth_token" value="{{ token }}" />
     <input type="hidden" name="authorize_access" value="1">
 </form>

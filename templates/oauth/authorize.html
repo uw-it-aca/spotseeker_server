@@ -1,4 +1,14 @@
-<form method="POST">
+{% if bypass_auth %}
+<form method="POST" id="auth_form">
+    <input type="hidden" name="oauth_token" value="{{ token }}" />
+    <input type="hidden" name="authorize_access" value="1">
+</form>
+
+<script>
+    document.getElementById("auth_form").submit();
+</script>
+{% else %}
+<form method="POST" id="auth_form">
     {% csrf_token %}
     Do you want {{ consumer }} to be able to act as you?
     <br />
@@ -7,3 +17,5 @@
     <br />
     <input type="submit" name="accept" value="Continue"/>
 </form>
+
+{% endif %}

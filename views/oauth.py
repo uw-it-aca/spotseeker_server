@@ -1,4 +1,4 @@
-""" Copyright 2013 UW Information Technology, University of Washington
+""" Copyright 2013, 2014 UW Information Technology, University of Washington
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,14 +23,16 @@ from spotseeker_server.models import TrustedOAuthClient
 def authorize(request, token, callback, params):
     consumer = token.consumer
 
-    # XXX - create a level between trusted and untrusted, that is allowed
-    # to skip authorization, but still must use 3-legged oauth to identify
-    # users.
+    bypasses_auth = False
+    trusted_client = TrustedOAuthClient.objects.filter(consumer = consumer)
+    if len(trusted_client) and trusted_client[0].bypasses_user_authorization:
+        bypasses_auth = True
 
     request.session['oauth'] = token.key
     return render_to_response("oauth/authorize.html", {
         "consumer": consumer.name,
         "token": request.GET["oauth_token"],
+        "bypass_auth": bypasses_auth,
     }, RequestContext(request))
 
 

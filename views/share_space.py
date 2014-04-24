@@ -70,16 +70,12 @@ class ShareSpaceView(RESTDispatch):
         if 'comment' in json_values:
             comment = json_values['comment']
 
-
         for to in send_to:
-            if 'share_url' in json_values:
-                share_url = json_values['share_url']
-            else:
-                server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
-                path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
-                path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
-                path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
-                share_url = "http://%s%s" % (server, path)
+            server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
+            path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
+            path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
+            path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
+            share_url = "http://%s%s" % (server, path)
 
             log_message = "user: %s; spot_id: %s; recipient: %s; space suggested" % (user.username, spot.pk, send_to)
             logger.info(log_message)

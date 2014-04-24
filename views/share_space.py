@@ -49,7 +49,7 @@ class ShareSpaceView(RESTDispatch):
             raise RESTException("Missing 'to'", status_code=400)
 
         raw_send_to = json_values['to']
-        if type(raw_send_to).__name__ == "str":
+        if type(raw_send_to) is not list:
             raw_send_to = [ raw_send_to ]
 
         has_valid_to = False

@@ -168,6 +168,16 @@ class Spot(models.Model):
         except ObjectDoesNotExist as ex:
             extended_info = SpotExtendedInfo.objects.create(spot=self, key="rating", value=new_rating)
 
+        try:
+            extended_info = SpotExtendedInfo.objects.get(spot=self, key="review_count", )
+            if extended_info:
+                extended_info.value = data['count']
+                extended_info.save()
+
+        except ObjectDoesNotExist as ex:
+            extended_info = SpotExtendedInfo.objects.create(spot=self, key="review_count", value=new_rating)
+
+
     def delete(self, *args, **kwargs):
         cache.delete(self.pk)
         super(Spot, self).delete(*args, **kwargs)

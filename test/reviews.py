@@ -207,6 +207,7 @@ class ReviewsTest(TestCase):
 
         spot_data = json.loads(response.content)
         self.assertEquals(spot_data["extended_info"]["rating"], "3.5")
+        self.assertEquals(spot_data["extended_info"]["review_count"], "3")
 
 
     @override_settings(SPOTSEEKER_AUTH_ADMINS = ["is_admin"])

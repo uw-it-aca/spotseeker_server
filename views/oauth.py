@@ -37,6 +37,9 @@ def authorize(request, token, callback, params):
 
 
 def callback(request, **kwargs):
+    if "oauth_token" not in kwargs:
+        return render_to_response("oauth/declined.html")
+
     token = Token.objects.get(key = kwargs["oauth_token"])
 
     return render_to_response("oauth/oob.html", {

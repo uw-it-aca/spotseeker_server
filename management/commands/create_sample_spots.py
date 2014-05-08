@@ -40,8 +40,16 @@ class Command(BaseCommand):
             SpotExtendedInfo.objects.all().delete()
             SpotAvailableHours.objects.all().delete()
 
+            lab_space = Spot.objects.create(name="This is a computer lab", capacity=200, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
+            production_studio = SpotType.objects.get_or_create(name="studio")[0]  # get_or_create returns a tuple
+            computer_lab = SpotType.objects.get_or_create(name="computer_lab")[0]  # get_or_create returns a tuple
+            lab_space.spottypes.add(production_studio)
+            lab_space.spottypes.add(computer_lab)
+            lab_space.save()
+            SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=lab_space)
+
             cafe_type = SpotType.objects.get_or_create(name="cafe")[0]  # get_or_create returns a tuple
-            art = Spot.objects.create(name="In the Art Building", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
+            art = Spot.objects.create(name="In the Art Building - multiline name to test", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
             art.spottypes.add(cafe_type)
             art.save()
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="true", spot=art)
@@ -52,6 +60,8 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="has_projector", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_computers", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=art)
+            SpotExtendedInfo.objects.create(key="access_notes", value=" This space reservable outside of TLC hours. To reserve, go to http://www.tacoma.uw.edu/library/reserve-group-study-rooms", spot=art)
+            SpotExtendedInfo.objects.create(key="reservation_notes", value=" This space reservable outside of TLC hours. To reserve, go to http://www.tacoma.uw.edu/library/reserve-group-study-rooms", spot=art)
             mgr = SpotExtendedInfo.objects.create(key="manager", value="ctlt", spot=art)
             org = SpotExtendedInfo.objects.create(key="organization", value="Art", spot=art)
 
@@ -167,6 +177,7 @@ class Command(BaseCommand):
             org = SpotExtendedInfo.objects.create(key="organization", value="Fisheries", spot=fish_patio)
 
             for day in ["su", "m", "t", "w", "th", "f", "sa"]:
+                SpotAvailableHours.objects.create(spot=lab_space, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=art, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=art2, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=tacoma, day=day, start_time="00:00", end_time="23:59")

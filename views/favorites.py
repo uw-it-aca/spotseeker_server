@@ -28,6 +28,7 @@ class FavoritesView(RESTDispatch):
     GET returns 200 with a list of spots.
     """
     @user_auth_required
+    @never_cache
     def GET(self, request, spot_id = None):
         if spot_id is None:
             return self._get_all_favorites(request)

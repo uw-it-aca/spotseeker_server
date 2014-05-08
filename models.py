@@ -175,7 +175,7 @@ class Spot(models.Model):
                 extended_info.save()
 
         except ObjectDoesNotExist as ex:
-            extended_info = SpotExtendedInfo.objects.create(spot=self, key="review_count", value=new_rating)
+            extended_info = SpotExtendedInfo.objects.create(spot=self, key="review_count", value=data['count'])
 
 
     def delete(self, *args, **kwargs):

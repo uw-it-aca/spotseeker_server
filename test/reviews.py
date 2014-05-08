@@ -96,6 +96,15 @@ class ReviewsTest(TestCase):
         self.assertEquals(len(reviews), 1)
         self.assertEquals(reviews[0]["review"], "This is the edited review")
 
+        url = "/api/v1/spot/%s" % (spot.pk)
+        response = c.get(url)
+
+        spot_data = json.loads(response.content)
+        self.assertEquals(spot_data["extended_info"]["rating"], "5.0")
+        self.assertEquals(spot_data["extended_info"]["review_count"], "1")
+
+
+
     @override_settings(SPOTSEEKER_AUTH_ADMINS = ["is_admin"])
     def test_invalid_ratings(self):
         spot = Spot.objects.create(name="Test Review")

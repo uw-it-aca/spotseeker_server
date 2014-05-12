@@ -99,5 +99,8 @@ class UnpublishedReviewsView(RESTDispatch):
         review.save()
         review.space.update_rating()
 
+        # To clear the cache.
+        review.space.save()
+
         return JSONResponse('')
 

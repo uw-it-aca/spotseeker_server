@@ -52,6 +52,7 @@ class Command(BaseCommand):
             art = Spot.objects.create(name="In the Art Building - multiline name to test", capacity=10, longitude=Decimal('-122.306644'), latitude=Decimal('47.658241'), building_name="Art Building")
             art.spottypes.add(cafe_type)
             art.save()
+            art_ada = SpotExtendedInfo.objects.create(key="location_description", value="This is the location of the space", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="true", spot=art)

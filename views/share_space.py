@@ -15,9 +15,10 @@
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse, RESTException
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 from spotseeker_server.require_auth import user_auth_required
-from spotseeker_server.models import Spot
+from spotseeker_server.models import Spot, SpotExtendedInfo
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
 from django.core.mail import send_mail
@@ -80,10 +81,17 @@ class ShareSpaceView(RESTDispatch):
             log_message = "user: %s; spot_id: %s; recipient: %s; space suggested" % (user.username, spot.pk, send_to)
             logger.info(log_message)
 
+            location_description = None
+            try:
+                location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
+            except ObjectDoesNotExist as ex:
+                pass
+
             context = Context({
                 'user_name': user.username,
                 'spot_name': spot.name,
                 'spot_building': spot.building_name,
+                'spot_location': location_description,
                 'spot_floor': spot.floor,
                 'share_url': share_url,
                 'comment': comment,

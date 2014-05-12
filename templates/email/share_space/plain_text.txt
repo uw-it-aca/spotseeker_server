@@ -2,14 +2,13 @@ Hello.
 
 {{ comment }}
 
-I found this space throuh SpaceScout that I think you will be interested in.
+I found this campus space through SpaceScout-- I think you’ll like it.
 
 {{ spot_name }},
-{{ spot_building }}, Floor {{ spot_floor }}
+{{ spot_building }}{% if spot_location %},
+{{ spot_location }}
+{% else %}.{% endif %}
 
-You can access details of this space directly using this URL - {{ share_url }}
+Get details about this space by using this URL: {{ share_url }}
 
-Download the SpaceScout app from iTunes. https://itunes.apple.com/us/app/spacescout/id551472160
-
-
-
+Download the SpaceScout app from iTunes: https://itunes.apple.com/us/app/spacescout/id551472160

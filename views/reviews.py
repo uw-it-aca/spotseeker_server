@@ -59,7 +59,7 @@ class ReviewsView(RESTDispatch):
         # reviews
 
         reviews = []
-        objects = SpaceReview.objects.filter(space=space, is_published=True)
+        objects = SpaceReview.objects.filter(space=space, is_published=True).order_by('-date_submitted')
 
         for review in objects:
             # seems to be a bug in sqlite3's handling of False booleans?

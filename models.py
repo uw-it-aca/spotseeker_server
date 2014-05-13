@@ -398,3 +398,27 @@ class SpaceReview(models.Model):
             data['date_published'] = self.date_published.isoformat()
 
         return data
+ 
+
+class ShareSpaceSender(models.Model):
+    user = models.CharField(max_length=16)
+    sender = models.CharField(max_length=256)
+
+
+class ShareSpaceRecipient(models.Model):
+    user = models.CharField(max_length=16, null=True, blank=True, default=None)
+    recipient = models.CharField(max_length=256)
+
+
+class ShareSpace(models.Model):
+    space = models.ForeignKey(Spot)
+    sender = models.ForeignKey(ShareSpaceSender)
+    recipient = models.ForeignKey(ShareSpaceRecipient)
+    hash = models.CharField(max_length=32)
+    count = models.IntegerField()
+    date_shared = models.DateTimeField(auto_now_add=True)
+
+
+class SharedSpaceReference(models.Model):
+    share_space = models.ForeignKey(ShareSpace)
+    date_submitted = models.DateTimeField(auto_now_add=True)

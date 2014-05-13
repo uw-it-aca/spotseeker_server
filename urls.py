@@ -38,7 +38,7 @@ from spotseeker_server.views.all_spots import AllSpotsView
 from spotseeker_server.views.schema_gen import SchemaGenView
 from spotseeker_server.views.favorites import FavoritesView
 from spotseeker_server.views.person import PersonView
-from spotseeker_server.views.share_space import ShareSpaceView
+from spotseeker_server.views.share_space import ShareSpaceView, SharedSpaceReferenceView
 from spotseeker_server.views.reviews import ReviewsView, UnpublishedReviewsView
 
 urlpatterns = patterns('',
@@ -57,5 +57,6 @@ urlpatterns = patterns('',
     url(r'v1/user/me$', csrf_exempt(PersonView().run)),
     url(r'v1/user/me/favorite/(?P<spot_id>\d+)$', csrf_exempt(FavoritesView().run)),
     url(r'v1/spot/(?P<spot_id>\d+)/share$', csrf_exempt(ShareSpaceView().run)),
+    url(r'v1/spot/(?P<spot_id>\d+)/shared$', csrf_exempt(SharedSpaceReferenceView().run)),
     url(r'v1/reviews/unpublished$', csrf_exempt(UnpublishedReviewsView().run)),
 )

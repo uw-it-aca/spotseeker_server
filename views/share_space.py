@@ -17,8 +17,9 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse, RESTException
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from spotseeker_server.require_auth import user_auth_required
+from spotseeker_server.require_auth import user_auth_required, app_auth_required
 from spotseeker_server.models import Spot, SpotExtendedInfo
+from spotseeker_server.models import ShareSpace, ShareSpaceSender, ShareSpaceRecipient, SharedSpaceReference
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
 from django.core.mail import send_mail
@@ -29,6 +30,7 @@ from django.utils.http import urlquote
 import json
 import socket
 import re
+import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -43,7 +45,7 @@ class ShareSpaceView(RESTDispatch):
         body = request.read()
         try:
             json_values = json.loads(body)
-        except Exception as e:
+        except Exception:
             raise RESTException("Unable to parse JSON", status_code=400)
 
         if 'to' not in json_values:
@@ -76,15 +78,34 @@ class ShareSpaceView(RESTDispatch):
             path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
             path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
             path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
-            share_url = "http://%s%s" % (server, path)
+            hash_val = hashlib.md5("%s|%s|%s" % (spot.pk, send_from, send_to)).hexdigest()
+            share_url = "http://%s%s/%s" % (server, path, hash_val)
 
-            log_message = "user: %s; spot_id: %s; recipient: %s; space suggested" % (user.username, spot.pk, send_to)
-            logger.info(log_message)
+            try:
+                sender = ShareSpaceSender.objects.get(user=user.username,sender=send_from)
+            except ObjectDoesNotExist:
+                sender = ShareSpaceSender(user=user.username,sender=send_from)
+                sender.save()
+
+            try:
+                recipient = ShareSpaceRecipient.objects.get(recipient=to)
+            except ObjectDoesNotExist:
+                recipient = ShareSpaceRecipient(recipient=to)
+                recipient.save()
+
+            try:
+                share = ShareSpace.objects.get(space=spot,hash=hash_val)
+                share.count = share.count + 1
+            except ObjectDoesNotExist:
+                share = ShareSpace(space=spot,hash=hash_val,
+                                   sender=sender,recipient=recipient,count=0)
+
+            share.save()
 
             location_description = None
             try:
                 location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
-            except ObjectDoesNotExist as ex:
+            except ObjectDoesNotExist:
                 pass
 
             context = Context({
@@ -113,5 +134,39 @@ class ShareSpaceView(RESTDispatch):
             msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
             msg.attach_alternative(html_content, "text/html")
             msg.send()
+
+        return JSONResponse(True)
+
+
+class SharedSpaceReferenceView(RESTDispatch):
+    """ Record shared space reference"""
+    @app_auth_required
+    def PUT(self, request, spot_id):
+        user = self._get_user(request)
+        spot = Spot.objects.get(pk=spot_id)
+
+        body = request.read()
+        try:
+            json_values = json.loads(body)
+        except Exception:
+            raise RESTException("Unable to parse JSON", status_code=400)
+
+        if 'hash' not in json_values:
+            raise RESTException("Missing 'hash'", status_code=400)
+
+        try:
+            shared = ShareSpace.objects.get(space=spot,hash=json_values['hash'])
+        except ObjectDoesNotExist:
+            return JSONResponse("{error: 'shared spot not found'}", status=401)
+
+        if not shared.recipient.user and user and user.username:
+            shared.recipient.user = user.username
+            shared.recipient.save()
+
+        try:
+            ref = SharedSpaceReference(share_space=shared)
+            ref.save()
+        except:
+            pass
 
         return JSONResponse(True)

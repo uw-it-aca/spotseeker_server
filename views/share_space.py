@@ -20,6 +20,7 @@ from django.core.mail import EmailMultiAlternatives
 from spotseeker_server.require_auth import user_auth_required, app_auth_required
 from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.models import ShareSpace, ShareSpaceSender, ShareSpaceRecipient, SharedSpaceReference
+from spotseeker_server.auth.oauth import authenticate_user
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
 from django.core.mail import send_mail
@@ -142,9 +143,16 @@ class SharedSpaceReferenceView(RESTDispatch):
     """ Record shared space reference"""
     @app_auth_required
     def PUT(self, request, spot_id):
-        user = self._get_user(request)
-        spot = Spot.objects.get(pk=spot_id)
+        import pdb; pdb.set_trace()
 
+        user = None
+        try:
+            authenticate_user(self, request)
+            user = self._get_user(request)
+        except:
+            pass
+
+        spot = Spot.objects.get(pk=spot_id)
         body = request.read()
         try:
             json_values = json.loads(body)

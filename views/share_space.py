@@ -143,8 +143,6 @@ class SharedSpaceReferenceView(RESTDispatch):
     """ Record shared space reference"""
     @app_auth_required
     def PUT(self, request, spot_id):
-        import pdb; pdb.set_trace()
-
         user = None
         try:
             authenticate_user(self, request)

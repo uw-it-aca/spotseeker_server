@@ -18,6 +18,7 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, J
 from spotseeker_server.models import Spot, SpaceReview
 from spotseeker_server.require_auth import user_auth_required, app_auth_required, admin_auth_required
 from django.http import HttpResponse
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.utils import timezone
@@ -52,12 +53,12 @@ class ReviewsView(RESTDispatch):
         return response
 
     @app_auth_required
+    @never_cache
     def GET(self, request, spot_id, include_unpublished=False):
         space = Spot.objects.get(pk=spot_id)
 
         # Use the param after validating the user should see unpublished
         # reviews
-
         reviews = []
         objects = SpaceReview.objects.filter(space=space, is_published=True).order_by('-date_submitted')
 

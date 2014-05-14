@@ -120,7 +120,7 @@ class Command(BaseCommand):
                 date_published = datetime.now(),
                 is_published = False)
 
-            SpotExtendedInfo.objects.create(key="aggregate_rating", value="4.5", spot=art)
+            SpotExtendedInfo.objects.create(key="rating", value="4.5", spot=art)
             SpotExtendedInfo.objects.create(key="review_count", value="2", spot=art)
 
             study_room_type = SpotType.objects.get_or_create(name="study_room")[0]

@@ -130,7 +130,10 @@ class ShareSpaceView(RESTDispatch):
 
             headers = {}
             if send_from:
-                headers['Reply-To'] = send_from
+                headers['Sender'] = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
+                from_email = send_from
+            else:
+                from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
 
             msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
             msg.attach_alternative(html_content, "text/html")

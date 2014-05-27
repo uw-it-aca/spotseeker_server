@@ -2,7 +2,7 @@ Hello.
 
 {{ comment }}
 
-I found this campus space through SpaceScout-- I think you’ll like it.
+I found this campus space through SpaceScout.
 
 {{ spot_name }},
 {{ spot_building }}{% if spot_location %},

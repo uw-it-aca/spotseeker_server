@@ -15,3 +15,19 @@ This is the server for the SpaceScout suite of applications. It stores space met
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
+
+Below are the settings that should be placed in settings.py and local_settings.py. Fill in the value for your own specific app.
+
+/*** Settings ***/
+
+
+/*** Local Settings ***/
+
+LABSTATS_URL = ""
+
+# Values can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair.
+SPOTSEEKER_AUTH_MODULE = ''
+
+# Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here.
+SPOTSEEKER_SPOT_FORM = ''
+SPOTSEEKER_SPOTEXTENDEDINFO_FORM = ''

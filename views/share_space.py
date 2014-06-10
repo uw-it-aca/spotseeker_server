@@ -47,10 +47,12 @@ class ShareSpaceView(RESTDispatch):
         try:
             json_values = json.loads(body)
         except Exception:
+            logger.error('Unable to parse JSON body: %s' % (body))
             raise RESTException("Unable to parse JSON", status_code=400)
 
         if 'to' not in json_values:
-            raise RESTException("Missing 'to'", status_code=400)
+            logger.error('Missing To in JSON: %s' % (body))
+            raise RESTException("Missing 'To'", status_code=400)
 
         raw_send_to = json_values['to']
         if type(raw_send_to) is not list:
@@ -64,10 +66,12 @@ class ShareSpaceView(RESTDispatch):
                 has_valid_to = True
 
         if not has_valid_to:
-            raise RESTException("Invalid 'to'", status_code=400)
+            logger.error('Invalid To field:  %s' % (body))
+            raise RESTException("Invalid 'To'", status_code=400)
 
         send_from = json_values['from'] if 'from' in json_values else None
         if send_from and '@' not in send_from:
+            logger.error('Invalid From field:  %s' % (body))
             raise RESTException("Invalid 'from'", status_code=400)
 
         comment = ''
@@ -75,69 +79,73 @@ class ShareSpaceView(RESTDispatch):
             comment = json_values['comment']
 
         for to in send_to:
-            server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
-            path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
-            path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
-            path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
-            hash_val = hashlib.md5("%s|%s|%s" % (spot.pk, send_from, send_to)).hexdigest()
-            share_url = "http://%s%s/%s" % (server, path, hash_val)
-
             try:
-                sender = ShareSpaceSender.objects.get(user=user.username,sender=send_from)
-            except ObjectDoesNotExist:
-                sender = ShareSpaceSender(user=user.username,sender=send_from)
-                sender.save()
+                server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
+                path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
+                path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
+                path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
+                hash_val = hashlib.md5("%s|%s|%s" % (spot.pk, send_from, send_to)).hexdigest()
+                share_url = "http://%s%s/%s" % (server, path, hash_val)
+    
+                try:
+                    sender = ShareSpaceSender.objects.get(user=user.username,sender=send_from)
+                except ObjectDoesNotExist:
+                    sender = ShareSpaceSender(user=user.username,sender=send_from)
+                    sender.save()
 
-            try:
-                recipient = ShareSpaceRecipient.objects.get(recipient=to)
-            except ObjectDoesNotExist:
-                recipient = ShareSpaceRecipient(recipient=to)
-                recipient.save()
+                try:
+                    recipient = ShareSpaceRecipient.objects.get(recipient=to)
+                except ObjectDoesNotExist:
+                    recipient = ShareSpaceRecipient(recipient=to)
+                    recipient.save()
+    
+                try:
+                    share = ShareSpace.objects.get(space=spot,hash=hash_val)
+                    share.count = share.count + 1
+                except ObjectDoesNotExist:
+                    share = ShareSpace(space=spot,hash=hash_val,
+                                       sender=sender,recipient=recipient,count=0)
+    
+                share.save()
 
-            try:
-                share = ShareSpace.objects.get(space=spot,hash=hash_val)
-                share.count = share.count + 1
-            except ObjectDoesNotExist:
-                share = ShareSpace(space=spot,hash=hash_val,
-                                   sender=sender,recipient=recipient,count=0)
-
-            share.save()
-
-            location_description = None
-            try:
-                location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
-            except ObjectDoesNotExist:
-                pass
-
-            context = Context({
-                'user_name': user.username,
-                'spot_name': spot.name,
-                'spot_building': spot.building_name,
-                'spot_location': location_description,
-                'spot_floor': spot.floor,
-                'share_url': share_url,
-                'comment': comment,
-            })
-
-            subject_template = get_template('email/share_space/subject.txt')
-            text_template = get_template('email/share_space/plain_text.txt')
-            html_template = get_template('email/share_space/html.html')
-
-            subject = json_values['subject'] if 'subject' in json_values else subject_template.render(context).rstrip()
-            text_content = text_template.render(context)
-            html_content = html_template.render(context)
-            from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
-
-            headers = {}
-            if send_from:
-                headers['Sender'] = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
-                from_email = send_from
-            else:
+                location_description = None
+                try:
+                    location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
+                except ObjectDoesNotExist:
+                    pass
+    
+                context = Context({
+                    'user_name': user.username,
+                    'spot_name': spot.name,
+                    'spot_building': spot.building_name,
+                    'spot_location': location_description,
+                    'spot_floor': spot.floor,
+                    'share_url': share_url,
+                    'comment': comment,
+                })
+    
+                subject_template = get_template('email/share_space/subject.txt')
+                text_template = get_template('email/share_space/plain_text.txt')
+                html_template = get_template('email/share_space/html.html')
+    
+                subject = json_values['subject'] if 'subject' in json_values else subject_template.render(context).rstrip()
+                text_content = text_template.render(context)
+                html_content = html_template.render(context)
                 from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
+    
+                headers = {}
+                if send_from:
+                    headers['Sender'] = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
+                    from_email = send_from
+                else:
+                    from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
 
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+            except Exception as e:
+                logger.exception('Share Send Failure: %s' % (e))
+                raise RESTException("Cannot share space at this time: %s" % (e), status_code=500)
 
         return JSONResponse(True)
 

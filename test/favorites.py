@@ -28,7 +28,9 @@ import json
                    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
 class FavoritesTest(TestCase):
     def test_no_favorites(self):
+        user, created = User.objects.get_or_create(username="fav_test0")
         c = Client()
+        c.login(username="fav_test0")
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test0")
 
@@ -44,6 +46,7 @@ class FavoritesTest(TestCase):
         fav = FavoriteSpot.objects.create(user = user, spot = spot)
 
         c = Client()
+        c.login(username="fav_test1")
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test1")
 
@@ -67,6 +70,7 @@ class FavoritesTest(TestCase):
         fav2 = FavoriteSpot.objects.create(user = user, spot = spot2)
 
         c = Client()
+        c.login(username="fav_test2")
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test2")
 
@@ -87,6 +91,7 @@ class FavoritesTest(TestCase):
         spot2 = Spot.objects.create(name="This is for testing Fav 5")
 
         c = Client()
+        c.login(username="fav_test3")
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test3")
         favorites = json.loads(response.content)

@@ -79,4 +79,3 @@ class FavoritesView(RESTDispatch):
         if len(fav):
             return JSONResponse(True)
         return JSONResponse(False)
-

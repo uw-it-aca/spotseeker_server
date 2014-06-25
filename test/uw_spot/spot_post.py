@@ -332,4 +332,4 @@ class UWSpotPOSTTest(TransactionTestCase):
             response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
 
             error_message = json.loads(response.content)['error']
-            self.assertEquals(error_message, "UWSpot must have extended info", "Doesn't add spot info with invalid extended info")
+            self.assertEquals(error_message, "[u'UWSpot must have extended info']", "Doesn't add spot info with invalid extended info")

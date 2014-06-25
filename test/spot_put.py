@@ -24,10 +24,10 @@ from mock import patch
 from django.core import cache
 from spotseeker_server import models
 
-
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
 @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+@override_settings(SPOTSEEKER_AUTH_ADMINS=('test_admin',))
 class SpotPUTTest(TestCase):
     """ Tests updating Spot information via PUT.
     """
@@ -86,7 +86,9 @@ class SpotPUTTest(TestCase):
     def test_valid_json_valid_etag(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
+            user, created = User.objects.get_or_create(username='test_admin')
             c = Client()
+            c.login(username=user.username)
             new_name = "testing PUT name: {0}".format(random.random())
             new_capacity = 20
 

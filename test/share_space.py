@@ -33,7 +33,10 @@ class ShareSpaceTest(TestCase):
     def test_basic_oks(self):
         spot = Spot.objects.create(name="This is for testing Sharing 1")
 
+        user, create = User.objects.get_or_create(username='share_test0')
+
         c = Client()
+        c.login(username='share_test0')
         url = "/api/v1/spot/%s/share" % (spot.pk)
 
         json_data = {
@@ -43,7 +46,8 @@ class ShareSpaceTest(TestCase):
 
         response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
 
-        self.assertEquals(response.status_code, 200, "200 w/ valid data")
+
+        self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "true", "yup, sent")
 
         self.assertEquals(mail.outbox[0].to[0], 'vegitron@gmail.com', 'right to')

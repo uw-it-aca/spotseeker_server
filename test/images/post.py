@@ -31,6 +31,7 @@ TEST_ROOT = abspath(dirname(__file__))
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class SpotImagePOSTTest(TestCase):
     """ Tests POSTing to /api/v1/spot/<spot id>/image.
     """

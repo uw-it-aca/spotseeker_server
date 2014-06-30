@@ -160,6 +160,7 @@ class SpotAuthOAuth(TestCase):
 
     @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
     @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
     def test_put_trusted_client(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):

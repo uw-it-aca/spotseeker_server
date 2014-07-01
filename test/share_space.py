@@ -50,7 +50,6 @@ class ShareSpaceTest(TestCase):
         response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
 
 
-        print response
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "true", "yup, sent")
@@ -99,7 +98,6 @@ class ShareSpaceTest(TestCase):
         }
 
         response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
-        
 
         self.assertEquals(response.status_code, 200)
 

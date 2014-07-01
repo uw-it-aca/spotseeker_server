@@ -16,8 +16,8 @@
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
-from django.test.utils import override_settings
 from django.contrib.auth.models import User
+from django.test.utils import override_settings
 from spotseeker_server.models import FavoriteSpot, Spot
 from mock import patch
 from spotseeker_server import models
@@ -25,11 +25,13 @@ from django.core import cache
 from django.core import mail
 import json
 
+
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
                    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm',
-                   EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
-                   )
+                   EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',)
+
 class ShareSpaceTest(TestCase):
+
     def test_basic_oks(self):
         spot = Spot.objects.create(name="This is for testing Sharing 1")
 
@@ -42,10 +44,13 @@ class ShareSpaceTest(TestCase):
         json_data = {
             "to": "vegitron@gmail.com",
             "comment": "This is a sweet space",
+            "from": "vegitron@gmail.com",
         }
 
         response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
 
+
+        print response
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "true", "yup, sent")
@@ -90,10 +95,12 @@ class ShareSpaceTest(TestCase):
 
         json_data = {
             "to": "vegitron@gmail.com",
+            "from": "vegitron@gmail.com",
         }
 
         response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
+        
 
-        self.assertEquals(response.status_code, 200, "200 w/ missing comment")
+        self.assertEquals(response.status_code, 200)
 
 

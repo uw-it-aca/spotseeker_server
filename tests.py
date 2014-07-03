@@ -40,6 +40,7 @@ from spotseeker_server.test.search.distance import SpotSearchDistanceTest
 from spotseeker_server.test.search.fields import SpotSearchFieldTest
 from spotseeker_server.test.search.distance_fields import SpotSearchDistanceFieldTest
 from spotseeker_server.test.search.view_methods import SpotSearchViewMethodsTest
+from spotseeker_server.test.search.time import SpotSearchTimeTest
 from spotseeker_server.test.hours.model import SpotHoursModelTest
 from spotseeker_server.test.hours.get import SpotHoursGETTest
 from spotseeker_server.test.hours.put import SpotHoursPUTTest

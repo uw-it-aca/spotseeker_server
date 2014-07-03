@@ -63,7 +63,6 @@ class SpotSearchTimeTest(TestCase):
 
         self.assertEquals(response.status_code, 200)
         self.assertContains(response, "This spot is to test time ranges in search")
-        self.assertContains(response, "This is a second spot to test time ranges in search")
 
         response = c.get('/api/v1/spot/', { 'open_at': "Tuesday,11:00", 'open_until': "Wednesday,15:00"}, content_type='application/json')
 
@@ -71,10 +70,55 @@ class SpotSearchTimeTest(TestCase):
         self.assertContains(response, "[]")
 
     def SameDayTimeInReverse(self):
-        pass
+        spot = Spot.objects.create(name="This spot is to test time ranges in search")
+        spot.save()
+
+        spot2 = Spot.objects.create(name="This is a second spot to test time ranges in search")
+        spot2.save()
+
+        availhoursmon = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="23:59:59")
+        availhourstues = SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59")
+        availhoursweds = SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59")
+        availhoursthurs = SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="23:59:59")
+        availhoursfri = SpotAvailableHours.objects.create(spot=spot, day="f", start_time="00:00:00", end_time="23:59:59")
+        availhourssat = SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="23:59:59")
+        availhourssun = SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59")
+
+        c = Client()
+
+        response = c.get('/api/v1/spot/', { 'open_at': "Thursday,11:00", 'open_until': "Thursday,09:00"}, content_type='application/json')
+
+        print response
+
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "{error: 'open_until can not be earlier than open_at for the same day'")
 
     def FullWeek(self):
-        pass
+        spot = Spot.objects.create(name="This spot is to test time ranges in search")
+        spot.save()
+
+        spot2 = Spot.objects.create(name="This is a second spot to test time ranges in search")
+        spot2.save()
+
+        availhoursmon = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="23:59:59")
+        availhourstues = SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59")
+        availhoursweds = SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59")
+        availhoursthurs = SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="23:59:59")
+        availhoursfri = SpotAvailableHours.objects.create(spot=spot2, day="f", start_time="00:00:00", end_time="23:59:59")
+        availhourssat = SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="23:59:59")
+        availhourssun = SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59")
+
+        availhours2 = SpotAvailableHours.objects.create(spot=spot2, day="f", start_time="08:00:00", end_time="17:00:00")
+
+        c = Client()
+
+        response = c.get('/api/v1/spot/', { 'open_at': "Thursday,11:00", 'open_until': "Wednesday,20:00"}, content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "This spot is to test time ranges in search")
+        self.assertContains(response, "This is a second spot to test time ranges in search")
+
+
 
     def tearDown(self):
         pass

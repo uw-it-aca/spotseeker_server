@@ -88,10 +88,8 @@ class SpotSearchTimeTest(TestCase):
 
         response = c.get('/api/v1/spot/', { 'open_at': "Thursday,11:00", 'open_until': "Thursday,09:00"}, content_type='application/json')
 
-        print response
-
         self.assertEquals(response.status_code, 200)
-        self.assertContains(response, "{error: 'open_until can not be earlier than open_at for the same day'")
+        self.assertContains(response, '[]')
 
     def FullWeek(self):
         spot = Spot.objects.create(name="This spot is to test time ranges in search")
@@ -104,7 +102,7 @@ class SpotSearchTimeTest(TestCase):
         availhourstues = SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59")
         availhoursweds = SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59")
         availhoursthurs = SpotAvailableHours.objects.create(spot=spot, day="th", start_time="00:00:00", end_time="23:59:59")
-        availhoursfri = SpotAvailableHours.objects.create(spot=spot2, day="f", start_time="00:00:00", end_time="23:59:59")
+        availhoursfri = SpotAvailableHours.objects.create(spot=spot, day="f", start_time="00:00:00", end_time="23:59:59")
         availhourssat = SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="23:59:59")
         availhourssun = SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59")
 
@@ -116,7 +114,7 @@ class SpotSearchTimeTest(TestCase):
 
         self.assertEquals(response.status_code, 200)
         self.assertContains(response, "This spot is to test time ranges in search")
-        self.assertContains(response, "This is a second spot to test time ranges in search")
+        self.assertNotContains(response, "This is a second spot to test time ranges in search")
 
 
 

@@ -107,6 +107,9 @@ class SpotSearchTimeTest(TestCase):
         spot3 = Spot.objects.create(name="Third spot, same purpose")
         spot3.save()
 
+        spot4 = Spot.objects.create(name="Fourth spot, same purpose")
+        spot4.save()
+
         availhoursmon = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="23:59:59")
         availhourstues = SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59")
         availhoursweds = SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59")
@@ -119,6 +122,16 @@ class SpotSearchTimeTest(TestCase):
 
         availhours3 = SpotAvailableHours.objects.create(spot=spot3, day="w", start_time="08:00:00", end_time="17:00:00")
 
+        availhoursmon2 = SpotAvailableHours.objects.create(spot=spot4, day="m", start_time="00:00:00", end_time="11:00:00")
+        availhoursmon3 = SpotAvailableHours.objects.create(spot=spot4, day="m", start_time="14:00:00", end_time="23:59:59")
+        availhourstues2 = SpotAvailableHours.objects.create(spot=spot4, day="t", start_time="00:00:00", end_time="23:59:59")
+        availhoursweds2 = SpotAvailableHours.objects.create(spot=spot4, day="w", start_time="00:00:00", end_time="23:59:59")
+        availhoursthurs2 = SpotAvailableHours.objects.create(spot=spot4, day="th", start_time="00:00:00", end_time="23:59:59")
+        availhoursfri2 = SpotAvailableHours.objects.create(spot=spot4, day="f", start_time="00:00:00", end_time="23:59:59")
+        availhourssat2 = SpotAvailableHours.objects.create(spot=spot4, day="sa", start_time="00:00:00", end_time="23:59:59")
+        availhourssun2 = SpotAvailableHours.objects.create(spot=spot4, day="su", start_time="00:00:00", end_time="23:59:59")
+
+
         c = Client()
 
         response = c.get('/api/v1/spot/', { 'open_at': "Monday,15:00", 'open_until': "Monday,10:00"}, content_type='application/json')
@@ -127,6 +140,7 @@ class SpotSearchTimeTest(TestCase):
         self.assertContains(response, 'This spot is to test time ranges in search')
         self.assertNotContains(response, 'This is a second spot to test time ranges in search')
         self.assertNotContains(response, 'Third spot, same purpose')
+        self.assertContains(response, 'Fourth spot, same purpose')
 
     def FullWeek(self):
         spot = Spot.objects.create(name="This spot is to test time ranges in search")

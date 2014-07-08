@@ -103,11 +103,10 @@ class SearchView(RESTDispatch):
                             query = query.filter(spotavailablehours__day__iexact=until_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte=until_time)
                         else:
                             days_to_test = ["su", "m", "t", "w", "th", "f", "sa"]
-                            last_day = until_day
-                            first_day = at_day
+                            days_to_test.remove(at_day)
 
-                            query = query.filter(spotavailablehours__day__iexact=first_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte="23:59")
-                            query = query.filter(spotavailablehours__day__iexact=last_day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte=until_time)
+                            query = query.filter(spotavailablehours__day__iexact=at_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte="23:59")
+                            query = query.filter(spotavailablehours__day__iexact=until_day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte=until_time)
 
                             for day in days_to_test:
                                 query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte="23:59")

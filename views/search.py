@@ -101,8 +101,10 @@ class SearchView(RESTDispatch):
                     if until_day == at_day:
                         if strptime(until_time, "%H:%M") >= strptime(at_time, "%H:%M"):
                             query = query.filter(spotavailablehours__day__iexact=until_day, spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte=until_time)
-                        else:
-                            return JSONResponse([])
+                        else: #all 24/7 spots
+                            days = ["su", "m", "t", "w", "th", "f", "sa"]
+                            for day in days:
+                                query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte="23:59")
                     else:
                         days_to_test = self.get_days_in_range(at_day, until_day)
                         last_day = days_to_test.pop()

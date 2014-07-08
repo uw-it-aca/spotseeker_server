@@ -76,6 +76,9 @@ class SpotSearchTimeTest(TestCase):
         spot2 = Spot.objects.create(name="This is a second spot to test time ranges in search")
         spot2.save()
 
+        spot3 = Spot.objects.create(name="Third spot, same purpose")
+        spot3.save()
+
         availhoursmon = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="23:59:59")
         availhourstues = SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59")
         availhoursweds = SpotAvailableHours.objects.create(spot=spot, day="w", start_time="00:00:00", end_time="23:59:59")
@@ -84,12 +87,18 @@ class SpotSearchTimeTest(TestCase):
         availhourssat = SpotAvailableHours.objects.create(spot=spot, day="sa", start_time="00:00:00", end_time="23:59:59")
         availhourssun = SpotAvailableHours.objects.create(spot=spot, day="su", start_time="00:00:00", end_time="23:59:59")
 
+        availhours2 = SpotAvailableHours.objects.create(spot=spot2, day="m", start_time="11:00:00", end_time="14:00:00")
+
+        availhours3 = SpotAvailableHours.objects.create(spot=spot3, day="w", start_time="08:00:00", end_time="17:00:00")
+
         c = Client()
 
-        response = c.get('/api/v1/spot/', { 'open_at': "Thursday,11:00", 'open_until': "Thursday,09:00"}, content_type='application/json')
+        response = c.get('/api/v1/spot/', { 'open_at': "Monday,13:00", 'open_until': "Monday,11:00"}, content_type='application/json')
 
         self.assertEquals(response.status_code, 200)
-        self.assertContains(response, '[]')
+        self.assertContains(response, 'This spot is to test time ranges in search')
+        self.assertNotContains(response, 'This is a second spot to test time ranges in search')
+        self.assertNotContains(response, 'Third spot, same purpose')
 
     def FullWeek(self):
         spot = Spot.objects.create(name="This spot is to test time ranges in search")
@@ -97,6 +106,7 @@ class SpotSearchTimeTest(TestCase):
 
         spot2 = Spot.objects.create(name="This is a second spot to test time ranges in search")
         spot2.save()
+
 
         availhoursmon = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00:00", end_time="23:59:59")
         availhourstues = SpotAvailableHours.objects.create(spot=spot, day="t", start_time="00:00:00", end_time="23:59:59")

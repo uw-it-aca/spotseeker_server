@@ -1,14 +1,13 @@
 Hello.
 
 <p>{{ comment }}</p>
-
 <p>I found this campus space through SpaceScout.</p>
-
 {{ spot_name }},<br />
-{{ spot_building }}{%if spot_location %},<br />
+{% for type in spot_type %}{% if forloop.first %}{{ type.name }}{% else %}, {{ type.name }}{% endif %}{% endfor %}{% if spot_location %},<br />
 {{ spot_location }}<br />
 {% else %}.{% endif %}
 
 <p>Get details about this space by using this URL: <a href="{{ share_url }}">{{ share_url }}</a></p>
 
 <p>Download the SpaceScout app from iTunes: <a href="https://itunes.apple.com/us/app/spacescout/id551472160">https://itunes.apple.com/us/app/spacescout/id551472160</a></p>
+

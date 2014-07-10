@@ -113,17 +113,19 @@ class ShareSpaceView(RESTDispatch):
                     location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
                 except ObjectDoesNotExist:
                     pass
-    
+
+
                 context = Context({
                     'user_name': user.username,
                     'spot_name': spot.name,
+                    'spot_type': spot.spottypes.all(),
                     'spot_building': spot.building_name,
                     'spot_location': location_description,
                     'spot_floor': spot.floor,
                     'share_url': share_url,
                     'comment': comment,
                 })
-    
+
                 subject_template = get_template('email/share_space/subject.txt')
                 text_template = get_template('email/share_space/plain_text.txt')
                 html_template = get_template('email/share_space/html.html')

@@ -5,7 +5,7 @@ Hello.
 I found this campus space through SpaceScout.
 
 {{ spot_name }},
-{{ spot_building }}{% if spot_location %},
+{% for type in spot_type %}{% if forloop.first %}{{ type }}{% else %}, {{ type }}{% endif %}{% endfor %}{% if spot_location %},
 {{ spot_location }}
 {% else %}.{% endif %}
 

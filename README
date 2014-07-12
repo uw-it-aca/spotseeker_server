@@ -23,11 +23,12 @@ Below are the settings that should be placed in settings.py and local_settings.p
 
 /*** Local Settings ***/
 
-LABSTATS_URL = ""
+# MODULE can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair.
+SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.MODULE'
 
-# Values can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair.
-SPOTSEEKER_AUTH_MODULE = ''
+# A list or tuple of usernames allowed to use methods that modify server data (PUT, POST, DELETE.)
+SPOTSEEKER_AUTH_ADMINS = []
 
-# Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here.
-SPOTSEEKER_SPOT_FORM = ''
-SPOTSEEKER_SPOTEXTENDEDINFO_FORM = ''
+# Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here. (For example, in the spot form, MODULE could be default.DefaultSpotForm or org_forms.UWSpotForm.)
+SPOTSEEKER_SPOT_FORM = 'spotseeker_server.org_forms.MODULE'
+SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.MODULE'

@@ -28,6 +28,7 @@ TEST_ROOT = abspath(dirname(__file__))
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class SpotImageDELETETest(TestCase):
     """ Tests DELETE of a SpotImage at /api/v1/spot/<spot id>/image/<image id>.
     """

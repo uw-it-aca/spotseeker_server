@@ -28,6 +28,7 @@ from spotseeker_server import models
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.org_forms.uw_spot.UWSpotForm')
 @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm')
+@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class UWSpotPUTTest(TransactionTestCase):
     """ Tests updating Spot information via PUT.
     """

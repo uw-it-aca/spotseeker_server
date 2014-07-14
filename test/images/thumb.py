@@ -30,6 +30,7 @@ TEST_ROOT = abspath(dirname(__file__))
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class ImageThumbTest(TestCase):
 
     def setUp(self):

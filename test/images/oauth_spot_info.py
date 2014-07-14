@@ -14,6 +14,7 @@
 """
 
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.test.client import Client
 from os.path import abspath, dirname
 from spotseeker_server.models import Spot, SpotImage, TrustedOAuthClient
@@ -32,7 +33,7 @@ from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
-
+@override_settings(SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
 class SpotResourceOAuthImageTest(TestCase):
     def setUp(self):
         spot = Spot.objects.create(name="This is to test images in the spot resource, with oauth")

@@ -3,7 +3,7 @@ Hello.
 <p>{{ comment }}</p>
 <p>I found this campus space through SpaceScout.</p>
 {{ spot_name }},<br />
-{% for type in spot_type %}{% if forloop.first %}{{ type.name }}{% else %}, {{ type.name }}{% endif %}{% endfor %}{% if spot_location %},<br />
+{% for type in spot_type %}{% if forloop.first %}{{ type }}{% else %}, {{ type }}{% endif %}{% endfor %}{% if spot_location %},<br />
 {{ spot_location }}<br />
 {% else %}.{% endif %}
 

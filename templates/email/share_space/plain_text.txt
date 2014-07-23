@@ -1,3 +1,4 @@
+{% load i18n %}
 Hello.
 
 {{ comment }}
@@ -5,7 +6,7 @@ Hello.
 I found this campus space through SpaceScout.
 
 {{ spot_name }},
-{% for type in spot_type %}{% if forloop.first %}{{ type }}{% else %}, {{ type }}{% endif %}{% endfor %}{% if spot_location %},
+{% for type in spot_type %}{% if forloop.first %}{% trans type.name %}{% else %}, {% trans type.name %}{% endif %}{% endfor %}{% if spot_location %},
 {{ spot_location }}
 {% else %}.{% endif %}
 

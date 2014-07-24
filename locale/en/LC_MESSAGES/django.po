@@ -18,41 +18,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: extras/uw_server_values.py:5
-msgid "alcove"
+msgid "server_alcove"
 msgstr "Alcove"
 
 #: extras/uw_server_values.py:6
-msgid "cafe"
+msgid "server_cafe"
 msgstr "Cafe"
 
 #: extras/uw_server_values.py:7
-msgid "classroom"
+msgid "server_classroom"
 msgstr "Conference/Classroom"
 
 #: extras/uw_server_values.py:8
-msgid "computer_lab"
+msgid "server_computer_lab"
 msgstr "Computer lab"
 
 #: extras/uw_server_values.py:9
-msgid "lounge"
+msgid "server_lounge"
 msgstr "Lounge"
 
 #: extras/uw_server_values.py:10
-msgid "open"
+msgid "server_open"
 msgstr "Open space"
 
 #: extras/uw_server_values.py:11
-msgid "outdoor"
+msgid "server_outdoor"
 msgstr "Outdoor space"
 
 #: extras/uw_server_values.py:12
-msgid "studio"
+msgid "server_studio"
 msgstr "Studio"
 
 #: extras/uw_server_values.py:13
-msgid "study_area"
+msgid "server_study_area"
 msgstr "Study area"
 
 #: extras/uw_server_values.py:14
-msgid "study_room"
+msgid "server_study_room"
 msgstr "Study room"

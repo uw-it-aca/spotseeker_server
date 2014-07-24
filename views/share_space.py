@@ -114,10 +114,13 @@ class ShareSpaceView(RESTDispatch):
                 except ObjectDoesNotExist:
                     pass
 
+                spottypes = spot.spottypes.all()
+                spottypes = ["server_%s" % x for x in spottypes]
+
                 context = Context({
                     'user_name': user.username,
                     'spot_name': spot.name,
-                    'spot_type': spot.spottypes.all(),
+                    'spot_type': spottypes,
                     'spot_building': spot.building_name,
                     'spot_location': location_description,
                     'spot_floor': spot.floor,

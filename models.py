@@ -400,25 +400,18 @@ class SpaceReview(models.Model):
         return data
  
 
-class ShareSpaceSender(models.Model):
+class SharedSpace(models.Model):
+    space = models.ForeignKey(Spot)
     user = models.CharField(max_length=16)
     sender = models.CharField(max_length=256)
 
 
-class ShareSpaceRecipient(models.Model):
-    user = models.CharField(max_length=16, null=True, blank=True, default=None)
+class SharedSpaceRecipient(models.Model):
+    shared_space = models.ForeignKey(SharedSpace)
+    hash_key = models.CharField(max_length=32)
     recipient = models.CharField(max_length=256)
-
-
-class ShareSpace(models.Model):
-    space = models.ForeignKey(Spot)
-    sender = models.ForeignKey(ShareSpaceSender)
-    recipient = models.ForeignKey(ShareSpaceRecipient)
-    hash = models.CharField(max_length=32)
-    count = models.IntegerField()
+    user = models.CharField(max_length=16, null=True, blank=True, default=None)
     date_shared = models.DateTimeField(auto_now_add=True)
-
-
-class SharedSpaceReference(models.Model):
-    share_space = models.ForeignKey(ShareSpace)
-    date_submitted = models.DateTimeField(auto_now_add=True)
+    shared_count = models.IntegerField()
+    date_first_viewed = models.DateTimeField(null=True)
+    viewed_count = models.IntegerField()

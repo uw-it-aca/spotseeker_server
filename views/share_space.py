@@ -19,7 +19,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 from spotseeker_server.require_auth import user_auth_required, app_auth_required
 from spotseeker_server.models import Spot, SpotExtendedInfo
-from spotseeker_server.models import ShareSpace, ShareSpaceSender, ShareSpaceRecipient, SharedSpaceReference
+from spotseeker_server.models import SharedSpace, SharedSpaceRecipient
 from spotseeker_server.auth.oauth import authenticate_user
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
@@ -28,6 +28,7 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.http import urlquote
+from django.utils import timezone
 import json
 import socket
 import re
@@ -78,56 +79,46 @@ class ShareSpaceView(RESTDispatch):
         if 'comment' in json_values:
             comment = json_values['comment']
 
+        try:
+            share = SharedSpace.objects.get(space=spot,sender=send_from,user=user.username)
+        except ObjectDoesNotExist:
+            share = SharedSpace(space=spot,sender=send_from,user=user.username)
+            share.save()
+
         for to in send_to:
             try:
                 server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
                 path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
                 path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
                 path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
-                hash_val = hashlib.md5("%s|%s|%s" % (spot.pk, send_from, send_to)).hexdigest()
+                hash_val = hashlib.md5("%s|%s|%s" % (spot.pk, send_from, to)).hexdigest()
                 share_url = "http://%s%s/%s" % (server, path, hash_val)
     
                 try:
-                    sender = ShareSpaceSender.objects.get(user=user.username,sender=send_from)
+                    recipient = SharedSpaceRecipient.objects.get(hash_key=hash_val)
+                    recipient.shared_count = recipient.shared_count + 1
                 except ObjectDoesNotExist:
-                    sender = ShareSpaceSender(user=user.username,sender=send_from)
-                    sender.save()
+                    recipient = SharedSpaceRecipient(shared_space=share,hash_key=hash_val,
+                                                    recipient=to,shared_count=1,viewed_count=0)
 
-                try:
-                    recipient = ShareSpaceRecipient.objects.get(recipient=to)
-                except ObjectDoesNotExist:
-                    recipient = ShareSpaceRecipient(recipient=to)
-                    recipient.save()
-    
-                try:
-                    share = ShareSpace.objects.get(space=spot,hash=hash_val)
-                    share.count = share.count + 1
-                except ObjectDoesNotExist:
-                    share = ShareSpace(space=spot,hash=hash_val,
-                                       sender=sender,recipient=recipient,count=0)
-    
-                share.save()
+                recipient.save()
 
                 location_description = None
                 try:
                     location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
                 except ObjectDoesNotExist:
                     pass
-
-                spottypes = spot.spottypes.all()
-                spottypes = ["server_%s" % x for x in spottypes]
-
+    
                 context = Context({
                     'user_name': user.username,
                     'spot_name': spot.name,
-                    'spot_type': spottypes,
                     'spot_building': spot.building_name,
                     'spot_location': location_description,
                     'spot_floor': spot.floor,
                     'share_url': share_url,
                     'comment': comment,
                 })
-
+    
                 subject_template = get_template('email/share_space/subject.txt')
                 text_template = get_template('email/share_space/plain_text.txt')
                 html_template = get_template('email/share_space/html.html')
@@ -165,7 +156,6 @@ class SharedSpaceReferenceView(RESTDispatch):
         except:
             pass
 
-        spot = Spot.objects.get(pk=spot_id)
         body = request.read()
         try:
             json_values = json.loads(body)
@@ -176,18 +166,21 @@ class SharedSpaceReferenceView(RESTDispatch):
             raise RESTException("Missing 'hash'", status_code=400)
 
         try:
-            shared = ShareSpace.objects.get(space=spot,hash=json_values['hash'])
+            recipient = SharedSpaceRecipient.objects.get(hash_key=json_values['hash'])
         except ObjectDoesNotExist:
             return JSONResponse("{error: 'shared spot not found'}", status=401)
 
-        if not shared.recipient.user and user and user.username:
-            shared.recipient.user = user.username
-            shared.recipient.save()
+        if recipient.shared_space.space.pk == int(spot_id):
+            recipient.viewed_count = recipient.viewed_count + 1
 
-        try:
-            ref = SharedSpaceReference(share_space=shared)
-            ref.save()
-        except:
-            pass
+            if not recipient.date_first_viewed:
+                recipient.date_first_viewed = timezone.now()
+
+            if user and user.username:
+                recipient.user = user.username
+
+            recipient.save()
+        else:
+            return JSONResponse("{error: 'spot mismatch'}", status=401)
 
         return JSONResponse(True)

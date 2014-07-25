@@ -108,10 +108,14 @@ class ShareSpaceView(RESTDispatch):
                     location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
                 except ObjectDoesNotExist:
                     pass
-    
+
+                spottypes = spot.spottypes.all()
+                spottypes = ["server_%s" % x for x in spottypes]
+
                 context = Context({
                     'user_name': user.username,
                     'spot_name': spot.name,
+                    'spot_type': spottypes,
                     'spot_building': spot.building_name,
                     'spot_location': location_description,
                     'spot_floor': spot.floor,

@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--name',
-                    dest='name',
+                    dest='consumer_name',
                     default=False,
                     help='A name for the consumer'),
 
@@ -39,11 +39,11 @@ class Command(BaseCommand):
                     dest='trusted',
                     default=False,
                     help="Set to 'yes' if you want this client to be trusted to act for others")
-        )
+    )
 
     def handle(self, *args, **options):
-        if options['name']:
-            consumer_name = options['name']
+        if options['consumer_name']:
+            consumer_name = options['consumer_name']
         else:
             consumer_name = raw_input('Enter consumer name: ')
 

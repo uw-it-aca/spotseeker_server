@@ -15,6 +15,7 @@
 
 from django.test import TestCase
 from django.conf import settings
+from django.core.management import call_command
 from django.test.client import Client
 from spotseeker_server.models import Spot, TrustedOAuthClient
 import simplejson as json
@@ -217,3 +218,16 @@ class SpotAuthOAuth(TestCase):
 
             response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag, HTTP_AUTHORIZATION=oauth_header['Authorization'])
             self.assertEquals(response.status_code, 401, "Rejects a PUT from a trusted oauth client w/o a given user")
+
+    def test_create_trusted_client(self):
+        """ Tests to be sure the create_consumer command can create trusted clients.
+        """
+        consumer_name = 'This is for testing create_consumer'
+
+        call_command('create_consumer', consumer_name=consumer_name, trusted='yes')
+
+        consumer = Consumer.objects.get(name=consumer_name)
+
+        client = TrustedOAuthClient.objects.get(consumer=consumer)
+
+        self.assertIsInstance(client, TrustedOAuthClient)

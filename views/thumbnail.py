@@ -26,7 +26,7 @@ from django.http import HttpResponse
 from django.utils.http import http_date
 from spotseeker_server.require_auth import *
 from cStringIO import StringIO
-import Image
+from PIL import Image
 import time
 import re
 

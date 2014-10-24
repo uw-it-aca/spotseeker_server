@@ -224,7 +224,7 @@ class SpotAuthOAuth(TestCase):
         """
         consumer_name = 'This is for testing create_consumer'
 
-        call_command('create_consumer', consumer_name=consumer_name, trusted='yes')
+        call_command('create_consumer', consumer_name=consumer_name, trusted='yes', silent=True)
 
         consumer = Consumer.objects.get(name=consumer_name)
 

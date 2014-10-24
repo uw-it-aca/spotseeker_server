@@ -38,7 +38,13 @@ class Command(BaseCommand):
         make_option('--trusted',
                     dest='trusted',
                     default=False,
-                    help="Set to 'yes' if you want this client to be trusted to act for others")
+                    help="Set to 'yes' if you want this client to be trusted to act for others"),
+
+        make_option('--silent',
+                    dest='silent',
+                    action='store_true',
+                    default=False,
+                    help="With silent set, the command will generate no output"),
     )
 
     def handle(self, *args, **options):
@@ -55,5 +61,6 @@ class Command(BaseCommand):
         if options['trusted'] and options['trusted'] == 'yes':
             trusted = TrustedOAuthClient.objects.create(consumer=consumer, is_trusted=1)
 
-        self.stdout.write("Key: %s\n" % key)
-        self.stdout.write("Secret: %s\n" % secret)
+        if not options['silent']:
+            self.stdout.write("Key: %s\n" % key)
+            self.stdout.write("Secret: %s\n" % secret)

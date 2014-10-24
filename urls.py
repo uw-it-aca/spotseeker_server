@@ -20,12 +20,7 @@
         support.
 """
 
-try:
-    from django.conf.urls.defaults import patterns, include, url
-except ImportError:
-    # Django 1.6
-    from django.conf.urls import patterns, url, include
-
+from django.conf.urls import patterns, include, url
 from django.views.decorators.csrf import csrf_exempt
 from spotseeker_server.views.buildings import BuildingListView
 from spotseeker_server.views.spot import SpotView

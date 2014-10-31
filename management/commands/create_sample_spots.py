@@ -11,27 +11,40 @@
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
-    limitations under the License.
+limitations under the License
 
 
 This provides a management command to django's manage.py called create_sample_spots that will generate a set of spots for testing.
 """
 from django.core.management.base import BaseCommand, CommandError
+from optparse import make_option
 from spotseeker_server.models import *
 from django.contrib.auth.models import User
 from django.core.files import File
+from django.utils import timezone
 from decimal import *
-from datetime import datetime
+#from datetime import datetime
 import os
 
 
 class Command(BaseCommand):
     help = 'Deletes all existing spots, and creates new ones for testing.'
 
+    option_list = BaseCommand.option_list + (
+        make_option(
+            '--force-delete',
+            dest='delete_spots',
+            default=False,
+            help='Set to yes to force deletion of spots without typing delete my spots',),
+    )
+
     def handle(self, *args, **options):
         print "This will delete all of your existing spots - if you really want to do that, type 'delete my spots':"
 
-        confirmation = raw_input("Type it: ")
+        if options['delete_spots'] == 'yes':
+            confirmation = "delete my spots"
+        else:
+            confirmation = raw_input("Type it please: ")
 
         if confirmation != "delete my spots":
             raise CommandError("I'm only going to run if you're sure you want to 'delete my spots'")
@@ -98,7 +111,7 @@ class Command(BaseCommand):
                 published_by=publisher1,
                 review = "Super duper space\nReally nice.",
                 rating = 5,
-                date_published = datetime.now(),
+                date_published = timezone.now(),
                 is_published = True)
 
             review2 = SpaceReview.objects.create(
@@ -107,7 +120,7 @@ class Command(BaseCommand):
                 published_by=publisher2,
                 review = "OK space",
                 rating = 4,
-                date_published = datetime.now(),
+                date_published = timezone.now(),
                 is_published = True)
 
 
@@ -117,7 +130,7 @@ class Command(BaseCommand):
                 published_by=publisher2,
                 review = "Blah",
                 rating = 1,
-                date_published = datetime.now(),
+                date_published = timezone.now(),
                 is_published = False)
 
             SpotExtendedInfo.objects.create(key="rating", value="4.5", spot=art)
@@ -186,3 +199,56 @@ class Command(BaseCommand):
                 SpotAvailableHours.objects.create(spot=tacoma3, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=fish_kitchen, day=day, start_time="00:00", end_time="23:59")
                 SpotAvailableHours.objects.create(spot=fish_patio, day=day, start_time="00:00", end_time="23:59")
+
+
+            # Create rooms for Selenium testing 
+            ## AA Balcony - like EE Patio but with different name/building
+            aa_balcony = Spot.objects.create(name='AA Balcony', longitude=Decimal('-122.306371'), latitude=Decimal('47.653474'), building_name="Art Atrium")
+            aa_balcony.spottypes.add(outdoor_type)
+            aa_balcony.save()
+
+            for day in ["su", "m", "t", "w", "th", "f", "sa"]:
+                SpotAvailableHours.objects.create(spot=aa_balcony, day=day, start_time="00:00", end_time="23:59")
+                
+            SpotExtendedInfo.objects.create(key="has_natural_light", value="true", spot=aa_balcony)
+            SpotExtendedInfo.objects.create(key="food_nearby", value="neighboring", spot=aa_balcony)
+            SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=aa_balcony)
+            SpotExtendedInfo.objects.create(key="location_description", value="Art Building Atrium", spot=aa_balcony)
+
+            ## Study Room 233 - like Study Room 332 but with different name/building
+            study_room_233 = Spot.objects.create(name='Study Room 233', capacity=8, longitude=Decimal('-122.306382'), latitude=Decimal('47.653477'), building_name="Library")
+            study_room_233.spottypes.add(study_room_type)
+            study_room_233.save()
+            
+            SpotAvailableHours.objects.create(spot=study_room_233, day="f",  start_time="00:00", end_time="20:00")
+            SpotAvailableHours.objects.create(spot=study_room_233, day="sa", start_time="12:00", end_time="20:00")
+            SpotAvailableHours.objects.create(spot=study_room_233, day="su", start_time="12:00", end_time="23:59")
+            for day in ["m", "t", "w", "th"]:
+                SpotAvailableHours.objects.create(spot=study_room_233, day=day, start_time="00:00", end_time="23:59")
+
+            SpotExtendedInfo.objects.create(key="location_description", value="Library, 2nd floor", spot=study_room_233)
+            SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=study_room_233)
+            SpotExtendedInfo.objects.create(key="has_printing", value="true", spot=study_room_233)
+            SpotExtendedInfo.objects.create(key="has_whiteboards", value="true", spot=study_room_233)
+            SpotExtendedInfo.objects.create(key="food_nearby", value="building", spot=study_room_233)
+            SpotExtendedInfo.objects.create(key="reservable", value="true", spot=study_room_233)
+            SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=study_room_233)
+                
+            ## Room 301 - like Room 201 but with different name/building
+            room_301 = Spot.objects.create(name='Room 301', capacity=10, longitude=Decimal('-122.437708'), latitude=Decimal('47.244832'), building_name="Sad")
+            room_301.spottypes.add(study_room_type)
+            room_301.save()
+
+            for day in ["m", "t", "w", "th"]:
+                SpotAvailableHours.objects.create(spot=room_301, day=day, start_time="07:00", end_time="22:00")
+
+            for day in ["f", "sa", "su"]:
+                SpotAvailableHours.objects.create(spot=room_301, day=day, start_time="07:00", end_time="17:00")
+
+            SpotExtendedInfo.objects.create(key="location_description", value="Sad, 3rd floor", spot=room_301)
+            SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=room_301)
+            SpotExtendedInfo.objects.create(key="has_natural_light", value="true", spot=room_301)
+            SpotExtendedInfo.objects.create(key="food_nearby", value="building", spot=room_301)
+            SpotExtendedInfo.objects.create(key="campus", value="tacoma", spot=room_301)
+            
+            

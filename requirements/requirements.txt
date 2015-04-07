@@ -7,6 +7,3 @@ pytz
 South
 simplejson>=2.1
 django-oauth-plus
-
-# This can be removed once we get to django 1.6, I believe
-git+git://github.com/litchfield/django-safelogging.git@dbb2dc311d6460b2d41182912c9663552872c406#egg=safelogging

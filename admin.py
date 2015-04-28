@@ -69,6 +69,11 @@ class SpotImageAdmin(admin.ModelAdmin):
     SpotImage save.
     """
     exclude = ('content_type', 'width', 'height', 'etag',)
+    list_display = ("pk",
+                    "spot",
+                    "description",
+                    "content_type",
+                    "modification_date",)
     list_filter = ["spot"]
     actions = ['delete_model']
 

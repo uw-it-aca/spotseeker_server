@@ -1,9 +1,9 @@
 Django>=1.4,<1.5
-mock
-oauth2
+mock==1.0.1
+oauth2==1.5.211
 Pillow
 pyproj
 pytz
 South
 simplejson>=2.1
-django-oauth-plus
+django-oauth-plus==2.2.5

@@ -59,6 +59,7 @@ from spotseeker_server.test.uw_spot.spot_form import UWSpotFormTest
 from spotseeker_server.test.uw_spot.spot_post import UWSpotPOSTTest
 from spotseeker_server.test.uw_spot.spot_put import UWSpotPUTTest
 from spotseeker_server.test.uw_spot.schema import UWSpotSchemaTest
+from spotseeker_server.test.uw_spot.uw_search import UWSearchTest
 from spotseeker_server.test.cache_test import JsonCachingTest
 
 from spotseeker_server.test.favorites import FavoritesTest

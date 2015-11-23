@@ -29,6 +29,11 @@ class Filter(SearchFilter):
     def filter_query(self, query):
         """Filter based on reservable and noise_level."""
 
+        if 'extended_info:app_type' not in self.request.GET:
+            query = query.exclude(
+                spotextendedinfo__key="app_type"
+                )
+
         if 'extended_info:reservable' in self.request.GET:
             query = query.filter(
                     spotextendedinfo__key="reservable",

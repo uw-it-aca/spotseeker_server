@@ -89,6 +89,17 @@ class UWSpotPOSTTest(TransactionTestCase):
 
             self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
 
+    def test_uw_field_app_type(self):
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            new_name = "testing POST name: {0}".format(random.random())
+            app_type = "food"
+            json_string = '{"name":"%s","capacity":"10","location": {"latitude": 55, "longitude": -30},"extended_info":{"has_whiteboards":"true","has_outlets":"true","manager":"John","organization":"UW","app_type":"%s"}}' % (new_name, app_type)
+            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+
+            self.assertEquals(response.status_code, 201)
+
     def test_uw_field_has_outlets(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):

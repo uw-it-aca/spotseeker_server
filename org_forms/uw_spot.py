@@ -43,7 +43,7 @@ validated_ei = {
     "num_computers": "int",
     "reservable": ['true', 'reservations'],
     "noise_level": ['silent', 'quiet', 'moderate', 'variable'],
-    "campus": ['seattle', 'tacoma', 'bothell'],
+    "campus": ['seattle', 'tacoma', 'bothell', 'south_lake_union'],
 }
 
 

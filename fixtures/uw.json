@@ -68,5 +68,40 @@
     "fields": {
       "name": "outdoor"
     }
+  },
+  {
+    "pk": 11,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "food_court"
+    }
+  },
+  {
+    "pk": 12,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "fine_dining"
+    }
+  },
+  {
+    "pk": 13,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "market"
+    }
+  },
+  {
+    "pk": 14,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "cafeteria"
+    }
+  },
+  {
+    "pk": 15,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "food_truck"
+    }
   }
 ]

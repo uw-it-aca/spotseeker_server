@@ -73,6 +73,7 @@ class Command(BaseCommand):
             art_ada = SpotExtendedInfo.objects.create(key="has_scanner", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_projector", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_computers", value="true", spot=art)
+            art_ada = SpotExtendedInfo.objects.create(key="reservable", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="campus", value="seattle", spot=art)
             SpotExtendedInfo.objects.create(key="access_notes", value=" This space reservable outside of TLC hours. To reserve, go to http://www.tacoma.uw.edu/library/reserve-group-study-rooms", spot=art)
             SpotExtendedInfo.objects.create(key="reservation_notes", value=" This space reservable outside of TLC hours. To reserve, go to http://www.tacoma.uw.edu/library/reserve-group-study-rooms", spot=art)

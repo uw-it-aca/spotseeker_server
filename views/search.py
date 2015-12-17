@@ -46,15 +46,47 @@ class SearchView(RESTDispatch):
 
     @app_auth_required
     def GET(self, request):
-        form = SpotSearchForm(request.GET)
+        chain = SearchFilterChain(request)
+        spots = self.filter_on_request(request.GET, chain, request.META, 'spot')
+
+        response = []
+        for spot in spots:
+            response.append(spot.json_data_structure())
+
+        return JSONResponse(response)
+
+    def distance(self, spot, longitude, latitude):
+        g = Geod(ellps='clrk66')
+        az12, az21, dist = g.inv(spot.longitude, spot.latitude, longitude, latitude)
+        return dist
+
+    def get_days_in_range(self, start_day, until_day):
+        day_lookup = ["su", "m", "t", "w", "th", "f", "sa", "su", "m", "t", "w", "th", "f", "sa"]
+        matched_days = []
+        add_days = False
+
+        for day in day_lookup:
+            if day == start_day:
+                add_days = True
+            if add_days:
+                matched_days.append(day)
+
+            if day == until_day and add_days is True:
+                return matched_days
+
+        return []
+
+    def filter_on_request(self, get_request, chain, request_meta, api):
+        form = SpotSearchForm(get_request)
         has_valid_search_param = False
 
         if not form.is_valid():
-            return JSONResponse([])
+            return []
 
-        if len(request.GET) == 0:
-            return JSONResponse([])
-        chain = SearchFilterChain(request)
+        if len(get_request) == 0:
+            if api == 'buildings':
+                return list(Spot.objects.all())
+            return []
         query = Spot.objects.all()
 
         day_dict = {"Sunday": "su",
@@ -65,7 +97,7 @@ class SearchView(RESTDispatch):
                     "Friday": "f",
                     "Saturday": "sa", }
         # Exclude things that get special consideration here, otherwise add a filter for the keys
-        for key in request.GET:
+        for key in get_request:
             if key.startswith('oauth_'):
                 pass
             elif chain.filters_key(key):
@@ -83,7 +115,7 @@ class SearchView(RESTDispatch):
             elif key == "limit":
                 pass
             elif key == "open_now":
-                if request.GET["open_now"]:
+                if get_request["open_now"]:
 
                     day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
                     day_num = int(strftime("%w", localtime()))
@@ -92,9 +124,9 @@ class SearchView(RESTDispatch):
                     query = query.filter(spotavailablehours__day__iexact=today, spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)
                     has_valid_search_param = True
             elif key == "open_until":
-                if request.GET["open_until"] and request.GET["open_at"]:
-                    until_day, until_time = request.GET["open_until"].split(',')
-                    at_day, at_time = request.GET["open_at"].split(',')
+                if get_request["open_until"] and get_request["open_at"]:
+                    until_day, until_time = get_request["open_until"].split(',')
+                    at_day, at_time = get_request["open_at"].split(',')
                     until_day = day_dict[until_day]
                     at_day = day_dict[at_day]
 
@@ -123,17 +155,17 @@ class SearchView(RESTDispatch):
                             query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte="23:59")
                     has_valid_search_param = True
             elif key == "open_at":
-                if request.GET["open_at"]:
+                if get_request["open_at"]:
                     try:
-                        request.GET["open_until"]
+                        get_request["open_until"]
                     except:
-                        day, time = request.GET['open_at'].split(',')
+                        day, time = get_request['open_at'].split(',')
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
             elif key == "capacity":
                 try:
-                    limit = int(request.GET["capacity"])
+                    limit = int(get_request["capacity"])
                     with_limit = Q(capacity__gte=limit)
                     with_limit |= Q(capacity__isnull=True)
                     query = query.filter(with_limit)
@@ -145,7 +177,7 @@ class SearchView(RESTDispatch):
                     # Do something to complain??
                     pass
             elif key == "type":
-                type_values = request.GET.getlist(key)
+                type_values = get_request.getlist(key)
                 q_obj = Q()
                 type_qs = [Q(spottypes__name__exact=v) for v in type_values]
                 for type_q in type_qs:
@@ -153,7 +185,7 @@ class SearchView(RESTDispatch):
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
             elif key == "building_name":
-                building_names = request.GET.getlist(key)
+                building_names = get_request.getlist(key)
                 q_obj = Q()
                 type_qs = [Q(building_name__exact=v) for v in building_names]
                 for type_q in type_qs:
@@ -163,22 +195,22 @@ class SearchView(RESTDispatch):
             elif key.startswith('extended_info:'):
                 kwargs = {
                     'spotextendedinfo__key': key[14:],
-                    'spotextendedinfo__value__in': request.GET.getlist(key)
+                    'spotextendedinfo__value__in': get_request.getlist(key)
                 }
                 query = query.filter(**kwargs)
                 has_valid_search_param = True
             elif key == "id":
-                query = query.filter(id__in=request.GET.getlist(key))
+                query = query.filter(id__in=get_request.getlist(key))
                 has_valid_search_param = True
             else:
                 try:
                     kwargs = {
-                        '%s__icontains' % key: request.GET[key]
+                        '%s__icontains' % key: get_request[key]
                     }
                     query = query.filter(**kwargs)
                     has_valid_search_param = True
                 except Exception as e:
-                    if not request.META['SERVER_NAME'] == 'testserver':
+                    if not request_meta['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
 
         # Always prefetch the related extended info
@@ -189,19 +221,19 @@ class SearchView(RESTDispatch):
             has_valid_search_param = True
 
         limit = 20
-        if 'limit' in request.GET:
-            if request.GET['limit'] == '0':
+        if 'limit' in get_request:
+            if get_request['limit'] == '0':
                 limit = 0
             else:
-                limit = int(request.GET['limit'])
+                limit = int(get_request['limit'])
 
-        if 'distance' in request.GET and 'center_longitude' in request.GET and 'center_latitude' in request.GET:
+        if 'distance' in get_request and 'center_longitude' in get_request and 'center_latitude' in get_request:
             try:
                 g = Geod(ellps='clrk66')
-                top = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 0, request.GET['distance'])
-                right = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 90, request.GET['distance'])
-                bottom = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 180, request.GET['distance'])
-                left = g.fwd(request.GET['center_longitude'], request.GET['center_latitude'], 270, request.GET['distance'])
+                top = g.fwd(get_request['center_longitude'], get_request['center_latitude'], 0, get_request['distance'])
+                right = g.fwd(get_request['center_longitude'], get_request['center_latitude'], 90, get_request['distance'])
+                bottom = g.fwd(get_request['center_longitude'], get_request['center_latitude'], 180, get_request['distance'])
+                left = g.fwd(get_request['center_longitude'], get_request['center_latitude'], 270, get_request['distance'])
 
                 top_limit = "%.8f" % top[1]
                 bottom_limit = "%.8f" % bottom[1]
@@ -215,57 +247,32 @@ class SearchView(RESTDispatch):
                 distance_query = distance_query.filter(latitude__lte=top_limit)
                 has_valid_search_param = True
 
-                if len(distance_query) > 0 or 'expand_radius' not in request.GET:
+                if len(distance_query) > 0 or 'expand_radius' not in get_request:
                     query = distance_query
                 else:
                     # If we're querying everything, let's make sure we only return a limited number of spaces...
                     limit = 10
             except Exception as e:
-                if not request.META['SERVER_NAME'] == 'testserver':
+                if not request_meta['SERVER_NAME'] == 'testserver':
                     print >> sys.stderr, "E: ", e
                 #query = Spot.objects.all()
-        elif 'distance' in request.GET or 'center_longitude' in request.GET or 'center_latitude' in request.GET:
-            if 'distance' not in request.GET or 'center_longitude' not in request.GET or 'center_latitude' not in request.GET:
+        elif 'distance' in get_request or 'center_longitude' in get_request or 'center_latitude' in get_request:
+            if 'distance' not in get_request or 'center_longitude' not in get_request or 'center_latitude' not in get_request:
                 # If distance, lat, or long are specified in the server request; all 3 must be present.
                 raise RESTException("Must specify latitude, longitude, and distance", 400)
 
         if not has_valid_search_param:
-            return JSONResponse([])
+            return [] #check this
 
         if limit > 0 and limit < len(query):
             sorted_list = list(query)
             try:
-                sorted_list.sort(lambda x, y: cmp(self.distance(x, request.GET['center_longitude'], request.GET['center_latitude']), self.distance(y, request.GET['center_longitude'], request.GET['center_latitude'])))
+                sorted_list.sort(lambda x, y: cmp(self.distance(x, get_request['center_longitude'], get_request['center_latitude']), self.distance(y, get_request['center_longitude'], get_request['center_latitude'])))
                 query = sorted_list[:limit]
             except KeyError:
                 raise RESTException("missing required parameters for this type of search", 400)
 
-        response = []
         spots = set(query)
         spots = chain.filter_results(spots)
 
-        for spot in spots:
-            response.append(spot.json_data_structure())
-
-        return JSONResponse(response)
-
-    def distance(self, spot, longitude, latitude):
-        g = Geod(ellps='clrk66')
-        az12, az21, dist = g.inv(spot.longitude, spot.latitude, longitude, latitude)
-        return dist
-
-    def get_days_in_range(self, start_day, until_day):
-        day_lookup = ["su", "m", "t", "w", "th", "f", "sa", "su", "m", "t", "w", "th", "f", "sa"]
-        matched_days = []
-        add_days = False
-
-        for day in day_lookup:
-            if day == start_day:
-                add_days = True
-            if add_days:
-                matched_days.append(day)
-
-            if day == until_day and add_days is True:
-                return matched_days
-
-        return []
+        return spots

@@ -89,6 +89,10 @@ class SearchView(RESTDispatch):
             return []
         query = Spot.objects.all()
 
+        if api == 'buildings' and 'campus' in get_request.keys():
+            query = query.filter(spotextendedinfo__key='campus', spotextendedinfo__value=get_request['campus'])
+            has_valid_search_param = True
+
         day_dict = {"Sunday": "su",
                     "Monday": "m",
                     "Tuesday": "t",
@@ -99,6 +103,8 @@ class SearchView(RESTDispatch):
         # Exclude things that get special consideration here, otherwise add a filter for the keys
         for key in get_request:
             if key.startswith('oauth_'):
+                pass
+            elif key == 'campus':
                 pass
             elif chain.filters_key(key):
                 # this needs to happen early, before any

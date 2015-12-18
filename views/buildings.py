@@ -38,22 +38,6 @@ class BuildingListView(RESTDispatch):
         search_view = SearchView()
         spots = SearchView.filter_on_request(search_view, request.GET, chain, request.META, 'buildings')
 
-        #import pdb;pdb.set_trace()
-        # for key, value in request.GET.items():
-        #     if key.startswith('oauth_'):
-        #         pass
-        #     else:
-        #         try:
-        #             spots = spots.filter(**{key: value})
-        #         except FieldError:
-        #             # If a FieldError is thrown, the key is probably SpotExtendedInfo
-        #             spots = spots.filter(spotextendedinfo__key=key, spotextendedinfo__value=value)
-        #
-        # #spots = chain.filter_query(spots)
-        #q = spots.values('building_name').distinct()
-
-        #buildings = [b['building_name'] for b in q]
-        #buildings.sort()
         buildings = []
         for spot in spots:
             if not spot.building_name in buildings:

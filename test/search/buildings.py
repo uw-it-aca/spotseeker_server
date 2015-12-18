@@ -30,14 +30,14 @@ class BuildingSearchTest(TestCase):
     """
 
     def setUp(self):
-        self.spot1 = Spot.objects.create(name="Spot on campus A.", building_name="Aay building")
-        self.spot1_2 = Spot.objects.create(name="Other spot on campus A.", building_name="Aay building")
-        self.spot2 = Spot.objects.create(name="Spot on campus B.", building_name="Bee building")
-        self.spot3 = Spot.objects.create(name="Another Spot on campus B.", building_name="Bee building")
-        self.spot4 = Spot.objects.create(name="Spot on campus C.", building_name="Cee building")
-        self.spot5 = Spot.objects.create(name="Here is a spot on campus D.", building_name='Dee building')
-        self.spot6 = Spot.objects.create(name='Another spot on campus C.', building_name='Cee building')
-        self.spot7 = Spot.objects.create(name='Another spot on campus D.', building_name='Eee building')
+        self.spot1 = Spot.objects.create(name="Spot on campus A.", building_name="Building 1")
+        self.spot1_2 = Spot.objects.create(name="Other spot on campus A.", building_name="Building 2")
+        self.spot2 = Spot.objects.create(name="Spot on campus B.", building_name="Building3")
+        self.spot3 = Spot.objects.create(name="Another Spot on campus B.", building_name="Building 4")
+        self.spot4 = Spot.objects.create(name="Spot on campus C.", building_name="Building 5")
+        self.spot5 = Spot.objects.create(name="Here is a spot on campus D.", building_name='Building 6')
+        self.spot6 = Spot.objects.create(name='Another spot on campus C.', building_name='Building 7')
+        self.spot7 = Spot.objects.create(name='Another spot on campus D.', building_name='Building 8')
 
         self.spot1_campus = SpotExtendedInfo.objects.create(spot=self.spot1, key="campus", value="campus_a")
         self.spot1_campus.save()
@@ -77,7 +77,7 @@ class BuildingSearchTest(TestCase):
         #TODO: Even though this works, we do not recommend using this method. You should be passing at least one query param.
         response = c.get("/api/v1/buildings")
         buildings = json.loads(response.content)
-        self.assertEquals(len(buildings), 5)
+        self.assertEquals(len(buildings), 8)
 
     def test_buildings_for_campus(self):
         c = Client()
@@ -87,14 +87,14 @@ class BuildingSearchTest(TestCase):
 
         self.assertEquals(len(buildings), 1)
         # Assert that the building returned is not from the tacoma campus.
-        self.assertNotEqual(buildings[0], self.spot2.building_name)
+        self.assertNotEqual(buildings[0], self.spot1.building_name)
         # Assert that the building returned is from the seattle campus.
-        self.assertEquals(buildings[0], self.spot1.building_name)
+        self.assertEquals(buildings[0], self.spot1_2.building_name)
 
         response = c.get("/api/v1/buildings", {"campus": "campus_b"})
         buildings = json.loads(response.content)
 
-        self.assertEquals(len(buildings), 1)
+        self.assertEquals(len(buildings), 2)
         for building in buildings:
             # Assert that the building returned is not from the seattle campus.
             self.assertNotEqual(building, self.spot1.building_name)
@@ -117,12 +117,12 @@ class BuildingSearchTest(TestCase):
     def test_buildings_for_app_type_and_campus(self):
         c = Client()
 
-        response = c.get('/api/v1/buildings/', {'app_type':'food', 'campus':'campus_a'})
+        response = c.get('/api/v1/buildings/', {'extended_info:app_type':'food', 'campus':'campus_a'})
         buildings = json.loads(response.content)
         self.assertEqual(len(buildings), 1)
         self.assertEqual(buildings[0], self.spot1.building_name)
 
-        response = c.get('/api/v1/buildings/', {'app_type':'book', 'campus':'campus_c'})
+        response = c.get('/api/v1/buildings/', {'extended_info:app_type':'book', 'campus':'campus_c'})
         buildings = json.loads(response.content)
         self.assertEqual(len(buildings), 1)
         self.assertEqual(buildings[0], self.spot6.building_name)
@@ -139,7 +139,7 @@ class BuildingSearchTest(TestCase):
         response = c.get('/api/v1/buildings/', {'extended_info:campus':'campus_c'})
         buildings = json.loads(response.content)
         self.assertEqual(len(buildings), 1)
-        self.assertEqual(buildings[0], self.spot6.building_name)
+        self.assertEqual(buildings[0], self.spot4.building_name)
 
         response = c.get('/api/v1/buildings/', {'extended_info:campus':'campus_d', 'extended_info:app_type':'food'})
         buildings = json.loads(response.content)

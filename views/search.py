@@ -84,11 +84,13 @@ class SearchView(RESTDispatch):
             return []
 
         if len(get_request) == 0:
+            # This is here to continue to allow the building api to request all the buildings in the server.
             if api == 'buildings':
                 return list(Spot.objects.all())
             return []
         query = Spot.objects.all()
 
+        # This is here to allow only the building api to continue to be contacted with the key 'campus' instead of 'extended_info:campus'
         if api == 'buildings' and 'campus' in get_request.keys():
             query = query.filter(spotextendedinfo__key='campus', spotextendedinfo__value=get_request['campus'])
             has_valid_search_param = True

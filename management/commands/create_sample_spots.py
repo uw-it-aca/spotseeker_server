@@ -66,6 +66,7 @@ class Command(BaseCommand):
             art.spottypes.add(cafe_type)
             art.save()
             art_ada = SpotExtendedInfo.objects.create(key="location_description", value="This is the location of the space", spot=art)
+            art_ada = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_outlets", value="true", spot=art)
             art_ada = SpotExtendedInfo.objects.create(key="has_displays", value="true", spot=art)
@@ -249,3 +250,9 @@ class Command(BaseCommand):
             SpotExtendedInfo.objects.create(key="has_natural_light", value="true", spot=room_301)
             SpotExtendedInfo.objects.create(key="food_nearby", value="building", spot=room_301)
             SpotExtendedInfo.objects.create(key="campus", value="tacoma", spot=room_301)
+
+            food = Spot.objects.create(name="This is a food spot", capacity=10, longitude=Decimal('-122.3101087'), latitude=Decimal('47.6549552'), building_name="Food Building")
+            food.spottypes.add(cafe_type)
+            food.save()
+            food_info = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=food)
+            food_info = SpotExtendedInfo.objects.create(key='has_outlets', value='true', spot=food)

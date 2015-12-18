@@ -22,6 +22,8 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot
+from spotseeker_server.org_filters import SearchFilterChain
+from spotseeker_server.views.search import SearchView
 from django.http import HttpResponse
 from django.core.exceptions import FieldError
 
@@ -32,19 +34,14 @@ class BuildingListView(RESTDispatch):
     """
     @app_auth_required
     def GET(self, request):
-        spots = Spot.objects.all()
-        for key, value in request.GET.items():
-            if key.startswith('oauth_'):
-                pass
-            else:
-                try:
-                    spots = Spot.objects.filter(**{key: value})
-                except FieldError:
-                    # If a FieldError is thrown, the key is probably SpotExtendedInfo
-                    spots = Spot.objects.filter(spotextendedinfo__key=key, spotextendedinfo__value=value)
+        chain = SearchFilterChain(request)
+        search_view = SearchView()
+        spots = SearchView.filter_on_request(search_view, request.GET, chain, request.META, 'buildings')
 
-        q = spots.values('building_name').distinct()
+        buildings = []
+        for spot in spots:
+            if not spot.building_name in buildings:
+                buildings.append(spot.building_name)
 
-        buildings = [b['building_name'] for b in q]
         buildings.sort()
         return JSONResponse(buildings)

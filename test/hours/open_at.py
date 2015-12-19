@@ -17,7 +17,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
 from django.utils.unittest import skipIf
-from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 from datetime import datetime, timedelta
 import time
@@ -37,7 +36,7 @@ class SpotHoursOpenAtTest(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             # Create a spot that isn't open now but will be in an hour.
-            spot = Spot.objects.create(name="This spot is open later")
+            spot = models.Spot.objects.create(name="This spot is open later")
             now = datetime.now()
             spot_open = datetime.time(now + timedelta(hours=1))
             spot_close = datetime.time(now + timedelta(hours=3))
@@ -46,7 +45,7 @@ class SpotHoursOpenAtTest(TestCase):
             day_num = int(time.strftime("%w", time.localtime()))
             today = day_lookup[day_num]
 
-            SpotAvailableHours.objects.create(spot=spot, day=today, start_time=spot_open, end_time=spot_close)
+            models.SpotAvailableHours.objects.create(spot=spot, day=today, start_time=spot_open, end_time=spot_close)
 
             # Verify the spot is closed now
             c = Client()

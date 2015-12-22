@@ -168,5 +168,22 @@ class HoursRangeTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             pass
 
+    def test_closes_at_start(self):
+        """ Tests search for a spot that closes at exactly the time the search range begins.
+        This should NOT return the spot.
+        """
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            pass
+
+    def test_opens_at_end(self):
+        """ Tests search for a spot that opens at exactly the time the search range ends.
+        This should NOT return the spot.
+        """
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            pass
+
+
     def tearDown(self):
         self.spot1.delete()

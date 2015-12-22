@@ -80,7 +80,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now + timedelta(hours=2))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=4))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(self.spot1.json_data_structure() in spots)
 
     def test_open_and_close_span_range(self):
         """ Tests search for a spot that opens before the requested range and

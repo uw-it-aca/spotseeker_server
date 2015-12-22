@@ -33,7 +33,7 @@ class HoursRangeTest(TestCase):
     def setUp(self):
         self.now = datetime.now()
         spot_open = datetime.time(self.now + timedelta(hours=1))
-        spot_close = datetime.time(self.now + timedelta(hours=3))
+        spot_close = datetime.time(self.now + timedelta(hours=4))
 
         self.spot1 = models.Spot.objects.create(name="Spot that opens at {0}:{1} and closes at {2}:{3}".format(spot_open.hour, spot_open.minute, spot_close.hour, spot_close.minute))
 
@@ -85,7 +85,7 @@ class HoursRangeTest(TestCase):
             start_query_day = self.day_dict[self.today]
             start_query = "%s,%s" % (start_query_day, start_query_time)
 
-            end_query_time = datetime.time(self.now + timedelta(hours=4))
+            end_query_time = datetime.time(self.now + timedelta(hours=5))
             end_query_time = end_query_time.strftime("%H:%M")
             end_query_day = self.day_dict[self.today]
             end_query = "%s,%s" % (end_query_day, end_query_time)
@@ -104,7 +104,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now - timedelta(hours=4))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=4))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(self.spot1.json_data_structure() in spots)
 
     def test_open_after_range_but_end_in_range(self):
         """ Tests search for a spot that opens outside of the requested range
@@ -122,7 +137,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now + timedelta(hours=2))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=8))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(self.spot1.json_data_structure() in spots)
 
     def test_open_close_in_range(self):
         """ Tests search for a spot that opens and closes within the requested
@@ -131,7 +161,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now + timedelta(hours=2))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=3))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(self.spot1.json_data_structure() in spots)
 
     def test_start_within_range_and_end_within_range_next_day(self):
         """ Tests search for a spot that opens within the requested range and
@@ -141,7 +186,6 @@ class HoursRangeTest(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             pass
-
     def test_start_end_before_range(self):
         """ Tests search for a spot that opens and closes before the requested
         range.
@@ -149,7 +193,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now - timedelta(hours=3))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now - timedelta(hours=2))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
 
     def test_start_end_after_range(self):
         """ Tests search for a spot that opens and closes after the requested
@@ -158,7 +217,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now + timedelta(hours=5))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=7))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
 
     def test_invalid_start_only(self):
         """ Tests search for a spot without passing a start range.
@@ -166,7 +240,16 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            end_query_time = datetime.time(self.now + timedelta(hours=7))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", { 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 400)
 
     def test_closes_at_start(self):
         """ Tests search for a spot that closes at exactly the time the search range begins.
@@ -174,7 +257,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now + timedelta(hours=4))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=5))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
 
     def test_opens_at_end(self):
         """ Tests search for a spot that opens at exactly the time the search range ends.
@@ -182,7 +280,22 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            pass
+            start_query_time = datetime.time(self.now - timedelta(hours=5))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=1))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.today]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", {'fuzzy_hours_start': start_query, 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
 
 
     def tearDown(self):

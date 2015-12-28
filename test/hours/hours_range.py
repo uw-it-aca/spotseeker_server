@@ -104,12 +104,12 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            start_query_time = datetime.time(self.now - timedelta(hours=4))
+            start_query_time = datetime.time(self.now + timedelta(hours=2))
             start_query_time = start_query_time.strftime("%H:%M")
             start_query_day = self.day_dict[self.today]
             start_query = "%s,%s" % (start_query_day, start_query_time)
 
-            end_query_time = datetime.time(self.now + timedelta(hours=4))
+            end_query_time = datetime.time(self.now + timedelta(hours=3))
             end_query_time = end_query_time.strftime("%H:%M")
             end_query_day = self.day_dict[self.today]
             end_query = "%s,%s" % (end_query_day, end_query_time)
@@ -161,12 +161,12 @@ class HoursRangeTest(TestCase):
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            start_query_time = datetime.time(self.now + timedelta(hours=2))
+            start_query_time = datetime.time(self.now - timedelta(hours=1))
             start_query_time = start_query_time.strftime("%H:%M")
             start_query_day = self.day_dict[self.today]
             start_query = "%s,%s" % (start_query_day, start_query_time)
 
-            end_query_time = datetime.time(self.now + timedelta(hours=3))
+            end_query_time = datetime.time(self.now + timedelta(hours=5))
             end_query_time = end_query_time.strftime("%H:%M")
             end_query_day = self.day_dict[self.today]
             end_query = "%s,%s" % (end_query_day, end_query_time)
@@ -186,6 +186,7 @@ class HoursRangeTest(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             pass
+
     def test_start_end_before_range(self):
         """ Tests search for a spot that opens and closes before the requested
         range.

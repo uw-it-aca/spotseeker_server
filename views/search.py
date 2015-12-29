@@ -171,12 +171,14 @@ class SearchView(RESTDispatch):
                         day = day_dict[day]
                         query = query.filter(spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
+            elif key == "fuzzy_hours_end":
+                # fuzzy search requires a start and end
+                if not "fuzzy_hours_start" in get_request.keys():
+                    raise RESTException("fuzzy_hours_end requires fuzzy_hours_start to be specified", 400)
             elif key == "fuzzy_hours_start":
                 # fuzzy search requires a start and end
-                try:
-                    get_request["fuzzy_hours_end"]
-                except Exception as e:
-                    raise HttpResponseBadRequest(e)
+                if not "fuzzy_hours_end" in get_request.keys():
+                    raise RESTException("fuzzy_hours_start requires fuzzy_hours_end to be specified", 400)
 
                 start_day, start_time = get_request['fuzzy_hours_start'].split(',')
                 end_day, end_time = get_request['fuzzy_hours_end'].split(',')

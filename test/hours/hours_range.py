@@ -236,8 +236,8 @@ class HoursRangeTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertFalse(self.spot1.json_data_structure() in spots)
 
-    def test_invalid_start_only(self):
-        """ Tests search for a spot without passing a start range.
+    def test_invalid_end_only(self):
+        """ Tests search for a spot without passing a start time for the range.
         This should return a 400 bad request.
         """
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
@@ -249,6 +249,23 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get("/api/v1/spot", { 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 400)
+
+    def test_invalid_start_only(self):
+        """ Tests search for a spot without passing an end time for the range.
+        This should return a 400 bad request.
+        """
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            start_query_time = datetime.time(self.now + timedelta(hours=2))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            client = Client()
+            response = client.get("/api/v1/spot", { 'fuzzy_hours_start': start_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 400)

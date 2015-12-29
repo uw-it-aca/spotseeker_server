@@ -32,6 +32,7 @@ class HoursRangeTest(TestCase):
     """
     def setUp(self):
         self.now = datetime.now()
+        self.now = self.now - timedelta(seconds=self.now.second, microseconds=self.now.microsecond)
         spot_open = datetime.time(self.now + timedelta(hours=1))
         spot_close = datetime.time(self.now + timedelta(hours=4))
 

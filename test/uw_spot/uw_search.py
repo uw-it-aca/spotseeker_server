@@ -20,6 +20,7 @@ from django.utils.unittest import skipUnless
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import json
 
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class UWSearchTest(TestCase):
     """ Tests that special Extended Info searches behave properly.
     """

@@ -325,10 +325,14 @@ class SearchView(RESTDispatch):
                 raise RESTException(
                     "Must specify latitude, longitude, and distance", 400)
 
-        if not has_valid_search_param:
-            return []  # check this
+        # Only do this if spot api because buildings api
+        # is able to not pass any valid filters
+        if not has_valid_search_param and 'spot':
+            return []
 
-        if limit > 0 and limit < len(query):
+        # Do this when spot api because building api is not required
+        # to pass these parameters
+        if limit > 0 and limit < len(query) and api == 'spot':
             sorted_list = list(query)
             try:
                 sorted_list.sort(lambda x, y: cmp(self.distance(x, get_request['center_longitude'], get_request[

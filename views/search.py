@@ -327,7 +327,7 @@ class SearchView(RESTDispatch):
 
         # Only do this if spot api because buildings api
         # is able to not pass any valid filters
-        if not has_valid_search_param and 'spot':
+        if not has_valid_search_param and api == 'spot':
             return []
 
         # Do this when spot api because building api is not required

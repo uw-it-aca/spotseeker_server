@@ -94,7 +94,7 @@ class SpotHoursOpenNowTest(TestCase):
 
             # Mock the call to now() so that the time returned
             # is always 23:59:30
-            datetime_mock.return_value = (1, datetime(12, 03, 12, 23, 59, 30).time())
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 59, 30).time())
 
             c = Client()
             response = c.get("/api/v1/spot", {'open_now': True})

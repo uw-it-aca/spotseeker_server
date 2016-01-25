@@ -131,11 +131,7 @@ class SearchView(RESTDispatch):
                 pass
             elif key == "open_now":
                 if get_request["open_now"]:
-
-                    day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
-                    day_num = int(strftime("%w", localtime()))
-                    today = day_lookup[day_num]
-                    now = datetime.time(datetime.now())
+                    today, now = self.get_datetime()
                     query = query.filter(spotavailablehours__day__iexact=today,
                                          spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)
                     has_valid_search_param = True
@@ -346,3 +342,12 @@ class SearchView(RESTDispatch):
         spots = chain.filter_results(spots)
 
         return spots
+
+    def get_datetime(self):
+        """ Returns the datetime and the day of the week.
+        """
+        day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
+        day_num = int(strftime("%w", localtime()))
+        today = day_lookup[day_num]
+        now = datetime.time(datetime.now())
+        return today, now

@@ -132,9 +132,13 @@ class SearchView(RESTDispatch):
             elif key == "open_now":
                 if get_request["open_now"]:
                     today, now = self.get_datetime()
+                    # Check to see if the request was made in minute gap before midnight
+                    # during which no space is open, based on the server.
                     before_midnight = now.replace(hour=23, minute=59, second=0, microsecond=0)
                     right_before_midnight = now.replace(hour=23, minute=59, second=59, microsecond=999999)
                     if before_midnight < now and now < right_before_midnight:
+                        # Makes it so that all spaces that are open until midnight
+                        # or overnight will be returned.
                         now = now.replace(hour=23, minute=58, second=0, microsecond=0)
                     query = query.filter(spotavailablehours__day__iexact=today,
                                          spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)

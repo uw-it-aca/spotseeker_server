@@ -105,7 +105,7 @@ class SpotSearchFieldTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("/api/v1/spot", {'extended_info:invalid_field': 'OUGL'})
-            self.assertEquals(response.status_code, 200, "Accepts an invalid extended_info field in query")
+            self.assertEquals(response.status_code, 200)
             self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             self.assertEquals(response.content, '[]', "Should return no matches")
 
@@ -169,6 +169,37 @@ class SpotSearchFieldTest(TestCase):
             self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
             spots = json.loads(response.content)
             self.assertEquals(len(spots), 4, 'Finds 4 matches for searching for 4 ids')
+
+    def test_extended_info_or(self):
+        """ Tests searches for Spots with extended_info that has multiple values. """
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            c = Client()
+            american_food_spot = Spot.objects.create(name='American Food')
+            ei1 = SpotExtendedInfo.objects.create(key='s_cuisine_american', value='true', spot=american_food_spot)
+            at1 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=american_food_spot)
+            bbq_food_spot = Spot.objects.create(name='BBQ')
+            ei2 = SpotExtendedInfo.objects.create(key='s_cuisine_bbq', value='true', spot=bbq_food_spot)
+            at2 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=bbq_food_spot)
+            food_court_spot = Spot.objects.create(name='Food Court')
+            ei3 = SpotExtendedInfo.objects.create(key='s_cuisine_american', value='true', spot=food_court_spot)
+            ei4 = SpotExtendedInfo.objects.create(key='s_cuisine_bbq', value='true', spot=food_court_spot)
+            at3 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=food_court_spot)
+            chinese_food_spot = Spot.objects.create(name='Chinese Food')
+            ei5 = SpotExtendedInfo.objects.create(key='s_cuisine_chinese', value='true', spot=chinese_food_spot)
+            at4 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=chinese_food_spot)
+            study_spot = Spot.objects.create(name='Study Here!')
+            ei6 = SpotExtendedInfo.objects.create(key='has_whiteboards', value='true', spot=study_spot)
+
+            response = c.get("/api/v1/spot", {'extended_info:or:s_cuisine_bbq': 'true', 'extended_info:or:s_cuisine_american': 'true', 'extended_info:app_type': 'food'})
+            self.assertEqual(response.status_code, 200)
+            spots = json.loads(response.content)
+            self.assertEqual(len(spots), 3)
+            self.assertTrue(american_food_spot.json_data_structure() in spots)
+            self.assertTrue(bbq_food_spot.json_data_structure() in spots)
+            self.assertTrue(food_court_spot.json_data_structure() in spots)
+            self.assertTrue(chinese_food_spot.json_data_structure() not in spots)
+            self.assertTrue(study_spot.json_data_structure() not in spots)
 
     def test_multi_type_spot(self):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')

@@ -175,19 +175,24 @@ class SpotSearchFieldTest(TestCase):
         dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
+            # This spot should be returned
             american_food_spot = Spot.objects.create(name='American Food')
             ei1 = SpotExtendedInfo.objects.create(key='s_cuisine_american', value='true', spot=american_food_spot)
             at1 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=american_food_spot)
+            # This spot should be returned
             bbq_food_spot = Spot.objects.create(name='BBQ')
             ei2 = SpotExtendedInfo.objects.create(key='s_cuisine_bbq', value='true', spot=bbq_food_spot)
             at2 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=bbq_food_spot)
+            # This spot should be returned
             food_court_spot = Spot.objects.create(name='Food Court')
             ei3 = SpotExtendedInfo.objects.create(key='s_cuisine_american', value='true', spot=food_court_spot)
             ei4 = SpotExtendedInfo.objects.create(key='s_cuisine_bbq', value='true', spot=food_court_spot)
             at3 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=food_court_spot)
+            # This spot should NOT be returned
             chinese_food_spot = Spot.objects.create(name='Chinese Food')
             ei5 = SpotExtendedInfo.objects.create(key='s_cuisine_chinese', value='true', spot=chinese_food_spot)
             at4 = SpotExtendedInfo.objects.create(key='app_type', value='food', spot=chinese_food_spot)
+            # This spot should NOT be returned
             study_spot = Spot.objects.create(name='Study Here!')
             ei6 = SpotExtendedInfo.objects.create(key='has_whiteboards', value='true', spot=study_spot)
 

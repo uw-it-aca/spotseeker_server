@@ -108,6 +108,11 @@ class SearchView(RESTDispatch):
                     "Thursday": "th",
                     "Friday": "f",
                     "Saturday": "sa", }
+
+        # Q objects we need to chain together for the OR queries
+        or_q_obj = Q()
+        or_qs = []
+
         # Exclude things that get special consideration here, otherwise add a
         # filter for the keys
         for key in get_request:
@@ -247,6 +252,12 @@ class SearchView(RESTDispatch):
                     q_obj |= type_q
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
+            elif key.startswith('extended_info:or'):
+                or_qs.append(Q(spotextendedinfo__key=key[17:], spotextendedinfo__value='true'))
+                for or_q in or_qs:
+                    or_q_obj |= or_q
+                # The query gets filtered for ORs after the if/else switch.
+                has_valid_search_param = True
             elif key.startswith('extended_info:'):
                 kwargs = {
                     'spotextendedinfo__key': key[14:],
@@ -268,6 +279,8 @@ class SearchView(RESTDispatch):
                     if not request_meta['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
 
+        # This handles all of the OR queries on extended_info we've collected.
+        query = query.filter(or_q_obj).distinct()
         # Always prefetch the related extended info
         query = query.select_related('SpotExtendedInfo')
 

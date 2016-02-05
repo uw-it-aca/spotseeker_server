@@ -91,14 +91,51 @@ class SpotHoursOpenNowTest(TestCase):
             open_spot = Spot.objects.create(name="Spot open overnight")
             open_hours = SpotAvailableHours.objects.create(spot=open_spot, day='m', start_time=datetime(12, 03, 12, 18, 00, 00).time(), end_time=datetime(12, 03, 12, 23, 59, 00).time())
             open_hours = SpotAvailableHours.objects.create(spot=open_spot, day='t', start_time=datetime(12, 03, 12, 00, 00, 00).time(), end_time=datetime(12, 03, 12, 06, 00, 00).time())
+            early_open_spot = Spot.objects.create(name="Spot open at midnight")
+            open_hours = SpotAvailableHours.objects.create(spot=early_open_spot, day='t', start_time=datetime(12, 03, 12, 00, 00, 00).time(), end_time=datetime(12, 03, 12, 18, 00, 00).time())
 
             # Mock the call to now() so that the time returned
-            # is always 23:59:30
+            # is 23:59:30
             datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 59, 30).time())
 
             c = Client()
             response = c.get("/api/v1/spot", {'open_now': True})
-            self.assertEquals(response.status_code, 200)
+            self.assertEqual(response.status_code, 200)
 
             spots = json.loads(response.content)
             self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)
+
+            # mock the call to now() so that the time reutrned
+            # is 23:59:00
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 59, 00).time())
+            response = c.get("/api/v1/spot", {'open_now': True})
+            self.assertEqual(response.status_code, 200)
+
+            spots = json.loads(response.content)
+            self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)
+
+            # mock the call to now() so that the time reutrned
+            # is 23:58:30
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 58, 30).time())
+            response = c.get("/api/v1/spot", {'open_now': True})
+            self.assertEqual(response.status_code, 200)
+
+            spots = json.loads(response.content)
+            self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)
+
+            # mock the call to now() so that the time reutrned
+            # is 23:58:00
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 58, 00).time())
+            response = c.get("/api/v1/spot", {'open_now': True})
+            self.assertEqual(response.status_code, 200)
+
+            spots = json.loads(response.content)
+            self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)

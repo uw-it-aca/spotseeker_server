@@ -134,7 +134,7 @@ class SearchView(RESTDispatch):
                     today, now = self.get_datetime()
                     # Check to see if the request was made in minute gap before midnight
                     # during which no space is open, based on the server.
-                    before_midnight = now.replace(hour=23, minute=59, second=0, microsecond=0)
+                    before_midnight = now.replace(hour=23, minute=58, second=59, microsecond=999999)
                     right_before_midnight = now.replace(hour=23, minute=59, second=59, microsecond=999999)
                     if before_midnight < now and now < right_before_midnight:
                         # Makes it so that all spaces that are open until midnight

@@ -50,9 +50,9 @@ class SpotHoursPOSTTest(TestCase):
                 }
             }
 
-            c = Client()
-            response = c.post("/api/v1/spot/", json.dumps(post_obj), content_type="application/json")
-            get_response = c.get(response["Location"])
+            client = Client()
+            response = client.post("/api/v1/spot/", json.dumps(post_obj), content_type="application/json")
+            get_response = client.get(response["Location"])
 
             self.assertEquals(get_response.status_code, 200, "OK in response to GETing the new spot")
 

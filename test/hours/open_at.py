@@ -16,7 +16,6 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
-from django.utils.unittest import skipIf
 import simplejson as json
 from datetime import datetime, timedelta
 import time
@@ -24,6 +23,7 @@ from django.test.utils import override_settings
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
+import mock
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
@@ -31,25 +31,34 @@ class SpotHoursOpenAtTest(TestCase):
     """ Tests search requests for spots that are open at a particular time.
     """
 
-    @skipIf(datetime.now().hour + 3 > 23 or datetime.now().hour < 3, "Skip open_at tests due to the time of day")
-    def test_open_at(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+    @mock.patch('spotseeker_server.views.search.SearchView.get_datetime')
+    def test_open_at(self, datetime_mock):
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             # Create a spot that isn't open now but will be in an hour.
             spot = models.Spot.objects.create(name="This spot is open later")
-            now = datetime.now()
+            #Setting now to be Wednesday 9:00:00
+            now = datetime(16, 2, 3, 9, 0, 0)
             spot_open = datetime.time(now + timedelta(hours=1))
             spot_close = datetime.time(now + timedelta(hours=3))
 
             day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
-            day_num = int(time.strftime("%w", time.localtime()))
-            today = day_lookup[day_num]
+            today = day_lookup[3]
 
-            models.SpotAvailableHours.objects.create(spot=spot, day=today, start_time=spot_open, end_time=spot_close)
+            models.SpotAvailableHours.objects.create(spot=spot,
+                day=today,
+                start_time=spot_open,
+                end_time=spot_close)
+
+            # Mock the call to now() so that the time returned
+            # is always 9:00:00
+            datetime_mock.return_value = ('w',
+                datetime(16, 2, 3, 9, 0, 0).time())
 
             # Verify the spot is closed now
-            c = Client()
-            response = c.get("/api/v1/spot", {'open_now': True})
+            client = Client()
+            response = client.get("/api/v1/spot", {'open_now': True})
             spots = json.loads(response.content)
 
             spot_returned = False
@@ -58,7 +67,8 @@ class SpotHoursOpenAtTest(TestCase):
                 if s['id'] == spot.pk:
                     spot_returned = True
 
-            self.assertTrue(not spot_returned, "The spot that is open later is not in the spots open now")
+            self.assertTrue(not spot_returned,
+                "The spot that is open later is not in the spots open now")
 
             # Test the spot that is open later
             query_time = datetime.time(now + timedelta(hours=2))
@@ -73,7 +83,7 @@ class SpotHoursOpenAtTest(TestCase):
             query_day = day_dict[today]
             query = "%s,%s" % (query_day, query_time)
 
-            response = c.get("/api/v1/spot", {'open_at': query})
+            response = client.get("/api/v1/spot", {'open_at': query})
             spots = json.loads(response.content)
 
             spot_returned = False
@@ -84,10 +94,11 @@ class SpotHoursOpenAtTest(TestCase):
 
             self.assertTrue(spot_returned, "Got the spot that is open later")
 
-            # Test that the spot is not returned if we search for open_at == spot_close
+            # Test that the spot is not returned if we search
+            # for open_at == spot_close
             query = "%s,%s" % (query_day, spot_close)
 
-            response = c.get("/api/v1/spot", {'open_at': query})
+            response = client.get("/api/v1/spot", {'open_at': query})
             spots = json.loads(response.content)
 
             spot_returned = False
@@ -96,4 +107,5 @@ class SpotHoursOpenAtTest(TestCase):
                 if s['id'] == spot.pk:
                     spot_returned = True
 
-            self.assertTrue(not spot_returned, "The spot that closes at search time is not returned.")
+            self.assertTrue(not spot_returned,
+                "The spot that closes at search time is not returned.")

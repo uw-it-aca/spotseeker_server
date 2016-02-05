@@ -26,12 +26,14 @@ from spotseeker_server import models
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
+                   SPOTSEEKER_SPOT_FORM=
+                   'spotseeker_server.default_forms.spot.DefaultSpotForm')
 @override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class SpotHoursPUTTest(TestCase):
 
     def test_hours(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             spot = Spot.objects.create(name="This spot has available hours")
             etag = spot.etag
@@ -54,10 +56,14 @@ class SpotHoursPUTTest(TestCase):
                 }
             }
 
-            c = Client()
+            client = Client()
             url = "/api/v1/spot/%s" % spot.pk
-            response = c.put(url, json.dumps(put_obj), content_type="application/json", If_Match=etag)
+            response = client.put(url, json.dumps(put_obj),
+                content_type="application/json",
+                If_Match=etag)
             spot_dict = json.loads(response.content)
 
             self.maxDiff = None
-            self.assertEquals(spot_dict["available_hours"], put_obj["available_hours"], "Data from the web service matches the data for the spot")
+            self.assertEquals(spot_dict["available_hours"],
+                put_obj["available_hours"],
+                "Data from the web service matches the data for the spot")

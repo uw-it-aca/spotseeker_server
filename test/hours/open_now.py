@@ -21,6 +21,7 @@ from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 from datetime import datetime
 import datetime as alternate_date
+import mock
 
 from time import *
 from django.test.utils import override_settings
@@ -60,7 +61,7 @@ class SpotHoursOpenNowTest(TestCase):
             # Testing to make sure too small of a radius returns nothing
             c = Client()
             response = c.get("/api/v1/spot", {'open_now': True})
-            self.assertEquals(response.status_code, 200, "Accepts a query for open now")
+            self.assertEquals(response.status_code, 200)
             spots = json.loads(response.content)
 
             has_open_spot = False
@@ -80,3 +81,61 @@ class SpotHoursOpenNowTest(TestCase):
             self.assertEquals(has_closed_spot, False, "Doesn't find the closed spot")
             self.assertEquals(has_no_hours_spot, False, "Doesn't find the spot with no hours")
             self.assertEquals(has_open_spot, True, "Finds the open spot")
+
+    @mock.patch('spotseeker_server.views.search.SearchView.get_datetime')
+    def test_thirty_sec_before_midnight(self, datetime_mock):
+        """ Tests when the user makes a request between 23:59 and 00:00.
+        """
+        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            open_spot = Spot.objects.create(name="Spot open overnight")
+            open_hours = SpotAvailableHours.objects.create(spot=open_spot, day='m', start_time=datetime(12, 03, 12, 18, 00, 00).time(), end_time=datetime(12, 03, 12, 23, 59, 00).time())
+            open_hours = SpotAvailableHours.objects.create(spot=open_spot, day='t', start_time=datetime(12, 03, 12, 00, 00, 00).time(), end_time=datetime(12, 03, 12, 06, 00, 00).time())
+            early_open_spot = Spot.objects.create(name="Spot open at midnight")
+            open_hours = SpotAvailableHours.objects.create(spot=early_open_spot, day='t', start_time=datetime(12, 03, 12, 00, 00, 00).time(), end_time=datetime(12, 03, 12, 18, 00, 00).time())
+
+            # Mock the call to now() so that the time returned
+            # is 23:59:30
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 59, 30).time())
+
+            c = Client()
+            response = c.get("/api/v1/spot", {'open_now': True})
+            self.assertEqual(response.status_code, 200)
+
+            spots = json.loads(response.content)
+            self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)
+
+            # mock the call to now() so that the time reutrned
+            # is 23:59:00
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 59, 00).time())
+            response = c.get("/api/v1/spot", {'open_now': True})
+            self.assertEqual(response.status_code, 200)
+
+            spots = json.loads(response.content)
+            self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)
+
+            # mock the call to now() so that the time reutrned
+            # is 23:58:30
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 58, 30).time())
+            response = c.get("/api/v1/spot", {'open_now': True})
+            self.assertEqual(response.status_code, 200)
+
+            spots = json.loads(response.content)
+            self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)
+
+            # mock the call to now() so that the time reutrned
+            # is 23:58:00
+            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 58, 00).time())
+            response = c.get("/api/v1/spot", {'open_now': True})
+            self.assertEqual(response.status_code, 200)
+
+            spots = json.loads(response.content)
+            self.assertTrue(open_spot.json_data_structure() in spots)
+            # confirm spots openning at midnight are not returned
+            self.assertTrue(early_open_spot.json_data_structure() not in spots)

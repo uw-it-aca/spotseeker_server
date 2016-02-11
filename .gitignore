@@ -1,4 +1,5 @@
 # compiled files, swap files, system files, etc.
+*.egg-info/
 *.pyc
 *.swp
 .DS_Store

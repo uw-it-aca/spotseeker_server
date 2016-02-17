@@ -1,2 +1,2 @@
--r base-requirements.txt
 mysql-python
+-r ../requirements.txt

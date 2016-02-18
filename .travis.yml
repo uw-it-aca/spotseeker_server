@@ -7,7 +7,7 @@ install:
     - pip install .
 # before
 before_script:
-    - cp travis_ci/manage.py manage.py
+    - cp ./travis_ci/manage.py ./manage.py
     - python manage.py syncdb --noinput
 # command to run tests
 script:

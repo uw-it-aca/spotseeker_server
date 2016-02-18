@@ -5,6 +5,10 @@ python:
 # command to install dependencies
 install:
     - pip install .
-    - pip install -r requirements/requirements.txt
+# before
+before_script:
+    - cp travis_ci/manage.py manage.py
+    - python manage.py syncdb --noinput
 # command to run tests
-script: python manage.py test
+script:
+    - python manage.py test spotseeker_server

@@ -179,3 +179,9 @@ SPOTSEEKER_AUTH_ADMINS = ()
 SPOTSEEKER_SPOT_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotForm'
 SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm'
 SPOTSEEKER_SEARCH_FILTERS = ['spotseeker_server.org_filters.uw_search.Filter']
+
+# Preferred web app hostname
+SS_APP_SERVER = 'localhost'
+
+# Path used by web app to display a space
+SS_APP_SPACE_PATH = "/space/{{ spot_id }}/{{ spot_name }}"

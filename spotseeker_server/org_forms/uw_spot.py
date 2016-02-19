@@ -56,7 +56,8 @@ def uw_validate(value, choices):
         except:
             raise forms.ValidationError("Value must be an int")
     elif not value in choices:
-        raise forms.ValidationError("Value must be one of: {0}".format('; '.join(choices)))
+        raise forms.ValidationError(
+            "Value must be one of: {0}".format('; '.join(choices)))
 
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):

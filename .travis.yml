@@ -14,7 +14,7 @@ before_script:
     - python manage.py migrate
 # command to run tests
 script:
-    - pep9 spotseeker_server/ --exclude=migrations
+    - pep8 spotseeker_server/ --exclude=migrations
     - coverage run --source=spotseeker_server/ --omit=spotseeker_server/migrations/* manage.py test spotseeker_server
 after_script:
     - coveralls

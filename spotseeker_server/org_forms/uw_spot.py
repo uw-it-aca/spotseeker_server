@@ -20,7 +20,8 @@
 
 from django import forms
 from django.dispatch import receiver
-from spotseeker_server.default_forms.spot import DefaultSpotForm, DefaultSpotExtendedInfoForm
+from spotseeker_server.default_forms.spot import DefaultSpotForm
+from spotseeker_server.default_forms.spot import DefaultSpotExtendedInfoForm
 from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.dispatch import spot_post_build
 import simplejson as json
@@ -48,19 +49,21 @@ validated_ei = {
 
 
 def uw_validate(value, choices):
-    """ Check to see if the value is one of the choices or if it is an int, else it throws a validation error
+    """ Check to see if the value is one of the choices or if it is an int,
+        else it throws a validation error
     """
     if choices == "int":
         try:
             int(value)
         except:
             raise forms.ValidationError("Value must be an int")
-    elif not value in choices:
+    elif value not in choices:
         raise forms.ValidationError(
             "Value must be one of: {0}".format('; '.join(choices)))
 
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
+
     def clean(self):
         cleaned_data = super(UWSpotExtendedInfoForm, self).clean()
 

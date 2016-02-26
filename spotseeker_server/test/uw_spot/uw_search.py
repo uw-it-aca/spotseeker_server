@@ -58,10 +58,12 @@ class UWSearchTest(TestCase):
         self.assertTrue(self.spot2.json_data_structure() in spots)
         self.assertTrue(self.spot3.json_data_structure() not in spots)
 
-    @skipUnless(getattr(settings, 'SPOTSEEKER_SEARCH_FILTERS', False) and
-                settings.SPOTSEEKER_SEARCH_FILTERS == [
-        'spotseeker_server.org_filters.uw_search.Filter'],
-        "Skip unless the right search filter is defined in settings")
+    @skipUnless(
+        getattr(settings, 'SPOTSEEKER_SEARCH_FILTERS', False) and
+        settings.SPOTSEEKER_SEARCH_FILTERS ==
+        ['spotseeker_server.org_filters.uw_search.Filter'],
+        "Skip unless the right search filter is defined in settings"
+    )
     def test_no_app_type(self):
         """ Tests searching with no app_type query param.
         """

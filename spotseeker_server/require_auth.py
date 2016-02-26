@@ -47,11 +47,15 @@ def app_auth_required(func):
             try:
                 method = getattr(mod, "authenticate_application")
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_application" method.' % module)
+                raise ImproperlyConfigured('Module "%s" does not define '
+                                           'a "authenticate_application" '
+                                           'method.' % module)
 
             bad_response = method(*args, **kwargs)
         else:
-            bad_response = spotseeker_server.auth.all_ok.authenticate_application(*args, **kwargs)
+            bad_response = \
+                spotseeker_server.auth.all_ok.authenticate_application(
+                    *args, **kwargs)
 
         if bad_response:
             return bad_response
@@ -74,17 +78,21 @@ def user_auth_required(func):
             try:
                 method = getattr(mod, "authenticate_user")
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "authenticate_user" method.' % module)
+                raise ImproperlyConfigured('Module "%s" does not define '
+                                           'a "authenticate_user" method.' %
+                                           module)
 
             bad_response = method(*args, **kwargs)
         else:
-            bad_response = spotseeker_server.auth.all_ok.authenticate_user(*args, **kwargs)
+            bad_response = spotseeker_server.auth.all_ok.authenticate_user(
+                *args, **kwargs)
 
         if bad_response:
             return bad_response
         else:
             return func(*args, **kwargs)
     return wraps(func)(_checkAuth)
+
 
 def admin_auth_required(func):
 
@@ -111,5 +119,3 @@ def admin_auth_required(func):
 
         return func(*args, **kwargs)
     return wraps(func)(_checkAuth)
-
-

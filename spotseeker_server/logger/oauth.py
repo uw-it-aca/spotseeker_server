@@ -13,10 +13,12 @@
     limitations under the License.
 
 
-This creates a log along the lines of the apache common log format, but with
-info about the OAuth apps.  This is the format:
+    This creates a log along the lines of the apache
+    common log format, but with info about the OAuth apps.
+    This is the format:
 
-[timestamp] app_pk\t"app_name"\tuser_name\t"METHOD URI" response_status response_size
+    [timestamp] app_pk\t"app_name"\tuser_name\t"METHOD URI"
+    response_status response_size
 """
 
 from datetime import datetime
@@ -33,8 +35,9 @@ class LogMiddleware:
 
         response_status = response.status_code
 
-        # response.content will empty out the FileWrapper object on file downloads -
-        # those views need to correctly set their own content length
+        # response.content will empty out the FileWrapper object
+        # on file downloads - those views need to correctly set
+        # their own content length
         if 'Content-Length' in response:
             response_length = response["Content-Length"]
         else:
@@ -53,7 +56,10 @@ class LogMiddleware:
 
         timestamp = datetime.now().strftime("%d/%b/%Y %H:%M:%S")
 
-        log_message = "[{0}] {1}\t\"{2}\"\t{3}\t\"{4} {5}\" {6} {7}".format(timestamp, oauth_app_pk, oauth_app_name, oauth_user, request_method, request_uri, response_status, response_length)
+        log_message = "[{0}] {1}\t\"{2}\"\t{3}\t\"{4} {5}\" "\
+            "{6} {7}".format(timestamp, oauth_app_pk, oauth_app_name,
+                             oauth_user, request_method, request_uri,
+                             response_status, response_length)
 
         self.logger.info(log_message)
 

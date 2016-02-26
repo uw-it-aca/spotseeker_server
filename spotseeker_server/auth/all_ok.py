@@ -27,6 +27,7 @@ SPOTSEEKER_AUTH_ALL_USER = 'other_user'
 from django.conf import settings
 from django.contrib.auth.models import User
 
+
 def authenticate_application(*args, **kwargs):
     """ This always allows requests through """
     return

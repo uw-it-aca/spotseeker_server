@@ -26,25 +26,28 @@ from PIL import Image
 
 
 class AddImageView(RESTDispatch):
-    """ Saves a SpotImage for a particular Spot on POST to /api/v1/spot/<spot id>/image.
+    """ Saves a SpotImage for a particular Spot on POST to
+        /api/v1/spot/<spot id>/image.
     """
     @user_auth_required
     @admin_auth_required
     def POST(self, request, spot_id):
         spot = Spot.objects.get(pk=spot_id)
 
-        if not "image" in request.FILES:
+        if "image" not in request.FILES:
             raise RESTException("No image", 400)
 
         args = {}
-        args['upload_application'] = request.META.get('SS_OAUTH_CONSUMER_NAME', '')
+        args['upload_application'] = \
+            request.META.get('SS_OAUTH_CONSUMER_NAME', '')
         args['upload_user'] = request.META.get('SS_OAUTH_USER', '')
         args['description'] = request.POST.get('description', '')
 
         args['display_index'] = request.POST.get('display_index')
         if args['display_index'] is None:
-            #TODO: is there a better way?
-            # get display_indexes for all of the existing images and set the new one to the biggest + 1
+            # TODO: is there a better way?
+            # get display_indexes for all of the existing images
+            # and set the new one to the biggest + 1
             indexes = []
             for img in spot.spotimage_set.all():
                 indexes.append(img.display_index)

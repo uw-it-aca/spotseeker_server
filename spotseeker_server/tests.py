@@ -32,14 +32,17 @@ from spotseeker_server.test.images.put import SpotImagePUTTest
 from spotseeker_server.test.images.delete import SpotImageDELETETest
 from spotseeker_server.test.images.thumb import ImageThumbTest
 from spotseeker_server.test.images.spot_info import SpotResourceImageTest
-from spotseeker_server.test.images.oauth_spot_info import SpotResourceOAuthImageTest
+from spotseeker_server.test.images.oauth_spot_info import \
+    SpotResourceOAuthImageTest
 from spotseeker_server.test.search.buildings import BuildingSearchTest
 from spotseeker_server.test.search.capacity import SpotSearchCapacityTest
 from spotseeker_server.test.search.limit import SpotSearchLimitTest
 from spotseeker_server.test.search.distance import SpotSearchDistanceTest
 from spotseeker_server.test.search.fields import SpotSearchFieldTest
-from spotseeker_server.test.search.distance_fields import SpotSearchDistanceFieldTest
-from spotseeker_server.test.search.view_methods import SpotSearchViewMethodsTest
+from spotseeker_server.test.search.distance_fields import \
+    SpotSearchDistanceFieldTest
+from spotseeker_server.test.search.view_methods import \
+    SpotSearchViewMethodsTest
 from spotseeker_server.test.search.time import SpotSearchTimeTest
 from spotseeker_server.test.hours.model import SpotHoursModelTest
 from spotseeker_server.test.hours.get import SpotHoursGETTest
@@ -49,8 +52,10 @@ from spotseeker_server.test.hours.open_now import SpotHoursOpenNowTest
 from spotseeker_server.test.hours.open_at import SpotHoursOpenAtTest
 from spotseeker_server.test.hours.open_until import SpotHoursOpenUntilTest
 from spotseeker_server.test.hours.hours_range import HoursRangeTest
-from spotseeker_server.test.hours.open_now_location import SpotHoursOpenNowLocationTest
-from spotseeker_server.test.hours.open_now_location_attributes import SpotHoursOpenNowLocationAttributesTest
+from spotseeker_server.test.hours.open_now_location import \
+    SpotHoursOpenNowLocationTest
+from spotseeker_server.test.hours.open_now_location_attributes import \
+    SpotHoursOpenNowLocationAttributesTest
 from spotseeker_server.test.hours.overlap import SpotHoursOverlapTest
 from spotseeker_server.test.hours.modify import SpotHoursModifyTest
 from spotseeker_server.test.auth.all_ok import SpotAuthAllOK

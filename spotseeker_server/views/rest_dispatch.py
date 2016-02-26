@@ -67,7 +67,8 @@ class RESTFormInvalidError(RESTException):
 
 
 class RESTDispatch:
-    """ Handles passing on the request to the correct view method based on the request type.
+    """ Handles passing on the request to the correct view
+        method based on the request type.
     """
 
     def run(self, *args, **named_args):
@@ -118,8 +119,8 @@ class RESTDispatch:
         return json_values
 
     def validate_etag(self, request, obj):
-        if not "HTTP_IF_MATCH" in request.META:
-            if not "If_Match" in request.META:
+        if "HTTP_IF_MATCH" not in request.META:
+            if "If_Match" not in request.META:
                 raise RESTException("If-Match header required", 400)
             else:
                 request.META["HTTP_IF_MATCH"] = request.META["If_Match"]
@@ -128,7 +129,7 @@ class RESTDispatch:
             raise RESTException("Invalid ETag", 409)
 
     def _get_user(self, request):
-        if not 'SS_OAUTH_USER' in request.META:
+        if 'SS_OAUTH_USER' not in request.META:
             print request.META
             raise Exception("missing oauth user - improper auth backend?")
         username = request.META['SS_OAUTH_USER']

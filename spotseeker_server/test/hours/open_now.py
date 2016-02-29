@@ -45,7 +45,7 @@ class SpotHoursOpenNowTest(TestCase):
             closed_spot = Spot.objects.create(
                 name="This spot has hours, but is closed")
 
-            #Setting now to be Wednesday 9:00:00
+            # Setting now to be Wednesday 9:00:00
             now = datetime(16, 2, 3, 9, 0, 0).time()
 
             open_start = alternate_date.time(now.hour - 1, now.minute)
@@ -57,11 +57,13 @@ class SpotHoursOpenNowTest(TestCase):
             day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
             today = day_lookup[3]
 
-            open_hours = SpotAvailableHours.objects.create(spot=open_spot,
+            open_hours = SpotAvailableHours.objects.create(
+                spot=open_spot,
                 day=today,
                 start_time=open_start,
                 end_time=open_end)
-            closed_hours = SpotAvailableHours.objects.create(spot=closed_spot,
+            closed_hours = SpotAvailableHours.objects.create(
+                spot=closed_spot,
                 day=today,
                 start_time=closed_start,
                 end_time=closed_end)
@@ -69,7 +71,7 @@ class SpotHoursOpenNowTest(TestCase):
             # Mock the call to now() so that the time returned
             # is always 9:00:00
             datetime_mock.return_value = ('w',
-                datetime(16, 2, 3, 9, 0, 0).time())
+                                          datetime(16, 2, 3, 9, 0, 0).time())
 
             # Testing to make sure too small of a radius returns nothing
             client = Client()
@@ -91,27 +93,44 @@ class SpotHoursOpenNowTest(TestCase):
                 if spot['id'] == no_hours_spot.pk:
                     has_no_hours_spot = True
 
-            self.assertEquals(has_closed_spot, False,
-                "Doesn't find the closed spot")
-            self.assertEquals(has_no_hours_spot, False,
-                "Doesn't find the spot with no hours")
+            self.assertEquals(has_closed_spot,
+                              False,
+                              "Doesn't find the closed spot")
+            self.assertEquals(has_no_hours_spot,
+                              False,
+                              "Doesn't find the spot with no hours")
             self.assertEquals(has_open_spot, True, "Finds the open spot")
 
     @mock.patch('spotseeker_server.views.search.SearchView.get_datetime')
     def test_thirty_sec_before_midnight(self, datetime_mock):
         """ Tests when the user makes a request between 23:59 and 00:00.
         """
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             open_spot = Spot.objects.create(name="Spot open overnight")
-            open_hours = SpotAvailableHours.objects.create(spot=open_spot, day='m', start_time=datetime(12, 03, 12, 18, 00, 00).time(), end_time=datetime(12, 03, 12, 23, 59, 00).time())
-            open_hours = SpotAvailableHours.objects.create(spot=open_spot, day='t', start_time=datetime(12, 03, 12, 00, 00, 00).time(), end_time=datetime(12, 03, 12, 06, 00, 00).time())
+            open_hours = SpotAvailableHours.objects.create(
+                spot=open_spot,
+                day='m',
+                start_time=datetime(12, 03, 12, 18, 00, 00).time(),
+                end_time=datetime(12, 03, 12, 23, 59, 00).time())
+            open_hours = SpotAvailableHours.objects.create(
+                spot=open_spot,
+                day='t',
+                start_time=datetime(12, 03, 12, 00, 00, 00).time(),
+                end_time=datetime(12, 03, 12, 06, 00, 00).time())
             early_open_spot = Spot.objects.create(name="Spot open at midnight")
-            open_hours = SpotAvailableHours.objects.create(spot=early_open_spot, day='t', start_time=datetime(12, 03, 12, 00, 00, 00).time(), end_time=datetime(12, 03, 12, 18, 00, 00).time())
+            open_hours = SpotAvailableHours.objects.create(
+                spot=early_open_spot,
+                day='t',
+                start_time=datetime(12, 03, 12, 00, 00, 00).time(),
+                end_time=datetime(12, 03, 12, 18, 00, 00).time())
 
             # Mock the call to now() so that the time returned
             # is 23:59:30
-            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 59, 30).time())
+            datetime_mock.return_value = (
+                'm',
+                datetime(12, 03, 12, 23, 59, 30).time())
 
             c = Client()
             response = c.get("/api/v1/spot", {'open_now': True})
@@ -124,7 +143,9 @@ class SpotHoursOpenNowTest(TestCase):
 
             # mock the call to now() so that the time reutrned
             # is 23:59:00
-            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 59, 00).time())
+            datetime_mock.return_value = (
+                'm',
+                datetime(12, 03, 12, 23, 59, 00).time())
             response = c.get("/api/v1/spot", {'open_now': True})
             self.assertEqual(response.status_code, 200)
 
@@ -135,7 +156,9 @@ class SpotHoursOpenNowTest(TestCase):
 
             # mock the call to now() so that the time reutrned
             # is 23:58:30
-            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 58, 30).time())
+            datetime_mock.return_value = (
+                'm',
+                datetime(12, 03, 12, 23, 58, 30).time())
             response = c.get("/api/v1/spot", {'open_now': True})
             self.assertEqual(response.status_code, 200)
 
@@ -146,7 +169,9 @@ class SpotHoursOpenNowTest(TestCase):
 
             # mock the call to now() so that the time reutrned
             # is 23:58:00
-            datetime_mock.return_value = ('m', datetime(12, 03, 12, 23, 58, 00).time())
+            datetime_mock.return_value = (
+                'm',
+                datetime(12, 03, 12, 23, 58, 00).time())
             response = c.get("/api/v1/spot", {'open_now': True})
             self.assertEqual(response.status_code, 200)
 

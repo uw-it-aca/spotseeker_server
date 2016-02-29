@@ -26,10 +26,11 @@ from django.core import mail
 import json
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm',
-                   EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',)
-
+@override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
+    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
+                         'DefaultSpotForm',
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',)
 class ShareSpaceTest(TestCase):
 
     def test_basic_oks(self):
@@ -47,14 +48,17 @@ class ShareSpaceTest(TestCase):
             "from": "vegitron@gmail.com",
         }
 
-        response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
+        response = c.put(url,
+                         json.dumps(json_data),
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="share_test0")
 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "true", "yup, sent")
 
-
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "true", "yup, sent")
-
-        self.assertEquals(mail.outbox[0].to[0], 'vegitron@gmail.com', 'right to')
+        self.assertEqual(mail.outbox[0].to[0],
+                         'vegitron@gmail.com',
+                         'right to')
         mail.outbox = []
 
     def test_missing_email(self):
@@ -67,9 +71,12 @@ class ShareSpaceTest(TestCase):
             "comment": "This is a sweet space",
         }
 
-        response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
+        response = c.put(url,
+                         json.dumps(json_data),
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="share_test0")
 
-        self.assertEquals(response.status_code, 400, "400 w/ bad data")
+        self.assertEqual(response.status_code, 400, "400 w/ bad data")
 
     def test_invalid_email(self):
         spot = Spot.objects.create(name="This is for testing Sharing 2")
@@ -82,9 +89,12 @@ class ShareSpaceTest(TestCase):
             "comment": "This is a sweet space",
         }
 
-        response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
+        response = c.put(url,
+                         json.dumps(json_data),
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="share_test0")
 
-        self.assertEquals(response.status_code, 400, "400 w/ bad data")
+        self.assertEqual(response.status_code, 400, "400 w/ bad data")
 
     def test_missing_comment(self):
         spot = Spot.objects.create(name="This is for testing Sharing 2")
@@ -97,8 +107,9 @@ class ShareSpaceTest(TestCase):
             "from": "vegitron@gmail.com",
         }
 
-        response = c.put(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="share_test0")
+        response = c.put(url,
+                         json.dumps(json_data),
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="share_test0")
 
-        self.assertEquals(response.status_code, 200)
-
-
+        self.assertEqual(response.status_code, 200)

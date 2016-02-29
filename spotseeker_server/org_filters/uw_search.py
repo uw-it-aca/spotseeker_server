@@ -20,6 +20,7 @@
 """
 from spotseeker_server.org_filters import SearchFilter
 
+
 class Filter(SearchFilter):
     keys = set((
         'extended_info:reservable',
@@ -41,7 +42,8 @@ class Filter(SearchFilter):
                     )
 
         if 'extended_info:noise_level' in self.request.GET:
-            noise_levels = self.request.GET.getlist("extended_info:noise_level")
+            noise_levels = \
+                self.request.GET.getlist("extended_info:noise_level")
 
             exclude_silent = True
             exclude_quiet = True

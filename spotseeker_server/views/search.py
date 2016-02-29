@@ -21,7 +21,8 @@
         support (hooks).
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, JSONResponse
+from spotseeker_server.views.rest_dispatch import \
+    RESTDispatch, RESTException, JSONResponse
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
 from spotseeker_server.org_filters import SearchFilterChain
@@ -37,7 +38,8 @@ import sys
 
 
 class SearchView(RESTDispatch):
-    """ Handles searching for Spots with particular attributes based on a query string.
+    """ Handles searching for Spots with particular attributes
+        based on a query string.
     """
     @user_auth_required
     @admin_auth_required
@@ -137,42 +139,71 @@ class SearchView(RESTDispatch):
             elif key == "open_now":
                 if get_request["open_now"]:
                     today, now = self.get_datetime()
-                    # Check to see if the request was made in minute gap before midnight
-                    # during which no space is open, based on the server.
-                    before_midnight = now.replace(hour=23, minute=58, second=59, microsecond=999999)
-                    right_before_midnight = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+                    # Check to see if the request was made in minute
+                    # gap before midnight during which no space is open,
+                    # based on the server.
+                    before_midnight = now.replace(hour=23,
+                                                  minute=58,
+                                                  second=59,
+                                                  microsecond=999999)
+                    right_before_midnight = now.replace(hour=23,
+                                                        minute=59,
+                                                        second=59,
+                                                        microsecond=999999)
                     if before_midnight < now and now < right_before_midnight:
-                        # Makes it so that all spaces that are open until midnight
-                        # or overnight will be returned.
-                        now = now.replace(hour=23, minute=58, second=0, microsecond=0)
-                    query = query.filter(spotavailablehours__day__iexact=today,
-                                         spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)
+                        # Makes it so that all spaces that are open
+                        # until midnight or overnight will be returned.
+                        now = now.replace(hour=23,
+                                          minute=58,
+                                          second=0,
+                                          microsecond=0)
+                    query = \
+                        query.filter(
+                            spotavailablehours__day__iexact=today,
+                            spotavailablehours__start_time__lt=now,
+                            spotavailablehours__end_time__gt=now)
                     has_valid_search_param = True
             elif key == "open_until":
                 if get_request["open_until"] and get_request["open_at"]:
-                    until_day, until_time = get_request[
-                        "open_until"].split(',')
-                    at_day, at_time = get_request["open_at"].split(',')
+                    until_day, until_t = \
+                        get_request["open_until"].split(',')
+                    at_day, at_t = get_request["open_at"].split(',')
                     until_day = day_dict[until_day]
                     at_day = day_dict[at_day]
 
                     if until_day == at_day:
-                        if strptime(until_time, "%H:%M") >= strptime(at_time, "%H:%M"):
-                            query = query.filter(spotavailablehours__day__iexact=until_day,
-                                                 spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte=until_time)
+                        if (strptime(until_t, "%H:%M") >=
+                                strptime(at_t, "%H:%M")):
+                            query = \
+                                query.filter(
+                                    spotavailablehours__day__iexact=until_day,
+                                    spotavailablehours__start_time__lte=at_t,
+                                    spotavailablehours__end_time__gte=until_t)
                         else:
                             days_to_test = ["su", "m",
                                             "t", "w", "th", "f", "sa"]
                             days_to_test.remove(at_day)
 
-                            query = query.filter(spotavailablehours__day__iexact=at_day,
-                                                 spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte="23:59")
-                            query = query.filter(spotavailablehours__day__iexact=until_day,
-                                                 spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte=until_time)
+                            query = \
+                                query.filter(
+                                    spotavailablehours__day__iexact=at_day,
+                                    spotavailablehours__start_time__lte=at_t,
+                                    spotavailablehours__end_time__gte="23:59")
+                            t1 = "00:00"
+                            query = \
+                                query.filter(
+                                    spotavailablehours__day__iexact=until_day,
+                                    spotavailablehours__start_time__lte=t1,
+                                    spotavailablehours__end_time__gte=until_t)
 
                             for day in days_to_test:
-                                query = query.filter(
-                                    spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte="23:59")
+                                t1 = "00:00"
+                                t2 = "23:59"
+                                query = \
+                                    query.filter(
+                                        spotavailablehours__day__iexact=day,
+                                        spotavailablehours__start_time__lte=t1,
+                                        spotavailablehours__end_time__gte=t2)
                     else:
                         days_to_test = self.get_days_in_range(
                             at_day, until_day)
@@ -180,14 +211,24 @@ class SearchView(RESTDispatch):
                         days_to_test.reverse()
                         first_day = days_to_test.pop()
 
-                        query = query.filter(spotavailablehours__day__iexact=first_day,
-                                             spotavailablehours__start_time__lte=at_time, spotavailablehours__end_time__gte="23:59")
-                        query = query.filter(spotavailablehours__day__iexact=last_day,
-                                             spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte=until_time)
+                        query = \
+                            query.filter(
+                                spotavailablehours__day__iexact=first_day,
+                                spotavailablehours__start_time__lte=at_t,
+                                spotavailablehours__end_time__gte="23:59")
+                        query = \
+                            query.filter(
+                                spotavailablehours__day__iexact=last_day,
+                                spotavailablehours__start_time__lte="00:00",
+                                spotavailablehours__end_time__gte=until_t)
 
                         for day in days_to_test:
-                            query = query.filter(
-                                spotavailablehours__day__iexact=day, spotavailablehours__start_time__lte="00:00", spotavailablehours__end_time__gte="23:59")
+                            early = "00:00"
+                            query = \
+                                query.filter(
+                                    spotavailablehours__day__iexact=day,
+                                    spotavailablehours__start_time__lte=early,
+                                    spotavailablehours__end_time__gte="23:59")
                     has_valid_search_param = True
             elif key == "open_at":
                 if get_request["open_at"]:
@@ -196,19 +237,24 @@ class SearchView(RESTDispatch):
                     except:
                         day, time = get_request['open_at'].split(',')
                         day = day_dict[day]
-                        query = query.filter(spotavailablehours__day__iexact=day,
-                                             spotavailablehours__start_time__lte=time, spotavailablehours__end_time__gt=time)
+                        query = \
+                            query.filter(
+                                spotavailablehours__day__iexact=day,
+                                spotavailablehours__start_time__lte=time,
+                                spotavailablehours__end_time__gt=time)
                         has_valid_search_param = True
             elif key == "fuzzy_hours_end":
                 # fuzzy search requires a start and end
-                if not "fuzzy_hours_start" in get_request.keys():
-                    raise RESTException(
-                        "fuzzy_hours_end requires fuzzy_hours_start to be specified", 400)
+                if "fuzzy_hours_start" not in get_request.keys():
+                    raise RESTException("fuzzy_hours_end requires "
+                                        "fuzzy_hours_start to be specified",
+                                        400)
             elif key == "fuzzy_hours_start":
                 # fuzzy search requires a start and end
-                if not "fuzzy_hours_end" in get_request.keys():
-                    raise RESTException(
-                        "fuzzy_hours_start requires fuzzy_hours_end to be specified", 400)
+                if "fuzzy_hours_end" not in get_request.keys():
+                    raise RESTException("fuzzy_hours_start requires "
+                                        "fuzzy_hours_end to be specified",
+                                        400)
 
                 start_day, start_time = get_request[
                     'fuzzy_hours_start'].split(',')
@@ -216,12 +262,18 @@ class SearchView(RESTDispatch):
                 start_day = day_dict[start_day]
                 end_day = day_dict[end_day]
 
-                start_range_query = Q(spotavailablehours__day__iexact=start_day,
-                                      spotavailablehours__start_time__gt=start_time, spotavailablehours__start_time__lt=end_time)
-                end_range_query = Q(spotavailablehours__day__iexact=end_day,
-                                    spotavailablehours__end_time__gt=start_time, spotavailablehours__end_time__lt=end_time)
-                span_range_query = Q(spotavailablehours__day__iexact=end_day,
-                                     spotavailablehours__start_time__lt=start_time, spotavailablehours__end_time__gt=end_time)
+                start_range_query = \
+                    Q(spotavailablehours__day__iexact=start_day,
+                      spotavailablehours__start_time__gt=start_time,
+                      spotavailablehours__start_time__lt=end_time)
+                end_range_query = \
+                    Q(spotavailablehours__day__iexact=end_day,
+                      spotavailablehours__end_time__gt=start_time,
+                      spotavailablehours__end_time__lt=end_time)
+                span_range_query = \
+                    Q(spotavailablehours__day__iexact=end_day,
+                      spotavailablehours__start_time__lt=start_time,
+                      spotavailablehours__end_time__gt=end_time)
                 range_query = (start_range_query |
                                end_range_query | span_range_query)
                 query = query.filter(range_query)
@@ -257,7 +309,8 @@ class SearchView(RESTDispatch):
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
             elif key.startswith('extended_info:or'):
-                or_qs.append(Q(spotextendedinfo__key=key[17:], spotextendedinfo__value='true'))
+                or_qs.append(Q(spotextendedinfo__key=key[17:],
+                               spotextendedinfo__value='true'))
                 for or_q in or_qs:
                     or_q_obj |= or_q
                 # The query gets filtered for ORs after the if/else switch.
@@ -299,15 +352,23 @@ class SearchView(RESTDispatch):
             else:
                 limit = int(get_request['limit'])
 
-        if 'distance' in get_request and 'center_longitude' in get_request and 'center_latitude' in get_request:
+        if ('distance' in get_request and
+                'center_longitude' in get_request and
+                'center_latitude' in get_request):
             try:
                 g = Geod(ellps='clrk66')
-                top = g.fwd(get_request['center_longitude'], get_request[
-                            'center_latitude'], 0, get_request['distance'])
-                right = g.fwd(get_request['center_longitude'], get_request[
-                              'center_latitude'], 90, get_request['distance'])
-                bottom = g.fwd(get_request['center_longitude'], get_request[
-                               'center_latitude'], 180, get_request['distance'])
+                top = g.fwd(get_request['center_longitude'],
+                            get_request['center_latitude'],
+                            0,
+                            get_request['distance'])
+                right = g.fwd(get_request['center_longitude'],
+                              get_request['center_latitude'],
+                              90,
+                              get_request['distance'])
+                bottom = g.fwd(get_request['center_longitude'],
+                               get_request['center_latitude'],
+                               180,
+                               get_request['distance'])
                 left = g.fwd(get_request['center_longitude'], get_request[
                              'center_latitude'], 270, get_request['distance'])
 
@@ -325,7 +386,8 @@ class SearchView(RESTDispatch):
                 distance_query = distance_query.filter(latitude__lte=top_limit)
                 has_valid_search_param = True
 
-                if len(distance_query) > 0 or 'expand_radius' not in get_request:
+                if (len(distance_query) > 0 or
+                        'expand_radius' not in get_request):
                     query = distance_query
                 else:
                     # If we're querying everything, let's make sure we only
@@ -334,9 +396,13 @@ class SearchView(RESTDispatch):
             except Exception as e:
                 if not request_meta['SERVER_NAME'] == 'testserver':
                     print >> sys.stderr, "E: ", e
-                #query = Spot.objects.all()
-        elif 'distance' in get_request or 'center_longitude' in get_request or 'center_latitude' in get_request:
-            if 'distance' not in get_request or 'center_longitude' not in get_request or 'center_latitude' not in get_request:
+                # query = Spot.objects.all()
+        elif ('distance' in get_request or
+                'center_longitude' in get_request or
+                'center_latitude' in get_request):
+            if ('distance' not in get_request or
+                    'center_longitude' not in get_request or
+                    'center_latitude' not in get_request):
                 # If distance, lat, or long are specified in the server
                 # request; all 3 must be present.
                 raise RESTException(
@@ -352,8 +418,17 @@ class SearchView(RESTDispatch):
         if limit > 0 and limit < len(query) and api == 'spot':
             sorted_list = list(query)
             try:
-                sorted_list.sort(lambda x, y: cmp(self.distance(x, get_request['center_longitude'], get_request[
-                                 'center_latitude']), self.distance(y, get_request['center_longitude'], get_request['center_latitude'])))
+                sorted_list.sort(lambda x, y:
+                                 cmp(self.distance(x,
+                                                   get_request[
+                                                       'center_longitude'],
+                                                   get_request[
+                                                       'center_latitude']),
+                                     self.distance(y,
+                                                   get_request[
+                                                       'center_longitude'],
+                                                   get_request[
+                                                       'center_latitude'])))
                 query = sorted_list[:limit]
             except KeyError:
                 raise RESTException(

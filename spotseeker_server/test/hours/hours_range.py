@@ -38,15 +38,19 @@ class HoursRangeTest(TestCase):
 
         self.spot1 = models.Spot.objects.create(
             name="Spot that opens at {0}:{1} and closes at {2}:{3}".format(
-            spot_open.hour, spot_open.minute, spot_close.hour,
+                spot_open.hour,
+                spot_open.minute,
+                spot_close.hour,
                 spot_close.minute))
 
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
         self.today = day_lookup[3]
 
         models.SpotAvailableHours.objects.create(
-            spot=self.spot1, day=self.today, start_time=spot_open,
-                end_time=spot_close)
+            spot=self.spot1,
+            day=self.today,
+            start_time=spot_open,
+            end_time=spot_close)
 
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",
@@ -75,8 +79,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -101,8 +106,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -128,8 +134,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -166,8 +173,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -175,8 +183,8 @@ class HoursRangeTest(TestCase):
 
     def test_open_close_in_range(self):
         """ Tests search for a spot that opens and closes within the
-        requested hours range.
-        This should return the spot.
+            requested hours range.
+            This should return the spot.
         """
         dummy_cache = cache.get_cache(
             'django.core.cache.backends.dummy.DummyCache')
@@ -193,8 +201,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -230,8 +239,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -257,8 +267,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -322,8 +333,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
@@ -349,8 +361,9 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot", {'fuzzy_hours_start': start_query,
-                'fuzzy_hours_end': end_query})
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)

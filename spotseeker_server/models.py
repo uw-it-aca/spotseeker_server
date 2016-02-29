@@ -267,8 +267,8 @@ class SpotAvailableHours(models.Model):
         self.full_clean()
 
         if self.start_time >= self.end_time:
-            raise Exception ("Invalid time range - start time "
-                             "must be before end time")
+            raise Exception("Invalid time range - start time "
+                            "must be before end time")
         other_hours = SpotAvailableHours.objects.filter(spot=self.spot,
                                                         day=self.day).exclude(
                                                         id=self.id)

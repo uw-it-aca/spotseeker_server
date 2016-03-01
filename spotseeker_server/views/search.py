@@ -108,6 +108,11 @@ class SearchView(RESTDispatch):
                     "Thursday": "th",
                     "Friday": "f",
                     "Saturday": "sa", }
+
+        # Q objects we need to chain together for the OR queries
+        or_q_obj = Q()
+        or_qs = []
+
         # Exclude things that get special consideration here, otherwise add a
         # filter for the keys
         for key in get_request:
@@ -131,11 +136,15 @@ class SearchView(RESTDispatch):
                 pass
             elif key == "open_now":
                 if get_request["open_now"]:
-
-                    day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
-                    day_num = int(strftime("%w", localtime()))
-                    today = day_lookup[day_num]
-                    now = datetime.time(datetime.now())
+                    today, now = self.get_datetime()
+                    # Check to see if the request was made in minute gap before midnight
+                    # during which no space is open, based on the server.
+                    before_midnight = now.replace(hour=23, minute=58, second=59, microsecond=999999)
+                    right_before_midnight = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+                    if before_midnight < now and now < right_before_midnight:
+                        # Makes it so that all spaces that are open until midnight
+                        # or overnight will be returned.
+                        now = now.replace(hour=23, minute=58, second=0, microsecond=0)
                     query = query.filter(spotavailablehours__day__iexact=today,
                                          spotavailablehours__start_time__lt=now, spotavailablehours__end_time__gt=now)
                     has_valid_search_param = True
@@ -247,6 +256,12 @@ class SearchView(RESTDispatch):
                     q_obj |= type_q
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
+            elif key.startswith('extended_info:or'):
+                or_qs.append(Q(spotextendedinfo__key=key[17:], spotextendedinfo__value='true'))
+                for or_q in or_qs:
+                    or_q_obj |= or_q
+                # The query gets filtered for ORs after the if/else switch.
+                has_valid_search_param = True
             elif key.startswith('extended_info:'):
                 kwargs = {
                     'spotextendedinfo__key': key[14:],
@@ -268,6 +283,8 @@ class SearchView(RESTDispatch):
                     if not request_meta['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
 
+        # This handles all of the OR queries on extended_info we've collected.
+        query = query.filter(or_q_obj).distinct()
         # Always prefetch the related extended info
         query = query.select_related('SpotExtendedInfo')
 
@@ -346,3 +363,12 @@ class SearchView(RESTDispatch):
         spots = chain.filter_results(spots)
 
         return spots
+
+    def get_datetime(self):
+        """ Returns the datetime and the day of the week.
+        """
+        day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
+        day_num = int(strftime("%w", localtime()))
+        now = datetime.time(datetime.now())
+        today = day_lookup[day_num]
+        return today, now

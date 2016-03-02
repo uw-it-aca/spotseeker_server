@@ -406,8 +406,8 @@ class Command(BaseCommand):
             # with different name/building
             study_room_233 = Spot.objects.create(name='Study Room 233',
                                                  capacity=8,
-                                                 longitude=Decimal(
-                                                    '-122.306382'),
+                                                 longitude=
+                                                 Decimal('-122.306382'),
                                                  latitude=Decimal('47.653477'),
                                                  building_name="Library")
             study_room_233.spottypes.add(study_room_type)

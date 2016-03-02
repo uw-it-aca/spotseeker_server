@@ -47,7 +47,8 @@ class JsonCachingTest(TestCase):
         self.url1 = '/api/v1/spot/{0}'.format(self.spot1.pk)
 
     def test_get_spot(self):
-        """tests if spot jsons are cached on the server when a client requests them
+        """tests if spot jsons are cached on the server when
+            a client requests them
         """
         with patch.object(models, 'cache', self.cache):
             self.assertIsNone(self.cache.get(self.spot1.pk))
@@ -137,7 +138,8 @@ class JsonCachingTest(TestCase):
             self.assertIsNone(self.cache.get(self.spot1.pk))
 
     def test_spot_json_data_structure_cache(self):
-        """tests that the caching happens in the json_data_structure model method
+        """tests that the caching happens in the
+            json_data_structure model method
         """
         with patch.object(models, 'cache', self.cache):
             client = Client()

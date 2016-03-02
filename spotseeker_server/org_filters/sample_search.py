@@ -49,9 +49,9 @@ class Filter(SearchFilter):
                 elif sample == 'bar':
                     values.append('baz')
                 query = query.filter(
-                        spotextendedinfo__key="sample2",
-                        spotextendedinfo__value__in=values
-                        )
+                    spotextendedinfo__key="sample2",
+                    spotextendedinfo__value__in=values
+                )
 
                 self.has_valid_search_param = True
 

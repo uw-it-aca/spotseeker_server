@@ -130,7 +130,8 @@ class SpotHoursModelTest(TestCase):
                              "Doesn't allow hours to be stored without hours")
 
     def test_missingDay(self):
-        """ Tests that AvailableHours cannot be created without a day of the week.
+        """ Tests that AvailableHours cannot be \
+            created without a day of the week.
         """
         with self.settings(
                 SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):

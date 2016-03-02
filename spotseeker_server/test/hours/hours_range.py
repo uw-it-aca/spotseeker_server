@@ -25,7 +25,8 @@ import time
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class HoursRangeTest(TestCase):
-    """ Tests searches for spots that are open anywhere within a range of hours.
+    """ Tests searches for spots that are open anywhere
+        within a range of hours.
     """
 
     def setUp(self):

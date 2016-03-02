@@ -151,7 +151,7 @@ class Spot(models.Model):
                 },
                 "capacity": self.capacity,
                 "display_access_restrictions":
-                    self.display_access_restrictions,
+                self.display_access_restrictions,
                 "images": images,
                 "available_hours": available_hours,
                 "organization": self.organization,
@@ -164,10 +164,11 @@ class Spot(models.Model):
         return spot_json
 
     def update_rating(self):
-        data = SpaceReview.objects.filter(space=self, is_published=True,
-                                          is_deleted=False).aggregate(
-                                          total=Sum('rating'),
-                                          count=Count('rating'))
+        data = SpaceReview.objects.filter(
+            space=self,
+            is_published=True,
+            is_deleted=False
+        ).aggregate(total=Sum('rating'), count=Count('rating'))
         if not data['total']:
             return
 
@@ -269,9 +270,10 @@ class SpotAvailableHours(models.Model):
         if self.start_time >= self.end_time:
             raise Exception("Invalid time range - start time "
                             "must be before end time")
-        other_hours = SpotAvailableHours.objects.filter(spot=self.spot,
-                                                        day=self.day).exclude(
-                                                        id=self.id)
+        other_hours = SpotAvailableHours.objects.filter(
+            spot=self.spot,
+            day=self.day
+        ).exclude(id=self.id)
         for h in other_hours:
             if (h.start_time <= self.start_time <= h.end_time or
                     self.start_time <= h.start_time <= self.end_time):
@@ -405,10 +407,9 @@ class SpaceReview(models.Model):
                                      null=True)
     review = models.CharField(max_length=1000, default="")
     original_review = models.CharField(max_length=1000, default="")
-    rating = models.IntegerField(validators=[
-                                    MaxValueValidator(5),
-                                    MinValueValidator(1)
-                                 ])
+    rating = models.IntegerField(validators=[MaxValueValidator(5),
+                                             MinValueValidator(1)]
+                                 )
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_published = models.DateTimeField(null=True)
     is_published = models.BooleanField()

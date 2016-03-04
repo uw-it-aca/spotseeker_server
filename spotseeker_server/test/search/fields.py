@@ -352,7 +352,7 @@ class SpotSearchFieldTest(TestCase):
             c = Client()
             cafe_type = SpotType.objects.get_or_create(name='cafe_testing')[0]
             # Index 0 because get_or_create returns a Tuple of value and
-            #T/F if it was created
+            # T/F if it was created
 
             open_type = SpotType.objects.get_or_create(name='open_testing')[0]
             never_used_type = SpotType.objects.get_or_create(
@@ -466,7 +466,7 @@ class SpotSearchFieldTest(TestCase):
     # This unit test is currently invalid, as of
     # dbdb3def8046a4f52e5bb23194423e913397e92f - if we decide
     # duplicate keys should be allowed again, this may become valid.
-    #def test_duplicate_extended_info(self):
+    # def test_duplicate_extended_info(self):
     #    dummy_cache = cache.get_cache(
     #        'django.core.cache.backends.dummy.DummyCache'
     #    )

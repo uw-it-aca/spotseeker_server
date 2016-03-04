@@ -178,5 +178,5 @@ class SpotSearchCapacityTest(TestCase):
                               'distance': '100',
                               'limit': '4'}
                              )
-            #testing sorting by distance, which is impossible given no center
+            # testing sorting by distance, which is impossible given no center
             self.assertEquals(response.status_code, 400)

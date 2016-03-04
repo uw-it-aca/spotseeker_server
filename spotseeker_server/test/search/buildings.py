@@ -111,7 +111,7 @@ class BuildingSearchTest(TestCase):
 
     def test_get_all_buildings(self):
         c = Client()
-        #TODO: Even though this works, we do not recommend using this method.
+        # TODO: Even though this works, we do not recommend using this method.
         # You should be passing at least one query param.
         response = c.get("/api/v1/buildings")
         buildings = json.loads(response.content)

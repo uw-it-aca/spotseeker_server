@@ -404,12 +404,13 @@ class Command(BaseCommand):
 
             # Study Room 233 - like Study Room 332 but
             # with different name/building
-            study_room_233 = Spot.objects.create(name='Study Room 233',
-                                                 capacity=8,
-                                                 longitude=
-                                                 Decimal('-122.306382'),
-                                                 latitude=Decimal('47.653477'),
-                                                 building_name="Library")
+            study_room_233 = Spot.objects.create(
+                name='Study Room 233',
+                capacity=8,
+                longitude=Decimal('-122.306382'),
+                latitude=Decimal('47.653477'),
+                building_name="Library"
+            )
             study_room_233.spottypes.add(study_room_type)
             study_room_233.save()
 

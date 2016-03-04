@@ -51,12 +51,12 @@ class SpotAuthAllOK(TestCase):
                               "Returns the correct spot")
 
     @override_settings(
-        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'\
-                             'ot.DefaultSpotForm'
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotForm'
     )
     @override_settings(
-        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'\
-                                         'ot.DefaultSpotExtendedInfoForm'
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotExtendedInfoForm'
     )
     @override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
     def test_put(self):

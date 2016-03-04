@@ -39,8 +39,8 @@ from spotseeker_server import models
     SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'
 )
 @override_settings(
-    SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'\
-                                      'ot.DefaultSpotExtendedInfoForm'
+    SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
+    'ot.DefaultSpotExtendedInfoForm'
 )
 @override_settings(SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
 class SpotAuthOAuthLogger(TestCase):

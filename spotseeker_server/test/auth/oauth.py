@@ -135,13 +135,11 @@ class SpotAuthOAuth(TestCase):
             )
 
     @override_settings(
-        SPOTSEEKER_SPOT_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotForm'
     )
     @override_settings(
-        SPOTSEEKER_SPOTEXTENDEDINFO_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotExtendedInfoForm'
     )
     def test_put_no_oauth(self):
@@ -164,13 +162,11 @@ class SpotAuthOAuth(TestCase):
                               "Rejects a PUT w/o oauth info")
 
     @override_settings(
-        SPOTSEEKER_SPOT_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotForm'
     )
     @override_settings(
-        SPOTSEEKER_SPOTEXTENDEDINFO_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotExtendedInfoForm'
     )
     def test_put_untrusted_oauth(self):
@@ -296,13 +292,11 @@ class SpotAuthOAuth(TestCase):
             )
 
     @override_settings(
-        SPOTSEEKER_SPOT_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotForm'
     )
     @override_settings(
-        SPOTSEEKER_SPOTEXTENDEDINFO_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotExtendedInfoForm'
     )
     @override_settings(SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
@@ -365,13 +359,11 @@ class SpotAuthOAuth(TestCase):
             )
 
     @override_settings(
-        SPOTSEEKER_SPOT_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotForm'
     )
     @override_settings(
-        SPOTSEEKER_SPOTEXTENDEDINFO_FORM=
-        'spotseeker_server.default_forms.sp'
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
         'ot.DefaultSpotExtendedInfoForm'
     )
     def test_put_trusted_client_no_user(self):

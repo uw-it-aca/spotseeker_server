@@ -23,7 +23,8 @@
     breaks our unit tests.
 """
 
-from spotseeker_server.default_forms.spot import DefaultSpotForm, DefaultSpotExtendedInfoForm
+from spotseeker_server.default_forms.spot import \
+    DefaultSpotForm, DefaultSpotExtendedInfoForm
 from django.utils.importlib import import_module
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -34,7 +35,8 @@ class SpotExtendedInfoForm(object):
     def implementation():
         if hasattr(settings, 'SPOTSEEKER_SPOTEXTENDEDINFO_FORM'):
             # This is all taken from django's static file finder
-            module, attr = settings.SPOTSEEKER_SPOTEXTENDEDINFO_FORM.rsplit('.', 1)
+            module, attr = \
+                settings.SPOTSEEKER_SPOTEXTENDEDINFO_FORM.rsplit('.', 1)
             try:
                 mod = import_module(module)
             except ImportError, e:
@@ -43,8 +45,8 @@ class SpotExtendedInfoForm(object):
             try:
                 SpotExtendedInfoForm = getattr(mod, attr)
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "%s" '
-                                           'class.' % (module, attr))
+                raise ImproperlyConfigured('Module "%s" does not define '
+                                           'a "%s" class.' % (module, attr))
             return SpotExtendedInfoForm
         else:
             return DefaultSpotExtendedInfoForm
@@ -67,8 +69,8 @@ class SpotForm(object):
             try:
                 SpotForm = getattr(mod, attr)
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "%s" '
-                                           'class.' % (module, attr))
+                raise ImproperlyConfigured('Module "%s" does not define '
+                                           'a "%s" class.' % (module, attr))
             return SpotForm
         else:
             return DefaultSpotForm

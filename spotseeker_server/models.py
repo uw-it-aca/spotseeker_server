@@ -49,7 +49,8 @@ def update_etag(func):
     this to have a new ETag automatically generated. It's up to the
     wrapped function, however, to call save()."""
     def _newETag(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        self.etag = hashlib.sha1("{0} - {1}".format(random.random(),
+                                 time.time())).hexdigest()
         return func(self, *args, **kwargs)
     return wraps(func)(_newETag)
 
@@ -67,10 +68,14 @@ class Spot(models.Model):
     """ Represents a place for students to study.
     """
     name = models.CharField(max_length=100, blank=True)
-    spottypes = models.ManyToManyField(SpotType, max_length=50, related_name='spots', blank=True, null=True)
+    spottypes = models.ManyToManyField(SpotType, max_length=50,
+                                       related_name='spots', blank=True,
+                                       null=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
-    height_from_sea_level = models.DecimalField(max_digits=11, decimal_places=8, null=True, blank=True)
+    height_from_sea_level = models.DecimalField(max_digits=11,
+                                                decimal_places=8, null=True,
+                                                blank=True)
     building_name = models.CharField(max_length=100, blank=True)
     floor = models.CharField(max_length=50, blank=True)
     room_number = models.CharField(max_length=25, blank=True)
@@ -80,7 +85,9 @@ class Spot(models.Model):
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
     last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
-    external_id = models.CharField(max_length=100, null=True, blank=True, default=None, unique=True, validators=[validate_slug])
+    external_id = models.CharField(max_length=100, null=True, blank=True,
+                                   default=None, unique=True,
+                                   validators=[validate_slug])
 
     def __unicode__(self):
         return self.name
@@ -111,12 +118,15 @@ class Spot(models.Model):
                 'sunday': [],
             }
 
-            hours = SpotAvailableHours.objects.filter(spot=self).order_by('start_time')
+            hours = SpotAvailableHours.objects.filter(spot=self).order_by(
+                'start_time')
             for window in hours:
-                available_hours[window.get_day_display()].append(window.json_data_structure())
+                available_hours[window.get_day_display()].append(
+                    window.json_data_structure())
 
             images = []
-            for img in SpotImage.objects.filter(spot=self).order_by('display_index'):
+            for img in SpotImage.objects.filter(spot=self).order_by(
+                    'display_index'):
                 images.append(img.json_data_structure())
             types = []
             for t in self.spottypes.all():
@@ -129,7 +139,8 @@ class Spot(models.Model):
                 "name": self.name,
                 "type": types,
                 "location": {
-                    # If any changes are made to this location dict, MAKE SURE to reflect those changes in the
+                    # If any changes are made to this location dict,
+                    # MAKE SURE to reflect those changes in the
                     # location_descriptors list in views/schema_gen.py
                     "latitude": self.latitude,
                     "longitude": self.longitude,
@@ -139,7 +150,8 @@ class Spot(models.Model):
                     "room_number": self.room_number,
                 },
                 "capacity": self.capacity,
-                "display_access_restrictions": self.display_access_restrictions,
+                "display_access_restrictions":
+                self.display_access_restrictions,
                 "images": images,
                 "available_hours": available_hours,
                 "organization": self.organization,
@@ -152,31 +164,42 @@ class Spot(models.Model):
         return spot_json
 
     def update_rating(self):
-        data = SpaceReview.objects.filter(space=self, is_published=True, is_deleted=False).aggregate(total=Sum('rating'), count=Count('rating'))
-        
+        data = SpaceReview.objects.filter(
+            space=self,
+            is_published=True,
+            is_deleted=False
+        ).aggregate(total=Sum('rating'), count=Count('rating'))
         if not data['total']:
             return
 
         # Round down to .5 stars:
         new_rating = int(2 * data['total'] / data['count']) / 2.0
         try:
-            extended_info = SpotExtendedInfo.objects.get(spot=self, key="rating", )
+            extended_info = SpotExtendedInfo.objects.get(spot=self,
+                                                         key="rating",
+                                                         )
             if extended_info:
                 extended_info.value = new_rating
                 extended_info.save()
 
         except ObjectDoesNotExist as ex:
-            extended_info = SpotExtendedInfo.objects.create(spot=self, key="rating", value=new_rating)
+            extended_info = SpotExtendedInfo.objects.create(spot=self,
+                                                            key="rating",
+                                                            value=new_rating)
 
         try:
-            extended_info = SpotExtendedInfo.objects.get(spot=self, key="review_count", )
+            extended_info = SpotExtendedInfo.objects.get(spot=self,
+                                                         key="review_count",
+                                                         )
             if extended_info:
                 extended_info.value = data['count']
                 extended_info.save()
 
         except ObjectDoesNotExist as ex:
-            extended_info = SpotExtendedInfo.objects.create(spot=self, key="review_count", value=data['count'])
-
+            extended_info = SpotExtendedInfo.objects.create(spot=self,
+                                                            key="review_count",
+                                                            value=data['count']
+                                                            )
 
     def delete(self, *args, **kwargs):
         cache.delete(self.pk)
@@ -199,7 +222,7 @@ class FavoriteSpot(models.Model):
     def json_data_structure(self):
         """ Returns the JSON for the Spot that is a Favorite.
         """
-        return self.spot.json_data_structure();
+        return self.spot.json_data_structure()
 
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -209,7 +232,8 @@ class FavoriteSpot(models.Model):
 
 
 class SpotAvailableHours(models.Model):
-    """ The hours a Spot is available, i.e. the open or closed hours for the building the spot is located in.
+    """ The hours a Spot is available, i.e. the open or closed hours for
+    the building the spot is located in.
     """
     DAY_CHOICES = (
         ('m', 'monday'),
@@ -231,19 +255,28 @@ class SpotAvailableHours(models.Model):
         verbose_name_plural = "Spot available hours"
 
     def __unicode__(self):
-        return "%s: %s, %s-%s" % (self.spot.name, self.day, self.start_time, self.end_time)
+        return "%s: %s, %s-%s" % (self.spot.name,
+                                  self.day,
+                                  self.start_time,
+                                  self.end_time)
 
     def json_data_structure(self):
-        return [self.start_time.strftime("%H:%M"), self.end_time.strftime("%H:%M")]
+        return [self.start_time.strftime("%H:%M"),
+                self.end_time.strftime("%H:%M")]
 
     def save(self, *args, **kwargs):
         self.full_clean()
 
         if self.start_time >= self.end_time:
-            raise Exception("Invalid time range - start time must be before end time")
-        other_hours = SpotAvailableHours.objects.filter(spot=self.spot, day=self.day).exclude(id=self.id)
+            raise Exception("Invalid time range - start time "
+                            "must be before end time")
+        other_hours = SpotAvailableHours.objects.filter(
+            spot=self.spot,
+            day=self.day
+        ).exclude(id=self.id)
         for h in other_hours:
-            if h.start_time <= self.start_time <= h.end_time or self.start_time <= h.start_time <= self.end_time:
+            if (h.start_time <= self.start_time <= h.end_time or
+                    self.start_time <= h.start_time <= self.end_time):
                 self.start_time = min(h.start_time, self.start_time)
                 self.end_time = max(h.end_time, self.end_time)
                 h.delete()
@@ -252,7 +285,9 @@ class SpotAvailableHours(models.Model):
 
 
 class SpotExtendedInfo(models.Model):
-    """ Additional institution-provided metadata about a spot. If providing custom metadata, you should provide a validator for that data, as well.
+    """ Additional institution-provided metadata about a spot.
+    If providing custom metadata, you should provide a validator for
+    that data, as well.
     """
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=255)
@@ -272,7 +307,9 @@ class SpotExtendedInfo(models.Model):
 
 
 class SpotImage(models.Model):
-    """ An image of a Spot. Multiple images can be associated with a Spot, and Spot objects have a 'Spot.spotimage_set' method that will return all SpotImage objects for the Spot.
+    """ An image of a Spot. Multiple images can be associated with a Spot,
+    and Spot objects have a 'Spot.spotimage_set' method that will return
+    all SpotImage objects for the Spot.
     """
     CONTENT_TYPES = {
         "JPEG": "image/jpeg",
@@ -310,7 +347,10 @@ class SpotImage(models.Model):
             "modification_date": self.modification_date.isoformat(),
             "upload_user": self.upload_user,
             "upload_application": self.upload_application,
-            "thumbnail_root": reverse('spot-image-thumb', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk}).rstrip('/'),
+            "thumbnail_root": reverse('spot-image-thumb',
+                                      kwargs={'spot_id': self.spot.pk,
+                                              'image_id': self.pk}
+                                      ).rstrip('/'),
             "description": self.description,
             "display_index": self.display_index
         }
@@ -318,14 +358,15 @@ class SpotImage(models.Model):
     @update_etag
     def save(self, *args, **kwargs):
         try:
-            if isinstance(self.image, UploadedFile) and self.image.file.multiple_chunks():
+            if (isinstance(self.image, UploadedFile) and
+                    self.image.file.multiple_chunks()):
                 img = Image.open(self.image.file.temporary_file_path())
             else:
                 img = Image.open(self.image)
         except:
             raise ValidationError('Not a valid image format')
 
-        if not img.format in SpotImage.CONTENT_TYPES:
+        if img.format not in SpotImage.CONTENT_TYPES:
             raise ValidationError('Not an accepted image format')
 
         self.content_type = SpotImage.CONTENT_TYPES[img.format]
@@ -341,7 +382,9 @@ class SpotImage(models.Model):
         super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):
-        return reverse('spot-image', kwargs={'spot_id': self.spot.pk, 'image_id': self.pk})
+        return reverse('spot-image',
+                       kwargs={'spot_id': self.spot.pk,
+                               'image_id': self.pk})
 
 
 class TrustedOAuthClient(models.Model):
@@ -359,25 +402,26 @@ class TrustedOAuthClient(models.Model):
 class SpaceReview(models.Model):
     space = models.ForeignKey(Spot)
     reviewer = models.ForeignKey(User, related_name='reviewer')
-    published_by = models.ForeignKey(User, related_name='published_by', null=True)
+    published_by = models.ForeignKey(User,
+                                     related_name='published_by',
+                                     null=True)
     review = models.CharField(max_length=1000, default="")
     original_review = models.CharField(max_length=1000, default="")
-    rating = models.IntegerField(validators=[
-                                    MaxValueValidator(5),
-                                    MinValueValidator(1)
-                                 ])
+    rating = models.IntegerField(validators=[MaxValueValidator(5),
+                                             MinValueValidator(1)]
+                                 )
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_published = models.DateTimeField(null=True)
     is_published = models.BooleanField()
     is_deleted = models.BooleanField()
 
     def json_data_structure(self):
-        submitted = self.date_submitted.replace(microsecond = 0)
+        submitted = self.date_submitted.replace(microsecond=0)
         return {
             'reviewer': self.reviewer.username,
             'review': self.review,
             'rating': self.rating,
-            'date_submitted':submitted.isoformat(),
+            'date_submitted': submitted.isoformat(),
         }
 
     def full_json_data_structure(self):
@@ -398,7 +442,7 @@ class SpaceReview(models.Model):
             data['date_published'] = self.date_published.isoformat()
 
         return data
- 
+
 
 class SharedSpace(models.Model):
     space = models.ForeignKey(Spot)

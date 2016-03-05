@@ -25,11 +25,14 @@ uploaded.
 
 Usage:
     Deleting a range of image_ids: python delimage.py [path] [range] [ext]
-    Deleting a named range of images: python delimage.py [path] [name-prefix] [range] [ext]
+    Deleting a named range of images: python delimage.py [path] [name-prefix]
+                                      [range] [ext]
     Deleting a single file: python delimage.py [path] [name]
 
-Example: python delimage.py --path="/home/foo/bar/" --range="12-35" --ext=".jpg"
-Example: python delimage.py --path="/home/foo/bar/" --name-prefix="image-" --range="12-35" --ext=".jpg"
+Example: python delimage.py --path="/home/foo/bar/" --range="12-35"
+         --ext=".jpg"
+Example: python delimage.py --path="/home/foo/bar/" --name-prefix="image-"
+         --range="12-35" --ext=".jpg"
 Example: python delimage.py --path="test/" --name="foobar.jpg"
 
 [path] is the relative or absolute path to the folder. Note: The arguments

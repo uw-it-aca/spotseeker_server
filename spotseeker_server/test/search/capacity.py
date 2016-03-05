@@ -27,7 +27,9 @@ from spotseeker_server import models
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotSearchCapacityTest(TestCase):
     def test_capacity(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             spot1 = Spot.objects.create(name="capacity: 1", capacity=1)
             spot1.save()
@@ -45,8 +47,15 @@ class SpotSearchCapacityTest(TestCase):
             spot5.save()
 
             c = Client()
-            response = c.get("/api/v1/spot", {'capacity': '', 'name': 'capacity'})
-            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
+            response = c.get(
+                "/api/v1/spot",
+                {'capacity': '',
+                 'name':
+                 'capacity'}
+            )
+            self.assertEquals(response["Content-Type"],
+                              "application/json",
+                              "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False
@@ -74,7 +83,10 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_5, True)
 
             response = c.get("/api/v1/spot", {'capacity': '1'})
-            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
+            self.assertEquals(
+                response["Content-Type"],
+                "application/json",
+                "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False
@@ -102,7 +114,9 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_5, True)
 
             response = c.get("/api/v1/spot", {'capacity': '49'})
-            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
+            self.assertEquals(response["Content-Type"],
+                              "application/json",
+                              "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False
@@ -130,7 +144,9 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_5, True)
 
             response = c.get("/api/v1/spot", {'capacity': '501'})
-            self.assertEquals(response["Content-Type"], "application/json", "Has the json header")
+            self.assertEquals(response["Content-Type"],
+                              "application/json",
+                              "Has the json header")
             spots = json.loads(response.content)
 
             has_1 = False
@@ -157,6 +173,10 @@ class SpotSearchCapacityTest(TestCase):
             self.assertEquals(has_4, False)
             self.assertEquals(has_5, False)
 
-            response = c.get("/api/v1/spot", {'capacity': '1', 'distance': '100', 'limit': '4'})
-            #testing sorting by distance, which is impossible given no center
+            response = c.get("/api/v1/spot",
+                             {'capacity': '1',
+                              'distance': '100',
+                              'limit': '4'}
+                             )
+            # testing sorting by distance, which is impossible given no center
             self.assertEquals(response.status_code, 400)

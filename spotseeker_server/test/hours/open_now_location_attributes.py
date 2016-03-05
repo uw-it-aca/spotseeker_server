@@ -64,7 +64,7 @@ class SpotHoursOpenNowLocationAttributesTest(TestCase):
                 latitude=Decimal('45.0000898315'),
                 longitude=Decimal('-55.0'))
 
-            #Setting now to be Wednesday 9:00:00
+            # Setting now to be Wednesday 9:00:00
             now = datetime(16, 2, 3, 9, 0, 0).time()
 
             open_start = alternate_date.time(now.hour - 1, now.minute)
@@ -107,14 +107,15 @@ class SpotHoursOpenNowLocationAttributesTest(TestCase):
             # Mock the call to now() so that the time returned
             # is always 9:00:00
             datetime_mock.return_value = ('w',
-                datetime(16, 2, 3, 9, 0, 0).time())
+                                          datetime(16, 2, 3, 9, 0, 0).time())
 
             client = Client()
-            response = client.get("/api/v1/spot", {'center_latitude': "40",
-                'center_longitude': -50,
-                'distance': 100,
-                'open_now': True,
-                'name': 'Atlantic'})
+            response = client.get("/api/v1/spot",
+                                  {'center_latitude': "40",
+                                   'center_longitude': -50,
+                                   'distance': 100,
+                                   'open_now': True,
+                                   'name': 'Atlantic'})
             spots = json.loads(response.content)
 
             has_open_match_in_range = False
@@ -135,13 +136,19 @@ class SpotHoursOpenNowLocationAttributesTest(TestCase):
                 if spot['id'] == closed_outof_range_spot.pk:
                     has_closed_outof_range = True
 
-            self.assertEquals(has_open_match_in_range, True,
-                "Found the open spot in range w/ the attributes")
-            self.assertEquals(has_open_no_match_in_range, False,
-                "Did not find the open spot in range w/o the attributes")
-            self.assertEquals(has_closed_in_range, False,
-                "Did not find the closed spot in range")
-            self.assertEquals(has_open_outof_range, False,
-                "Did not find the open spot out of range")
-            self.assertEquals(has_closed_outof_range, False,
-                "Did not find the closed spot out of range")
+            self.assertEquals(has_open_match_in_range,
+                              True,
+                              "Found the open spot in range w/ the attributes")
+            self.assertEquals(has_open_no_match_in_range,
+                              False,
+                              "Did not find the open spot in range w/o "
+                              "the attributes")
+            self.assertEquals(has_closed_in_range,
+                              False,
+                              "Did not find the closed spot in range")
+            self.assertEquals(has_open_outof_range,
+                              False,
+                              "Did not find the open spot out of range")
+            self.assertEquals(has_closed_outof_range,
+                              False,
+                              "Did not find the closed spot out of range")

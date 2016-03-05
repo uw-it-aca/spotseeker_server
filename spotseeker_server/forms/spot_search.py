@@ -23,6 +23,7 @@ from django.utils.importlib import import_module
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+
 class SpotSearchForm(object):
     def __new__(*args, **named_args):
 
@@ -37,8 +38,8 @@ class SpotSearchForm(object):
             try:
                 FormModule = getattr(mod, attr)
             except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define a "%s" '
-                                           'class.' % (module, attr))
+                raise ImproperlyConfigured('Module "%s" does not define '
+                                           'a "%s" class.' % (module, attr))
 
             return FormModule(args[1])
         else:

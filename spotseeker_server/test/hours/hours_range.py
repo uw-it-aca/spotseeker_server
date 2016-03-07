@@ -92,7 +92,7 @@ class HoursRangeTest(TestCase):
 
         spot_open_today = datetime.time(self.now + timedelta(hours=10))
         spot_close_today = datetime.time(
-            self.now + timedelta(hours=14,minutes=59))
+            self.now + timedelta(hours=14, minutes=59))
         spot_open_tomorrow = datetime.time(self.now - timedelta(hours=9))
         spot_close_tomorrow = datetime.time(self.now - timedelta(hours=2))
 

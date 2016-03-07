@@ -459,9 +459,8 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_late_night(self):
-        """ Tests search for a spot that opens at exactly the time
-        the search range ends.
-        This should NOT return the spot.
+        """ Tests a search range that spans midnight. This should return
+            a spot.
         """
         dummy_cache = cache.get_cache(
             'django.core.cache.backends.dummy.DummyCache')

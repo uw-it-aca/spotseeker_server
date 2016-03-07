@@ -96,15 +96,18 @@ class HoursRangeTest(TestCase):
         spot_open_tomorrow = datetime.time(self.now - timedelta(hours=9))
         spot_close_tomorrow = datetime.time(self.now - timedelta(hours=2))
 
+        self.today = day_lookup[3]
+        self.tomorrow = day_lookup[4]
+
         self.spot4 = models.Spot.objects.create(
-            name="Spot that opens today at {0}:{1} and closes tomorrow at {2}:{3}".format(
+            name="Spot opens {4} at {0}:{1} and closes {5} at {2}:{3}".format(
                 spot_open_today.hour,
                 spot_open_today.minute,
                 spot_close_tomorrow.hour,
-                spot_close_tomorrow.minute))
+                spot_close_tomorrow.minute,
+                self.today,
+                self.tomorrow))
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
-        self.today = day_lookup[3]
-        self.tomorrow = day_lookup[4]
 
         models.SpotAvailableHours.objects.create(
             spot=self.spot4,
@@ -475,7 +478,8 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                "/api/v1/spot?fuzzy_hours_start=Monday,22:00&fuzzy_hours_end=Tuesday,05:00&limit=0")
+                ("/api/v1/spot?fuzzy_hours_start=Wednesday,22:00&"
+                 "fuzzy_hours_end=Thursday,05:00&limit=0"))
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)

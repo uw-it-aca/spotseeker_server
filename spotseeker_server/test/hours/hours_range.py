@@ -90,6 +90,36 @@ class HoursRangeTest(TestCase):
             end_time=spot_close
         )
 
+        spot_open_today = datetime.time(self.now + timedelta(hours=10))
+        spot_close_today = datetime.time(
+            self.now + timedelta(hours=14,minutes=59))
+        spot_open_tomorrow = datetime.time(self.now - timedelta(hours=9))
+        spot_close_tomorrow = datetime.time(self.now - timedelta(hours=2))
+
+        self.spot4 = models.Spot.objects.create(
+            name="Spot that opens today at {0}:{1} and closes tomorrow at {2}:{3}".format(
+                spot_open_today.hour,
+                spot_open_today.minute,
+                spot_close_tomorrow.hour,
+                spot_close_tomorrow.minute))
+        day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
+        self.today = day_lookup[3]
+        self.tomorrow = day_lookup[4]
+
+        models.SpotAvailableHours.objects.create(
+            spot=self.spot4,
+            day=self.today,
+            start_time=spot_open_today,
+            end_time=spot_close_today
+        )
+
+        models.SpotAvailableHours.objects.create(
+            spot=self.spot4,
+            day=self.tomorrow,
+            start_time=spot_open_tomorrow,
+            end_time=spot_close_tomorrow
+        )
+
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",
                          "t": "Tuesday",
@@ -425,5 +455,37 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot2.json_data_structure() in spots)
             self.assertFalse(self.spot3.json_data_structure() in spots)
 
+    def test_late_night(self):
+        """ Tests search for a spot that opens at exactly the time
+        the search range ends.
+        This should NOT return the spot.
+        """
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            start_query_time = datetime.time(self.now + timedelta(hours=12))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now - timedelta(hours=7))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.tomorrow]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get(
+                "/api/v1/spot?fuzzy_hours_start=Monday,22:00&fuzzy_hours_end=Tuesday,05:00&limit=0")
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
+            self.assertTrue(self.spot4.json_data_structure() in spots)
+
     def tearDown(self):
         self.spot1.delete()
+        self.spot2.delete()
+        self.spot3.delete()
+        self.spot4.delete()

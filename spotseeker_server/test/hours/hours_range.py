@@ -43,7 +43,6 @@ class HoursRangeTest(TestCase):
                 spot_open.minute,
                 spot_close.hour,
                 spot_close.minute))
-
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
         self.today = day_lookup[3]
 
@@ -52,6 +51,44 @@ class HoursRangeTest(TestCase):
             day=self.today,
             start_time=spot_open,
             end_time=spot_close)
+
+        spot_open = datetime.time(self.now + timedelta(hours=3))
+        spot_close = datetime.time(self.now + timedelta(hours=8))
+
+        self.spot2 = models.Spot.objects.create(
+            name="Spot that opens at {0}:{1} and closes at {2}:{3}".format(
+                spot_open.hour,
+                spot_open.minute,
+                spot_close.hour,
+                spot_close.minute
+            )
+        )
+
+        models.SpotAvailableHours.objects.create(
+            spot=self.spot2,
+            day=self.today,
+            start_time=spot_open,
+            end_time=spot_close
+        )
+
+        spot_open = datetime.time(self.now + timedelta(hours=10))
+        spot_close = datetime.time(self.now + timedelta(hours=14))
+
+        self.spot3 = models.Spot.objects.create(
+            name="Spot that opens at {0}:{1} and closes at {2}:{3}".format(
+                spot_open.hour,
+                spot_open.minute,
+                spot_close.hour,
+                spot_close.minute
+            )
+        )
+
+        models.SpotAvailableHours.objects.create(
+            spot=self.spot3,
+            day=self.today,
+            start_time=spot_open,
+            end_time=spot_close
+        )
 
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",
@@ -87,6 +124,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertTrue(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_closes_within_range(self):
         """ Tests search for a spot that closes within the requested range.
@@ -114,6 +153,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertTrue(self.spot1.json_data_structure() in spots)
+            self.assertTrue(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_open_and_close_span_range(self):
         """ Tests search for a spot that opens before the requested range and
@@ -142,6 +183,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertTrue(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_open_after_range_but_end_in_range(self):
         """ Tests search for a spot that opens outside of the requested range
@@ -181,6 +224,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertTrue(self.spot1.json_data_structure() in spots)
+            self.assertTrue(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_open_close_in_range(self):
         """ Tests search for a spot that opens and closes within the
@@ -209,6 +254,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertTrue(self.spot1.json_data_structure() in spots)
+            self.assertTrue(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_start_within_range_and_end_within_range_next_day(self):
         """ Tests search for a spot that opens within the requested range
@@ -247,6 +294,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_start_end_after_range(self):
         """ Tests search for a spot that opens and closes after the requested
@@ -275,6 +324,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertTrue(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_invalid_end_only(self):
         """ Tests search for a spot without passing a start time for the range.
@@ -341,6 +392,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertTrue(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def test_opens_at_end(self):
         """ Tests search for a spot that opens at exactly the time
@@ -369,6 +422,8 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
+            self.assertFalse(self.spot3.json_data_structure() in spots)
 
     def tearDown(self):
         self.spot1.delete()

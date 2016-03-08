@@ -337,17 +337,17 @@ class HoursRangeTest(TestCase):
     def test_start_end_after_range(self):
         """ Tests search for a spot that opens and closes after the requested
         range.
-        This should NOT return the spot.
+        This should return spot 1
         """
         dummy_cache = cache.get_cache(
             'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            start_query_time = datetime.time(self.now + timedelta(hours=5))
+            start_query_time = datetime.time(self.now + timedelta(hours=1))
             start_query_time = start_query_time.strftime("%H:%M")
             start_query_day = self.day_dict[self.today]
             start_query = "%s,%s" % (start_query_day, start_query_time)
 
-            end_query_time = datetime.time(self.now + timedelta(hours=7))
+            end_query_time = datetime.time(self.now + timedelta(hours=2))
             end_query_time = end_query_time.strftime("%H:%M")
             end_query_day = self.day_dict[self.today]
             end_query = "%s,%s" % (end_query_day, end_query_time)
@@ -360,9 +360,10 @@ class HoursRangeTest(TestCase):
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
-            self.assertFalse(self.spot1.json_data_structure() in spots)
-            self.assertTrue(self.spot2.json_data_structure() in spots)
+            self.assertTrue(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
             self.assertFalse(self.spot3.json_data_structure() in spots)
+            self.assertFalse(self.spot4.json_data_structure() in spots)
 
     def test_invalid_end_only(self):
         """ Tests search for a spot without passing a start time for the range.

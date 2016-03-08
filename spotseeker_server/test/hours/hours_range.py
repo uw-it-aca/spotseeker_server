@@ -46,11 +46,12 @@ class HoursRangeTest(TestCase):
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
         self.today = day_lookup[3]
 
-        models.SpotAvailableHours.objects.create(
-            spot=self.spot1,
-            day=self.today,
-            start_time=spot_open,
-            end_time=spot_close)
+        for i in [1, 2, 3, 4, 5]:
+            models.SpotAvailableHours.objects.create(
+                spot=self.spot1,
+                day=day_lookup[i],
+                start_time=spot_open,
+                end_time=spot_close)
 
         spot_open = datetime.time(self.now + timedelta(hours=3))
         spot_close = datetime.time(self.now + timedelta(hours=8))
@@ -64,12 +65,13 @@ class HoursRangeTest(TestCase):
             )
         )
 
-        models.SpotAvailableHours.objects.create(
-            spot=self.spot2,
-            day=self.today,
-            start_time=spot_open,
-            end_time=spot_close
-        )
+        for i in [1, 2, 3, 4, 5]:
+            models.SpotAvailableHours.objects.create(
+                spot=self.spot2,
+                day=day_lookup[i],
+                start_time=spot_open,
+                end_time=spot_close
+            )
 
         spot_open = datetime.time(self.now + timedelta(hours=10))
         spot_close = datetime.time(self.now + timedelta(hours=14))
@@ -83,12 +85,13 @@ class HoursRangeTest(TestCase):
             )
         )
 
-        models.SpotAvailableHours.objects.create(
-            spot=self.spot3,
-            day=self.today,
-            start_time=spot_open,
-            end_time=spot_close
-        )
+        for i in [1, 2, 3, 4, 5]:
+            models.SpotAvailableHours.objects.create(
+                spot=self.spot3,
+                day=day_lookup[i],
+                start_time=spot_open,
+                end_time=spot_close
+            )
 
         spot_open_today = datetime.time(self.now + timedelta(hours=10))
         spot_close_today = datetime.time(
@@ -109,19 +112,20 @@ class HoursRangeTest(TestCase):
                 self.tomorrow))
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
 
-        models.SpotAvailableHours.objects.create(
-            spot=self.spot4,
-            day=self.today,
-            start_time=spot_open_today,
-            end_time=spot_close_today
-        )
+        for i in [1, 2, 3, 4, 5]:
+            models.SpotAvailableHours.objects.create(
+                spot=self.spot4,
+                day=day_lookup[i],
+                start_time=spot_open_today,
+                end_time=spot_close_today
+            )
 
-        models.SpotAvailableHours.objects.create(
-            spot=self.spot4,
-            day=self.tomorrow,
-            start_time=spot_open_tomorrow,
-            end_time=spot_close_tomorrow
-        )
+            models.SpotAvailableHours.objects.create(
+                spot=self.spot4,
+                day=day_lookup[i+1],
+                start_time=spot_open_tomorrow,
+                end_time=spot_close_tomorrow
+            )
 
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",

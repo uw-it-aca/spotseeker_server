@@ -465,14 +465,14 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot2.json_data_structure() in spots)
             self.assertFalse(self.spot3.json_data_structure() in spots)
 
-    def test_late_night(self):
+    def test_late_night_before_midnight(self):
         """ Tests a search range that spans midnight. This should return
-            spot 4 only.
+            spot 3 and 4.
         """
         dummy_cache = cache.get_cache(
             'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
-            start_query_time = datetime.time(self.now + timedelta(hours=12))
+            start_query_time = datetime.time(self.now + timedelta(hours=9))
             start_query_time = start_query_time.strftime("%H:%M")
             start_query_day = self.day_dict[self.today]
             start_query = "%s,%s" % (start_query_day, start_query_time)
@@ -484,15 +484,29 @@ class HoursRangeTest(TestCase):
 
             client = Client()
             response = client.get(
-                ("/api/v1/spot?fuzzy_hours_start=Wednesday,22:00&"
-                 "fuzzy_hours_end=Thursday,05:00&limit=0"))
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
             self.assertEqual(response.status_code, 200)
             self.assertFalse(self.spot1.json_data_structure() in spots)
             self.assertFalse(self.spot2.json_data_structure() in spots)
-            self.assertFalse(self.spot3.json_data_structure() in spots)
+            self.assertTrue(self.spot3.json_data_structure() in spots)
             self.assertTrue(self.spot4.json_data_structure() in spots)
+
+    def test_late_night_after_midnight(self):
+        """ Tests a search range that spans midnight. This should return
+            spot 3 and 4.
+        """
+        pass
+
+    def test_span_late_night(self):
+        """ Tests a search range where the spot's open time is before the start
+            on one day, and the close time is beyond the end of range on the
+            next day.
+        """
+        pass
 
     def tearDown(self):
         self.spot1.delete()

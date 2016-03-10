@@ -262,6 +262,7 @@ class HoursRangeTest(TestCase):
     def test_open_within_range_and_close_within_range_next_day(self):
         """ Tests search for a spot that opens within the search range
             and closes within the search range the next day.
+            Search range: today 18:00 - tomorrow 9:00
             This should return spot 3 and 4, but don't assert spot3 as it
             is returned for a valid reason outside of the scope of this test.
         """
@@ -454,9 +455,10 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot2.json_data_structure() in spots)
             self.assertFalse(self.spot3.json_data_structure() in spots)
 
-    def test_late_night_before_midnight(self):
+    def test_open_within_range_and_close_outside_range_next_day(self):
         """ Tests a search range that spans midnight. This should return
-            spot 3 and 4. Don't assert against spot3 as it is returned as a
+            spot 3 and 4. Search range: today 18:00 - tomorrow 2:00
+            Don't assert against spot3 as it is returned as a
             valid result but for reasons out of scope of this test.
         """
         dummy_cache = cache.get_cache(
@@ -485,16 +487,45 @@ class HoursRangeTest(TestCase):
             # Don't assert spot3, see docstring above
             self.assertTrue(self.spot4.json_data_structure() in spots)
 
-    def test_late_night_after_midnight(self):
+    def test_open_outside_range_and_close_within_range_next_day(self):
         """ Tests a search range that spans midnight. This should return
-            spot 3 and 4.
+            spot 3 and 4. Search range: today 20:00 - tomorrow 9:00
+            Don't assert against spot3 as it is returned as a
+            valid result but for reasons out of scope of this test.
         """
-        pass
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            start_query_time = datetime.time(self.now + timedelta(hours=11))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now)
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.tomorrow]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get(
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
+            # Don't assert spot3, see docstring above
+            self.assertTrue(self.spot4.json_data_structure() in spots)
+
+
 
     def test_span_late_night(self):
-        """ Tests a search range where the spot's open time is before the start
-            on one day, and the close time is beyond the end of range on the
-            next day.
+        """ Tests a search range where the spot's open time is before the
+            start on one day, and the close time is beyond the end of
+            range on the next day. Search range: today 20:00 - tomorrow 2:00
+            Not passing with current implementation.
         """
         pass
 

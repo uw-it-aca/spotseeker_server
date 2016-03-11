@@ -518,8 +518,7 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot2.json_data_structure() in spots)
             # Don't assert spot3, see docstring above
             self.assertTrue(self.spot4.json_data_structure() in spots)
-            # TODO: spot 5 (everyday 00:00 - 7:00) should return but doesnt
-            #self.assertTrue(self.spot5.json_data_structure() in spots)
+            self.assertTrue(self.spot5.json_data_structure() in spots)
 
     def test_open_outside_range_and_close_within_range_next_day(self):
         """ Tests a search range that spans midnight. This should return
@@ -560,7 +559,6 @@ class HoursRangeTest(TestCase):
         """ Tests a search range where the spot's open time is before the
             start on one day, and the close time is beyond the end of
             range on the next day. Search range: today 20:00 - tomorrow 2:00
-            Not passing with current implementation so commented out.
         """
         dummy_cache = cache.get_cache(
             'django.core.cache.backends.dummy.DummyCache')
@@ -582,11 +580,11 @@ class HoursRangeTest(TestCase):
                  'fuzzy_hours_end': end_query})
             spots = json.loads(response.content)
 
-            #self.assertEqual(response.status_code, 200)
-            #self.assertFalse(self.spot1.json_data_structure() in spots)
-            #self.assertFalse(self.spot2.json_data_structure() in spots)
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
             # Don't assert spot3, see docstring above
-            #self.assertTrue(self.spot4.json_data_structure() in spots)
+            self.assertTrue(self.spot4.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
         pass
 

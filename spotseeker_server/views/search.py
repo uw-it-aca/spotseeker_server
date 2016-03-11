@@ -286,8 +286,6 @@ class SearchView(RESTDispatch):
                     Q(spotavailablehours__day__iexact=end_day,
                       spotavailablehours__start_time__lt=end_time,
                       spotavailablehours__start_time__gte="00:00")
-                range_query = (start_range_query |
-                               end_range_query)
                 if start_day is not end_day:
                     range_query = (start_range_query |
                                    end_range_query |

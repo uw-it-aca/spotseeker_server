@@ -264,7 +264,7 @@ class SearchView(RESTDispatch):
 
                 start_range_query = \
                     Q(spotavailablehours__day__iexact=start_day,
-                      spotavailablehours__start_time__gt=start_time,
+                      spotavailablehours__start_time__gte=start_time,
                       spotavailablehours__start_time__lt=end_time)
                 end_range_query = \
                     Q(spotavailablehours__day__iexact=end_day,
@@ -272,10 +272,30 @@ class SearchView(RESTDispatch):
                       spotavailablehours__end_time__lt=end_time)
                 span_range_query = \
                     Q(spotavailablehours__day__iexact=end_day,
-                      spotavailablehours__start_time__lt=start_time,
+                      spotavailablehours__start_time__lte=start_time,
                       spotavailablehours__end_time__gt=end_time)
-                range_query = (start_range_query |
-                               end_range_query | span_range_query)
+                span_midnight_pre_query = \
+                    Q(spotavailablehours__day__iexact=start_day,
+                      spotavailablehours__start_time__gte=start_time,
+                      spotavailablehours__start_time__lte="23:59")
+                span_midnight_post_query = \
+                    Q(spotavailablehours__day__iexact=end_day,
+                      spotavailablehours__end_time__lt=end_time,
+                      spotavailablehours__end_time__gte="00:00")
+                span_midnight_next_morning_query = \
+                    Q(spotavailablehours__day__iexact=end_day,
+                      spotavailablehours__start_time__lt=end_time,
+                      spotavailablehours__start_time__gte="00:00")
+                if start_day is not end_day:
+                    range_query = (start_range_query |
+                                   end_range_query |
+                                   span_midnight_pre_query |
+                                   span_midnight_post_query |
+                                   span_midnight_next_morning_query)
+                else:
+                    range_query = (start_range_query |
+                                   end_range_query |
+                                   span_range_query)
                 query = query.filter(range_query)
                 has_valid_search_param = True
             elif key == "capacity":

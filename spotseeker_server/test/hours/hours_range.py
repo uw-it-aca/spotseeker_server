@@ -553,8 +553,6 @@ class HoursRangeTest(TestCase):
             self.assertTrue(self.spot4.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
 
-
-
     def test_span_late_night(self):
         """ Tests a search range where the spot's open time is before the
             start on one day, and the close time is beyond the end of

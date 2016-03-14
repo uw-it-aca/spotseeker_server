@@ -290,7 +290,7 @@ class SpotExtendedInfo(models.Model):
     that data, as well.
     """
     key = models.CharField(max_length=50)
-    value = models.CharField(max_length=255)
+    value = models.CharField(max_length=350)
     spot = models.ForeignKey(Spot)
 
     class Meta:

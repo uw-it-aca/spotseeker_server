@@ -38,7 +38,7 @@ class SpotHoursOpenAtTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             # Create a spot that isn't open now but will be in an hour.
             spot = models.Spot.objects.create(name="This spot is open later")
-            #Setting now to be Wednesday 9:00:00
+            # Setting now to be Wednesday 9:00:00
             now = datetime(16, 2, 3, 9, 0, 0)
             spot_open = datetime.time(now + timedelta(hours=1))
             spot_close = datetime.time(now + timedelta(hours=3))
@@ -47,14 +47,14 @@ class SpotHoursOpenAtTest(TestCase):
             today = day_lookup[3]
 
             models.SpotAvailableHours.objects.create(spot=spot,
-                day=today,
-                start_time=spot_open,
-                end_time=spot_close)
+                                                     day=today,
+                                                     start_time=spot_open,
+                                                     end_time=spot_close)
 
             # Mock the call to now() so that the time returned
             # is always 9:00:00
             datetime_mock.return_value = ('w',
-                datetime(16, 2, 3, 9, 0, 0).time())
+                                          datetime(16, 2, 3, 9, 0, 0).time())
 
             # Verify the spot is closed now
             client = Client()
@@ -67,7 +67,8 @@ class SpotHoursOpenAtTest(TestCase):
                 if s['id'] == spot.pk:
                     spot_returned = True
 
-            self.assertTrue(not spot_returned,
+            self.assertTrue(
+                not spot_returned,
                 "The spot that is open later is not in the spots open now")
 
             # Test the spot that is open later
@@ -107,5 +108,6 @@ class SpotHoursOpenAtTest(TestCase):
                 if s['id'] == spot.pk:
                     spot_returned = True
 
-            self.assertTrue(not spot_returned,
+            self.assertTrue(
+                not spot_returned,
                 "The spot that closes at search time is not returned.")

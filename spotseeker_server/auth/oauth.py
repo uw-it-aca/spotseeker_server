@@ -66,11 +66,15 @@ def authenticate_user(*args, **kwargs):
         except Exception as e:
             pass
 
-
         if not user:
-            access_token = store.get_access_token(request, oauth_request, consumer, oauth_request[u'oauth_token'])
-            user = store.get_user_for_access_token(request, oauth_request, access_token).username
-
+            access_token = store.get_access_token(request,
+                                                  oauth_request,
+                                                  consumer,
+                                                  oauth_request[
+                                                      u'oauth_token'])
+            user = store.get_user_for_access_token(request,
+                                                   oauth_request,
+                                                   access_token).username
 
         request.META['SS_OAUTH_CONSUMER_NAME'] = consumer.name
         request.META['SS_OAUTH_CONSUMER_PK'] = consumer.pk

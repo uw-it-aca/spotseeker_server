@@ -20,11 +20,12 @@ from django.template import RequestContext
 from oauth_provider.models import Token
 from spotseeker_server.models import TrustedOAuthClient
 
+
 def authorize(request, token, callback, params):
     consumer = token.consumer
 
     bypasses_auth = False
-    trusted_client = TrustedOAuthClient.objects.filter(consumer = consumer)
+    trusted_client = TrustedOAuthClient.objects.filter(consumer=consumer)
     if len(trusted_client) and trusted_client[0].bypasses_user_authorization:
         bypasses_auth = True
 
@@ -40,9 +41,8 @@ def callback(request, **kwargs):
     if "oauth_token" not in kwargs:
         return render_to_response("oauth/declined.html")
 
-    token = Token.objects.get(key = kwargs["oauth_token"])
+    token = Token.objects.get(key=kwargs["oauth_token"])
 
     return render_to_response("oauth/oob.html", {
         "verifier": token.verifier,
     }, RequestContext(request))
-

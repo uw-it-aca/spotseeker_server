@@ -24,12 +24,15 @@ from django.core import cache
 from spotseeker_server import models
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
+@override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
+                         'DefaultSpotForm')
 class SpotModelTest(TestCase):
 
     def test_json(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             name = "This is a test spot: {0}".format(random.random())
 
@@ -42,5 +45,5 @@ class SpotModelTest(TestCase):
             test_spot = Spot.objects.get(pk=saved_id)
             json_data = test_spot.json_data_structure()
 
-            self.assertEqual(json_data["name"], name, "The json structure has the right name")
-            self.assertEqual(json_data["id"], saved_id, "The json structure has the right id")
+            self.assertEqual(json_data["name"], name)
+            self.assertEqual(json_data["id"], saved_id)

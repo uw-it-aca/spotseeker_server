@@ -19,6 +19,7 @@ from spotseeker_server.require_auth import user_auth_required
 from django.views.decorators.cache import never_cache
 from django.conf import settings
 
+
 class PersonView(RESTDispatch):
     """ Information (username, email) about a person """
     @user_auth_required
@@ -35,4 +36,3 @@ class PersonView(RESTDispatch):
             data["email"] = user.username + "@" + settings.USER_EMAIL_DOMAIN
 
         return JSONResponse(data)
-

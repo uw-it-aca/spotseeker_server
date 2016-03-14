@@ -19,9 +19,11 @@ from django.test.utils import override_settings
 from spotseeker_server.models import Spot, SpaceReview
 import json
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm',
-                   )
+
+@override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
+    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.'
+                         'spot.DefaultSpotForm',)
 class ReviewsTest(TestCase):
 
     def test_no_reviews(self):
@@ -46,7 +48,10 @@ class ReviewsTest(TestCase):
             "review": "This space is great",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 201)
 
         response = c.get(url)
@@ -54,7 +59,7 @@ class ReviewsTest(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "[]")
 
-    @override_settings(SPOTSEEKER_AUTH_ADMINS = ["is_admin"])
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_publishing(self):
         spot = Spot.objects.create(name="Test Review")
 
@@ -66,7 +71,10 @@ class ReviewsTest(TestCase):
             "review": "This space is great",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 201)
 
         response = c.get(url)
@@ -86,7 +94,10 @@ class ReviewsTest(TestCase):
                     "review": "This is the edited review",
                 }
 
-                response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="is_admin")
+                response = c.post(url,
+                                  json.dumps(json_data),
+                                  content_type="application/json",
+                                  TESTING_OAUTH_USER="is_admin")
                 self.assertEquals(response.status_code, 200)
                 self.assertEquals(response.content, "")
 
@@ -103,9 +114,7 @@ class ReviewsTest(TestCase):
         self.assertEquals(spot_data["extended_info"]["rating"], "5.0")
         self.assertEquals(spot_data["extended_info"]["review_count"], "1")
 
-
-
-    @override_settings(SPOTSEEKER_AUTH_ADMINS = ["is_admin"])
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_invalid_ratings(self):
         spot = Spot.objects.create(name="Test Review")
 
@@ -117,7 +126,10 @@ class ReviewsTest(TestCase):
             "review": "This space is super great",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 400)
 
         json_data = {
@@ -125,7 +137,10 @@ class ReviewsTest(TestCase):
             "review": "This space is super bad",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 400)
 
         json_data = {
@@ -133,9 +148,11 @@ class ReviewsTest(TestCase):
             "review": "This space is super bad",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 400)
-
 
         response = c.get(url)
 
@@ -151,10 +168,9 @@ class ReviewsTest(TestCase):
             if review["space_id"] == spot.pk:
                 total_reviews = total_reviews + 1
 
-
         self.assertEquals(total_reviews, 0)
 
-    @override_settings(SPOTSEEKER_AUTH_ADMINS = ["is_admin"])
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_publishing_multiple(self):
         spot = Spot.objects.create(name="Test Review")
 
@@ -166,7 +182,10 @@ class ReviewsTest(TestCase):
             "review": "This space is great",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 201)
 
         json_data = {
@@ -174,7 +193,10 @@ class ReviewsTest(TestCase):
             "review": "This space is good",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 201)
 
         json_data = {
@@ -182,7 +204,10 @@ class ReviewsTest(TestCase):
             "review": "This space is bad",
         }
 
-        response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="review")
+        response = c.post(url,
+                          json.dumps(json_data),
+                          content_type="application/json",
+                          TESTING_OAUTH_USER="review")
         self.assertEquals(response.status_code, 201)
 
         response = c.get(url)
@@ -202,7 +227,10 @@ class ReviewsTest(TestCase):
                     "review": review["original_review"],
                 }
 
-                response = c.post(url, json.dumps(json_data), content_type="application/json", TESTING_OAUTH_USER="is_admin")
+                response = c.post(url,
+                                  json.dumps(json_data),
+                                  content_type="application/json",
+                                  TESTING_OAUTH_USER="is_admin")
                 self.assertEquals(response.status_code, 200)
                 self.assertEquals(response.content, "")
 
@@ -218,8 +246,7 @@ class ReviewsTest(TestCase):
         self.assertEquals(spot_data["extended_info"]["rating"], "3.5")
         self.assertEquals(spot_data["extended_info"]["review_count"], "3")
 
-
-    @override_settings(SPOTSEEKER_AUTH_ADMINS = ["is_admin"])
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_admin_ok(self):
         c = Client()
         url = "/api/v1/reviews/unpublished"
@@ -228,8 +255,7 @@ class ReviewsTest(TestCase):
 
         self.assertEquals(response.status_code, 200)
 
-
-    @override_settings(SPOTSEEKER_AUTH_ADMINS = ["is_admin"])
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_not_admin_ok(self):
         c = Client()
         url = "/api/v1/reviews/unpublished"
@@ -237,7 +263,3 @@ class ReviewsTest(TestCase):
         response = c.get(url, TESTING_OAUTH_USER="not_is_admin")
 
         self.assertEquals(response.status_code, 401)
-
-
-
-

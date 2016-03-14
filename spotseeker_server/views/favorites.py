@@ -23,13 +23,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class FavoritesView(RESTDispatch):
     """ Performs actions on the user's favorites, at /api/v1/user/me/favorites.
     GET returns 200 with a list of spots.
     """
     @user_auth_required
     @never_cache
-    def GET(self, request, spot_id = None):
+    def GET(self, request, spot_id=None):
         if spot_id is None:
             return self._get_all_favorites(request)
         else:
@@ -40,7 +41,8 @@ class FavoritesView(RESTDispatch):
         user = self._get_user(request)
         spot = Spot.objects.get(pk=spot_id)
 
-        log_message = "user: %s; spot_id: %s; favorite added" % (user.username, spot.pk)
+        log_message = ("user: %s; spot_id: %s; favorite added" %
+                       (user.username, spot.pk))
         logger.info(log_message)
         fav, created = FavoriteSpot.objects.get_or_create(user=user, spot=spot)
         return JSONResponse(True)
@@ -54,7 +56,8 @@ class FavoritesView(RESTDispatch):
         for obj in fav:
             fav.delete()
 
-        log_message = "user: %s; spot_id: %s; favorite removed" % (user.username, spot.pk)
+        log_message = ("user: %s; spot_id: %s; favorite removed" %
+                       (user.username, spot.pk))
         logger.info(log_message)
         return JSONResponse("")
 
@@ -62,7 +65,7 @@ class FavoritesView(RESTDispatch):
         user = self._get_user(request)
         favorites = []
 
-        objects = FavoriteSpot.objects.filter(user = user)
+        objects = FavoriteSpot.objects.filter(user=user)
 
         for fav in objects:
             if hasattr(fav, 'spot'):

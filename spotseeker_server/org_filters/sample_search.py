@@ -24,6 +24,7 @@ from spotseeker_server.org_filters import SearchFilter
 # UIUC LDAP
 LOGGER = logging.getLogger(__name__)
 
+
 class Filter(SearchFilter):
     keys = set((
         'sample1',
@@ -48,9 +49,9 @@ class Filter(SearchFilter):
                 elif sample == 'bar':
                     values.append('baz')
                 query = query.filter(
-                        spotextendedinfo__key="sample2",
-                        spotextendedinfo__value__in=values
-                        )
+                    spotextendedinfo__key="sample2",
+                    spotextendedinfo__value__in=values
+                )
 
                 self.has_valid_search_param = True
 
@@ -67,9 +68,8 @@ class Filter(SearchFilter):
             result = spots
         else:
             result = set()
-            for spot in spots: 
+            for spot in spots:
                 if spot.id % 2 == 0:
                     result.add(spot)
 
         return result
-

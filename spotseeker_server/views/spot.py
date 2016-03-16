@@ -21,7 +21,8 @@
         add external_id support.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException, RESTFormInvalidError, JSONResponse
+from spotseeker_server.views.rest_dispatch import \
+    RESTDispatch, RESTException, RESTFormInvalidError, JSONResponse
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
@@ -29,10 +30,13 @@ from spotseeker_server.require_auth import *
 from django.db import transaction
 import simplejson as json
 import django.dispatch
-from spotseeker_server.dispatch import spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+from spotseeker_server.dispatch import \
+    spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
 
 
-@django.dispatch.receiver(spot_pre_save, dispatch_uid='spotseeker_server.views.spot.build_available_hours')
+@django.dispatch.receiver(
+    spot_pre_save,
+    dispatch_uid='spotseeker_server.views.spot.build_available_hours')
 def _build_available_hours(sender, **kwargs):
     """Save the available hours for later"""
     json_values = kwargs['json_values']
@@ -41,7 +45,9 @@ def _build_available_hours(sender, **kwargs):
     stash['available_hours'] = json_values.pop('available_hours', None)
 
 
-@django.dispatch.receiver(spot_pre_save, dispatch_uid='spotseeker_server.views.spot.build_extended_info')
+@django.dispatch.receiver(
+    spot_pre_save,
+    dispatch_uid='spotseeker_server.views.spot.build_extended_info')
 def _build_extended_info(sender, **kwargs):
     """Get the new and old extended info dicts, returned as tuples"""
     json_values = kwargs['json_values']
@@ -57,13 +63,16 @@ def _build_extended_info(sender, **kwargs):
 
     old_extended_info = {}
     if spot is not None:
-        old_extended_info = dict((ei.key, ei.value) for ei in spot.spotextendedinfo_set.all())
+        old_extended_info = \
+            dict((ei.key, ei.value) for ei in spot.spotextendedinfo_set.all())
 
     stash['new_extended_info'] = new_extended_info
     stash['old_extended_info'] = old_extended_info
 
 
-@django.dispatch.receiver(spot_post_save, dispatch_uid='spotseeker_server.views.spot.save_available_hours')
+@django.dispatch.receiver(
+    spot_post_save,
+    dispatch_uid='spotseeker_server.views.spot.save_available_hours')
 def _save_available_hours(sender, **kwargs):
     """Sync the available hours for the spot"""
     spot = kwargs['spot']
@@ -92,7 +101,9 @@ def _save_available_hours(sender, **kwargs):
                 )
 
 
-@django.dispatch.receiver(spot_post_save, dispatch_uid='spotseeker_server.views.spot.save_extended_info')
+@django.dispatch.receiver(
+    spot_post_save,
+    dispatch_uid='spotseeker_server.views.spot.save_extended_info')
 def _save_extended_info(sender, **kwargs):
     """Sync the extended info for the spot"""
     spot = kwargs['spot']
@@ -119,14 +130,18 @@ def _save_extended_info(sender, **kwargs):
                 else:
                     ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
 
-            eiform = SpotExtendedInfoForm({'spot': spot.pk, 'key': key, 'value': value}, instance=ei)
+            eiform = SpotExtendedInfoForm({'spot': spot.pk,
+                                           'key': key,
+                                           'value': value},
+                                          instance=ei)
             if not eiform.is_valid():
                 raise RESTFormInvalidError(eiform)
 
             ei = eiform.save()
         # Now loop over the different in the keys and remove old
         # items that aren't present in the new set
-        for key in (set(old_extended_info.keys()) - set(new_extended_info.keys())):
+        for key in (set(old_extended_info.keys()) -
+                    set(new_extended_info.keys())):
             try:
                 ei = SpotExtendedInfo.objects.get(spot=spot, key=key)
                 ei.delete()
@@ -220,11 +235,11 @@ class SpotView(RESTDispatch):
             for field in spot._meta.fields:
                 if field.name in excludefields:
                     continue
-                if not field.name in json_values:
+                if field.name not in json_values:
                     json_values[field.name] = getattr(spot, field.name)
 
             # spottypes is not included in the above copy, do it manually
-            if not 'spottypes' in json_values:
+            if 'spottypes' not in json_values:
                 json_values['spottypes'] = [t.pk for t in spot.spottypes.all()]
 
         form = SpotForm(json_values, instance=spot)

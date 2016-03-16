@@ -34,16 +34,19 @@ RE_WIDTH = re.compile(r'width:(\d+)')
 RE_HEIGHT = re.compile(r'height:(\d+)')
 RE_WIDTHxHEIGHT = re.compile(r'^(\d+)x(\d+)$')
 
+
 class ThumbnailView(RESTDispatch):
     """ Returns 200 with a thumbnail of a SpotImage.
     """
     @app_auth_required
-    def GET(self, request, spot_id, image_id, thumb_dimensions=None, constrain=False):
+    def GET(self, request, spot_id, image_id,
+            thumb_dimensions=None, constrain=False):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise RESTException("Image Spot ID doesn't match spot id in url", 404)
+            raise RESTException("Image Spot ID doesn't match spot id in url",
+                                404)
 
         if thumb_dimensions is None:
             raise RESTException("Image constraints required", 400)

@@ -27,7 +27,8 @@ from spotseeker_server.models import TrustedOAuthClient
 
 
 class Command(BaseCommand):
-    help = 'Creates a unique key and secret for clients connecting to the server'
+    help = 'Creates a unique key and secret for clients ' \
+        'connecting to the server'
 
     option_list = BaseCommand.option_list + (
         make_option('--name',
@@ -38,13 +39,15 @@ class Command(BaseCommand):
         make_option('--trusted',
                     dest='trusted',
                     default=False,
-                    help="Set to 'yes' if you want this client to be trusted to act for others"),
+                    help="Set to 'yes' if you want this client to be "
+                         "trusted to act for others"),
 
         make_option('--silent',
                     dest='silent',
                     action='store_true',
                     default=False,
-                    help="With silent set, the command will generate no output"),
+                    help="With silent set, the command will "
+                         "generate no output"),
     )
 
     def handle(self, *args, **options):
@@ -53,13 +56,18 @@ class Command(BaseCommand):
         else:
             consumer_name = raw_input('Enter consumer name: ')
 
-        key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-        secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+        key = hashlib.sha1("{0} - {1}".format(random.random(),
+                                              time.time())).hexdigest()
+        secret = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                 time.time())).hexdigest()
 
-        consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
+        consumer = Consumer.objects.create(name=consumer_name,
+                                           key=key,
+                                           secret=secret)
 
         if options['trusted'] and options['trusted'] == 'yes':
-            trusted = TrustedOAuthClient.objects.create(consumer=consumer, is_trusted=1)
+            trusted = TrustedOAuthClient.objects.create(consumer=consumer,
+                                                        is_trusted=1)
 
         if not options['silent']:
             self.stdout.write("Key: %s\n" % key)

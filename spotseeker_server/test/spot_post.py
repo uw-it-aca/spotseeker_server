@@ -26,69 +26,118 @@ from spotseeker_server import models
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-@override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
-@override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+@override_settings(
+    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
+                         'DefaultSpotForm')
+@override_settings(
+    SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
+                                     'DefaultSpotExtendedInfoForm')
 @override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class SpotPOSTTest(TestCase):
     """ Tests creating a new Spot via POST.
     """
 
     def test_valid_json(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
-            response = c.post('/api/v1/spot/', '{"name":"%s","capacity":"%d", "location": {"latitude": 50, "longitude": -30} }' % (new_name, new_capacity), content_type="application/json", follow=False)
+            response = c.post('/api/v1/spot/', '{"name":"%s","capacity":"%d",'
+                              ' "location": {"latitude": 50, "longitude": -30}'
+                              ' }'
+                              % (new_name, new_capacity),
+                              content_type="application/json",
+                              follow=False)
 
-            self.assertEquals(response.status_code, 201, "Gives a Created response to creating a Spot")
-            self.assertIn("Location", response, "The response has a location header")
+            self.assertEquals(response.status_code, 201,
+                              "Gives a Created response to creating a Spot")
+            self.assertIn("Location", response,
+                          "The response has a location header")
 
             self.spot = Spot.objects.get(name=new_name)
 
-            self.assertEquals(response["Location"], 'http://testserver' + self.spot.rest_url(), "The uri for the new spot is correct")
+            self.assertEqual(response["Location"],
+                             'http://testserver' + self.spot.rest_url())
 
             get_response = c.get(response["Location"])
-            self.assertEquals(get_response.status_code, 200, "OK in response to GETing the new spot")
+            self.assertEqual(get_response.status_code, 200)
 
             spot_json = json.loads(get_response.content)
 
-            self.assertEquals(spot_json["name"], new_name, "The right name was stored")
-            self.assertEquals(spot_json["capacity"], new_capacity, "The right capacity was stored")
+            self.assertEqual(
+                spot_json["name"],
+                new_name, "The right name was stored")
+            self.assertEqual(
+                spot_json["capacity"],
+                new_capacity, "The right capacity was stored")
 
     def test_non_json(self):
         c = Client()
-        response = c.post('/api/v1/spot/', 'just a string', content_type="application/json", follow=False)
+        response = c.post('/api/v1/spot/', 'just a string',
+                          content_type="application/json", follow=False)
         self.assertEquals(response.status_code, 400)
 
     def test_invalid_json(self):
         c = Client()
-        response = c.post('/api/v1/spot/', '{}', content_type="application/json", follow=False)
+        response = c.post('/api/v1/spot/', '{}',
+                          content_type="application/json", follow=False)
         self.assertEquals(response.status_code, 400)
 
     def test_extended_info(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             new_name = "testing POST name: {0}".format(random.random())
             new_capacity = 10
-            json_string = '{"name":"%s","capacity":"%s", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true"}}' % (new_name, new_capacity)
-            response = c.post('/api/v1/spot/', json_string, content_type="application/json", follow=False)
+            json_string = ('{"name":"%s","capacity":"%s", "location": '
+                           '{"latitude": 50, "longitude": -30},'
+                           '"extended_info":{"has_outlets":"true"}}'
+                           % (new_name, new_capacity))
+            response = c.post('/api/v1/spot/', json_string,
+                              content_type="application/json", follow=False)
             get_response = c.get(response["Location"])
             spot_json = json.loads(get_response.content)
             extended_info = {"has_outlets": "true"}
-            self.assertEquals(spot_json["extended_info"], extended_info, "extended_info was succesffuly POSTed")
+            self.assertEquals(
+                spot_json["extended_info"],
+                extended_info, "extended_info was succesffuly POSTed")
 
     def test_multiple_correct_extended_info(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
-            json_string1 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_whiteboards":"true", "has_printing":"true", "has_displays":"true", "num_computers":"38", "has_natural_light":"true"}}' % ("testing POST name: {0}".format(random.random()))
-            response1 = c.post('/api/v1/spot/', json_string1, content_type="application/json", follow=False)
-            json_string2 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_outlets":"true", "has_scanner":"true", "has_projector":"true", "has_computers":"true"}}' % ("testing POST name: {0}".format(random.random()))
-            response2 = c.post('/api/v1/spot/', json_string2, content_type="application/json", follow=False)
-            json_string3 = '{"name":"%s","capacity":"10", "location": {"latitude": 50, "longitude": -30},"extended_info":{"has_outlets":"true", "has_printing":"true", "has_projector":"true", "num_computers":"15", "has_computers":"true", "has_natural_light":"true"}}' % ("testing POST name: {0}".format(random.random()))
-            response3 = c.post('/api/v1/spot/', json_string3, content_type="application/json", follow=False)
+            json_string1 = ('{"name":"%s","capacity":"10", "location": '
+                            '{"latitude": 50, "longitude": -30},'
+                            '"extended_info":{"has_whiteboards":"true", '
+                            '"has_printing":"true", "has_displays":"true", '
+                            '"num_computers":"38", "has_natural_light":'
+                            '"true"}}'
+                            % ("testing POST name: {0}".
+                                format(random.random())))
+            response1 = c.post('/api/v1/spot/', json_string1,
+                               content_type="application/json", follow=False)
+            json_string2 = ('{"name":"%s","capacity":"10", "location": '
+                            '{"latitude": 50, "longitude": -30},'
+                            '"extended_info":{"has_outlets":"true", '
+                            '"has_outlets":"true", "has_scanner":"true", '
+                            '"has_projector":"true", "has_computers":"true"}}'
+                            % ("testing POST name: {0}".
+                                format(random.random())))
+            response2 = c.post('/api/v1/spot/', json_string2,
+                               content_type="application/json", follow=False)
+            json_string3 = ('{"name":"%s","capacity":"10", "location": '
+                            '{"latitude": 50, "longitude": -30},'
+                            '"extended_info":{"has_outlets":"true", '
+                            '"has_printing":"true", "has_projector":"true", '
+                            '"num_computers":"15", "has_computers":"true",'
+                            ' "has_natural_light":"true"}}' %
+                            ("testing POST name: {0}".format(random.random())))
+            response3 = c.post('/api/v1/spot/', json_string3,
+                               content_type="application/json", follow=False)
 
             url1 = response1["Location"]
             url2 = response2["Location"]
@@ -101,6 +150,9 @@ class SpotPOSTTest(TestCase):
             response = c.get(url3)
             spot_json3 = json.loads(response.content)
 
-            self.assertEquals(spot_json1["extended_info"], json.loads(json_string1)['extended_info'], "extended_info was succesffuly POSTed")
-            self.assertEquals(spot_json2["extended_info"], json.loads(json_string2)['extended_info'], "extended_info was succesffuly POSTed")
-            self.assertEquals(spot_json3["extended_info"], json.loads(json_string3)['extended_info'], "extended_info was succesffuly POSTed")
+            self.assertEquals(spot_json1["extended_info"],
+                              json.loads(json_string1)['extended_info'],)
+            self.assertEqual(spot_json2["extended_info"],
+                             json.loads(json_string2)['extended_info'])
+            self.assertEqual(spot_json3["extended_info"],
+                             json.loads(json_string3)['extended_info'])

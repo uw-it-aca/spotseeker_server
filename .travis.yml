@@ -5,6 +5,16 @@ python:
 # command to install dependencies
 install:
     - pip install .
-    - pip install -r requirements/requirements.txt
+    - pip install pep8
+    - pip install coverage
+    - pip install python-coveralls
+before_script:
+    - cp travis_ci/manage.py manage.py
+    - python manage.py syncdb --noinput
+    - python manage.py migrate
 # command to run tests
-script: python manage.py test
+script:
+    - pep8 spotseeker_server/ --exclude=migrations
+    - coverage run --source=spotseeker_server/ --omit=spotseeker_server/migrations/* manage.py test spotseeker_server
+after_script:
+    - coveralls

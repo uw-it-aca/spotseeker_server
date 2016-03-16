@@ -36,11 +36,15 @@ class BuildingListView(RESTDispatch):
     def GET(self, request):
         chain = SearchFilterChain(request)
         search_view = SearchView()
-        spots = SearchView.filter_on_request(search_view, request.GET, chain, request.META, 'buildings')
+        spots = SearchView.filter_on_request(search_view,
+                                             request.GET,
+                                             chain,
+                                             request.META,
+                                             'buildings')
 
         buildings = []
         for spot in spots:
-            if not spot.building_name in buildings:
+            if spot.building_name not in buildings:
                 buildings.append(spot.building_name)
 
         buildings.sort()

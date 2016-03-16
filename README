@@ -32,3 +32,5 @@ SPOTSEEKER_AUTH_ADMINS = []
 # Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here. (For example, in the spot form, MODULE could be default.DefaultSpotForm or org_forms.UWSpotForm.)
 SPOTSEEKER_SPOT_FORM = 'spotseeker_server.org_forms.MODULE'
 SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.MODULE'
+
+I am just abusing this file to demonstrate something.

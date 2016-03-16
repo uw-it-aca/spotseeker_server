@@ -39,19 +39,26 @@ class SpotImageGETTest(TestCase):
         self.spot = spot
 
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create(description="This is the GIF test", spot=spot, image=File(f))
+        gif = SpotImage.objects.create(
+            description="This is the GIF test",
+            spot=spot, image=File(f))
         f.close()
 
         self.gif = gif
 
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = SpotImage.objects.create(description="This is the JPEG test", spot=spot, image=File(f))
+        jpeg = SpotImage.objects.create(
+            description="This is the JPEG test",
+            spot=spot, image=File(f))
         f.close()
 
         self.jpeg = jpeg
 
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = SpotImage.objects.create(description="This is the PNG test", spot=spot, image=File(f))
+        png = SpotImage.objects.create(
+            description="This is the PNG test",
+            spot=spot,
+            image=File(f))
         f.close()
 
         self.png = png
@@ -60,55 +67,60 @@ class SpotImageGETTest(TestCase):
         self.url = self.url
 
     def test_bad_url(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             spot = Spot.objects.create(name="This is the wrong spot")
 
-            response = c.get("/api/v1/spot/{0}/image/{1}".format(spot.pk, self.jpeg.pk))
-            self.assertEquals(response.status_code, 404, "Gives a 404 for a spot image that doesn't match the spot")
+            response = c.get("/api/v1/spot/{0}/image/{1}".
+                             format(spot.pk, self.jpeg.pk))
+            self.assertEquals(response.status_code, 404)
 
     def test_jpeg(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))
             data = StringIO(response.content)
             im = Image.open(data)
-            self.assertEquals(response["Content-type"], "image/jpeg", "Content type is jpeg")
+            self.assertEquals(response["Content-type"], "image/jpeg")
 
             orig = Image.open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
 
-            self.assertEquals(im.size[0], orig.size[0], "Width matches original")
-            self.assertEquals(im.size[1], orig.size[1], "Height matches original")
-            self.assertEquals(im.format, 'JPEG', "Actual type of image is jpeg")
+            self.assertEquals(im.size[0], orig.size[0])
+            self.assertEquals(im.size[1], orig.size[1])
+            self.assertEquals(im.format, 'JPEG')
 
     def test_gif(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.gif.pk))
             data = StringIO(response.content)
             im = Image.open(data)
-            self.assertEquals(response["Content-type"], "image/gif", "Content type is gif")
+            self.assertEquals(response["Content-type"], "image/gif")
 
             orig = Image.open("%s/../resources/test_gif.gif" % TEST_ROOT)
 
-            self.assertEquals(im.size[0], orig.size[0], "Width matches original")
-            self.assertEquals(im.size[1], orig.size[1], "Height matches original")
-            self.assertEquals(im.format, 'GIF', "Actual type of image is gif")
+            self.assertEquals(im.size[0], orig.size[0])
+            self.assertEquals(im.size[1], orig.size[1])
+            self.assertEquals(im.format, 'GIF')
 
     def test_png(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.png.pk))
             data = StringIO(response.content)
             im = Image.open(data)
-            self.assertEquals(response["Content-type"], "image/png", "Content type is png")
+            self.assertEquals(response["Content-type"], "image/png")
 
             orig = Image.open("%s/../resources/test_png.png" % TEST_ROOT)
 
-            self.assertEquals(im.size[0], orig.size[0], "Width matches original")
-            self.assertEquals(im.size[1], orig.size[1], "Height matches original")
-            self.assertEquals(im.format, 'PNG', "Actual type of image is png")
+            self.assertEquals(im.size[0], orig.size[0])
+            self.assertEquals(im.size[1], orig.size[1])
+            self.assertEquals(im.format, 'PNG')

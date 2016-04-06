@@ -283,7 +283,7 @@ class SpotAuthOAuth(TestCase):
                 content_type="application/json",
                 If_Match=etag,
                 HTTP_AUTHORIZATION=oauth_header['Authorization'],
-                HTTP_XOAUTH_USER="pmichaud"
+                HTTP_X_OAUTH_USER="pmichaud"
             )
             self.assertEquals(
                 response.status_code,
@@ -350,7 +350,7 @@ class SpotAuthOAuth(TestCase):
                 content_type="application/json",
                 If_Match=etag,
                 HTTP_AUTHORIZATION=oauth_header['Authorization'],
-                HTTP_XOAUTH_USER="pmichaud"
+                HTTP_X_OAUTH_USER="pmichaud"
             )
             self.assertEquals(
                 response.status_code,

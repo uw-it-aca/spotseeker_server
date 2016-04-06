@@ -85,7 +85,7 @@ class SpotResourceOAuthImageTest(TestCase):
                                   {"description": "oauth image", "image": f},
                                   HTTP_AUTHORIZATION=oauth_header[
                                       'Authorization'],
-                                  HTTP_XOAUTH_USER="pmichaud")
+                                  HTTP_X_OAUTH_USER="pmichaud")
 
             with self.settings(
                     SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):

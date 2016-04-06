@@ -62,7 +62,7 @@ def authenticate_user(*args, **kwargs):
         try:
             trusted_client = TrustedOAuthClient.objects.get(consumer=consumer)
             if trusted_client and trusted_client.is_trusted:
-                user = request.META["HTTP_XOAUTH_USER"]
+                user = request.META["HTTP_X_OAUTH_USER"]
         except Exception as e:
             pass
 

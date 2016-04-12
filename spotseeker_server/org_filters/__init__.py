@@ -21,13 +21,14 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
+
 class SearchFilter(object):
     """
     A search filter base class. Implementers should subclass this and
     redefine the methods they're interested in.
 
     A new instance of this class is created for each search request.
-    
+
     Instance Variables:
         request: The HTTP request.
         has_valid_search_param: If, in filter_query, we encountered a
@@ -62,6 +63,7 @@ class SearchFilter(object):
         no modification occurred.
         """
         return spots
+
 
 class SearchFilterChain(object):
     """
@@ -130,4 +132,3 @@ class SearchFilterChain(object):
         return key in SearchFilterChain.keys
 
 SearchFilterChain._load_filters()
-

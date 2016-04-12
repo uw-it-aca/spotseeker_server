@@ -24,8 +24,11 @@ from spotseeker_server import models
 from django.core import cache
 import json
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
+
+@override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
+    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.'
+                         'spot.DefaultSpotForm')
 class FavoritesTest(TestCase):
     def test_no_favorites(self):
         user, created = User.objects.get_or_create(username="fav_test0")
@@ -43,7 +46,7 @@ class FavoritesTest(TestCase):
 
         spot = Spot.objects.create(name="This is for testing Fav 1")
 
-        fav = FavoriteSpot.objects.create(user = user, spot = spot)
+        fav = FavoriteSpot.objects.create(user=user, spot=spot)
 
         c = Client()
         c.login(username="fav_test1")
@@ -66,8 +69,8 @@ class FavoritesTest(TestCase):
         spot1 = Spot.objects.create(name="This is for testing Fav 2")
         spot2 = Spot.objects.create(name="This is for testing Fav 3")
 
-        fav1 = FavoriteSpot.objects.create(user = user, spot = spot1)
-        fav2 = FavoriteSpot.objects.create(user = user, spot = spot2)
+        fav1 = FavoriteSpot.objects.create(user=user, spot=spot1)
+        fav2 = FavoriteSpot.objects.create(user=user, spot=spot2)
 
         c = Client()
         c.login(username="fav_test2")
@@ -98,7 +101,10 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 0, "No initial favorites")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test3")
+        response = c.put(url,
+                         "True",
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="fav_test3")
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test3")
@@ -106,7 +112,10 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 1, "One favorite added")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test3")
+        response = c.put(url,
+                         "True",
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="fav_test3")
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test3")
@@ -114,7 +123,10 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 1, "No double dipping")
 
         url = "/api/v1/user/me/favorite/%s" % spot2.pk
-        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test3")
+        response = c.put(url,
+                         "True",
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="fav_test3")
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test3")
@@ -133,10 +145,16 @@ class FavoritesTest(TestCase):
 
         c = Client()
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test4")
+        response = c.put(url,
+                         "True",
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="fav_test4")
 
         url = "/api/v1/user/me/favorite/%s" % spot2.pk
-        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test4")
+        response = c.put(url,
+                         "True",
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="fav_test4")
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test4")
@@ -152,7 +170,6 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 1, "one removed")
         self.assertEquals(favorites[0]["name"], spot2.name)
 
-
         url = "/api/v1/user/me/favorite/%s" % spot2.pk
         response = c.delete(url, TESTING_OAUTH_USER="fav_test4")
 
@@ -163,7 +180,6 @@ class FavoritesTest(TestCase):
 
         spot1.delete()
         spot2.delete()
-
 
     def test_single_get(self):
         user, created = User.objects.get_or_create(username="fav_test5")
@@ -180,7 +196,10 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 0, "No initial favorites")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test5")
+        response = c.put(url,
+                         "True",
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="fav_test5")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
         response = c.get(url, TESTING_OAUTH_USER="fav_test5")
@@ -192,9 +211,11 @@ class FavoritesTest(TestCase):
         favorite = json.loads(response.content)
         self.assertEquals(favorite, False, "Not a fav")
 
-
         url = "/api/v1/user/me/favorite/%s" % spot3.pk
-        response = c.put(url, "True", content_type="application/json", TESTING_OAUTH_USER="fav_test5")
+        response = c.put(url,
+                         "True",
+                         content_type="application/json",
+                         TESTING_OAUTH_USER="fav_test5")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
         response = c.get(url, TESTING_OAUTH_USER="fav_test5")

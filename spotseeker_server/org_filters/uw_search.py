@@ -20,6 +20,7 @@
 """
 from spotseeker_server.org_filters import SearchFilter
 
+
 class Filter(SearchFilter):
     keys = set((
         'extended_info:reservable',
@@ -36,12 +37,13 @@ class Filter(SearchFilter):
 
         if 'extended_info:reservable' in self.request.GET:
             query = query.filter(
-                    spotextendedinfo__key="reservable",
-                    spotextendedinfo__value__in=['true', 'reservations']
-                    )
+                spotextendedinfo__key="reservable",
+                spotextendedinfo__value__in=['true', 'reservations']
+            )
 
         if 'extended_info:noise_level' in self.request.GET:
-            noise_levels = self.request.GET.getlist("extended_info:noise_level")
+            noise_levels = \
+                self.request.GET.getlist("extended_info:noise_level")
 
             exclude_silent = True
             exclude_quiet = True
@@ -60,26 +62,26 @@ class Filter(SearchFilter):
 
             if exclude_silent:
                 query = query.exclude(
-                        spotextendedinfo__key="noise_level",
-                        spotextendedinfo__value__iexact="silent"
-                        )
+                    spotextendedinfo__key="noise_level",
+                    spotextendedinfo__value__iexact="silent"
+                )
 
             if exclude_quiet:
                 query = query.exclude(
-                        spotextendedinfo__key="noise_level",
-                        spotextendedinfo__value__iexact="quiet"
-                        )
+                    spotextendedinfo__key="noise_level",
+                    spotextendedinfo__value__iexact="quiet"
+                )
 
             if exclude_moderate:
                 query = query.exclude(
-                        spotextendedinfo__key="noise_level",
-                        spotextendedinfo__value__iexact="moderate"
-                        )
+                    spotextendedinfo__key="noise_level",
+                    spotextendedinfo__value__iexact="moderate"
+                )
 
             if exclude_variable:
                 query = query.exclude(
-                        spotextendedinfo__key="noise_level",
-                        spotextendedinfo__value__iexact="variable"
-                        )
+                    spotextendedinfo__key="noise_level",
+                    spotextendedinfo__value__iexact="variable"
+                )
 
         return query

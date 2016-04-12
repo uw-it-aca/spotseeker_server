@@ -23,15 +23,18 @@ from django.core import cache
 from spotseeker_server import models
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                   SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
+@override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
+                         'DefaultSpotForm')
 @override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class SpotDELETETest(TestCase):
     """ Tests deleting a Spot.
     """
 
     def setUp(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             spot = Spot.objects.create(name="This is for testing DELETE")
             spot.save()
@@ -41,36 +44,39 @@ class SpotDELETETest(TestCase):
             self.url = url
 
     def test_bad_url(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.delete("/api/v1/spot/aa")
-            self.assertEquals(response.status_code, 404, "Rejects an invalid url")
+            self.assertEqual(response.status_code, 404)
 
     def test_invalid_id_too_high(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             test_id = self.spot.pk + 10000
             test_url = '/api/v1/spot/{0}'.format(test_id)
             response = c.delete(test_url)
-            self.assertEquals(response.status_code, 404, "Rejects a not-yet existant url")
+            self.assertEqual(response.status_code, 404)
 
     def test_actual_delete_with_etag(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get(self.url)
             etag = response["ETag"]
             response = c.delete(self.url, If_Match=etag)
 
-            self.assertEquals(response.status_code, 200, "Gives a GONE in response to a valid delete")
+            self.assertEqual(response.status_code, 200)
 
             response = c.get(self.url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on GET after a delete")
+            self.assertEqual(response.status_code, 404)
 
             response = c.delete(self.url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
+            self.assertEqual(response.status_code, 404)
 
             try:
                 test_spot = Spot.objects.get(pk=self.spot.pk)
@@ -80,18 +86,20 @@ class SpotDELETETest(TestCase):
             self.assertIsNone(test_spot, "Can't objects.get a deleted spot")
 
     def test_actual_delete_no_etag(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
             response = c.delete(self.url)
-            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
+            self.assertEqual(response.status_code, 400)
 
             response = c.get(self.url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEqual(response.status_code, 200)
 
     def test_actual_delete_expired_etag(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
@@ -103,7 +111,7 @@ class SpotDELETETest(TestCase):
             intermediate_spot.save()
 
             response = c.delete(self.url, If_Match=etag)
-            self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+            self.assertEqual(response.status_code, 409)
 
             response = c.get(self.url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEqual(response.status_code, 200)

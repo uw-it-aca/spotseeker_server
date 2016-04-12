@@ -29,22 +29,45 @@ class SpotHoursGETTest(TestCase):
 
     def setUp(self):
         spot = Spot.objects.create(name="This spot has available hours")
-        # Intentionally out of order - make sure windows are sorted, not just in db happenstance order
-        hours2 = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="11:00", end_time="14:00")
-        hours1 = SpotAvailableHours.objects.create(spot=spot, day="m", start_time="00:00", end_time="10:00")
-        hours3 = SpotAvailableHours.objects.create(spot=spot, day="t", start_time="11:00", end_time="14:00")
-        hours4 = SpotAvailableHours.objects.create(spot=spot, day="w", start_time="11:00", end_time="14:00")
-        hours5 = SpotAvailableHours.objects.create(spot=spot, day="th", start_time="11:00", end_time="14:00")
-        hours6 = SpotAvailableHours.objects.create(spot=spot, day="f", start_time="11:00", end_time="14:00")
+        # Intentionally out of order - make sure windows are sorted, not
+        # just in db happenstance order
+        hours2 = SpotAvailableHours.objects.create(spot=spot,
+                                                   day="m",
+                                                   start_time="11:00",
+                                                   end_time="14:00")
+        hours1 = SpotAvailableHours.objects.create(spot=spot,
+                                                   day="m",
+                                                   start_time="00:00",
+                                                   end_time="10:00")
+        hours3 = SpotAvailableHours.objects.create(spot=spot,
+                                                   day="t",
+                                                   start_time="11:00",
+                                                   end_time="14:00")
+        hours4 = SpotAvailableHours.objects.create(spot=spot,
+                                                   day="w",
+                                                   start_time="11:00",
+                                                   end_time="14:00")
+        hours5 = SpotAvailableHours.objects.create(spot=spot,
+                                                   day="th",
+                                                   start_time="11:00",
+                                                   end_time="14:00")
+        hours6 = SpotAvailableHours.objects.create(spot=spot,
+                                                   day="f",
+                                                   start_time="11:00",
+                                                   end_time="14:00")
         # Saturday is intentionally missing
-        hours8 = SpotAvailableHours.objects.create(spot=spot, day="su", start_time="11:00", end_time="14:00")
+        hours8 = SpotAvailableHours.objects.create(spot=spot,
+                                                   day="su",
+                                                   start_time="11:00",
+                                                   end_time="14:00")
 
         self.spot = spot
 
     def test_hours(self):
         """ Tests that a Spot's available hours can be retrieved successfully.
         """
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = \
+            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             url = "/api/v1/spot/%s" % self.spot.pk
@@ -62,4 +85,4 @@ class SpotHoursGETTest(TestCase):
             }
 
             available_hours = spot_dict["available_hours"]
-            self.assertEquals(available_hours, valid_data, "Data from the web service matches the data for the spot")
+            self.assertEqual(available_hours, valid_data)

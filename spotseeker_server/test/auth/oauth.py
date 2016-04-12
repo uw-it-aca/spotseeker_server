@@ -34,61 +34,118 @@ from spotseeker_server import models
 class SpotAuthOAuth(TestCase):
 
     def setUp(self):
-        spot = Spot.objects.create(name="This is for testing the oauth module", capacity=10)
+        spot = Spot.objects.create(
+            name="This is for testing the oauth module",
+            capacity=10
+        )
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
     def test_get_no_oauth(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get(self.url)
-            self.assertEquals(response.status_code, 401, "No access to GET w/o oauth")
+            self.assertEquals(response.status_code, 401,
+                              "No access to GET w/o oauth")
 
     def test_valid_oauth(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             consumer_name = "Test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+            key = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                  time.time()
+                                                  )
+                               ).hexdigest()
+            secret = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                     time.time()
+                                                     )
+                                  ).hexdigest()
 
-            create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
+            create_consumer = Consumer.objects.create(
+                name=consumer_name,
+                key=key,
+                secret=secret
+            )
 
             consumer = oauth2.Consumer(key=key, secret=secret)
 
-            req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
+            req = oauth2.Request.from_consumer_and_token(
+                consumer,
+                None,
+                http_method='GET',
+                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             oauth_header = req.to_header()
 
             c = Client()
-            response = c.get(self.url, HTTP_AUTHORIZATION=oauth_header['Authorization'])
+            response = c.get(
+                self.url,
+                HTTP_AUTHORIZATION=oauth_header['Authorization']
+            )
 
-            self.assertEquals(response.status_code, 200, "Got a 200 w/ a proper oauth client connection")
+            self.assertEquals(
+                response.status_code,
+                200,
+                "Got a 200 w/ a proper oauth client connection"
+            )
 
             spot_dict = json.loads(response.content)
 
-            self.assertEquals(spot_dict['id'], self.spot.pk, "Got the right spot back from oauth")
+            self.assertEquals(
+                spot_dict['id'],
+                self.spot.pk,
+                "Got the right spot back from oauth"
+            )
 
     def test_invalid_oauth(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
 
-            consumer = oauth2.Consumer(key="This is a fake key", secret="This is a fake secret")
+            consumer = oauth2.Consumer(
+                key="This is a fake key",
+                secret="This is a fake secret"
+            )
 
-            req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
+            req = oauth2.Request.from_consumer_and_token(
+                consumer,
+                None,
+                http_method='GET',
+                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             oauth_header = req.to_header()
 
             c = Client()
-            response = c.get(self.url, HTTP_AUTHORIZATION=oauth_header['Authorization'])
+            response = c.get(self.url,
+                             HTTP_AUTHORIZATION=oauth_header['Authorization'])
 
-            self.assertEquals(response.status_code, 401, "Got a 401 w/ an invented oauth client id")
+            self.assertEquals(
+                response.status_code,
+                401,
+                "Got a 401 w/ an invented oauth client id"
+            )
 
-    @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
-    @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+    @override_settings(
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotForm'
+    )
+    @override_settings(
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotExtendedInfoForm'
+    )
     def test_put_no_oauth(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
@@ -99,132 +156,281 @@ class SpotAuthOAuth(TestCase):
             spot_dict = self.spot.json_data_structure()
             spot_dict['name'] = "Failing to modify oauth"
 
-            response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag)
-            self.assertEquals(response.status_code, 401, "Rejects a PUT w/o oauth info")
+            response = c.put(self.url, json.dumps(spot_dict),
+                             content_type="application/json", If_Match=etag)
+            self.assertEquals(response.status_code, 401,
+                              "Rejects a PUT w/o oauth info")
 
-    @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
-    @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+    @override_settings(
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotForm'
+    )
+    @override_settings(
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotExtendedInfoForm'
+    )
     def test_put_untrusted_oauth(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             consumer_name = "Untrusted test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+            key = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                  time.time()
+                                                  )
+                               ).hexdigest()
+            secret = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                     time.time()
+                                                     )
+                                  ).hexdigest()
 
-            create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
+            create_consumer = Consumer.objects.create(
+                name=consumer_name,
+                key=key,
+                secret=secret
+            )
 
             consumer = oauth2.Consumer(key=key, secret=secret)
 
-            req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
+            req = oauth2.Request.from_consumer_and_token(
+                consumer,
+                None,
+                http_method='GET',
+                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             oauth_header = req.to_header()
             c = Client()
 
-            response = c.get(self.url, HTTP_AUTHORIZATION=oauth_header['Authorization'])
+            response = c.get(
+                self.url,
+                HTTP_AUTHORIZATION=oauth_header['Authorization']
+            )
             etag = response["ETag"]
 
             spot_dict = json.loads(response.content)
             spot_dict['name'] = "Failing to modify oauth"
             spot_dict['location'] = {"latitude": 55, "longitude": -30}
 
-            response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag, HTTP_AUTHORIZATION=oauth_header['Authorization'])
-            self.assertEquals(response.status_code, 401, "Rejects a PUT from a non-trusted oauth client")
+            response = c.put(
+                self.url,
+                json.dumps(spot_dict),
+                content_type="application/json",
+                If_Match=etag,
+                HTTP_AUTHORIZATION=oauth_header['Authorization']
+            )
+            self.assertEquals(
+                response.status_code,
+                401,
+                "Rejects a PUT from a non-trusted oauth client"
+            )
 
-    @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
-    @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+    @override_settings(
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotForm'
+    )
+    @override_settings(
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotExtendedInfoForm'
+    )
     def test_put_untrusted_oauth_with_user_header(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             consumer_name = "Untrusted test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+            key = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                  time.time()
+                                                  )
+                               ).hexdigest()
+            secret = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                     time.time()
+                                                     )
+                                  ).hexdigest()
 
-            create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
+            create_consumer = Consumer.objects.create(
+                name=consumer_name,
+                key=key,
+                secret=secret
+            )
 
             consumer = oauth2.Consumer(key=key, secret=secret)
 
-            req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
+            req = oauth2.Request.from_consumer_and_token(
+                consumer,
+                None,
+                http_method='GET',
+                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             oauth_header = req.to_header()
             c = Client()
 
-            response = c.get(self.url, HTTP_AUTHORIZATION=oauth_header['Authorization'])
+            response = c.get(
+                self.url,
+                HTTP_AUTHORIZATION=oauth_header['Authorization']
+            )
             etag = response["ETag"]
 
             spot_dict = json.loads(response.content)
             spot_dict['name'] = "Failing to modify oauth"
 
-            response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag, HTTP_AUTHORIZATION=oauth_header['Authorization'], HTTP_XOAUTH_USER="pmichaud")
-            self.assertEquals(response.status_code, 401, "Rejects a PUT from a non-trusted oauth client")
+            response = c.put(
+                self.url,
+                json.dumps(spot_dict),
+                content_type="application/json",
+                If_Match=etag,
+                HTTP_AUTHORIZATION=oauth_header['Authorization'],
+                HTTP_X_OAUTH_USER="pmichaud"
+            )
+            self.assertEquals(
+                response.status_code,
+                401,
+                "Rejects a PUT from a non-trusted oauth client"
+            )
 
-    @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
-    @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+    @override_settings(
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotForm'
+    )
+    @override_settings(
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotExtendedInfoForm'
+    )
     @override_settings(SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
     def test_put_trusted_client(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             consumer_name = "Trusted test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+            key = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                  time.time()
+                                                  )
+                               ).hexdigest()
+            secret = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                     time.time()
+                                                     )
+                                  ).hexdigest()
 
-            create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
-            trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted=True)
+            create_consumer = Consumer.objects.create(name=consumer_name,
+                                                      key=key,
+                                                      secret=secret)
+            trusted_consumer = TrustedOAuthClient.objects.create(
+                consumer=create_consumer,
+                is_trusted=True
+            )
 
             consumer = oauth2.Consumer(key=key, secret=secret)
 
-            req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
+            req = oauth2.Request.from_consumer_and_token(
+                consumer,
+                None,
+                http_method='GET',
+                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             oauth_header = req.to_header()
             c = Client()
 
-            response = c.get(self.url, HTTP_AUTHORIZATION=oauth_header['Authorization'])
+            response = c.get(self.url,
+                             HTTP_AUTHORIZATION=oauth_header['Authorization'])
             etag = response["ETag"]
 
             spot_dict = json.loads(response.content)
             spot_dict['name'] = "Failing to modify oauth"
             spot_dict['location'] = {"latitude": 55, "longitude": -30}
 
-            response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag, HTTP_AUTHORIZATION=oauth_header['Authorization'], HTTP_XOAUTH_USER="pmichaud")
-            self.assertEquals(response.status_code, 200, "Accepts a PUT from a trusted oauth client")
+            response = c.put(
+                self.url,
+                json.dumps(spot_dict),
+                content_type="application/json",
+                If_Match=etag,
+                HTTP_AUTHORIZATION=oauth_header['Authorization'],
+                HTTP_X_OAUTH_USER="pmichaud"
+            )
+            self.assertEquals(
+                response.status_code,
+                200,
+                "Accepts a PUT from a trusted oauth client"
+            )
 
-    @override_settings(SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm')
-    @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.DefaultSpotExtendedInfoForm')
+    @override_settings(
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotForm'
+    )
+    @override_settings(
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
+        'ot.DefaultSpotExtendedInfoForm'
+    )
     def test_put_trusted_client_no_user(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
         with patch.object(models, 'cache', dummy_cache):
             consumer_name = "Trusted test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(), time.time())).hexdigest()
+            key = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                  time.time()
+                                                  )
+                               ).hexdigest()
+            secret = hashlib.sha1("{0} - {1}".format(random.random(),
+                                                     time.time()
+                                                     )
+                                  ).hexdigest()
 
-            create_consumer = Consumer.objects.create(name=consumer_name, key=key, secret=secret)
-            trusted_consumer = TrustedOAuthClient.objects.create(consumer=create_consumer, is_trusted=True)
+            create_consumer = Consumer.objects.create(name=consumer_name,
+                                                      key=key,
+                                                      secret=secret)
+            trusted_consumer = TrustedOAuthClient.objects.create(
+                consumer=create_consumer,
+                is_trusted=True
+            )
 
             consumer = oauth2.Consumer(key=key, secret=secret)
 
-            req = oauth2.Request.from_consumer_and_token(consumer, None, http_method='GET', http_url="http://testserver/api/v1/spot/%s" % self.spot.pk)
+            req = oauth2.Request.from_consumer_and_token(
+                consumer,
+                None,
+                http_method='GET',
+                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             oauth_header = req.to_header()
             c = Client()
 
-            response = c.get(self.url, HTTP_AUTHORIZATION=oauth_header['Authorization'])
+            response = c.get(
+                self.url,
+                HTTP_AUTHORIZATION=oauth_header['Authorization']
+            )
             etag = response["ETag"]
 
             spot_dict = json.loads(response.content)
             spot_dict['name'] = "Failing to modify oauth"
 
-            response = c.put(self.url, json.dumps(spot_dict), content_type="application/json", If_Match=etag, HTTP_AUTHORIZATION=oauth_header['Authorization'])
-            self.assertEquals(response.status_code, 401, "Rejects a PUT from a trusted oauth client w/o a given user")
+            response = c.put(
+                self.url,
+                json.dumps(spot_dict),
+                content_type="application/json",
+                If_Match=etag,
+                HTTP_AUTHORIZATION=oauth_header['Authorization']
+            )
+            self.assertEquals(
+                response.status_code,
+                401,
+                "Rejects a PUT from a trusted oauth client w/o a given user")
 
     def test_create_trusted_client(self):
-        """ Tests to be sure the create_consumer command can create trusted clients.
+        """ Tests to be sure the create_consumer
+            command can create trusted clients.
         """
         consumer_name = 'This is for testing create_consumer'
 
-        call_command('create_consumer', consumer_name=consumer_name, trusted='yes', silent=True)
+        call_command('create_consumer', consumer_name=consumer_name,
+                     trusted='yes', silent=True)
 
         consumer = Consumer.objects.get(name=consumer_name)
 

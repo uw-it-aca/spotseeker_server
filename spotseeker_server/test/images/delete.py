@@ -42,7 +42,9 @@ class SpotImageDELETETest(TestCase):
 
         # GIF
         f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = self.spot.spotimage_set.create(description="This is the GIF test", image=File(f))
+        gif = self.spot.spotimage_set.create(
+            description="This is the GIF test",
+            image=File(f))
         f.close()
 
         self.gif = gif
@@ -50,7 +52,9 @@ class SpotImageDELETETest(TestCase):
 
         # JPEG
         f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = self.spot.spotimage_set.create(description="This is the JPEG test", image=File(f))
+        jpeg = self.spot.spotimage_set.create(
+            description="This is the JPEG test",
+            image=File(f))
         f.close()
 
         self.jpeg = jpeg
@@ -58,62 +62,70 @@ class SpotImageDELETETest(TestCase):
 
         # PNG
         f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = self.spot.spotimage_set.create(description="This is the PNG test", image=File(f))
+        png = self.spot.spotimage_set.create(
+            description="This is the PNG test",
+            image=File(f))
         f.close()
 
         self.png = png
         self.png_url = "%s/image/%s" % (self.url, self.png.pk)
 
     def test_bad_url(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             bad_url = "%s/image/aa" % self.url
             response = c.delete(bad_url)
-            self.assertEquals(response.status_code, 404, "Rejects an invalid url")
+            self.assertEquals(response.status_code, 404)
 
     def test_wrong_spot_id(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             spot = Spot.objects.create(name="This is the wrong spot")
 
             f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            png = self.spot.spotimage_set.create(description="This is another PNG", image=File(f))
+            png = self.spot.spotimage_set.create(
+                description="This is another PNG", image=File(f))
             f.close()
 
-            response = c.delete("/api/v1/spot/{0}/image/{1}".format(spot.pk, png.pk))
-            self.assertEquals(response.status_code, 404, "Gives a 404 for a spot image that doesn't match the spot")
+            response = \
+                c.delete("/api/v1/spot/{0}/image/{1}".format(spot.pk, png.pk))
+            self.assertEquals(response.status_code, 404)
 
     def test_invalid_id_too_high(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
-            #GIF
+            # GIF
             test_gif_id = self.gif.pk + 10000
             test_url = "/api/v1/spot/%s/image/%s" % (self.url, test_gif_id)
             response = c.delete(test_url)
-            self.assertEquals(response.status_code, 404, "Rejects a not-yet existant url")
+            self.assertEquals(response.status_code, 404)
 
     def test_actual_delete_with_etag(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
-            #GIF
+            # GIF
             response = c.get(self.gif_url)
             etag = response["ETag"]
 
             response = c.delete(self.gif_url, If_Match=etag)
 
-            self.assertEquals(response.status_code, 200, "Gives a GONE in response to a valid delete")
+            self.assertEquals(response.status_code, 200)
 
             response = c.get(self.gif_url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on GET after a delete")
+            self.assertEquals(response.status_code, 404)
 
             response = c.delete(self.gif_url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
+            self.assertEquals(response.status_code, 404)
 
             self.assertEqual(isfile(self.gif.image.path), False)
 
@@ -122,21 +134,21 @@ class SpotImageDELETETest(TestCase):
             except Exception as e:
                 test_gif = None
 
-            self.assertIsNone(test_gif, "Can't objects.get a deleted SpotImage")
+            self.assertIsNone(test_gif)
 
-            #JPEG
+            # JPEG
             response = c.get(self.jpeg_url)
             etag = response["ETag"]
 
             response = c.delete(self.jpeg_url, If_Match=etag)
 
-            self.assertEquals(response.status_code, 200, "Gives a GONE in response to a valid delete")
+            self.assertEquals(response.status_code, 200)
 
             response = c.get(self.jpeg_url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on GET after a delete")
+            self.assertEquals(response.status_code, 404)
 
             response = c.delete(self.jpeg_url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
+            self.assertEquals(response.status_code, 404)
 
             self.assertEqual(isfile(self.jpeg.image.path), False)
 
@@ -145,21 +157,21 @@ class SpotImageDELETETest(TestCase):
             except Exception as e:
                 test_jpeg = None
 
-            self.assertIsNone(test_jpeg, "Can't objects.get a deleted SpotImage")
+            self.assertIsNone(test_jpeg)
 
-            #PNG
+            # PNG
             response = c.get(self.png_url)
             etag = response["ETag"]
 
             response = c.delete(self.png_url, If_Match=etag)
 
-            self.assertEquals(response.status_code, 200, "Gives a GONE in response to a valid delete")
+            self.assertEquals(response.status_code, 200)
 
             response = c.get(self.png_url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on GET after a delete")
+            self.assertEquals(response.status_code, 404)
 
             response = c.delete(self.png_url)
-            self.assertEquals(response.status_code, 404, "Gives a 404 on DELETE after a delete")
+            self.assertEquals(response.status_code, 404)
 
             self.assertEqual(isfile(self.png.image.path), False)
 
@@ -168,40 +180,42 @@ class SpotImageDELETETest(TestCase):
             except Exception as e:
                 test_png = None
 
-            self.assertIsNone(test_png, "Can't objects.get a deleted SpotImage")
+            self.assertIsNone(test_png)
 
     def test_actual_delete_no_etag(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
-            #GIF
+            # GIF
             response = c.delete(self.gif_url)
-            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
+            self.assertEquals(response.status_code, 400)
 
             response = c.get(self.gif_url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEquals(response.status_code, 200)
 
-            #JPEG
+            # JPEG
             response = c.delete(self.jpeg_url)
-            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
+            self.assertEquals(response.status_code, 400)
 
             response = c.get(self.jpeg_url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEquals(response.status_code, 200)
 
-            #PNG
+            # PNG
             response = c.delete(self.png_url)
-            self.assertEquals(response.status_code, 400, "Deleting w/o an etag is a bad request")
+            self.assertEquals(response.status_code, 400)
 
             response = c.get(self.png_url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEquals(response.status_code, 200)
 
     def test_actual_delete_expired_etag(self):
-        dummy_cache = cache.get_cache('django.core.cache.backends.dummy.DummyCache')
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
 
-            #GIF
+            # GIF
             response = c.get(self.gif_url)
             etag = response["ETag"]
 
@@ -210,12 +224,12 @@ class SpotImageDELETETest(TestCase):
             intermediate_img.save()
 
             response = c.delete(self.gif_url, If_Match=etag)
-            self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+            self.assertEquals(response.status_code, 409)
 
             response = c.get(self.gif_url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEquals(response.status_code, 200)
 
-            #JPEG
+            # JPEG
             response = c.get(self.jpeg_url)
             etag = response["ETag"]
 
@@ -224,12 +238,12 @@ class SpotImageDELETETest(TestCase):
             intermediate_img.save()
 
             response = c.delete(self.jpeg_url, If_Match=etag)
-            self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+            self.assertEquals(response.status_code, 409)
 
             response = c.get(self.jpeg_url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEquals(response.status_code, 200)
 
-            #PNG
+            # PNG
             response = c.get(self.png_url)
             etag = response["ETag"]
 
@@ -238,7 +252,7 @@ class SpotImageDELETETest(TestCase):
             intermediate_img.save()
 
             response = c.delete(self.png_url, If_Match=etag)
-            self.assertEquals(response.status_code, 409, "Deleting w an outdated etag is a conflict")
+            self.assertEquals(response.status_code, 409)
 
             response = c.get(self.png_url)
-            self.assertEquals(response.status_code, 200, "Resource still exists after DELETE w/o an etag")
+            self.assertEquals(response.status_code, 200)

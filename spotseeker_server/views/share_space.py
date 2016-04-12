@@ -14,10 +14,12 @@
 
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse, RESTException
+from spotseeker_server.views.rest_dispatch import \
+    RESTDispatch, JSONResponse, RESTException
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
-from spotseeker_server.require_auth import user_auth_required, app_auth_required
+from spotseeker_server.require_auth import \
+    user_auth_required, app_auth_required
 from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.models import SharedSpace, SharedSpaceRecipient
 from spotseeker_server.auth.oauth import authenticate_user
@@ -36,6 +38,7 @@ import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class ShareSpaceView(RESTDispatch):
     """ Share a space, url at /api/v1/spot/<spot_id>/share."""
@@ -57,7 +60,7 @@ class ShareSpaceView(RESTDispatch):
 
         raw_send_to = json_values['to']
         if type(raw_send_to) is not list:
-            raw_send_to = [ raw_send_to ]
+            raw_send_to = [raw_send_to]
 
         has_valid_to = False
         send_to = []
@@ -80,32 +83,50 @@ class ShareSpaceView(RESTDispatch):
             comment = json_values['comment']
 
         try:
-            share = SharedSpace.objects.get(space=spot,sender=send_from,user=user.username)
+            share = SharedSpace.objects.get(space=spot,
+                                            sender=send_from,
+                                            user=user.username)
         except ObjectDoesNotExist:
-            share = SharedSpace(space=spot,sender=send_from,user=user.username)
+            share = SharedSpace(space=spot,
+                                sender=send_from,
+                                user=user.username)
             share.save()
 
         for to in send_to:
             try:
-                server = getattr(settings, 'SS_APP_SERVER', socket.gethostname())
-                path = getattr(settings, 'SS_APP_SPACE_PATH', '/space/{{ spot_id }}/{{ spot_name }}')
+                server = getattr(settings,
+                                 'SS_APP_SERVER',
+                                 socket.gethostname())
+                path = getattr(settings,
+                               'SS_APP_SPACE_PATH',
+                               '/space/{{ spot_id }}/{{ spot_name }}')
                 path = re.sub(r'{{\s*spot_id\s*}}', spot_id, path)
-                path = re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
-                hash_val = hashlib.md5("%s|%s|%s" % (spot.pk, send_from, to)).hexdigest()
+                path = \
+                    re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
+                hash_val = \
+                    hashlib.md5("%s|%s|%s" %
+                                (spot.pk, send_from, to)).hexdigest()
                 share_url = "http://%s%s/%s" % (server, path, hash_val)
-    
+
                 try:
-                    recipient = SharedSpaceRecipient.objects.get(hash_key=hash_val)
+                    recipient = \
+                        SharedSpaceRecipient.objects.get(hash_key=hash_val)
                     recipient.shared_count = recipient.shared_count + 1
                 except ObjectDoesNotExist:
-                    recipient = SharedSpaceRecipient(shared_space=share,hash_key=hash_val,
-                                                    recipient=to,shared_count=1,viewed_count=0)
+                    recipient = SharedSpaceRecipient(shared_space=share,
+                                                     hash_key=hash_val,
+                                                     recipient=to,
+                                                     shared_count=1,
+                                                     viewed_count=0)
 
                 recipient.save()
 
                 location_description = None
                 try:
-                    location_description = SpotExtendedInfo.objects.get(spot=spot, key='location_description').value
+                    location_description = \
+                        SpotExtendedInfo.objects.get(
+                            spot=spot,
+                            key='location_description').value
                 except ObjectDoesNotExist:
                     pass
 
@@ -122,29 +143,44 @@ class ShareSpaceView(RESTDispatch):
                     'share_url': share_url,
                     'comment': comment,
                 })
-    
-                subject_template = get_template('email/share_space/subject.txt')
-                text_template = get_template('email/share_space/plain_text.txt')
+
+                subject_template = \
+                    get_template('email/share_space/subject.txt')
+                text_template = \
+                    get_template('email/share_space/plain_text.txt')
                 html_template = get_template('email/share_space/html.html')
-    
-                subject = json_values['subject'] if 'subject' in json_values else subject_template.render(context).rstrip()
+
+                subject = \
+                    json_values['subject'] if 'subject' in json_values \
+                    else subject_template.render(context).rstrip()
                 text_content = text_template.render(context)
                 html_content = html_template.render(context)
-                from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
-    
+                from_email = getattr(settings,
+                                     'SPACESCOUT_SUGGEST_FROM',
+                                     'spacescout+noreply@uw.edu')
+
                 headers = {}
                 if send_from:
-                    headers['Sender'] = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
+                    headers['Sender'] = getattr(settings,
+                                                'SPACESCOUT_SUGGEST_FROM',
+                                                'spacescout+noreply@uw.edu')
                     from_email = send_from
                 else:
-                    from_email = getattr(settings, 'SPACESCOUT_SUGGEST_FROM', 'spacescout+noreply@uw.edu')
+                    from_email = getattr(settings,
+                                         'SPACESCOUT_SUGGEST_FROM',
+                                         'spacescout+noreply@uw.edu')
 
-                msg = EmailMultiAlternatives(subject, text_content, from_email, [to], headers=headers)
+                msg = EmailMultiAlternatives(subject,
+                                             text_content,
+                                             from_email,
+                                             [to],
+                                             headers=headers)
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
             except Exception as e:
                 logger.exception('Share Send Failure: %s' % (e))
-                raise RESTException("Cannot share space at this time: %s" % (e), status_code=500)
+                raise RESTException("Cannot share space at this time: %s" %
+                                    (e), status_code=500)
 
         return JSONResponse(True)
 
@@ -170,7 +206,8 @@ class SharedSpaceReferenceView(RESTDispatch):
             raise RESTException("Missing 'hash'", status_code=400)
 
         try:
-            recipient = SharedSpaceRecipient.objects.get(hash_key=json_values['hash'])
+            recipient = SharedSpaceRecipient.objects.get(
+                hash_key=json_values['hash'])
         except ObjectDoesNotExist:
             return JSONResponse("{error: 'shared spot not found'}", status=401)
 

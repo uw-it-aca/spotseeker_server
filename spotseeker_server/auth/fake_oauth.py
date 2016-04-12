@@ -18,11 +18,12 @@ authorization.  To use it, add this to your settings.py:
 
 SPOTSEEKER_AUTH_MODULE = spotseeker_server.auth.fake_oauth
 
-You can specify a user with a request header of 
+You can specify a user with a request header of
 
 """
 
 from django.contrib import auth
+
 
 def authenticate_application(*args, **kwargs):
     """ This always allows requests through """

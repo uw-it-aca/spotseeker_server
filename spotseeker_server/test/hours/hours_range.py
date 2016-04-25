@@ -584,10 +584,10 @@ class HoursRangeTest(TestCase):
             # Don't assert spot3, see docstring above
             self.assertTrue(self.spot4.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
-        pass
 
     def tearDown(self):
         self.spot1.delete()
         self.spot2.delete()
         self.spot3.delete()
         self.spot4.delete()
+        self.spot5.delete()

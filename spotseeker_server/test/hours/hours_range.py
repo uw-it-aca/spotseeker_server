@@ -147,6 +147,57 @@ class HoursRangeTest(TestCase):
                 end_time=spot_close
             )
 
+        spot_open = datetime.time(self.now + timedelta(hours=2))
+        spot_close = datetime.time(self.now + timedelta(hours=14))
+
+        self.today = day_lookup[3]
+        self.tomorrow = day_lookup[4]
+
+        self.spot6 = models.Spot.objects.create(
+            name="Spot opens {4} at {0}:{1} and closes {5} at {2}:{3}".format(
+                spot_open.hour,
+                spot_open.minute,
+                spot_close.hour,
+                spot_close.minute,
+                self.today,
+                self.tomorrow
+            )
+        )
+
+        for i in [1, 2, 3, 4]:
+            models.SpotAvailableHours.objects.create(
+                spot=self.spot6,
+                day=day_lookup[i],
+                start_time=spot_open,
+                end_time=spot_close
+            )
+
+        spot_open = datetime.time(self.now + timedelta(hours=3))
+        spot_close = datetime.time(self.now + timedelta(hours=14))
+        models.SpotAvailableHours.objects.create(
+            spot=self.spot6,
+            day=day_lookup[0],
+            start_time=spot_open,
+            end_time=spot_close
+        )
+        spot_open = datetime.time(self.now + timedelta(hours=2))
+        spot_close = datetime.time(self.now + timedelta(hours=14))
+        models.SpotAvailableHours.objects.create(
+            spot=self.spot6,
+            day=day_lookup[5],
+            start_time=spot_open,
+            end_time=spot_close
+        )
+        spot_open = datetime.time(self.now + timedelta(hours=3))
+        spot_close = datetime.time(self.now + timedelta(hours=14))
+        models.SpotAvailableHours.objects.create(
+            spot=self.spot6,
+            day=day_lookup[6],
+            start_time=spot_open,
+            end_time=spot_close
+        )
+
+
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",
                          "t": "Tuesday",
@@ -585,9 +636,42 @@ class HoursRangeTest(TestCase):
             self.assertTrue(self.spot4.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
 
+    def test_close_within_late_night_search(self):
+        """ Tests a search range that crosses midnight, with a spot that closes
+            during the first half of that range. (SPOT-2228)
+        """
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            start_query_time = datetime.time(self.now + timedelta(hours=13))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict[self.today]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now - timedelta(hours=4))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict[self.tomorrow]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get(
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(self.spot1.json_data_structure() in spots)
+            self.assertFalse(self.spot2.json_data_structure() in spots)
+            # Don't assert spot3, see docstring above
+            self.assertTrue(self.spot4.json_data_structure() in spots)
+            # Don't assert spot5, see docstring above
+            self.assertTrue(self.spot6.json_data_structure() in spots)
+
     def tearDown(self):
         self.spot1.delete()
         self.spot2.delete()
         self.spot3.delete()
         self.spot4.delete()
         self.spot5.delete()
+        self.spot6.delete()

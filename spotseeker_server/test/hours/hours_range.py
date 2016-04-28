@@ -197,7 +197,6 @@ class HoursRangeTest(TestCase):
             end_time=spot_close
         )
 
-
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",
                          "t": "Tuesday",

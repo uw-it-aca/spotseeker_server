@@ -236,11 +236,12 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
+            self.assertFalse(self.spot6.json_data_structure() in spots)
 
     def test_spot_closing_within_range(self):
         """ Tests search for a spot that closes during the search range.
         Search range: today 11:00 - 14:00
-        This should return spot 1 and 2, we don't test for 2 because it's
+        This should return spot 1 and 2, we don't test for 2 or 6 because it's
         returned for a valid reason that is outside the scope of this test.
         """
         dummy_cache = cache.get_cache(
@@ -269,6 +270,7 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
+            # Don't assert on spot6, see above.
 
     def test_spot_open_hours_span_entire_range(self):
         """ Tests search for a spot that opens before the search start time and
@@ -301,11 +303,12 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
+            self.assertTrue(self.spot6.json_data_structure() in spots)
 
     def test_open_close_in_range(self):
         """ Tests search for a spot that opens and closes within the
             search range. Search range: today 8:00 - 14:00
-            This should return spot 1 and 2, but don't assert spot2 as it
+            This should return spot 1 and 2, but don't assert spot2 or 6 as it
             is returned for a valid reason outside of the scope of this test.
         """
         dummy_cache = cache.get_cache(
@@ -334,6 +337,7 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
+            # Don't assert spot6, see reason above.
 
     def test_open_within_range_and_close_within_range_next_day(self):
         """ Tests search for a spot that opens within the search range
@@ -368,11 +372,13 @@ class HoursRangeTest(TestCase):
             # Don't assert spot3, see reason in docstring above
             self.assertTrue(self.spot4.json_data_structure() in spots)
             self.assertTrue(self.spot5.json_data_structure() in spots)
+            # Don't assert spot6
 
     def test_open_and_close_before_range(self):
         """ Tests search for a spot that opens and closes before the
         search range. Search range: 14:00 - 17:00
-        This should NOT return any spots.
+        This should NOT return any spots, except spot6 which is returned for a
+        valid reason outside the scope of this test.
         """
         dummy_cache = cache.get_cache(
             'django.core.cache.backends.dummy.DummyCache')
@@ -400,6 +406,7 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
+            # Don't assert spot6, see the docstring above.
 
     def test_open_and_close_after_range(self):
         """ Tests search for a spot that opens and closes after the search
@@ -433,6 +440,7 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
+            self.assertFalse(self.spot6.json_data_structure() in spots)
 
     def test_invalid_end_only(self):
         """ Tests search for a spot without passing a start time for the range.
@@ -475,7 +483,7 @@ class HoursRangeTest(TestCase):
     def test_closes_at_start(self):
         """ Tests search for a spot that closes at exactly the time the
         search range begins. Search range: 13:00 - 14:00
-        This should return spot 2, but don't assert as it matches a valid
+        This should return spot 2 and 6, but don't assert as it matches a valid
         search outside the scope of this test.
         """
         dummy_cache = cache.get_cache(
@@ -504,6 +512,7 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
+            # don't assert spot6
 
     def test_opens_at_end(self):
         """ Tests search for a spot that opens at exactly the time
@@ -537,6 +546,7 @@ class HoursRangeTest(TestCase):
             self.assertFalse(self.spot2.json_data_structure() in spots)
             self.assertFalse(self.spot3.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
+            # don't assert spot6
 
     def test_open_within_range_and_close_outside_range_next_day(self):
         """ Tests a search range that spans midnight. This should return
@@ -570,6 +580,7 @@ class HoursRangeTest(TestCase):
             # Don't assert spot3, see docstring above
             self.assertTrue(self.spot4.json_data_structure() in spots)
             self.assertTrue(self.spot5.json_data_structure() in spots)
+            # Don't assert spot6
 
     def test_open_outside_range_and_close_within_range_next_day(self):
         """ Tests a search range that spans midnight. This should return
@@ -603,6 +614,7 @@ class HoursRangeTest(TestCase):
             # Don't assert spot3, see docstring above
             self.assertTrue(self.spot4.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
+            # Don't assert spot6
 
     def test_span_late_night(self):
         """ Tests a search range where the spot's open time is before the
@@ -635,6 +647,7 @@ class HoursRangeTest(TestCase):
             # Don't assert spot3, see docstring above
             self.assertTrue(self.spot4.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
+            # Don't assert spot6
 
     def test_close_within_late_night_search(self):
         """ Tests a search range that crosses midnight, with a spot that closes

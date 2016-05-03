@@ -162,7 +162,8 @@ class SpotImagePUTTest(TestCase):
                 response = c.put(self.gif_url,
                                  files={"description": new_name,
                                         "image": f},
-                                 content_type="multipart/form-data; boundary=--aklsjf--",
+                                 content_type="multipart/form-data; "
+                                              "boundary=--aklsjf--",
                                  If_Match=etag)
                 self.assertEquals(response.status_code, 200)
                 f = open("%s/../resources/test_png.png" % TEST_ROOT)

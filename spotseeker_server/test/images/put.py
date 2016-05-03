@@ -15,7 +15,7 @@
 
 from django.test import TestCase
 from django.conf import settings
-from django.test.client import Client
+from django.test.client import Client, encode_multipart
 from django.core.files import File
 from spotseeker_server.models import Spot, SpotImage
 from os.path import abspath, dirname
@@ -162,19 +162,18 @@ class SpotImagePUTTest(TestCase):
                 response = c.put(self.gif_url,
                                  files={"description": new_name,
                                         "image": f},
-                                 content_type="multipart/form-data",
+                                 content_type="multipart/form-data; boundary=--aklsjf--",
                                  If_Match=etag)
                 self.assertEquals(response.status_code, 200)
                 f = open("%s/../resources/test_png.png" % TEST_ROOT)
-                self.assertEquals(int(response["content-length"]),
-                                  len(f.read()))
-                self.assertNotEqual(int(response["content-length"]),
-                                    len(f2.read()))
-                self.assertEquals(response["content-type"], "image/png")
 
                 # Just to be sure
                 response = c.get(self.gif_url)
                 self.assertEquals(response["content-type"], "image/png")
+                self.assertEquals(int(response["content-length"]),
+                                  len(f.read()))
+                self.assertNotEqual(int(response["content-length"]),
+                                    len(f2.read()))
 
     def test_invalid_image_type_valid_etag(self):
         dummy_cache = cache.get_cache(

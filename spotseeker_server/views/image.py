@@ -24,7 +24,7 @@ from django.http import HttpResponse
 from django.utils.http import http_date
 from django.core.servers.basehttp import FileWrapper
 from django.core.exceptions import ValidationError
-from django.core.files import UploadedFile
+from django.core.files.images import ImageFile
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
 
@@ -70,7 +70,7 @@ class ImageView(RESTDispatch):
         request.method = "PUT"
 
         if "image" in request.META['files']:
-            img.image = UploadedFile(request.META['files']["image"])
+            img.image = ImageFile(request.META['files']["image"])
         if "description" in request.META['files']:
             img.description = request.META['files']["description"]
         if "display_index" in request.META['files']:

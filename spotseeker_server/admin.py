@@ -34,16 +34,19 @@ class SpotAdmin(admin.ModelAdmin):
     form = SpotForm.implementation()
 
     list_display = ("name",
+                    "id",
                     "building_name",
-                    "floor",
-                    "room_number",
-                    "capacity",
                     "organization",
-                    "manager")
+                    "manager",
+                    "last_modified")
     list_filter = ["spottypes",
                    "building_name",
                    "organization",
                    "manager"]
+    search_fields = ["name",
+                     "building_name",
+                     "organization",
+                     "manager"]
 
     actions = ['delete_model']
 

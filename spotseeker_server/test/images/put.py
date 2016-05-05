@@ -15,7 +15,7 @@
 
 from django.test import TestCase
 from django.conf import settings
-from django.test.client import Client
+from django.test.client import Client, encode_multipart
 from django.core.files import File
 from spotseeker_server.models import Spot, SpotImage
 from os.path import abspath, dirname
@@ -40,44 +40,45 @@ class SpotImagePUTTest(TestCase):
 
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()
-        spot = Spot.objects.create(
-            name="This is to test PUTtingimages",
-            capacity=1)
-        spot.save()
-        self.spot = spot
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            spot = Spot.objects.create(
+                name="This is to test PUTtingimages",
+                capacity=1)
+            spot.save()
+            self.spot = spot
 
-        self.url = '/api/v1/spot/{0}'.format(self.spot.pk)
-        self.url = self.url
+            self.url = '/api/v1/spot/{0}'.format(self.spot.pk)
+            self.url = self.url
 
-        # GIF
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = self.spot.spotimage_set.create(
-            description="This is the GIF test",
-            image=File(f))
-        f.close()
+            # GIF
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            gif = self.spot.spotimage_set.create(
+                description="This is the GIF test",
+                image=File(f))
+            f.close()
 
-        self.gif = gif
-        self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
+            self.gif = gif
+            self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
 
-        # JPEG
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = self.spot.spotimage_set.create(
-            description="This is the JPEG test",
-            image=File(f))
-        f.close()
+            # JPEG
+            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            jpeg = self.spot.spotimage_set.create(
+                description="This is the JPEG test",
+                image=File(f))
+            f.close()
 
-        self.jpeg = jpeg
-        self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
+            self.jpeg = jpeg
+            self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
 
-        # PNG
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = self.spot.spotimage_set.create(
-            description="This is the PNG test",
-            image=File(f))
-        f.close()
+            # PNG
+            f = open("%s/../resources/test_png.png" % TEST_ROOT)
+            png = self.spot.spotimage_set.create(
+                description="This is the PNG test",
+                image=File(f))
+            f.close()
 
-        self.png = png
-        self.png_url = "%s/image/%s" % (self.url, self.png.pk)
+            self.png = png
+            self.png_url = "%s/image/%s" % (self.url, self.png.pk)
 
     def test_bad_url(self):
         dummy_cache = cache.get_cache(
@@ -133,14 +134,15 @@ class SpotImagePUTTest(TestCase):
                 new_jpeg_name = "testing PUT name: {0}".format(random.random())
 
                 response = c.put(self.jpeg_url,
-                                 {"description": new_jpeg_name,
-                                  "image": f},
+                                 files={"description": new_jpeg_name,
+                                        "image": f},
                                  If_Match=etag)
+                f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
                 self.assertEquals(response.status_code, 200)
                 self.assertEquals(int(response["content-length"]),
-                                  os.fstat(f.fileno()).st_size)
+                                  len(f.read()))
                 self.assertNotEqual(int(response["content-length"]),
-                                    os.fstat(f2.fileno()).st_size)
+                                    len(f2.read()))
                 self.assertEquals(response["content-type"], "image/jpeg")
 
     def test_valid_different_image_type_valid_etag(self):
@@ -158,19 +160,21 @@ class SpotImagePUTTest(TestCase):
                 new_name = "testing PUT name: {0}".format(random.random())
 
                 response = c.put(self.gif_url,
-                                 {"description": new_name,
-                                  "image": f},
+                                 files={"description": new_name,
+                                        "image": f},
+                                 content_type="multipart/form-data; "
+                                              "boundary=--aklsjf--",
                                  If_Match=etag)
                 self.assertEquals(response.status_code, 200)
-                self.assertEquals(int(response["content-length"]),
-                                  os.fstat(f.fileno()).st_size)
-                self.assertNotEqual(int(response["content-length"]),
-                                    os.fstat(f2.fileno()).st_size)
-                self.assertEquals(response["content-type"], "image/png")
+                f = open("%s/../resources/test_png.png" % TEST_ROOT)
 
                 # Just to be sure
                 response = c.get(self.gif_url)
                 self.assertEquals(response["content-type"], "image/png")
+                self.assertEquals(int(response["content-length"]),
+                                  len(f.read()))
+                self.assertNotEqual(int(response["content-length"]),
+                                    len(f2.read()))
 
     def test_invalid_image_type_valid_etag(self):
         dummy_cache = cache.get_cache(
@@ -189,11 +193,10 @@ class SpotImagePUTTest(TestCase):
                 c = Client()
                 f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
                 response = c.put(self.gif_url,
-                                 {"description": "This is really a text file",
-                                  "image": f},
+                                 files={"description": "This is a text file",
+                                        "image": f},
                                  If_Match=etag)
                 f.close()
-
                 self.assertEquals(response.status_code, 400)
 
     # Want this to be one of the first tests to run
@@ -207,8 +210,9 @@ class SpotImagePUTTest(TestCase):
                 f = open("%s/../resources/test_gif2.gif" % TEST_ROOT)
                 new_gif_name = "testing PUT name: {0}".format(random.random())
                 response = c.put(self.gif_url,
-                                 {"description": new_gif_name,
-                                  "image": f})
+                                 files={"description": new_gif_name,
+                                        "image": f},
+                                 content_type="image/gif")
                 self.assertEquals(response.status_code, 400)
 
                 updated_img = SpotImage.objects.get(pk=self.gif.pk)
@@ -218,8 +222,9 @@ class SpotImagePUTTest(TestCase):
                 f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
                 new_jpeg_name = "testing PUT name: {0}".format(random.random())
                 response = c.put(self.gif_url,
-                                 {"description": new_jpeg_name,
-                                  "image": f})
+                                 files={"description": new_jpeg_name,
+                                        "image": f},
+                                 content_type="image/jpeg")
                 self.assertEquals(response.status_code, 400)
 
                 updated_img = SpotImage.objects.get(pk=self.jpeg.pk)
@@ -230,8 +235,9 @@ class SpotImagePUTTest(TestCase):
                 f = open("%s/../resources/test_png2.png" % TEST_ROOT)
                 new_png_name = "testing PUT name: {0}".format(random.random())
                 response = c.put(self.gif_url,
-                                 {"description": new_png_name,
-                                  "image": f})
+                                 files={"description": new_png_name,
+                                        "image": f},
+                                 content_type="image/png")
                 self.assertEquals(response.status_code, 400)
 
                 updated_img = SpotImage.objects.get(pk=self.png.pk)

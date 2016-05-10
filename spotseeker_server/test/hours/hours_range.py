@@ -197,7 +197,7 @@ class HoursRangeTest(TestCase):
             end_time=spot_close
         )
 
-        spot_open = datetime.time(self.now + timedelta(hours=1,minutes=30))
+        spot_open = datetime.time(self.now + timedelta(hours=1, minutes=30))
         spot_close = datetime.time(self.now + timedelta(hours=6))
 
         self.today = day_lookup[2]
@@ -223,8 +223,8 @@ class HoursRangeTest(TestCase):
             )
 
         at = models.SpotExtendedInfo.objects.create(key='app_type',
-                                             value='food',
-                                             spot=self.spot7)
+                                                    value='food',
+                                                    spot=self.spot7)
 
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",

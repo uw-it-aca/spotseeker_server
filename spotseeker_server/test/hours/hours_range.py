@@ -197,6 +197,35 @@ class HoursRangeTest(TestCase):
             end_time=spot_close
         )
 
+        spot_open = datetime.time(self.now + timedelta(hours=1, minutes=30))
+        spot_close = datetime.time(self.now + timedelta(hours=6))
+
+        self.today = day_lookup[2]
+        self.tomorrow = day_lookup[3]
+
+        self.spot7 = models.Spot.objects.create(
+            name="Spot opens {4} at {0}:{1} and closes {5} at {2}:{3}".format(
+                spot_open.hour,
+                spot_open.minute,
+                spot_close.hour,
+                spot_close.minute,
+                self.today,
+                self.tomorrow
+            )
+        )
+
+        for i in [1, 2, 3, 4, 5]:
+            models.SpotAvailableHours.objects.create(
+                spot=self.spot7,
+                day=day_lookup[i],
+                start_time=spot_open,
+                end_time=spot_close
+            )
+
+        at = models.SpotExtendedInfo.objects.create(key='app_type',
+                                                    value='food',
+                                                    spot=self.spot7)
+
         self.day_dict = {"su": "Sunday",
                          "m": "Monday",
                          "t": "Tuesday",
@@ -401,7 +430,7 @@ class HoursRangeTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertFalse(self.spot1.json_data_structure() in spots)
-            self.assertFalse(self.spot2.json_data_structure() in spots)
+            self.assertTrue(self.spot2.json_data_structure() in spots)
             self.assertFalse(self.spot3.json_data_structure() in spots)
             self.assertFalse(self.spot4.json_data_structure() in spots)
             self.assertFalse(self.spot5.json_data_structure() in spots)
@@ -679,6 +708,31 @@ class HoursRangeTest(TestCase):
             self.assertTrue(self.spot4.json_data_structure() in spots)
             # Don't assert spot5, see docstring above
             self.assertTrue(self.spot6.json_data_structure() in spots)
+
+    def test_open_within_close_at_same_time(self):
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache')
+        with patch.object(models, 'cache', dummy_cache):
+            start_query_time = datetime.time(self.now + timedelta(hours=2))
+            start_query_time = start_query_time.strftime("%H:%M")
+            start_query_day = self.day_dict["t"]
+            start_query = "%s,%s" % (start_query_day, start_query_time)
+
+            end_query_time = datetime.time(self.now + timedelta(hours=6))
+            end_query_time = end_query_time.strftime("%H:%M")
+            end_query_day = self.day_dict["t"]
+            end_query = "%s,%s" % (end_query_day, end_query_time)
+
+            client = Client()
+            response = client.get(
+                "/api/v1/spot",
+                {'fuzzy_hours_start': start_query,
+                 'fuzzy_hours_end': end_query,
+                 'extended_info:app_type': 'food'})
+            spots = json.loads(response.content)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(self.spot7.json_data_structure() in spots)
 
     def tearDown(self):
         self.spot1.delete()

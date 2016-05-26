@@ -338,6 +338,14 @@ class SearchView(RESTDispatch):
                     q_obj |= type_q
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
+            elif key.startswith('extended_info:or_group'):
+                values = get_request.getlist(key)
+                or_small_q_obj = Q()
+                for value in values:
+                    or_small_q_obj |= Q(spotextendedinfo__key=value,
+                                        spotextendedinfo__value='true')
+                query = query.filter(or_small_q_obj)
+                has_valid_search_param = True
             elif key.startswith('extended_info:or'):
                 or_qs.append(Q(spotextendedinfo__key=key[17:],
                                spotextendedinfo__value='true'))

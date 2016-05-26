@@ -94,6 +94,10 @@ class SpotSearchFieldTest(TestCase):
                                               value='food',
                                               spot=self.american_food_spot)
         at1.save()
+        attr = SpotExtendedInfo.objects.create(key='s_payment_husky',
+                                               value='true',
+                                               spot=self.american_food_spot)
+        attr.save()
         self.american_food_spot.save()
 
         self.bbq_food_spot = Spot.objects.create(name='BBQ')
@@ -101,6 +105,10 @@ class SpotSearchFieldTest(TestCase):
                                               value='true',
                                               spot=self.bbq_food_spot)
         ei2.save()
+        attr = SpotExtendedInfo.objects.create(key='s_payment_cash',
+                                               value='true',
+                                               spot=self.bbq_food_spot)
+        attr.save()
         at2 = SpotExtendedInfo.objects.create(key='app_type',
                                               value='food',
                                               spot=self.bbq_food_spot)
@@ -120,6 +128,14 @@ class SpotSearchFieldTest(TestCase):
                                               value='food',
                                               spot=self.food_court_spot)
         at3.save()
+        attr = SpotExtendedInfo.objects.create(key='s_payment_husky',
+                                               value='true',
+                                               spot=self.food_court_spot)
+        attr.save()
+        attr = SpotExtendedInfo.objects.create(key='s_payment_cash',
+                                               value='true',
+                                               spot=self.food_court_spot)
+        attr.save()
         self.food_court_spot.save()
 
         self.chinese_food_spot = Spot.objects.create(name='Chinese Food')
@@ -131,6 +147,10 @@ class SpotSearchFieldTest(TestCase):
                                               value='food',
                                               spot=self.chinese_food_spot)
         at4.save()
+        att = SpotExtendedInfo.objects.create(key='s_payment_cash',
+                                              value='true',
+                                              spot=self.chinese_food_spot)
+        attr.save()
         self.chinese_food_spot.save()
 
         self.study_spot = Spot.objects.create(name='Study Here!')
@@ -504,6 +524,72 @@ class SpotSearchFieldTest(TestCase):
                 len(spots),
                 4,
                 'Finds 4 matches searching for spots in Buildings A and B'
+            )
+
+    def test_extended_info_or_gouping(self):
+        """ Tests searches for Spots with
+        extended_info that has multiple values. """
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
+        with patch.object(models, 'cache', dummy_cache):
+            response = self.client.get(
+                "/api/v1/spot",
+                {'extended_info:app_type': 'food',
+                 'extended_info:or_group:cuisine': ['s_cuisine_bbq',
+                                                    's_cuisine_american']}
+            )
+            self.assertEqual(response.status_code, 200)
+            spots = json.loads(response.content)
+            self.assertEqual(len(spots), 3)
+            self.assertTrue(
+                self.american_food_spot.json_data_structure() in spots
+            )
+            self.assertTrue(
+                self.bbq_food_spot.json_data_structure() in spots
+            )
+            self.assertTrue(
+                self.food_court_spot.json_data_structure() in spots
+            )
+            self.assertTrue(
+                self.chinese_food_spot.json_data_structure() not in spots
+            )
+            self.assertTrue(
+                self.study_spot.json_data_structure() not in spots
+            )
+
+    def test_extended_info_or_gouping_many(self):
+        """ Tests searches for Spots with
+        extended_info that has multiple values. """
+        dummy_cache = cache.get_cache(
+            'django.core.cache.backends.dummy.DummyCache'
+        )
+        with patch.object(models, 'cache', dummy_cache):
+            response = self.client.get(
+                "/api/v1/spot",
+                {'extended_info:app_type': 'food',
+                 'extended_info:or_group:groupone': ['s_cuisine_bbq',
+                                                     's_cuisine_american'],
+                 'extended_info:or_group:grouptwo': ['s_payment_husky',
+                                                     's_payment_cash']}
+            )
+            self.assertEqual(response.status_code, 200)
+            spots = json.loads(response.content)
+            self.assertEqual(len(spots), 3)
+            self.assertTrue(
+                self.american_food_spot.json_data_structure() in spots
+            )
+            self.assertTrue(
+                self.bbq_food_spot.json_data_structure() in spots
+            )
+            self.assertTrue(
+                self.food_court_spot.json_data_structure() in spots
+            )
+            self.assertTrue(
+                self.chinese_food_spot.json_data_structure() not in spots
+            )
+            self.assertTrue(
+                self.study_spot.json_data_structure() not in spots
             )
 
     # This unit test is currently invalid, as of

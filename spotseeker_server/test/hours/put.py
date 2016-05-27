@@ -21,7 +21,6 @@ import simplejson as json
 from django.test.utils import override_settings
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
 from spotseeker_server import models
 
 
@@ -33,42 +32,39 @@ from spotseeker_server import models
 class SpotHoursPUTTest(TestCase):
 
     def test_hours(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            spot = Spot.objects.create(name="This spot has available hours")
-            etag = spot.etag
+        spot = Spot.objects.create(name="This spot has available hours")
+        etag = spot.etag
 
-            put_obj = {
-                'name': "This spot has available hours",
-                'capacity': "4",
-                'location': {
-                    'latitude': '55',
-                    'longitude': '30',
-                },
-                'available_hours': {
-                    'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
-                    'tuesday': [["11:00", "14:00"]],
-                    'wednesday': [["11:00", "14:00"]],
-                    'thursday': [["11:00", "14:00"]],
-                    'friday': [["11:00", "14:00"]],
-                    'saturday': [],
-                    'sunday': [["11:00", "14:00"]],
-                }
+        put_obj = {
+            'name': "This spot has available hours",
+            'capacity': "4",
+            'location': {
+                'latitude': '55',
+                'longitude': '30',
+            },
+            'available_hours': {
+                'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
+                'tuesday': [["11:00", "14:00"]],
+                'wednesday': [["11:00", "14:00"]],
+                'thursday': [["11:00", "14:00"]],
+                'friday': [["11:00", "14:00"]],
+                'saturday': [],
+                'sunday': [["11:00", "14:00"]],
             }
+        }
 
-            client = Client()
-            url = "/api/v1/spot/%s" % spot.pk
-            response = client.put(
-                url, json.dumps(put_obj),
-                content_type="application/json",
-                If_Match=etag
-            )
-            spot_dict = json.loads(response.content)
+        client = Client()
+        url = "/api/v1/spot/%s" % spot.pk
+        response = client.put(
+            url, json.dumps(put_obj),
+            content_type="application/json",
+            If_Match=etag
+        )
+        spot_dict = json.loads(response.content)
 
-            self.maxDiff = None
-            self.assertEquals(
-                spot_dict["available_hours"],
-                put_obj["available_hours"],
-                "Data from the web service matches the data for the spot"
-            )
+        self.maxDiff = None
+        self.assertEquals(
+            spot_dict["available_hours"],
+            put_obj["available_hours"],
+            "Data from the web service matches the data for the spot"
+        )

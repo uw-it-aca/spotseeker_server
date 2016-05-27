@@ -24,7 +24,6 @@ from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.models import SharedSpace, SharedSpaceRecipient
 from spotseeker_server.auth.oauth import authenticate_user
 from django.http import HttpResponse
-from django.views.decorators.cache import never_cache
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import get_template

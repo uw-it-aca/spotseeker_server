@@ -21,7 +21,6 @@ from django.test.utils import override_settings
 from spotseeker_server.models import FavoriteSpot, Spot
 from mock import patch
 from spotseeker_server import models
-from django.core import cache
 from django.core import mail
 import json
 

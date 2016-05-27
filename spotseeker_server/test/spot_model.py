@@ -20,7 +20,6 @@ import random
 from spotseeker_server.models import Spot
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
 from spotseeker_server import models
 
 
@@ -31,19 +30,16 @@ from spotseeker_server import models
 class SpotModelTest(TestCase):
 
     def test_json(self):
-        dummy_cache = \
-            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            name = "This is a test spot: {0}".format(random.random())
+        name = "This is a test spot: {0}".format(random.random())
 
-            spot = Spot()
-            spot.name = name
-            spot.save()
+        spot = Spot()
+        spot.name = name
+        spot.save()
 
-            saved_id = spot.pk
+        saved_id = spot.pk
 
-            test_spot = Spot.objects.get(pk=saved_id)
-            json_data = test_spot.json_data_structure()
+        test_spot = Spot.objects.get(pk=saved_id)
+        json_data = test_spot.json_data_structure()
 
-            self.assertEqual(json_data["name"], name)
-            self.assertEqual(json_data["id"], saved_id)
+        self.assertEqual(json_data["name"], name)
+        self.assertEqual(json_data["id"], saved_id)

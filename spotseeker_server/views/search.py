@@ -269,7 +269,7 @@ class SearchView(RESTDispatch):
                 end_range_query = \
                     Q(spotavailablehours__day__iexact=end_day,
                       spotavailablehours__end_time__gt=start_time,
-                      spotavailablehours__end_time__lt=end_time)
+                      spotavailablehours__end_time__lte=end_time)
                 span_range_query = \
                     Q(spotavailablehours__day__iexact=end_day,
                       spotavailablehours__start_time__lte=start_time,
@@ -282,6 +282,10 @@ class SearchView(RESTDispatch):
                     Q(spotavailablehours__day__iexact=end_day,
                       spotavailablehours__end_time__lt=end_time,
                       spotavailablehours__end_time__gte="00:00")
+                span_midnight_pre_midnight_end_query = \
+                    Q(spotavailablehours__day__iexact=end_day,
+                      spotavailablehours__end_time__gte=start_time,
+                      spotavailablehours__end_time__lte="23:59")
                 span_midnight_next_morning_query = \
                     Q(spotavailablehours__day__iexact=end_day,
                       spotavailablehours__start_time__lt=end_time,
@@ -291,6 +295,7 @@ class SearchView(RESTDispatch):
                                    end_range_query |
                                    span_midnight_pre_query |
                                    span_midnight_post_query |
+                                   span_midnight_pre_midnight_end_query |
                                    span_midnight_next_morning_query)
                 else:
                     range_query = (start_range_query |

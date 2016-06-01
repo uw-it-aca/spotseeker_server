@@ -15,7 +15,6 @@
 
 from cStringIO import StringIO
 from django.conf import settings
-from django.core import cache
 from django.core.files import File
 from django.test import TestCase
 from django.test.client import Client
@@ -67,60 +66,48 @@ class SpotImageGETTest(TestCase):
         self.url = self.url
 
     def test_bad_url(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            spot = Spot.objects.create(name="This is the wrong spot")
+        c = Client()
+        spot = Spot.objects.create(name="This is the wrong spot")
 
-            response = c.get("/api/v1/spot/{0}/image/{1}".
-                             format(spot.pk, self.jpeg.pk))
-            self.assertEquals(response.status_code, 404)
+        response = c.get("/api/v1/spot/{0}/image/{1}".
+                         format(spot.pk, self.jpeg.pk))
+        self.assertEquals(response.status_code, 404)
 
     def test_jpeg(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))
-            data = StringIO(response.content)
-            im = Image.open(data)
-            self.assertEquals(response["Content-type"], "image/jpeg")
+        c = Client()
+        response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))
+        data = StringIO(response.content)
+        im = Image.open(data)
+        self.assertEquals(response["Content-type"], "image/jpeg")
 
-            orig = Image.open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+        orig = Image.open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
 
-            self.assertEquals(im.size[0], orig.size[0])
-            self.assertEquals(im.size[1], orig.size[1])
-            self.assertEquals(im.format, 'JPEG')
+        self.assertEquals(im.size[0], orig.size[0])
+        self.assertEquals(im.size[1], orig.size[1])
+        self.assertEquals(im.format, 'JPEG')
 
     def test_gif(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            response = c.get("{0}/{1}".format(self.url, self.gif.pk))
-            data = StringIO(response.content)
-            im = Image.open(data)
-            self.assertEquals(response["Content-type"], "image/gif")
+        c = Client()
+        response = c.get("{0}/{1}".format(self.url, self.gif.pk))
+        data = StringIO(response.content)
+        im = Image.open(data)
+        self.assertEquals(response["Content-type"], "image/gif")
 
-            orig = Image.open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        orig = Image.open("%s/../resources/test_gif.gif" % TEST_ROOT)
 
-            self.assertEquals(im.size[0], orig.size[0])
-            self.assertEquals(im.size[1], orig.size[1])
-            self.assertEquals(im.format, 'GIF')
+        self.assertEquals(im.size[0], orig.size[0])
+        self.assertEquals(im.size[1], orig.size[1])
+        self.assertEquals(im.format, 'GIF')
 
     def test_png(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            response = c.get("{0}/{1}".format(self.url, self.png.pk))
-            data = StringIO(response.content)
-            im = Image.open(data)
-            self.assertEquals(response["Content-type"], "image/png")
+        c = Client()
+        response = c.get("{0}/{1}".format(self.url, self.png.pk))
+        data = StringIO(response.content)
+        im = Image.open(data)
+        self.assertEquals(response["Content-type"], "image/png")
 
-            orig = Image.open("%s/../resources/test_png.png" % TEST_ROOT)
+        orig = Image.open("%s/../resources/test_png.png" % TEST_ROOT)
 
-            self.assertEquals(im.size[0], orig.size[0])
-            self.assertEquals(im.size[1], orig.size[1])
-            self.assertEquals(im.format, 'PNG')
+        self.assertEquals(im.size[0], orig.size[0])
+        self.assertEquals(im.size[1], orig.size[1])
+        self.assertEquals(im.format, 'PNG')

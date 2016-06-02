@@ -273,7 +273,7 @@ class SearchView(RESTDispatch):
                     end_range_query = \
                         Q(spotavailablehours__day__iexact=end_day,
                           spotavailablehours__end_time__gt=start_time,
-                          spotavailablehours__end_time__lt=end_time)
+                          spotavailablehours__end_time__lte=end_time)
                     span_range_query = \
                         Q(spotavailablehours__day__iexact=end_day,
                           spotavailablehours__start_time__lte=start_time,

@@ -20,7 +20,6 @@ from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
 from spotseeker_server import models
 
 
@@ -66,23 +65,20 @@ class SpotHoursGETTest(TestCase):
     def test_hours(self):
         """ Tests that a Spot's available hours can be retrieved successfully.
         """
-        dummy_cache = \
-            cache.get_cache('django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            url = "/api/v1/spot/%s" % self.spot.pk
-            response = c.get(url)
-            spot_dict = json.loads(response.content)
+        c = Client()
+        url = "/api/v1/spot/%s" % self.spot.pk
+        response = c.get(url)
+        spot_dict = json.loads(response.content)
 
-            valid_data = {
-                'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
-                'tuesday': [["11:00", "14:00"]],
-                'wednesday': [["11:00", "14:00"]],
-                'thursday': [["11:00", "14:00"]],
-                'friday': [["11:00", "14:00"]],
-                'saturday': [],
-                'sunday': [["11:00", "14:00"]],
-            }
+        valid_data = {
+            'monday': [["00:00", "10:00"], ["11:00", "14:00"]],
+            'tuesday': [["11:00", "14:00"]],
+            'wednesday': [["11:00", "14:00"]],
+            'thursday': [["11:00", "14:00"]],
+            'friday': [["11:00", "14:00"]],
+            'saturday': [],
+            'sunday': [["11:00", "14:00"]],
+        }
 
-            available_hours = spot_dict["available_hours"]
-            self.assertEqual(available_hours, valid_data)
+        available_hours = spot_dict["available_hours"]
+        self.assertEqual(available_hours, valid_data)

@@ -21,7 +21,6 @@ from django.contrib.auth.models import User
 from spotseeker_server.models import FavoriteSpot, Spot
 from mock import patch
 from spotseeker_server import models
-from django.core import cache
 import json
 
 

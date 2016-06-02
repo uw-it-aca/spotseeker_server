@@ -18,7 +18,6 @@ from django.test.client import Client
 from django.test import TestCase
 import simplejson as json
 from mock import patch
-from django.core import cache
 from spotseeker_server import models
 from django.test.utils import override_settings
 

@@ -685,6 +685,42 @@ class HoursRangeTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.spot7.json_data_structure() in spots)
 
+    def test_multiple_fuzzy_ranges(self):
+        start_query_time = datetime.time(self.now - timedelta(hours=2))
+        start_query_time = start_query_time.strftime("%H:%M")
+        start_query_day = self.day_dict[self.today]
+        start_query = "%s,%s" % (start_query_day, start_query_time)
+
+        end_query_time = datetime.time(self.now + timedelta(hours=2))
+        end_query_time = end_query_time.strftime("%H:%M")
+        end_query_day = self.day_dict[self.today]
+        end_query = "%s,%s" % (end_query_day, end_query_time)
+
+        start_query_time2 = datetime.time(self.now + timedelta(hours=2))
+        start_query_time2 = start_query_time2.strftime("%H:%M")
+        start_query_day2 = self.day_dict[self.today]
+        start_query2 = "%s,%s" % (start_query_day2, start_query_time2)
+
+        end_query_time2 = datetime.time(self.now + timedelta(hours=4))
+        end_query_time2 = end_query_time2.strftime("%H:%M")
+        end_query_day2 = self.day_dict[self.today]
+        end_query2 = "%s,%s" % (end_query_day2, end_query_time2)
+
+        client = Client()
+        response = client.get(
+            "/api/v1/spot",
+            {'fuzzy_hours_start': [start_query, start_query2],
+             'fuzzy_hours_end': [end_query, end_query2]})
+        spots = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.spot1.json_data_structure() in spots)
+        self.assertTrue(self.spot2.json_data_structure() in spots)
+        self.assertFalse(self.spot3.json_data_structure() in spots)
+        self.assertFalse(self.spot4.json_data_structure() in spots)
+        self.assertFalse(self.spot5.json_data_structure() in spots)
+        self.assertTrue(self.spot6.json_data_structure() in spots)
+
     def tearDown(self):
         self.spot1.delete()
         self.spot2.delete()

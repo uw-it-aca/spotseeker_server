@@ -19,6 +19,7 @@
         the search filter framework.
 """
 from spotseeker_server.org_filters import SearchFilter
+from django.db.models import Q
 
 
 class Filter(SearchFilter):
@@ -34,6 +35,14 @@ class Filter(SearchFilter):
             query = query.exclude(
                 spotextendedinfo__key="app_type"
                 )
+
+        if 'extended_info:group' in self.request.GET:
+            groups = self.request.GET.getlist('extended_info:group')
+            or_q_obj = Q()
+            for group in groups:
+                or_q_obj |= Q(spotextendedinfo__key='group',
+                              spotextendedinfo__value=group)
+            query = query.filter(or_q_obj)
 
         if 'extended_info:reservable' in self.request.GET:
             query = query.filter(

@@ -38,6 +38,20 @@ class UWSearchTest(TestCase):
             name="resource checkout spot", capacity=4)
         self.ei3 = SpotExtendedInfo.objects.create(
             spot=self.spot3, key="app_type", value="checkout")
+        # create a spot with a group
+        self.spot4 = Spot.objects.create(
+            name="spot within our group", capacity=4
+        )
+        self.ei4 = SpotExtendedInfo.objects.create(
+            spot=self.spot4, key='group', value='our_group'
+        )
+        # create spot with another group
+        self.spot5 = Spot.objects.create(
+            name='spot within their group', capacity=4
+        )
+        self.ei5 = SpotExtendedInfo.objects.create(
+            spot=self.spot5, key='group', value='their_group'
+        )
         # create a test Client
         self.client = Client()
 
@@ -74,11 +88,53 @@ class UWSearchTest(TestCase):
         self.assertEquals(response["Content-Type"], "application/json")
         # assert the right number of spots are returned
         spots = json.loads(response.content)
-        self.assertEqual(1, len(spots))
+        self.assertEqual(3, len(spots))
         # assert the correct spot was returned
         self.assertTrue(self.spot1.json_data_structure() in spots)
         self.assertTrue(self.spot2.json_data_structure() not in spots)
         self.assertTrue(self.spot3.json_data_structure() not in spots)
+        self.assertTrue(self.spot4.json_data_structure() in spots)
+        self.assertTrue(self.spot5.json_data_structure() in spots)
+
+    @skipUnless(
+        getattr(settings, 'SPOTSEEKER_SEARCH_FILTERS', False) and
+        settings.SPOTSEEKER_SEARCH_FILTERS ==
+        ['spotseeker_server.org_filters.uw_search.Filter'],
+        "Skip unless the right search filter is defined in settings"
+    )
+    def test_single_group_filtering(self):
+        response = self.client.get("/api/v1/spot",
+                                   {"extended_info:group": "our_group"})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(response["Content-Type"], "application/json")
+
+        spots = json.loads(response.content)
+        self.assertEqual(1, len(spots))
+        self.assertTrue(self.spot1.json_data_structure() not in spots)
+        self.assertTrue(self.spot2.json_data_structure() not in spots)
+        self.assertTrue(self.spot3.json_data_structure() not in spots)
+        self.assertTrue(self.spot4.json_data_structure() in spots)
+
+    @skipUnless(
+        getattr(settings, 'SPOTSEEKER_SEARCH_FILTERS', False) and
+        settings.SPOTSEEKER_SEARCH_FILTERS ==
+        ['spotseeker_server.org_filters.uw_search.Filter'],
+        "Skip unless the right search filter is defined in settings"
+    )
+    def test_multiple_group_filtering(self):
+        response = self.client.get("/api/v1/spot",
+                                   {"extended_info:group":
+                                    ["our_group", "their_group"]})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(response["Content-Type"], "application/json")
+
+        spots = json.loads(response.content)
+        self.assertEqual(2, len(spots))
+        self.assertTrue(self.spot1.json_data_structure() not in spots)
+        self.assertTrue(self.spot2.json_data_structure() not in spots)
+        self.assertTrue(self.spot3.json_data_structure() not in spots)
+        self.assertTrue(self.spot4.json_data_structure() in spots)
+        self.assertTrue(self.spot5.json_data_structure() in spots)
 
     def tearDown(self):
         self.spot1.delete()

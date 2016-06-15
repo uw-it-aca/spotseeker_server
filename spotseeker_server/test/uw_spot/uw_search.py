@@ -43,14 +43,14 @@ class UWSearchTest(TestCase):
             name="spot within our group", capacity=4
         )
         self.ei4 = SpotExtendedInfo.objects.create(
-            spot=self.spot4, key='group', value='our_group'
+            spot=self.spot4, key='uwgroup', value='our_group'
         )
         # create spot with another group
         self.spot5 = Spot.objects.create(
             name='spot within their group', capacity=4
         )
         self.ei5 = SpotExtendedInfo.objects.create(
-            spot=self.spot5, key='group', value='their_group'
+            spot=self.spot5, key='uwgroup', value='their_group'
         )
         # create a test Client
         self.client = Client()
@@ -104,7 +104,7 @@ class UWSearchTest(TestCase):
     )
     def test_single_group_filtering(self):
         response = self.client.get("/api/v1/spot",
-                                   {"extended_info:group": "our_group"})
+                                   {"extended_info:uwgroup": "our_group"})
         self.assertEqual(200, response.status_code)
         self.assertEqual(response["Content-Type"], "application/json")
 
@@ -123,7 +123,7 @@ class UWSearchTest(TestCase):
     )
     def test_multiple_group_filtering(self):
         response = self.client.get("/api/v1/spot",
-                                   {"extended_info:group":
+                                   {"extended_info:uwgroup":
                                     ["our_group", "their_group"]})
         self.assertEqual(200, response.status_code)
         self.assertEqual(response["Content-Type"], "application/json")

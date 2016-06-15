@@ -36,11 +36,11 @@ class Filter(SearchFilter):
                 spotextendedinfo__key="app_type"
                 )
 
-        if 'extended_info:group' in self.request.GET:
-            groups = self.request.GET.getlist('extended_info:group')
+        if 'extended_info:uwgroup' in self.request.GET:
+            groups = self.request.GET.getlist('extended_info:uwgroup')
             or_q_obj = Q()
             for group in groups:
-                or_q_obj |= Q(spotextendedinfo__key='group',
+                or_q_obj |= Q(spotextendedinfo__key='uwgroup',
                               spotextendedinfo__value=group)
             query = query.filter(or_q_obj)
 

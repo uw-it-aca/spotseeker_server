@@ -38,6 +38,7 @@ class Command(BaseCommand):
 
         make_option('--trusted',
                     dest='trusted',
+                    action='store_true',
                     default=False,
                     help="Set to 'yes' if you want this client to be "
                          "trusted to act for others"),
@@ -65,7 +66,7 @@ class Command(BaseCommand):
                                            key=key,
                                            secret=secret)
 
-        if options['trusted'] and options['trusted'] == 'yes':
+        if options['trusted']:
             trusted = TrustedOAuthClient.objects.create(consumer=consumer,
                                                         is_trusted=1)
 

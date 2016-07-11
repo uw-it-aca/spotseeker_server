@@ -40,8 +40,8 @@ class Command(BaseCommand):
                     dest='trusted',
                     action='store_true',
                     default=False,
-                    help="Set to 'yes' if you want this client to be "
-                         "trusted to act for others"),
+                    help="Makes this consumer trusted "
+                    "(Adds a TrustedOAuthClient for it)"),
 
         make_option('--silent',
                     dest='silent',

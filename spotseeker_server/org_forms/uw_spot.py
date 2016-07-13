@@ -31,20 +31,20 @@ import re
 # dict of all of the uw extended info with values that must be validated
 # and what all of the possible validated values are, or validated types
 validated_ei = {
-    "has_whiteboards": ['true'],
+    "campus": ['seattle', 'tacoma', 'bothell', 'south_lake_union'],
+    "food_nearby": ['space', 'building', 'neighboring'],
+    "has_computers": ['true'],
+    "has_displays": ['true'],
+    "has_labstats": ['true'],
+    "has_natural_light": ['true'],
     "has_outlets": ['true'],
     "has_printing": ['true'],
-    "has_scanner": ['true'],
-    "has_displays": ['true'],
     "has_projector": ['true'],
-    "has_computers": ['true'],
-    "has_natural_light": ['true'],
-    "has_labstats": ['true'],
-    "food_nearby": ['space', 'building', 'neighboring'],
+    "has_scanner": ['true'],
+    "has_whiteboards": ['true'],
+    "noise_level": ['silent', 'quiet', 'moderate', 'variable'],
     "num_computers": "int",
     "reservable": ['true', 'reservations'],
-    "noise_level": ['silent', 'quiet', 'moderate', 'variable'],
-    "campus": ['seattle', 'tacoma', 'bothell', 'south_lake_union'],
 }
 
 

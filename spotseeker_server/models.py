@@ -116,7 +116,6 @@ class Spot(models.Model):
 
         return info
 
-
     def json_data_structure(self):
         extended_info = {}
         info = self.current_extended_info()

@@ -70,7 +70,6 @@ class FutureGETTest(TestCase):
 
         self.spot2 = spot2
 
-
         spot3 = Spot.objects.create(name="Testing spot with future",
                                     latitude=23,
                                     longitude=45)
@@ -118,7 +117,6 @@ class FutureGETTest(TestCase):
             valid_on=yesterday,
             spot=spot5)
 
-
         SpotExtendedInfo.objects.create(
             key="p_f",
             value="ok3",
@@ -132,7 +130,6 @@ class FutureGETTest(TestCase):
             spot=spot5)
 
         self.spot5 = spot5
-
 
     def test_spot_past_extended_info(self):
         url = "/api/v1/spot/%s" % self.spot1.pk
@@ -165,11 +162,13 @@ class FutureGETTest(TestCase):
         self.assertEqual(returned_spot, self.spot3)
 
         self.assertEquals(len(spot_dict['future_extended_info']), 1)
-        self.assertEquals(spot_dict['future_extended_info'][0]['has_whiteboards'], 'true')
-        self.assertEquals(spot_dict['future_extended_info'][0]['valid_on'], self.tomorrow.isoformat())
-        self.assertEquals(spot_dict['future_extended_info'][0]['valid_until'], self.next_week.isoformat())
+        whiteboards = spot_dict['future_extended_info'][0]['has_whiteboards']
+        self.assertEquals(whiteboards, 'true')
+        self.assertEquals(spot_dict['future_extended_info'][0]['valid_on'],
+                          self.tomorrow.isoformat())
+        self.assertEquals(spot_dict['future_extended_info'][0]['valid_until'],
+                          self.next_week.isoformat())
         self.assertEquals(spot_dict['extended_info'], {})
-
 
     def test_spot_future_plus_current_extended_info(self):
         url = "/api/v1/spot/%s" % self.spot4.pk
@@ -180,11 +179,13 @@ class FutureGETTest(TestCase):
         self.assertEqual(returned_spot, self.spot4)
 
         self.assertEquals(len(spot_dict['future_extended_info']), 1)
-        self.assertEquals(spot_dict['future_extended_info'][0]['has_whiteboards'], 'true')
-        self.assertEquals(spot_dict['future_extended_info'][0]['valid_on'], self.tomorrow.isoformat())
-        self.assertEquals(spot_dict['future_extended_info'][0]['valid_until'], self.next_week.isoformat())
+        whiteboards = spot_dict['future_extended_info'][0]['has_whiteboards']
+        self.assertEquals(whiteboards, 'true')
+        self.assertEquals(spot_dict['future_extended_info'][0]['valid_on'],
+                          self.tomorrow.isoformat())
+        self.assertEquals(spot_dict['future_extended_info'][0]['valid_until'],
+                          self.next_week.isoformat())
         self.assertEquals(spot_dict['extended_info']['has_whiteboards'], 'no')
-
 
     def test_spot_multiple_ways_of_now(self):
         url = "/api/v1/spot/%s" % self.spot5.pk
@@ -200,7 +201,6 @@ class FutureGETTest(TestCase):
         self.assertEquals(spot_dict['extended_info']['p_x'], 'ok4')
 
         self.assertEquals(len(spot_dict['future_extended_info']), 2)
-
 
     def tearDown(self):
         self.spot1.delete()

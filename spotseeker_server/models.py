@@ -24,13 +24,14 @@
 """
 
 from django.db import models
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_slug
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
 import hashlib
 import datetime
 import time
@@ -98,11 +99,46 @@ class Spot(models.Model):
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
 
+    def current_extended_info(self):
+        now = timezone.now()
+        current = ((Q(valid_on__lte=now) | Q(valid_on__isnull=True)) &
+                  (Q(valid_until__gte=now) | Q(valid_until__isnull=True)))
+
+        info = SpotExtendedInfo.objects.filter(spot=self).filter(current)
+
+        return info
+
+    def future_extended_info(self):
+        now = timezone.now()
+        future = (Q(valid_on__gte=now) | Q(valid_until__gte=now))
+
+        info = SpotExtendedInfo.objects.filter(spot=self).filter(future)
+
+        return info
+
+
     def json_data_structure(self):
         extended_info = {}
-        info = SpotExtendedInfo.objects.filter(spot=self)
+        info = self.current_extended_info()
         for attr in info:
             extended_info[attr.key] = attr.value
+
+        future_extended_info = []
+        future = self.future_extended_info()
+        for attr in future:
+            data = {}
+            data[attr.key] = attr.value
+            if attr.valid_on:
+                data['valid_on'] = attr.valid_on.isoformat()
+            else:
+                data['valid_on'] = None
+
+            if attr.valid_until:
+                data['valid_until'] = attr.valid_until.isoformat()
+            else:
+                data['valid_until'] = None
+
+            future_extended_info.append(data)
 
         available_hours = {
             'monday': [],
@@ -153,6 +189,7 @@ class Spot(models.Model):
             "organization": self.organization,
             "manager": self.manager,
             "extended_info": extended_info,
+            "future_extended_info": future_extended_info,
             "last_modified": self.last_modified.isoformat(),
             "external_id": self.external_id
         }
@@ -286,10 +323,12 @@ class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
     spot = models.ForeignKey(Spot)
+    valid_on = models.DateTimeField(null=True, blank=True)
+    valid_until = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Spot extended info"
-        unique_together = ('spot', 'key')
+        unique_together = ('spot', 'key', 'valid_on', 'valid_until')
 
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)

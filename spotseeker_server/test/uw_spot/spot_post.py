@@ -100,7 +100,6 @@ class UWSpotPOSTTest(TransactionTestCase):
         self.assertEquals(response.status_code, 400,
                           ("Not created; has_whiteboards field did not "
                            "pass validation"))
-     
         labstats_id = "1One"
         json_string = '{"name":"%s","capacity":"%s","location":\
             {"latitude": 55, "longitude": -30},\
@@ -127,7 +126,6 @@ class UWSpotPOSTTest(TransactionTestCase):
 
         self.assertEquals(response.status_code, 201,
                           "Gives a Created response to creating a Spot")
-   
         labstats_id = 2
         json_string = '{"name":"%s","capacity":"%s",\
             "location": {"latitude": 55, "longitude": -30},\
@@ -174,7 +172,7 @@ class UWSpotPOSTTest(TransactionTestCase):
 
             self.assertEquals(response.status_code, 201,
                               "Gives a Created response to creating a Spot")
-                
+
     def test_uw_field_review_count(self):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
@@ -249,13 +247,13 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_capacity = 10
 
         auto_labstats_available_tests = {"One", "1One"}
-        for auto_labstats_available in auto_labstats_available_tests:
+        for auto_labstats_avail in auto_labstats_available_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
                 "extended_info":{"auto_labstats_available":"%s","has_outlets":"true",\
                 "manager":"John","organization":"UW"}}' % (new_name,
                                                            new_capacity,
-                                                           auto_labstats_available)
+                                                           auto_labstats_avail)
             response = c.post('/api/v1/spot/', json_string,
                               content_type="application/json", follow=False)
 
@@ -264,13 +262,13 @@ class UWSpotPOSTTest(TransactionTestCase):
                                "pass validation"))
 
         auto_labstats_available_tests = {"1", 2}
-        for auto_labstats_available in auto_labstats_available_tests:
+        for auto_labstats_avail in auto_labstats_available_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
                 "extended_info":{"auto_labstats_available":"%s","has_outlets":"true",\
                 "manager":"John","organization":"UW"}}' % (new_name,
                                                            new_capacity,
-                                                           auto_labstats_available)
+                                                           auto_labstats_avail)
             response = c.post('/api/v1/spot/', json_string,
                               content_type="application/json", follow=False)
 
@@ -281,8 +279,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
         new_capacity = 10
-        
-        auto_labstats_total_tests = {"One", "1One"}  
+        auto_labstats_total_tests = {"One", "1One"}
         for auto_labstats_total in auto_labstats_total_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -311,7 +308,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             self.assertEquals(response.status_code, 201,
                               "Gives a Created response to creating a Spot")
 
-    
     def test_uw_field_has_whiteboards(self):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
@@ -654,7 +650,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                               content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 201,
-                          "Gives a Created response to creating a Spot")
+                              "Gives a Created response to creating a Spot")
 
     def test_uw_field_food_nearby(self):
         c = Client()
@@ -704,8 +700,8 @@ class UWSpotPOSTTest(TransactionTestCase):
                               content_type="application/json", follow=False)
 
             self.assertEquals(response.status_code, 400,
-                          ("Not created because reservable field did not "
-                           "pass validation"))
+                              ("Not created because reservable field did not "
+                               "pass validation"))
 
         reservable_tests = {"reservations", "true"}
         for reservable in reservable_tests:

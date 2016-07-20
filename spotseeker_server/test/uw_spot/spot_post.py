@@ -144,7 +144,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_name = "testing POST name: {0}".format(random.random())
         new_capacity = 10
 
-        campus_tests = {"Invalid Campus", "Broken", "south_"}
+        campus_tests = ["Invalid Campus", "Broken", "south_"]
         for campus in campus_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -159,7 +159,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                               ("Not created; has_whiteboards field did not "
                                "pass validation"))
 
-        campus_tests = {"south_lake_union", "seattle", "tacoma", "bothell"}
+        campus_tests = ["south_lake_union", "seattle", "tacoma", "bothell"]
         for campus in campus_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -178,7 +178,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_name = "testing POST name: {0}".format(random.random())
         new_capacity = 10
 
-        review_count_tests = {"One", "1One"}
+        review_count_tests = ["One", "1One"]
         for review_count in review_count_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -193,7 +193,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                               ("Not created; has_whiteboards field did not "
                                "pass validation"))
 
-        review_count_tests = {"1", 2}
+        review_count_tests = ["1", 2]
         for review_count in review_count_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -212,7 +212,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_name = "testing POST name: {0}".format(random.random())
         new_capacity = 10
 
-        rating_tests = {"One", "1One"}
+        rating_tests = ["One", "1One"]
         for rating in rating_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -227,7 +227,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                               ("Not created; has_whiteboards field did not "
                                "pass validation"))
 
-        rating_tests = {"1", 2}
+        rating_tests = ["1", 2]
         for rating in rating_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -246,7 +246,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_name = "testing POST name: {0}".format(random.random())
         new_capacity = 10
 
-        auto_labstats_available_tests = {"One", "1One"}
+        auto_labstats_available_tests = ["One", "1One"]
         for auto_labstats_avail in auto_labstats_available_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -261,7 +261,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                               ("Not created; has_whiteboards field did not "
                                "pass validation"))
 
-        auto_labstats_available_tests = {"1", 2}
+        auto_labstats_available_tests = ["1", 2]
         for auto_labstats_avail in auto_labstats_available_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -279,7 +279,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
         new_capacity = 10
-        auto_labstats_total_tests = {"One", "1One"}
+        auto_labstats_total_tests = ["One", "1One"]
         for auto_labstats_total in auto_labstats_total_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -294,7 +294,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                               ("Not created; has_whiteboards field did not "
                                "pass validation"))
 
-        auto_labstats_total_tests = {"1", 2}
+        auto_labstats_total_tests = ["1", 2]
         for auto_labstats_total in auto_labstats_total_tests:
             json_string = '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
@@ -342,7 +342,7 @@ class UWSpotPOSTTest(TransactionTestCase):
     def test_uw_field_app_type(self):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
-        app_type_tests = {"foo", "Invalid Data"}
+        app_type_tests = ["foo", "Invalid Data"]
         for app_type in app_type_tests:
             json_string = '{"name":"%s","capacity":"10",\
                 "location": {"latitude": 55, "longitude": -30},\
@@ -355,7 +355,7 @@ class UWSpotPOSTTest(TransactionTestCase):
 
             self.assertEquals(response.status_code, 400)
 
-        app_type_tests = {"food", "tech"}
+        app_type_tests = ["food", "tech"]
         for app_type in app_type_tests:
             json_string = '{"name":"%s","capacity":"10",\
                 "location": {"latitude": 55, "longitude": -30},\
@@ -638,7 +638,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                           ("Not created; noise_level field did not pass "
                            "validation"))
 
-        noise_level_tests = {"moderate", "silent", "quiet", "variable"}
+        noise_level_tests = ["moderate", "silent", "quiet", "variable"]
         for noise_level in noise_level_tests:
             json_string = '{"name":"%s","capacity":"%s",\
                 "location": {"latitude": 55, "longitude": -30},\
@@ -670,7 +670,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                           ("Not created; food_nearby field did not pass "
                            "validation"))
 
-        food_nearby_tests = {"building", "space", "neighboring"}
+        food_nearby_tests = ["building", "space", "neighboring"]
         for food_nearby in food_nearby_tests:
             json_string = '{"name":"%s","capacity":"%s",\
                 "location": {"latitude": 55, "longitude": -30},\
@@ -688,7 +688,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         c = Client()
         new_name = "testing POST name: {0}".format(random.random())
         new_capacity = 10
-        reservable_tests = {"You bet", "false"}
+        reservable_tests = ["You bet", "false"]
         for reservable in reservable_tests:
             json_string = '{"name":"%s","capacity":"%s",\
                 "location": {"latitude": 55, "longitude": -30},\
@@ -703,7 +703,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                               ("Not created because reservable field did not "
                                "pass validation"))
 
-        reservable_tests = {"reservations", "true"}
+        reservable_tests = ["reservations", "true"]
         for reservable in reservable_tests:
             json_string = '{"name":"%s","capacity":"%s",\
                 "location": {"latitude": 55, "longitude": -30},\

@@ -339,6 +339,11 @@ class SpotExtendedInfo(models.Model):
         self.spot.save()  # Update the last_modified on the spot
         super(SpotExtendedInfo, self).save(*args, **kwargs)
 
+    def generate_key(self):
+        return "%s_%s_%s" % (self.key,
+                             str(self.valid_on),
+                             str(self.valid_until))
+
     @staticmethod
     def sort_method(a, b):
         """

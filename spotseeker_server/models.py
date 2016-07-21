@@ -324,8 +324,8 @@ class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
     spot = models.ForeignKey(Spot)
-    valid_on = models.DateTimeField(null=True, blank=True)
-    valid_until = models.DateTimeField(null=True, blank=True)
+    valid_on = models.DateTimeField(null=True, blank=True, db_index=True)
+    valid_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     class Meta:
         verbose_name_plural = "Spot extended info"

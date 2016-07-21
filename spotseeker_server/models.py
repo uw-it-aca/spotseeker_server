@@ -353,8 +353,18 @@ class SpotExtendedInfo(models.Model):
         """
 
         def sort_by_window(a, b):
-            if a.valid_on and a.valid_until:
-                if b.valid_on and b.valid_until:
+            def _is_full_window(a):
+                if a.valid_on and a.valid_until:
+                    return True
+                return False
+
+            def _no_defined_dates(a):
+                if not a.valid_on and not a.valid_until:
+                    return True
+                return False
+
+            def _fully_defined_window_comparison(a, b):
+                if _is_full_window(b):
                     # If both are fully defined, the nearest end date should
                     # by the more valued entry
                     if b.valid_until < a.valid_until:
@@ -371,16 +381,22 @@ class SpotExtendedInfo(models.Model):
                     return 0
                 else:
                     return 1
-            if b.valid_on and b.valid_until:
+
+            if _is_full_window(a):
+                full_compare = _fully_defined_window_comparison(a, b)
+
+                if full_compare:
+                    return full_compare
+            if _is_full_window(b):
                 return -1
 
             # Both are missing at least one part of the window:
             # Test to see if one (or both) of them is totally undefined
-            if not a.valid_on and not a.valid_until:
-                if b.valid_on or b.valid_until:
+            if _no_defined_dates(a):
+                if not _no_defined_dates(b):
                     return -1
                 return 0
-            if not b.valid_on and not b.valid_until:
+            if _no_defined_dates(b):
                 return 1
 
             # if one has a defined end, and the other doesn't, that's preferred

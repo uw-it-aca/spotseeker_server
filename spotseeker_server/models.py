@@ -383,10 +383,8 @@ class SpotExtendedInfo(models.Model):
                     return 1
 
             if _is_full_window(a):
-                full_compare = _fully_defined_window_comparison(a, b)
+                return _fully_defined_window_comparison(a, b)
 
-                if full_compare:
-                    return full_compare
             if _is_full_window(b):
                 return -1
 

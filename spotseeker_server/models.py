@@ -128,6 +128,10 @@ class Spot(models.Model):
         for t in self.spottypes.all():
             types.append(t.name)
 
+        checkout_items = []
+        for item in Item.objects.all():
+            checkout_items.append(item.full_json_data_structure())
+
         spot_json = {
             "id": self.pk,
             "uri": self.rest_url(),
@@ -153,6 +157,7 @@ class Spot(models.Model):
             "organization": self.organization,
             "manager": self.manager,
             "extended_info": extended_info,
+            "checkout_items": checkout_items,
             "last_modified": self.last_modified.isoformat(),
             "external_id": self.external_id
         }
@@ -451,3 +456,33 @@ class SharedSpaceRecipient(models.Model):
     shared_count = models.IntegerField()
     date_first_viewed = models.DateTimeField(null=True)
     viewed_count = models.IntegerField()
+
+
+class Item(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50)
+    spot = models.ForeignKey(Spot)
+
+    def full_json_data_structure(self):
+        data = {
+            'id': self.pk,
+            'name': self.name,
+            'category': 'NOT IMPLEMENTED',
+            'subcategory': 'NOT IMPLEMENTED',
+            'extended_info': 'NOT IMPLEMENTED',
+        }
+
+class ItemCategory(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50)
+    item = models.ForeignKey(Item)
+
+class ItemSubcategory(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50)
+    item_category = models.ForeignKey(ItemCategory)
+
+class ItemExtendedInfo(models.Model):
+    item = models.ForeignKey(Item)
+    key = models.CharField(max_length=50)
+    value = models.CharField(max_length=350)

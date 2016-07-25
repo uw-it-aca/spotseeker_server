@@ -61,11 +61,11 @@ class SpotSearchTimeTest(TestCase):
         self.assertContains(response, "[]")
 
     def test_DiffDayTimeInSerial(self):
-        '''
+        """
         Each spot in this test has a small break in the middle of
         the week, so none of them show up in a query for spots open
         from 10AM mon to 10AM fri
-        '''
+        """
 
         spot = new_spot("This spot is to test time ranges in search")
 
@@ -110,7 +110,7 @@ class SpotSearchTimeTest(TestCase):
             self.assertNotContains(response, sp.name)
 
     def test_SameDayTimeInReverse(self):
-        '''Test a date range that wraps around the end of the week'''
+        """Test a date range that wraps around the end of the week"""
 
         spot = new_spot('This spot is to test time ranges in search')
         spot2 = new_spot(
@@ -149,7 +149,7 @@ class SpotSearchTimeTest(TestCase):
         self.assertContains(response, spot4.name)
 
     def test_FullWeek(self):
-        '''Test a spot that is open 24/7'''
+        """Test a spot that is open 24/7"""
 
         spot = new_spot('This spot is to test time ranges in search')
         spot2 = new_spot(

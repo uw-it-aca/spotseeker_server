@@ -460,7 +460,7 @@ class SharedSpaceRecipient(models.Model):
 
 class Item(models.Model):
     name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50)
+    slug = models.SlugField(max_length=50, blank=True)
     spot = models.ForeignKey(Spot)
 
     def full_json_data_structure(self):
@@ -471,6 +471,8 @@ class Item(models.Model):
             'subcategory': 'NOT IMPLEMENTED',
             'extended_info': 'NOT IMPLEMENTED',
         }
+
+        return data
 
 class ItemCategory(models.Model):
     name = models.CharField(max_length=50)

@@ -31,12 +31,18 @@ class ItemModelTest(TestCase):
 
     def setUp(self):
         # create a Spot
-
         self.spot = Spot()
         self.spot.name = "spot {0}".format(randstring())
         self.spot.save()
 
         self.spot_id = self.spot.pk
+
+        # create an item
+        self.checkout_item = Item()
+        self.checkout_item.name = 'an item'
+        self.checkout_item.spot = self.spot
+        self.checkout_item.save()
+
 
     def test_item_json(self):
         # create an Item
@@ -52,6 +58,8 @@ class ItemModelTest(TestCase):
 
         # assert that the Spot json contains the Item
         self.assertTrue('checkout_items' in json_data)
+        self.assertTrue('name' in json_data['checkout_items'][0])
+        self.assertTrue(json_data['checkout_items'][0]['name'] == self.checkout_item.name)
 
 
 def randstring():

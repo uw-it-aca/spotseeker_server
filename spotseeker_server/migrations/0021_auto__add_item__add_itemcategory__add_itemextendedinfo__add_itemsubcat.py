@@ -8,63 +8,52 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'Item'
+        db.create_table('spotseeker_server_item', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50, blank=True)),
+            ('spot', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Spot'], null=True, blank=True)),
+            ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.ItemCategory'], null=True, blank=True)),
+            ('subcategory', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.ItemSubcategory'], null=True, blank=True)),
+        ))
+        db.send_create_signal('spotseeker_server', ['Item'])
+
         # Adding model 'ItemCategory'
         db.create_table('spotseeker_server_itemcategory', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50)),
-            ('item', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Item'])),
+            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50, blank=True)),
         ))
         db.send_create_signal('spotseeker_server', ['ItemCategory'])
 
         # Adding model 'ItemExtendedInfo'
         db.create_table('spotseeker_server_itemextendedinfo', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('item', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Item'])),
+            ('item', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Item'], null=True, blank=True)),
             ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
             ('value', self.gf('django.db.models.fields.CharField')(max_length=350)),
         ))
         db.send_create_signal('spotseeker_server', ['ItemExtendedInfo'])
 
-        # Adding model 'FutureSpotExtendedInfo'
-        db.create_table('spotseeker_server_futurespotextendedinfo', (
-            ('spotextendedinfo_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['spotseeker_server.SpotExtendedInfo'], unique=True, primary_key=True)),
-            ('valid_on', self.gf('django.db.models.fields.DateTimeField')()),
-            ('valid_until', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('spotseeker_server', ['FutureSpotExtendedInfo'])
-
-        # Adding model 'Item'
-        db.create_table('spotseeker_server_item', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50)),
-            ('spot', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Spot'])),
-        ))
-        db.send_create_signal('spotseeker_server', ['Item'])
-
         # Adding model 'ItemSubcategory'
         db.create_table('spotseeker_server_itemsubcategory', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50)),
-            ('item_category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.ItemCategory'])),
+            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50, blank=True)),
         ))
         db.send_create_signal('spotseeker_server', ['ItemSubcategory'])
 
 
     def backwards(self, orm):
+        # Deleting model 'Item'
+        db.delete_table('spotseeker_server_item')
+
         # Deleting model 'ItemCategory'
         db.delete_table('spotseeker_server_itemcategory')
 
         # Deleting model 'ItemExtendedInfo'
         db.delete_table('spotseeker_server_itemextendedinfo')
-
-        # Deleting model 'FutureSpotExtendedInfo'
-        db.delete_table('spotseeker_server_futurespotextendedinfo')
-
-        # Deleting model 'Item'
-        db.delete_table('spotseeker_server_item')
 
         # Deleting model 'ItemSubcategory'
         db.delete_table('spotseeker_server_itemsubcategory')
@@ -124,39 +113,33 @@ class Migration(SchemaMigration):
             'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']"}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
-        'spotseeker_server.futurespotextendedinfo': {
-            'Meta': {'object_name': 'FutureSpotExtendedInfo', '_ormbases': ['spotseeker_server.SpotExtendedInfo']},
-            'spotextendedinfo_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['spotseeker_server.SpotExtendedInfo']", 'unique': 'True', 'primary_key': 'True'}),
-            'valid_on': ('django.db.models.fields.DateTimeField', [], {}),
-            'valid_until': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
-        },
         'spotseeker_server.item': {
             'Meta': {'object_name': 'Item'},
+            'category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.ItemCategory']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50'}),
-            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']"})
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'blank': 'True'}),
+            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']", 'null': 'True', 'blank': 'True'}),
+            'subcategory': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.ItemSubcategory']", 'null': 'True', 'blank': 'True'})
         },
         'spotseeker_server.itemcategory': {
             'Meta': {'object_name': 'ItemCategory'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'item': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Item']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50'})
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'blank': 'True'})
         },
         'spotseeker_server.itemextendedinfo': {
             'Meta': {'object_name': 'ItemExtendedInfo'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'item': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Item']"}),
+            'item': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Item']", 'null': 'True', 'blank': 'True'}),
             'key': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': '350'})
         },
         'spotseeker_server.itemsubcategory': {
             'Meta': {'object_name': 'ItemSubcategory'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'item_category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.ItemCategory']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50'})
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'blank': 'True'})
         },
         'spotseeker_server.sharedspace': {
             'Meta': {'object_name': 'SharedSpace'},

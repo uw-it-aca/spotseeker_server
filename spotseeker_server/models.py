@@ -130,7 +130,7 @@ class Spot(models.Model):
 
         checkout_items = []
         for item in Item.objects.all():
-            checkout_items.append(item.full_json_data_structure())
+            checkout_items.append(item.json_data_structure())
 
         spot_json = {
             "id": self.pk,
@@ -458,33 +458,41 @@ class SharedSpaceRecipient(models.Model):
     viewed_count = models.IntegerField()
 
 
+class ItemCategory(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+
+class ItemSubcategory(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Item(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField(max_length=50, blank=True)
-    spot = models.ForeignKey(Spot)
+    spot = models.ForeignKey(Spot, blank=True, null=True)
+    category = models.ForeignKey(ItemCategory, blank=True, null=True)
+    subcategory = models.ForeignKey(ItemSubcategory, blank=True, null=True)
 
-    def full_json_data_structure(self):
+    def json_data_structure(self):
         data = {
             'id': self.pk,
             'name': self.name,
-            'category': 'NOT IMPLEMENTED',
-            'subcategory': 'NOT IMPLEMENTED',
-            'extended_info': 'NOT IMPLEMENTED',
+            'category': self.category.name,
+            'subcategory': self.subcategory.name,
         }
 
         return data
 
-class ItemCategory(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50)
-    item = models.ForeignKey(Item)
-
-class ItemSubcategory(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50)
-    item_category = models.ForeignKey(ItemCategory)
 
 class ItemExtendedInfo(models.Model):
-    item = models.ForeignKey(Item)
+    item = models.ForeignKey(Item, blank=True, null=True)
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)

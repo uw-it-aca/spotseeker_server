@@ -491,6 +491,16 @@ class Item(models.Model):
 
         return data
 
+    def full_json_data_structure(self):
+        data = self.json_data_structure()
+        extended = []
+        iei = self.itemextendedinfo_set.all()
+        for i in iei:
+            dictdata = {}
+            dictdata[i.key] = i.value
+            extended.append(dictdata)
+        data['extended_info'] = extended
+        return data
 
 class ItemExtendedInfo(models.Model):
     item = models.ForeignKey(Item, blank=True, null=True)

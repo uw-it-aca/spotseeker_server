@@ -18,7 +18,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 import random
 
-from spotseeker_server.models import Spot, Item, ItemCategory, ItemSubcategory
+from spotseeker_server.models import Spot, Item, ItemCategory, ItemSubcategory, ItemExtendedInfo
 
 
 @override_settings(
@@ -54,14 +54,14 @@ class ItemModelTest(TestCase):
         self.checkout_item.subcategory = self.subcategory
         self.checkout_item.save()
 
+        # create item extended info
+        self.iei = ItemExtendedInfo()
+        self.iei.item = self.checkout_item
+        self.iei.key = 'key one'
+        self.iei.value = 'value one'
+        self.iei.save()
 
     def test_item_json(self):
-        itemname = "item {0}".format(randstring())
-        print self.spot
-        print itemname
-
-        # create another Item
-
         # get the Spot json
         test_spot = Spot.objects.get(pk=self.spot_id)
         json_data = test_spot.json_data_structure()
@@ -74,6 +74,12 @@ class ItemModelTest(TestCase):
         # assert Item category and subcategory
         self.assertTrue(json_data['checkout_items'][0]['category'] == self.category.name)
         self.assertTrue(json_data['checkout_items'][0]['subcategory'] == self.subcategory.name)
+
+
+    def test_full_item_json(self):
+        json_data = self.checkout_item.full_json_data_structure()
+        self.assertTrue('extended_info' in json_data)
+        self.assertTrue(json_data['extended_info'] 
 
 
 def randstring():

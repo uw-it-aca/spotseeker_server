@@ -502,6 +502,7 @@ class Item(models.Model):
         data['extended_info'] = extended
         return data
 
+
 class ItemExtendedInfo(models.Model):
     item = models.ForeignKey(Item, blank=True, null=True)
     key = models.CharField(max_length=50)

@@ -79,7 +79,6 @@ class ItemModelTest(TestCase):
     def test_full_item_json(self):
         json_data = self.checkout_item.full_json_data_structure()
         self.assertTrue('extended_info' in json_data)
-        self.assertTrue(json_data['extended_info'] 
 
 
 def randstring():

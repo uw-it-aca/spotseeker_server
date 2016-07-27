@@ -61,6 +61,13 @@ class ItemModelTest(TestCase):
         self.iei.value = 'value one'
         self.iei.save()
 
+    def tearDown(self):
+        self.spot.delete()
+        self.category.delete()
+        self.subcategory.delete()
+        self.checkout_item.delete()
+        self.iei.delete()
+
     def test_item_json(self):
         # get the Spot json
         test_spot = Spot.objects.get(pk=self.spot_id)

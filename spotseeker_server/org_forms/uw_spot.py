@@ -82,7 +82,7 @@ validated_ei = {
 }
 
 
-def uw_validate(value, choices):
+def uw_validate(value, key, choices):
     """ Check to see if the value is one of the choices or if it is an int,
         else it throws a validation error
     """
@@ -93,7 +93,8 @@ def uw_validate(value, choices):
             raise forms.ValidationError("Value must be an int")
     elif value not in choices:
         raise forms.ValidationError(
-            "Value must be one of: {0}".format('; '.join(choices)))
+            'Value for %s was %s, must be one of: %s'
+            % (key, repr(value), '; '.join((repr(c) for c in choices))))
 
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
@@ -106,7 +107,7 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
         value = self.cleaned_data['value']
 
         if key in validated_ei:
-            uw_validate(value, validated_ei[key])
+            uw_validate(value, key, validated_ei[key])
 
         return cleaned_data
 

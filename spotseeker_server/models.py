@@ -129,7 +129,7 @@ class Spot(models.Model):
             types.append(t.name)
 
         checkout_items = []
-        for item in Item.objects.all():
+        for item in Item.objects.filter(spot=self):
             checkout_items.append(item.json_data_structure())
 
         spot_json = {

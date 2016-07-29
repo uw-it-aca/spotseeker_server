@@ -24,13 +24,14 @@
 """
 
 from django.db import models
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_slug
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.files.uploadedfile import UploadedFile
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
 import hashlib
 import datetime
 import time
@@ -98,11 +99,47 @@ class Spot(models.Model):
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
 
+    def current_extended_info(self):
+        now = timezone.now()
+        current = ((Q(valid_on__lte=now) | Q(valid_on__isnull=True)) &
+                   (Q(valid_until__gte=now) | Q(valid_until__isnull=True)))
+
+        info = list(SpotExtendedInfo.objects.filter(spot=self).filter(current))
+        info.sort(SpotExtendedInfo.sort_method)
+
+        return info
+
+    def future_extended_info(self):
+        now = timezone.now()
+        future = (Q(valid_on__gte=now) | Q(valid_until__gte=now))
+
+        info = list(SpotExtendedInfo.objects.filter(spot=self).filter(future))
+        info.sort(SpotExtendedInfo.sort_method)
+
+        return info
+
     def json_data_structure(self):
         extended_info = {}
-        info = SpotExtendedInfo.objects.filter(spot=self)
+        info = self.current_extended_info()
         for attr in info:
             extended_info[attr.key] = attr.value
+
+        future_extended_info = []
+        future = self.future_extended_info()
+        for attr in future:
+            data = {}
+            data[attr.key] = attr.value
+            if attr.valid_on:
+                data['valid_on'] = attr.valid_on.isoformat()
+            else:
+                data['valid_on'] = None
+
+            if attr.valid_until:
+                data['valid_until'] = attr.valid_until.isoformat()
+            else:
+                data['valid_until'] = None
+
+            future_extended_info.append(data)
 
         available_hours = {
             'monday': [],
@@ -153,6 +190,7 @@ class Spot(models.Model):
             "organization": self.organization,
             "manager": self.manager,
             "extended_info": extended_info,
+            "future_extended_info": future_extended_info,
             "last_modified": self.last_modified.isoformat(),
             "external_id": self.external_id
         }
@@ -286,10 +324,12 @@ class SpotExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
     spot = models.ForeignKey(Spot)
+    valid_on = models.DateTimeField(null=True, blank=True, db_index=True)
+    valid_until = models.DateTimeField(null=True, blank=True, db_index=True)
 
     class Meta:
         verbose_name_plural = "Spot extended info"
-        unique_together = ('spot', 'key')
+        unique_together = ('spot', 'key', 'valid_on', 'valid_until')
 
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
@@ -298,6 +338,115 @@ class SpotExtendedInfo(models.Model):
         self.full_clean()
         self.spot.save()  # Update the last_modified on the spot
         super(SpotExtendedInfo, self).save(*args, **kwargs)
+
+    def generate_key(self):
+        return "%s_%s_%s" % (self.key,
+                             str(self.valid_on),
+                             str(self.valid_until))
+
+    @staticmethod
+    def sort_method(a, b):
+        """
+        This will sort by least to most specific, then alphabetically by
+        key.  The idea is that if you have a list of extended info objects
+        with the same key, the last one is the most useful.
+        """
+
+        def sort_by_window(a, b):
+            def _is_full_window(a):
+                if a.valid_on and a.valid_until:
+                    return True
+                return False
+
+            def _no_defined_dates(a):
+                if not a.valid_on and not a.valid_until:
+                    return True
+                return False
+
+            def _fully_defined_window_comparison(a, b):
+                if _is_full_window(b):
+                    # If both are fully defined, the nearest end date should
+                    # by the more valued entry
+                    if b.valid_until < a.valid_until:
+                        return -1
+                    elif b.valid_until > a.valid_until:
+                        return 1
+
+                    # If the end dates are the same, the one with the most
+                    # recent start date is preferred
+                    if b.valid_on > a.valid_on:
+                        return -1
+                    elif b.valid_on < a.valid_on:
+                        return 1
+                    return 0
+                else:
+                    return 1
+
+            if _is_full_window(a):
+                return _fully_defined_window_comparison(a, b)
+
+            if _is_full_window(b):
+                return -1
+
+            # Both are missing at least one part of the window:
+            # Test to see if one (or both) of them is totally undefined
+            if _no_defined_dates(a):
+                if not _no_defined_dates(b):
+                    return -1
+                return 0
+            if _no_defined_dates(b):
+                return 1
+
+            # if one has a defined end, and the other doesn't, that's preferred
+            if a.valid_until and not b.valid_until:
+                return 1
+
+            if b.valid_until and not a.valid_until:
+                return -1
+
+            # Now just choose the closest of whichever side is defined
+            if a.valid_until and b.valid_until:
+                if a.valid_until < b.valid_until:
+                    return 1
+                if b.valid_until < a.valid_until:
+                    return -1
+
+            if a.valid_on and b.valid_on:
+                if a.valid_on < b.valid_on:
+                    return -1
+                if b.valid_on < a.valid_on:
+                    return 1
+
+        def sort_by_values(a, b):
+            # Sort by key, or if those are the same, by value
+            ak = a.key.lower()
+            bk = b.key.lower()
+            if ak == bk:
+                av = a.value.lower()
+                bv = b.value.lower()
+
+                if av < bv:
+                    return -1
+                elif av > bv:
+                    return 1
+
+                return 0
+
+            elif ak < bk:
+                return -1
+            else:
+                return 1
+
+        by_window = sort_by_window(a, b)
+
+        if by_window:
+            return by_window
+
+        by_value = sort_by_values(a, b)
+        if by_value:
+            return by_value
+
+        return 0
 
 
 class SpotImage(models.Model):

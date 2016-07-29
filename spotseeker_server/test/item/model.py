@@ -85,10 +85,7 @@ class ItemModelTest(TestCase):
                         'category'] == self.category.name)
         self.assertTrue(json_data['checkout_items'][0][
                         'subcategory'] == self.subcategory.name)
-
-    def test_full_item_json(self):
-        json_data = self.checkout_item.full_json_data_structure()
-        self.assertTrue('extended_info' in json_data)
+        self.assertTrue('extended_info' in json_data['checkout_items'][0])
 
 
 def randstring():

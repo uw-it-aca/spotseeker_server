@@ -482,24 +482,20 @@ class Item(models.Model):
     subcategory = models.ForeignKey(ItemSubcategory, blank=True, null=True)
 
     def json_data_structure(self):
-        data = {
-            'id': self.pk,
-            'name': self.name,
-            'category': self.category.name,
-            'subcategory': self.subcategory.name,
-        }
-
-        return data
-
-    def full_json_data_structure(self):
-        data = self.json_data_structure()
         extended = []
         iei = self.itemextendedinfo_set.all()
         for i in iei:
             dictdata = {}
             dictdata[i.key] = i.value
             extended.append(dictdata)
-        data['extended_info'] = extended
+        data = {
+            'id': self.pk,
+            'name': self.name,
+            'category': self.category.name,
+            'subcategory': self.subcategory.name,
+            'extended_info': extended
+        }
+
         return data
 
 

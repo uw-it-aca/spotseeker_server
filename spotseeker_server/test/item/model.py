@@ -65,19 +65,16 @@ class ItemModelTest(TestCase):
         # get the Spot json
         test_spot = Spot.objects.get(pk=self.spot_id)
         json_data = test_spot.json_data_structure()
+        for item in json_data["items"]:
+            # assert that the Spot json contains the Item
+            self.assertTrue('items' in json_data)
+            self.assertTrue('name' in item)
+            self.assertTrue(item['name'] == self.checkout_item.name)
 
-        # assert that the Spot json contains the Item
-        self.assertTrue('items' in json_data)
-        self.assertTrue('name' in json_data['items'][0])
-        self.assertTrue(json_data['items'][0][
-                        'name'] == self.checkout_item.name)
-
-        # assert Item category and subcategory
-        self.assertTrue(json_data['items'][0][
-                        'category'] == self.category)
-        self.assertTrue(json_data['items'][0][
-                        'subcategory'] == self.subcategory)
-        self.assertTrue('extended_info' in json_data['items'][0])
+            # assert Item category and subcategory
+            self.assertTrue(item['category'] == self.category)
+            self.assertTrue(item['subcategory'] == self.subcategory)
+            self.assertTrue('extended_info' in item)
 
 
 def randstring():

@@ -458,28 +458,12 @@ class SharedSpaceRecipient(models.Model):
     viewed_count = models.IntegerField()
 
 
-class ItemCategory(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50, blank=True)
-
-    def __unicode__(self):
-        return self.name
-
-
-class ItemSubcategory(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50, blank=True)
-
-    def __unicode__(self):
-        return self.name
-
-
 class Item(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField(max_length=50, blank=True)
     spot = models.ForeignKey(Spot, blank=True, null=True)
-    category = models.ForeignKey(ItemCategory, blank=True, null=True)
-    subcategory = models.ForeignKey(ItemSubcategory, blank=True, null=True)
+    category = models.CharField(max_length=50, null=True)
+    subcategory = models.CharField(max_length=50, null=True)
 
     def json_data_structure(self):
         extended = []
@@ -491,8 +475,8 @@ class Item(models.Model):
         data = {
             'id': self.pk,
             'name': self.name,
-            'category': self.category.name,
-            'subcategory': self.subcategory.name,
+            'category': self.category,
+            'subcategory': self.subcategory,
             'extended_info': extended
         }
 

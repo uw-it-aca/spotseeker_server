@@ -18,8 +18,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 import random
 
-from spotseeker_server.models import Spot, Item, ItemCategory, \
-                                     ItemSubcategory, ItemExtendedInfo
+from spotseeker_server.models import Spot, Item, ItemExtendedInfo
 
 
 @override_settings(
@@ -39,13 +38,8 @@ class ItemModelTest(TestCase):
         self.spot_id = self.spot.pk
 
         # Item category and subcategory
-        self.category = ItemCategory()
-        self.category.name = 'Stuff'
-        self.category.save()
-
-        self.subcategory = ItemSubcategory()
-        self.subcategory.name = 'Thing'
-        self.subcategory.save()
+        self.category = 'Stuff'
+        self.subcategory = 'Thing'
 
         # create an item
         self.checkout_item = Item()
@@ -64,8 +58,6 @@ class ItemModelTest(TestCase):
 
     def tearDown(self):
         self.spot.delete()
-        self.category.delete()
-        self.subcategory.delete()
         self.checkout_item.delete()
         self.iei.delete()
 
@@ -82,9 +74,9 @@ class ItemModelTest(TestCase):
 
         # assert Item category and subcategory
         self.assertTrue(json_data['items'][0][
-                        'category'] == self.category.name)
+                        'category'] == self.category)
         self.assertTrue(json_data['items'][0][
-                        'subcategory'] == self.subcategory.name)
+                        'subcategory'] == self.subcategory)
         self.assertTrue('extended_info' in json_data['items'][0])
 
 

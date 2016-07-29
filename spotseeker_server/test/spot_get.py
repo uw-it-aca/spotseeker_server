@@ -16,7 +16,7 @@
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
-from spotseeker_server.models import Spot, SpotExtendedInfo
+from spotseeker_server.models import Spot, SpotExtendedInfo, Item
 import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
@@ -30,13 +30,39 @@ from spotseeker_server import models
 class SpotGETTest(TestCase):
 
     def setUp(self):
+        # create a spot without items
         spot = Spot.objects.create(name="This is for testing GET",
                                    latitude=55,
                                    longitude=30)
-        spot.save()
+
+
+        # create a spot that will contain items for testing the item json
+        spot_with_items = Spot.objects.create(name="This is for testing items"
+                                              " GET",
+                                              latitude=55,
+                                              longitude=30)
+
+        spot_with_items.save()
+
+        items = []
+
+        # create some items for testing
+        for i in range(0, 0):
+            new_item = Item.objects.create(name="Item1",
+                                           spot=spot_with_items)
+            items.append(new_item)
+            new_item.save()
+
         self.spot = spot
+        spot.save()
+
+    def tearDown(self):
+        self.spot.delete()
 
     def test_invalid_id(self):
+        """
+        Tests a string instead of a numeric ID for spot retreival.
+        """
         c = Client()
         response = c.get("/api/v1/spot/bad_id")
         self.assertEqual(response.status_code,
@@ -44,28 +70,37 @@ class SpotGETTest(TestCase):
                          "Rejects a non-numeric id")
 
     def test_invalid_id_too_high(self):
+        """
+        Tests that a 404 will be returned for a spot that does not exist
+        """
         c = Client()
         url = "/api/v1/spot/%s" % (self.spot.pk + 10000)
         response = c.get(url)
         self.assertEqual(response.status_code, 404, "Spot ID too high")
 
     def test_content_type(self):
+        """
+        Tests that the content type for the spot get is application/json
+        """
         c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
         response = c.get(url)
-        self.assertEqual(response["Content-Type"], "application/json")
-
-        url = "/api/v1/spot/all"
-        response = c.get(url)
+        # import pdb; pdb.set_trace()
         self.assertEqual(response["Content-Type"], "application/json")
 
     def test_etag(self):
+        """
+        Tests to ensure that the etag field is present in the spot
+        """
         c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
         response = c.get(url)
         self.assertEqual(response["ETag"], self.spot.etag)
 
     def test_invalid_params(self):
+        """
+        Tests the GET with invalid parameters.
+        """
         c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
         response = c.get(url, {'bad_param': 'does not exist'},)
@@ -82,3 +117,15 @@ class SpotGETTest(TestCase):
         returned_spot = Spot.objects.get(pk=spot_dict['id'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(returned_spot, self.spot)
+
+    def test_empty_items(self):
+        """
+        Tests to ensure that a Spot with no items present will have an empty
+        list in their JSON respresenting items.
+        """
+        c = Client()
+        url = "/api/v1/spot/%s" % self.spot.pk
+        response = c.get(url)
+        spot_dict = json.loads(response.content)
+        self.assertTrue("items" in spot_dict)
+        self.assertTrue(len(spot_dict["items"]) == 0, "")

@@ -35,7 +35,6 @@ class SpotGETTest(TestCase):
                                    latitude=55,
                                    longitude=30)
 
-
         # create a spot that will contain items for testing the item json
         spot_with_items = Spot.objects.create(name="This is for testing items"
                                               " GET",
@@ -44,15 +43,18 @@ class SpotGETTest(TestCase):
 
         spot_with_items.save()
 
-        items = []
+        self.items = []
 
         # create some items for testing
-        for i in range(0, 0):
-            new_item = Item.objects.create(name="Item1",
-                                           spot=spot_with_items)
-            items.append(new_item)
+        for i in range(0, 10):
+            new_item = Item.objects.create(name="Item" + str(i),
+                                           spot=spot_with_items,
+                                           category="Laptops",
+                                           subcategory="Macbooks")
+            self.items.append(new_item)
             new_item.save()
 
+        self.spot_with_items = spot_with_items
         self.spot = spot
         spot.save()
 
@@ -64,7 +66,8 @@ class SpotGETTest(TestCase):
         Tests a string instead of a numeric ID for spot retreival.
         """
         c = Client()
-        response = c.get("/api/v1/spot/bad_id")
+        url = "/api/v1/spot/bad_id"
+        response = c.get(url)
         self.assertEqual(response.status_code,
                          404,
                          "Rejects a non-numeric id")
@@ -129,3 +132,29 @@ class SpotGETTest(TestCase):
         spot_dict = json.loads(response.content)
         self.assertTrue("items" in spot_dict)
         self.assertTrue(len(spot_dict["items"]) == 0, "")
+
+    def test_valid_item_json(self):
+        """
+        Tests to make sure a Spot json is valid by comparing it with the
+        item model.
+        """
+        c = Client()
+        url = "/api/v1/spot/%s" % self.spot_with_items.pk
+        response = c.get(url)
+        spot_dict = json.loads(response.content)
+        items = spot_dict["items"]
+        self.assertTrue(len(items) == 10)
+        for item in items:
+            # assert that the Spot json contains the Item
+            for original_item_model in self.items:
+                if item['id'] == original_item_model.id:
+                    item_model = original_item_model
+
+            self.assertTrue(item_model is not None)
+            self.assertTrue('name' in item)
+            self.assertTrue(item['name'] == item_model.name)
+
+            # assert Item category and subcategory
+            self.assertTrue(item['category'] == item_model.category)
+            self.assertTrue(item['subcategory'] == item_model.subcategory)
+            self.assertTrue('extended_info' in item)

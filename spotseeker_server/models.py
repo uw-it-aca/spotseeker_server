@@ -157,7 +157,7 @@ class Spot(models.Model):
             "organization": self.organization,
             "manager": self.manager,
             "extended_info": extended_info,
-            "checkout_items": checkout_items,
+            "items": checkout_items,
             "last_modified": self.last_modified.isoformat(),
             "external_id": self.external_id
         }

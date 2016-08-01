@@ -16,7 +16,8 @@
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
-from spotseeker_server.models import Spot, SpotExtendedInfo, Item
+from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
+                                     ItemExtendedInfo
 import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
@@ -44,13 +45,21 @@ class SpotGETTest(TestCase):
         spot_with_items.save()
 
         self.items = []
-
+        self.extended_data = []
         # create some items for testing
         for i in range(0, 10):
             new_item = Item.objects.create(name="Item" + str(i),
                                            spot=spot_with_items,
                                            category="Laptops",
                                            subcategory="Macbooks")
+
+            for dictdata in range(1, 3):
+                extended_data = ItemExtendedInfo()
+                extended_data.item = new_item
+                extended_data.key = "key " + str(dictdata)
+                extended_data.value = "value " + str(dictdata)
+                extended_data.save()
+                self.extended_data.append(extended_data)
             self.items.append(new_item)
             new_item.save()
 
@@ -149,6 +158,9 @@ class SpotGETTest(TestCase):
             for original_item_model in self.items:
                 if item['id'] == original_item_model.id:
                     item_model = original_item_model
+                    for extended_data_items in self.extended_data:
+                        if item_model == extended_data_items.item:
+                            item_extended_info = extended_data_items
 
             self.assertTrue(item_model is not None)
             self.assertTrue('name' in item)
@@ -158,3 +170,7 @@ class SpotGETTest(TestCase):
             self.assertTrue(item['category'] == item_model.category)
             self.assertTrue(item['subcategory'] == item_model.subcategory)
             self.assertTrue('extended_info' in item)
+            for key in item['extended_info']:
+                if key == item_extended_info.key:
+                    self.assertTrue(item['extended_info'][key] ==
+                                    item_extended_info.value)

@@ -49,12 +49,13 @@ class ItemModelTest(TestCase):
         self.checkout_item.subcategory = self.subcategory
         self.checkout_item.save()
 
-        # create item extended info
-        self.iei = ItemExtendedInfo()
-        self.iei.item = self.checkout_item
-        self.iei.key = 'key one'
-        self.iei.value = 'value one'
-        self.iei.save()
+        # create 4 items extended info
+        for i in range(1, 5):
+            self.iei = ItemExtendedInfo()
+            self.iei.item = self.checkout_item
+            self.iei.key = "key " + str(i)
+            self.iei.value = "value " + str(i)
+            self.iei.save()
 
     def tearDown(self):
         self.spot.delete()
@@ -65,6 +66,8 @@ class ItemModelTest(TestCase):
         # get the Spot json
         test_spot = Spot.objects.get(pk=self.spot_id)
         json_data = test_spot.json_data_structure()
+        import pdb
+        pdb.set_trace()
         for item in json_data["items"]:
             # assert that the Spot json contains the Item
             self.assertTrue('items' in json_data)

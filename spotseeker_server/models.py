@@ -466,12 +466,12 @@ class Item(models.Model):
     subcategory = models.CharField(max_length=50, null=True)
 
     def json_data_structure(self):
-        extended = []
+        extended = {}
         iei = self.itemextendedinfo_set.all()
         for i in iei:
             dictdata = {}
             dictdata[i.key] = i.value
-            extended.append(dictdata)
+            extended.update(dictdata)
         data = {
             'id': self.pk,
             'name': self.name,

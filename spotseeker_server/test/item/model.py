@@ -66,8 +66,6 @@ class ItemModelTest(TestCase):
         # get the Spot json
         test_spot = Spot.objects.get(pk=self.spot_id)
         json_data = test_spot.json_data_structure()
-        import pdb
-        pdb.set_trace()
         for item in json_data["items"]:
             # assert that the Spot json contains the Item
             self.assertTrue('items' in json_data)

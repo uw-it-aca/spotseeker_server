@@ -14,7 +14,6 @@
 """
 
 from django.test import TestCase
-#from django.test.client import Client
 from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
                                      ItemExtendedInfo
 import simplejson as json
@@ -164,4 +163,4 @@ class SpotGETTest(TestCase):
             for key in item['extended_info']:
                 if key == item_extended_info.key:
                     self.assertEqual(item['extended_info'][key],
-                                    item_extended_info.value)
+                                     item_extended_info.value)

@@ -13,6 +13,9 @@
     limitations under the License.
 """
 
+# Use full test failure messages
+import spotseeker_server.test.long_message
+
 from spotseeker_server.test.buildings import BuildingTest
 from spotseeker_server.test.models import SpotModelToStringTests
 from spotseeker_server.test.spot_form import SpotFormTest
@@ -68,6 +71,3 @@ from spotseeker_server.test.uw_spot.uw_search import UWSearchTest
 from spotseeker_server.test.favorites import FavoritesTest
 from spotseeker_server.test.share_space import ShareSpaceTest
 from spotseeker_server.test.reviews import ReviewsTest
-
-import unittest
-unittest.TestCase.longMessage = True

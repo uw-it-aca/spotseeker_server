@@ -142,6 +142,7 @@ class SpotPOSTTest(TestCase):
             actual_ei = out_json['extended_info']
             self.assertEqual(expected_ei, actual_ei)
 
+    @skip
     def test_create_spot_with_items(self):
         """
         Tests the creation of a spot with correct items data.
@@ -172,6 +173,7 @@ class SpotPOSTTest(TestCase):
         self.assertEqual(item["category"], "itemcategory")
         self.assertEqual(item["subcategory"], "itemsubcategory")
 
+    @skip
     def test_create_spot_with_bad_items(self):
         """
         Tests the creation of a spot with malformed items data, both bad json
@@ -218,7 +220,31 @@ class SpotPOSTTest(TestCase):
             response = self.post_spot(js)
             self.assertEqual(response.status_code, 400)
 
+    @skip
     def test_item_extended_info(self):
         """
-        Tests to ensure that the item extended info is being set on creation.
+        Tests to ensure that the item extended info is being saved on creation.
         """
+        c = Client()
+
+        spot_json = {
+            'name': self.random_name(),
+            'capacity': new_capacity,
+            'location': {'latitude': 50, 'longitude': -30},
+            'items': [
+                {'name': 'itemname',
+                 'category': 'itemcategory',
+                 'subcategory': 'itemsubcategory',
+                 'extended_info': {
+                     'make_model': 'itemmodel',
+                     'customer_type': 'UW Student',
+                     'auto_item_status': 'active'
+                     }
+                 }
+            ]
+        }
+
+        response = c.post('/api/v1/spot', spot_json,
+                          content_type="application/json")
+
+        self.assertEqual(response.status_code, 200)

@@ -22,6 +22,7 @@ import random
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
+import copy
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
@@ -146,3 +147,87 @@ class SpotPOSTTest(TestCase):
                          json.loads(json_string2)['extended_info'])
         self.assertEqual(spot_json3["extended_info"],
                          json.loads(json_string3)['extended_info'])
+
+    def test_create_spot_with_items(self):
+        """
+        Tests the creation of a spot with correct items data.
+        """
+        c = Client()
+
+        new_name = "testing POST name: {0}".format(random.random())
+        new_capacity = 10
+        spot_json = '{"name":"%s","capacity":"%d", "location": {"latitude": '\
+                    '50, "longitude": -30}, "items" : [{"name" : "itemname",'\
+                    ' "category" : "itemcategory", "subcategory" : ' \
+                    '"itemsubcategory"}] }' % (new_name, new_capacity)
+
+        response = c.post('/api/v1/spot/', spot_json,
+                          content_type="application/json")
+
+        # assert that the spot was created
+        self.assertEqual(response.status_code, 201)
+
+        # try to retrieve the spot and ensure that items are there
+        get_response = c.get(response["Location"])
+
+        json_response = json.loads(get_response.content)
+
+        self.assertTrue(len(json_response["items"]) == 1)
+
+        item = json_response["items"][0]
+        self.assertEqual(item["name"], "itemname")
+        self.assertEqual(item["category"], "itemcategory")
+        self.assertEqual(item["subcategory"], "itemsubcategory")
+
+    def test_create_spot_with_bad_items(self):
+        """
+        Tests the creation of a spot with malformed items data, both bad json
+        and missing fields.
+        """
+        c = Client()
+
+        new_name = "testing POST name: {0}".format(random.random())
+        new_capacity = 10
+        bad_spot_json = '{"name":"%s","capacity":"%d", "location": ' \
+                        '{"latitude": 50, "longitude": -30}, "items" : [s ' \
+                        '{"name" : "itemname", "category" : "itemcategory", '\
+                        '"subcategory" : "itemsubcategory"}] }' \
+                        % (new_name, new_capacity)
+
+        response = c.post('/api/v1/spot', bad_spot_json,
+                          content_type="application/json")
+
+        # bad json should return a 400
+        self.assertEqual(response.status_code, 400)
+
+        spot_json = '{"name":"%s","capacity":"%d", "location": {"latitude": '\
+                    '50, "longitude": -30}, "items" : [{"name" : "itemname",'\
+                    ' "category" : "itemcategory", "subcategory" : ' \
+                    '"itemsubcategory"}] }' % (new_name, new_capacity)
+
+        # load the spot json into a dict so we can modify it
+        spot_json = json.loads(spot_json)
+
+        # delete some required fields from the JSON
+        no_name_json = copy.deepcopy(spot_json)
+        no_name_json["items"][0].pop("name", None)
+
+        no_category_json = copy.deepcopy(spot_json)
+        no_category_json["items"][0].pop("category", None)
+
+        no_subcategory_json = copy.deepcopy(spot_json)
+        no_subcategory_json["items"][0].pop("subcategory", None)
+
+        bad_json = [json.dumps(no_name_json), json.dumps(no_category_json),
+                    json.dumps(no_subcategory_json)]
+
+        # all of these POSTs should fail with a 400
+        for json in bad_json:
+            response = c.post('/api/v1/spot', json.dumps(json),
+                              content_type="application/json")
+            self.assertEqual(response.status_code, 400)
+
+    def test_item_extended_info(self):
+        """
+        Tests to ensure that the item extended info is being set on creation.
+        """

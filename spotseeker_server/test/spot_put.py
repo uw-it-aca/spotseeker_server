@@ -436,6 +436,9 @@ class SpotPUTTest(TestCase):
         self.assertContains(new_response3, '"another_new": "bleh"')
 
     def test_valid_json_with_items_valid_etag(self):
+        """
+        Tests to ensure that a PUT with some items will succeed.
+        """
         user, created = User.objects.get_or_create(username='demo_user')
         c = Client()
         c.login(username=user.username)

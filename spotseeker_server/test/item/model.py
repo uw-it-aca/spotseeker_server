@@ -17,6 +17,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 import random
+from string import ascii_lowercase
 
 from spotseeker_server.models import Spot, Item, ItemExtendedInfo
 
@@ -26,15 +27,11 @@ from spotseeker_server.models import Spot, Item, ItemExtendedInfo
     SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
                          'DefaultSpotForm')
 class ItemModelTest(TestCase):
-    """ Tests Item model methods.
-    """
+    """ Tests Item model data relations and retrieval. """
 
     def setUp(self):
         # create a Spot
-        self.spot = Spot()
-        self.spot.name = "spot {0}".format(randstring())
-        self.spot.save()
-
+        self.spot = Spot.objects.create(name='spot %s' % randstring())
         self.spot_id = self.spot.pk
 
         # Item category and subcategory
@@ -42,48 +39,51 @@ class ItemModelTest(TestCase):
         self.subcategory = 'Thing'
 
         # create an item
-        self.checkout_item = Item()
-        self.checkout_item.name = 'an item'
-        self.checkout_item.spot = self.spot
-        self.checkout_item.category = self.category
-        self.checkout_item.subcategory = self.subcategory
-        self.checkout_item.save()
+        self.checkout_item = Item.objects.create(
+            name='an item',
+            spot=self.spot,
+            category=self.category,
+            subcategory=self.subcategory)
 
         # create 4 items extended info
-        for i in range(1, 5):
-            self.iei = ItemExtendedInfo()
-            self.iei.item = self.checkout_item
-            self.iei.key = "key " + str(i)
-            self.iei.value = "value " + str(i)
-            self.iei.save()
+        for i in xrange(1, 5):
+            ItemExtendedInfo.objects.create(
+                item=self.checkout_item,
+                key='key %s' % i,
+                value='value %s' % i)
 
     def tearDown(self):
+        # Deleting the spot cascade deletes the item and IEI
         self.spot.delete()
-        self.checkout_item.delete()
-        self.iei.delete()
 
     def test_item_json(self):
         # get the Spot json
         test_spot = Spot.objects.get(pk=self.spot_id)
         json_data = test_spot.json_data_structure()
-        import pdb
-        pdb.set_trace()
-        for item in json_data["items"]:
+        self.assertIn('items', json_data)
+        for item in json_data['items']:
             # assert that the Spot json contains the Item
-            self.assertTrue('items' in json_data)
-            self.assertTrue('name' in item)
-            self.assertTrue(item['name'] == self.checkout_item.name)
+            self.assertIn('name', item)
+            self.assertEqual(item['name'], self.checkout_item.name)
 
             # assert Item category and subcategory
-            self.assertTrue(item['category'] == self.category)
-            self.assertTrue(item['subcategory'] == self.subcategory)
-            self.assertTrue('extended_info' in item)
+            self.assertEqual(item['category'], self.category)
+            self.assertEqual(item['subcategory'], self.subcategory)
+            self.assertIn('extended_info', item)
+
+            prev_key = None
+            prev_value = None
+
+            for ei_key, ei_value in item['extended_info'].items():
+                self.assertIn('key ', ei_key)
+                self.assertIn('value ', ei_value)
+                # Also make sure each one is unique
+                self.assertNotEqual(ei_key, prev_key)
+                self.assertNotEqual(ei_value, prev_value)
+
+                prev_key = ei_key
+                prev_value = ei_value
 
 
 def randstring():
-    name = ''
-    i = 0
-    while i < 25:
-        name += random.choice('qwertyuiopasdfghjklzxcvbnm')
-        i += 1
-    return name
+    return ''.join(random.choice(ascii_lowercase) for n in range(25))

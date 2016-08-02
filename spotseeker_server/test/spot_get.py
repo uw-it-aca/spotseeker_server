@@ -14,14 +14,11 @@
 """
 
 from django.test import TestCase
-from django.conf import settings
-from django.test.client import Client
+#from django.test.client import Client
 from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
                                      ItemExtendedInfo
 import simplejson as json
 from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 
 
 @override_settings(
@@ -47,36 +44,33 @@ class SpotGETTest(TestCase):
         self.items = []
         self.extended_data = []
         # create some items for testing
-        for i in range(0, 10):
-            new_item = Item.objects.create(name="Item" + str(i),
+        for i in xrange(0, 10):
+            new_item = Item.objects.create(name="Item%s" % i,
                                            spot=spot_with_items,
                                            category="Laptops",
                                            subcategory="Macbooks")
 
-            for dictdata in range(1, 3):
-                extended_data = ItemExtendedInfo()
-                extended_data.item = new_item
-                extended_data.key = "key " + str(dictdata)
-                extended_data.value = "value " + str(dictdata)
-                extended_data.save()
-                self.extended_data.append(extended_data)
+            for dictdata in xrange(1, 3):
+                new_iei = ItemExtendedInfo.objects.create(
+                    item=new_item,
+                    key='key %s' % dictdata,
+                    value='value %s' % dictdata)
+                self.extended_data.append(new_iei)
             self.items.append(new_item)
-            new_item.save()
 
         self.spot_with_items = spot_with_items
         self.spot = spot
-        spot.save()
 
     def tearDown(self):
         self.spot.delete()
+        self.spot_with_items.delete()
 
     def test_invalid_id(self):
         """
         Tests a string instead of a numeric ID for spot retreival.
         """
-        c = Client()
         url = "/api/v1/spot/bad_id"
-        response = c.get(url)
+        response = self.client.get(url)
         self.assertEqual(response.status_code,
                          404,
                          "Rejects a non-numeric id")
@@ -85,18 +79,16 @@ class SpotGETTest(TestCase):
         """
         Tests that a 404 will be returned for a spot that does not exist
         """
-        c = Client()
         url = "/api/v1/spot/%s" % (self.spot.pk + 10000)
-        response = c.get(url)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 404, "Spot ID too high")
 
     def test_content_type(self):
         """
         Tests that the content type for the spot get is application/json
         """
-        c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
-        response = c.get(url)
+        response = self.client.get(url)
         # import pdb; pdb.set_trace()
         self.assertEqual(response["Content-Type"], "application/json")
 
@@ -104,27 +96,28 @@ class SpotGETTest(TestCase):
         """
         Tests to ensure that the etag field is present in the spot
         """
-        c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
-        response = c.get(url)
+        response = self.client.get(url)
         self.assertEqual(response["ETag"], self.spot.etag)
 
     def test_invalid_params(self):
         """
         Tests the GET with invalid parameters.
         """
-        c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
-        response = c.get(url, {'bad_param': 'does not exist'},)
+        response = self.client.get(url, {'bad_param': 'does not exist'},)
         self.assertEqual(response.status_code, 200)
         spot_dict = json.loads(response.content)
         returned_spot = Spot.objects.get(pk=spot_dict['id'])
         self.assertEqual(returned_spot, self.spot)
 
     def test_valid_id(self):
-        c = Client()
+        """
+        Assert that retrieving a specific spot by ID returns the correct
+        spot
+        """
         url = "/api/v1/spot/%s" % self.spot.pk
-        response = c.get(url)
+        response = self.client.get(url)
         spot_dict = json.loads(response.content)
         returned_spot = Spot.objects.get(pk=spot_dict['id'])
         self.assertEqual(response.status_code, 200)
@@ -135,24 +128,22 @@ class SpotGETTest(TestCase):
         Tests to ensure that a Spot with no items present will have an empty
         list in their JSON respresenting items.
         """
-        c = Client()
         url = "/api/v1/spot/%s" % self.spot.pk
-        response = c.get(url)
+        response = self.client.get(url)
         spot_dict = json.loads(response.content)
-        self.assertTrue("items" in spot_dict)
-        self.assertTrue(len(spot_dict["items"]) == 0, "")
+        self.assertIn('items', spot_dict)
+        self.assertEqual(len(spot_dict["items"]), 0)
 
     def test_valid_item_json(self):
         """
         Tests to make sure a Spot json is valid by comparing it with the
         item model.
         """
-        c = Client()
         url = "/api/v1/spot/%s" % self.spot_with_items.pk
-        response = c.get(url)
+        response = self.client.get(url)
         spot_dict = json.loads(response.content)
         items = spot_dict["items"]
-        self.assertTrue(len(items) == 10)
+        self.assertEqual(len(items), 10)
         for item in items:
             # assert that the Spot json contains the Item
             for original_item_model in self.items:
@@ -162,15 +153,15 @@ class SpotGETTest(TestCase):
                         if item_model == extended_data_items.item:
                             item_extended_info = extended_data_items
 
-            self.assertTrue(item_model is not None)
-            self.assertTrue('name' in item)
-            self.assertTrue(item['name'] == item_model.name)
+            self.assertIsNotNone(item_model)
+            self.assertIn('name', item)
+            self.assertEqual(item['name'], item_model.name)
 
             # assert Item category and subcategory
-            self.assertTrue(item['category'] == item_model.category)
-            self.assertTrue(item['subcategory'] == item_model.subcategory)
-            self.assertTrue('extended_info' in item)
+            self.assertEqual(item['category'], item_model.category)
+            self.assertEqual(item['subcategory'], item_model.subcategory)
+            self.assertIn('extended_info', item)
             for key in item['extended_info']:
                 if key == item_extended_info.key:
-                    self.assertTrue(item['extended_info'][key] ==
+                    self.assertEqual(item['extended_info'][key],
                                     item_extended_info.value)

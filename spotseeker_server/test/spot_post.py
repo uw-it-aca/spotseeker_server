@@ -14,44 +14,49 @@
 """
 
 from django.test import TestCase
-from django.conf import settings
-from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
 from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 import copy
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 @override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
     SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
-                         'DefaultSpotForm')
-@override_settings(
+                         'DefaultSpotForm',
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
-                                     'DefaultSpotExtendedInfoForm')
-@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+                                     'DefaultSpotExtendedInfoForm',
+    SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class SpotPOSTTest(TestCase):
-    """ Tests creating a new Spot via POST.
-    """
+    """ Tests creating a new Spot via POST.  """
+
+    @staticmethod
+    def random_name():
+        return 'testing POST name: %s' % random.random()
+
+    def post_spot(self, data):
+        if not isinstance(data, basestring):
+            data = json.dumps(data)
+        return self.client.post('/api/v1/spot/', data,
+                                content_type='application/json',
+                                follow=False)
 
     def test_valid_json(self):
-        c = Client()
-        new_name = "testing POST name: {0}".format(random.random())
+        c = self.client
+        new_name = self.random_name()
         new_capacity = 10
-        response = c.post('/api/v1/spot/', '{"name":"%s","capacity":"%d",'
-                          ' "location": {"latitude": 50, "longitude": -30}'
-                          ' }'
-                          % (new_name, new_capacity),
-                          content_type="application/json",
-                          follow=False)
+        spot_data = {
+            'name': new_name,
+            'capacity': new_capacity,
+            'location': {'latitude': 50, 'longitude': -30}
+        }
+        response = self.post_spot(spot_data)
 
         self.assertEquals(response.status_code, 201,
-                          "Gives a Created response to creating a Spot")
+                          "Spot did not get created")
         self.assertIn("Location", response,
-                      "The response has a location header")
+                      "Did not find Location header in response")
 
         self.spot = Spot.objects.get(name=new_name)
 
@@ -65,104 +70,92 @@ class SpotPOSTTest(TestCase):
 
         self.assertEqual(
             spot_json["name"],
-            new_name, "The right name was stored")
+            new_name, "Did not find correct name in response")
         self.assertEqual(
             spot_json["capacity"],
-            new_capacity, "The right capacity was stored")
+            new_capacity, "Did not find correct capacity in response")
 
     def test_non_json(self):
-        c = Client()
-        response = c.post('/api/v1/spot/', 'just a string',
-                          content_type="application/json", follow=False)
+        """ Attempt to post a json string instead of object """
+        response = self.post_spot('just a string')
         self.assertEquals(response.status_code, 400)
 
     def test_invalid_json(self):
-        c = Client()
-        response = c.post('/api/v1/spot/', '{}',
-                          content_type="application/json", follow=False)
+        """ Attempt to post an empty object """
+        response = self.post_spot('{}')
         self.assertEquals(response.status_code, 400)
 
     def test_extended_info(self):
-        c = Client()
-        new_name = "testing POST name: {0}".format(random.random())
+        new_name = self.random_name()
         new_capacity = 10
-        json_string = ('{"name":"%s","capacity":"%s", "location": '
-                       '{"latitude": 50, "longitude": -30},'
-                       '"extended_info":{"has_outlets":"true"}}'
-                       % (new_name, new_capacity))
-        response = c.post('/api/v1/spot/', json_string,
-                          content_type="application/json", follow=False)
-        get_response = c.get(response["Location"])
+        spot_data = {
+            'name': new_name,
+            'capacity': new_capacity,
+            'location': {'latitude': 50, 'longitude': -30},
+            'extended_info': {'has_outlets': 'true'}
+        }
+        json_string = json.dumps(spot_data)
+        response = self.post_spot(json_string)
+        get_response = self.client.get(response["Location"])
         spot_json = json.loads(get_response.content)
-        extended_info = {"has_outlets": "true"}
         self.assertEquals(
-            spot_json["extended_info"],
-            extended_info, "extended_info was succesffuly POSTed")
+            spot_json['extended_info'],
+            spot_data['extended_info'], "Did get the same EI we posted")
 
     def test_multiple_correct_extended_info(self):
-        c = Client()
-        json_string1 = ('{"name":"%s","capacity":"10", "location": '
-                        '{"latitude": 50, "longitude": -30},'
-                        '"extended_info":{"has_whiteboards":"true", '
-                        '"has_printing":"true", "has_displays":"true", '
-                        '"num_computers":"38", "has_natural_light":'
-                        '"true"}}'
-                        % ("testing POST name: {0}".
-                            format(random.random())))
-        response1 = c.post('/api/v1/spot/', json_string1,
-                           content_type="application/json", follow=False)
-        json_string2 = ('{"name":"%s","capacity":"10", "location": '
-                        '{"latitude": 50, "longitude": -30},'
-                        '"extended_info":{"has_outlets":"true", '
-                        '"has_outlets":"true", "has_scanner":"true", '
-                        '"has_projector":"true", "has_computers":"true"}}'
-                        % ("testing POST name: {0}".
-                            format(random.random())))
-        response2 = c.post('/api/v1/spot/', json_string2,
-                           content_type="application/json", follow=False)
-        json_string3 = ('{"name":"%s","capacity":"10", "location": '
-                        '{"latitude": 50, "longitude": -30},'
-                        '"extended_info":{"has_outlets":"true", '
-                        '"has_printing":"true", "has_projector":"true", '
-                        '"num_computers":"15", "has_computers":"true",'
-                        ' "has_natural_light":"true"}}' %
-                        ("testing POST name: {0}".format(random.random())))
-        response3 = c.post('/api/v1/spot/', json_string3,
-                           content_type="application/json", follow=False)
+        urls = {}
+        spot_0 = {
+            'name': self.random_name(),
+            'capacity': 10,
+            'location': {'latitude': 50, 'longitude': -30},
+            'extended_info': {
+                'has_whiteboards': 'true',
+                'has_printing': 'true',
+                'has_displays': 'true',
+                'num_computers': '38',
+                'has_natural_light': 'true',
+            }
+        }
 
-        url1 = response1["Location"]
-        url2 = response2["Location"]
-        url3 = response3["Location"]
+        spot_1 = copy.deepcopy(spot_0)
+        spot_1['name'] = self.random_name()
+        spot_1['extended_info'] = dict.fromkeys(
+            ('has_outlets', 'has_scanner', 'has_projector', 'has_computers'),
+            'true')
 
-        response = c.get(url1)
-        spot_json1 = json.loads(response.content)
-        response = c.get(url2)
-        spot_json2 = json.loads(response.content)
-        response = c.get(url3)
-        spot_json3 = json.loads(response.content)
+        spot_2 = copy.deepcopy(spot_1)
+        spot_2['name'] = self.random_name()
+        spot_2['extended_info'] = dict.fromkeys(
+            ('has_outlets', 'has_printing', 'has_projector', 'has_computers',
+             'has_natural_light'), 'true')
+        spot_2['extended_info']['num_computers'] = '15'
 
-        self.assertEquals(spot_json1["extended_info"],
-                          json.loads(json_string1)['extended_info'],)
-        self.assertEqual(spot_json2["extended_info"],
-                         json.loads(json_string2)['extended_info'])
-        self.assertEqual(spot_json3["extended_info"],
-                         json.loads(json_string3)['extended_info'])
+        in_data = {0: spot_0, 1: spot_1, 2: spot_2}
+
+        for idx, spot_data in in_data.items():
+            response = self.post_spot(spot_data)
+            urls[idx] = response['Location']
+
+        for idx, url in urls.items():
+            out_json = json.loads(self.client.get(url).content)
+            expected_ei = in_data[idx]['extended_info']
+            actual_ei = out_json['extended_info']
+            self.assertEqual(expected_ei, actual_ei)
 
     def test_create_spot_with_items(self):
         """
         Tests the creation of a spot with correct items data.
         """
-        c = Client()
+        c = self.client
 
-        new_name = "testing POST name: {0}".format(random.random())
+        new_name = self.random_name()
         new_capacity = 10
         spot_json = '{"name":"%s","capacity":"%d", "location": {"latitude": '\
                     '50, "longitude": -30}, "items" : [{"name" : "itemname",'\
                     ' "category" : "itemcategory", "subcategory" : ' \
                     '"itemsubcategory"}] }' % (new_name, new_capacity)
 
-        response = c.post('/api/v1/spot/', spot_json,
-                          content_type="application/json")
+        response = self.post_spot(spot_json)
 
         # assert that the spot was created
         self.assertEqual(response.status_code, 201)
@@ -172,7 +165,7 @@ class SpotPOSTTest(TestCase):
 
         json_response = json.loads(get_response.content)
 
-        self.assertTrue(len(json_response["items"]) == 1)
+        self.assertEqual(len(json_response["items"]), 1)
 
         item = json_response["items"][0]
         self.assertEqual(item["name"], "itemname")
@@ -184,9 +177,7 @@ class SpotPOSTTest(TestCase):
         Tests the creation of a spot with malformed items data, both bad json
         and missing fields.
         """
-        c = Client()
-
-        new_name = "testing POST name: {0}".format(random.random())
+        new_name = self.random_name()
         new_capacity = 10
         bad_spot_json = '{"name":"%s","capacity":"%d", "location": ' \
                         '{"latitude": 50, "longitude": -30}, "items" : [s ' \
@@ -194,37 +185,37 @@ class SpotPOSTTest(TestCase):
                         '"subcategory" : "itemsubcategory"}] }' \
                         % (new_name, new_capacity)
 
-        response = c.post('/api/v1/spot', bad_spot_json,
-                          content_type="application/json")
+        response = self.post_spot(bad_spot_json)
 
         # bad json should return a 400
         self.assertEqual(response.status_code, 400)
 
-        spot_json = '{"name":"%s","capacity":"%d", "location": {"latitude": '\
-                    '50, "longitude": -30}, "items" : [{"name" : "itemname",'\
-                    ' "category" : "itemcategory", "subcategory" : ' \
-                    '"itemsubcategory"}] }' % (new_name, new_capacity)
-
-        # load the spot json into a dict so we can modify it
-        spot_json = json.loads(spot_json)
+        spot_json = {
+            'name': self.random_name(),
+            'capacity': new_capacity,
+            'location': {'latitude': 50, 'longitude': -30},
+            'items': [
+                {'name': 'itemname',
+                 'category': 'itemcategory',
+                 'subcategory': 'itemsubcategory'}
+            ]
+        }
 
         # delete some required fields from the JSON
         no_name_json = copy.deepcopy(spot_json)
-        no_name_json["items"][0].pop("name", None)
+        del no_name_json["items"][0]['name']
 
         no_category_json = copy.deepcopy(spot_json)
-        no_category_json["items"][0].pop("category", None)
+        del no_category_json["items"][0]['category']
 
         no_subcategory_json = copy.deepcopy(spot_json)
-        no_subcategory_json["items"][0].pop("subcategory", None)
+        del no_subcategory_json["items"][0]['subcategory']
 
-        bad_json = [json.dumps(no_name_json), json.dumps(no_category_json),
-                    json.dumps(no_subcategory_json)]
+        bad_json = (no_name_json, no_category_json, no_subcategory_json)
 
         # all of these POSTs should fail with a 400
-        for json in bad_json:
-            response = c.post('/api/v1/spot', json.dumps(json),
-                              content_type="application/json")
+        for js in bad_json:
+            response = self.post_spot(js)
             self.assertEqual(response.status_code, 400)
 
     def test_item_extended_info(self):

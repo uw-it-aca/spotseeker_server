@@ -434,3 +434,26 @@ class SpotPUTTest(TestCase):
                          json.loads(new_json_string3)['extended_info'])
         self.assertContains(new_response3, '"also_new": "ok"')
         self.assertContains(new_response3, '"another_new": "bleh"')
+
+    def test_valid_json_with_items_valid_etag(self):
+        user, created = User.objects.get_or_create(username='demo_user')
+        c = Client()
+        c.login(username=user.username)
+        new_name = "testing PUT name: {0}".format(random.random())
+        new_capacity = 20
+
+        response = c.get(self.url)
+        etag = response["ETag"]
+
+        response = c.put(self.url,
+                         '{"name":"%s","capacity":"%d", "location": '
+                         '{"latitude": 55, "longitude": 30}, "items": '
+                         '[{"name": "an item" }]}'
+                         % (new_name, new_capacity),
+                         content_type="application/json",
+                         If_Match=etag)
+        self.assertEqual(response.status_code, 200)
+
+        updated_spot = Spot.objects.get(pk=self.spot.pk)
+        self.assertEqual(updated_spot.name, new_name)
+        self.assertEqual(updated_spot.capacity, new_capacity)

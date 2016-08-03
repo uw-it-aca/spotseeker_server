@@ -14,7 +14,6 @@
 """
 
 from django.test import TestCase
-from unittest import skip
 from spotseeker_server.models import Spot
 import simplejson as json
 import random

@@ -32,6 +32,8 @@ import re
 # and what all of the possible validated values are, or validated types
 validated_ei = {
     "app_type": ['food', 'tech'],
+    "auto_labstats_available": "int",
+    "auto_labstats_total": "int",
     "campus": ['seattle', 'tacoma', 'bothell', 'south_lake_union'],
     "food_nearby": ['space', 'building', 'neighboring'],
     "has_computers": ['true'],
@@ -44,9 +46,12 @@ validated_ei = {
     "has_scanner": ['true'],
     "has_whiteboards": ['true'],
     "is_hidden": ['true'],
+    "labstats_id": "int",
     "noise_level": ['silent', 'quiet', 'moderate', 'variable'],
     "num_computers": "int",
+    "rating": "int",
     "reservable": ['true', 'reservations'],
+    "review_count": "int",
     "s_cuisine_american": ['true'],
     "s_cuisine_bbq": ['true'],
     "s_cuisine_chinese": ['true'],

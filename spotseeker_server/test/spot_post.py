@@ -22,6 +22,14 @@ from django.test.utils import override_settings
 import copy
 import utils_test
 
+try:
+    from unittest import skip
+except ImportError:
+    def skip(*args, **kwargs):
+        def inner(self):
+            pass
+        return inner
+
 
 @override_settings(
     SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',

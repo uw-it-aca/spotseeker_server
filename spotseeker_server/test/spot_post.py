@@ -14,11 +14,13 @@
 """
 
 from django.test import TestCase
+from unittest import skip
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
 from django.test.utils import override_settings
 import copy
+import utils_test
 
 
 @override_settings(
@@ -36,6 +38,10 @@ class SpotPOSTTest(TestCase):
         return 'testing POST name: %s' % random.random()
 
     def post_spot(self, data):
+        """
+        Posts a spot with the test client. Can accept either a string or a json
+        object.
+        """
         if not isinstance(data, basestring):
             data = json.dumps(data)
         return self.client.post('/api/v1/spot/', data,
@@ -46,11 +52,8 @@ class SpotPOSTTest(TestCase):
         c = self.client
         new_name = self.random_name()
         new_capacity = 10
-        spot_data = {
-            'name': new_name,
-            'capacity': new_capacity,
-            'location': {'latitude': 50, 'longitude': -30}
-        }
+        spot_data = utils_test.get_spot(new_name, new_capacity)
+
         response = self.post_spot(spot_data)
 
         self.assertEquals(response.status_code, 201,
@@ -86,6 +89,10 @@ class SpotPOSTTest(TestCase):
         self.assertEquals(response.status_code, 400)
 
     def test_extended_info(self):
+        """
+        Tests a single extended_info field to ensure that it will save
+        correctly.
+        """
         new_name = self.random_name()
         new_capacity = 10
         spot_data = {
@@ -103,6 +110,9 @@ class SpotPOSTTest(TestCase):
             spot_data['extended_info'], "Did get the same EI we posted")
 
     def test_multiple_correct_extended_info(self):
+        """
+        Test that multiple extended info fields can be saved correctly.
+        """
         urls = {}
         spot_0 = {
             'name': self.random_name(),
@@ -142,7 +152,7 @@ class SpotPOSTTest(TestCase):
             actual_ei = out_json['extended_info']
             self.assertEqual(expected_ei, actual_ei)
 
-    @skip
+    @skip("Not yet implemented")
     def test_create_spot_with_items(self):
         """
         Tests the creation of a spot with correct items data.
@@ -151,10 +161,6 @@ class SpotPOSTTest(TestCase):
 
         new_name = self.random_name()
         new_capacity = 10
-        spot_json = '{"name":"%s","capacity":"%d", "location": {"latitude": '\
-                    '50, "longitude": -30}, "items" : [{"name" : "itemname",'\
-                    ' "category" : "itemcategory", "subcategory" : ' \
-                    '"itemsubcategory"}] }' % (new_name, new_capacity)
 
         response = self.post_spot(spot_json)
 
@@ -173,7 +179,7 @@ class SpotPOSTTest(TestCase):
         self.assertEqual(item["category"], "itemcategory")
         self.assertEqual(item["subcategory"], "itemsubcategory")
 
-    @skip
+    @skip("Not yet implemented")
     def test_create_spot_with_bad_items(self):
         """
         Tests the creation of a spot with malformed items data, both bad json
@@ -214,37 +220,52 @@ class SpotPOSTTest(TestCase):
         del no_subcategory_json["items"][0]['subcategory']
 
         bad_json = (no_name_json, no_category_json, no_subcategory_json)
+        messages = ('Item name validation failed to raise an error',
+                    'Item category validation failed to raise an error',
+                    'Item subcategory validation failed to raise an error')
 
         # all of these POSTs should fail with a 400
-        for js in bad_json:
+        for js, message in zip(bad_json, messages):
             response = self.post_spot(js)
-            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.status_code, 400, message)
 
-    @skip
+    @skip("Not yet implemented")
     def test_item_extended_info(self):
         """
         Tests to ensure that the item extended info is being saved on creation.
         """
-        c = Client()
 
-        spot_json = {
-            'name': self.random_name(),
-            'capacity': new_capacity,
-            'location': {'latitude': 50, 'longitude': -30},
-            'items': [
-                {'name': 'itemname',
-                 'category': 'itemcategory',
-                 'subcategory': 'itemsubcategory',
-                 'extended_info': {
-                     'make_model': 'itemmodel',
-                     'customer_type': 'UW Student',
-                     'auto_item_status': 'active'
-                     }
-                 }
-            ]
-        }
+        ei_keys = ("make_model", "customer_type", "auto_item_status")
+        ei_values = ("itemmodel", "UW Student", "active")
 
-        response = c.post('/api/v1/spot', spot_json,
-                          content_type="application/json")
+        spot_json = utils_test.get_spot(self.random_name(), 20)
 
-        self.assertEqual(response.status_code, 200)
+        spot_json['items'].append(utils_test.get_item())
+
+        for key, value in zip(ei_keys, ei_values):
+            spot_json['items']['extended_info'][key] = value
+
+        response = self.client.post('/api/v1/spot', spot_json,
+                                    content_type="application/json")
+
+        self.assertEqual(response.status_code, 201)
+
+        response = self.client.get(response['Location'])
+
+        self.assertEqual(response.status.code, 200)
+
+        spot_json = json.loads(get_response.content)
+
+        self.assertEqual(len(json_response["items"]), 1)
+
+        self.assertTrue('extended_info' in spot_json['items'],
+                        "No extended_info in the item!")
+
+        # assert that values were correct
+        for key, value in zip(ei_keys, ei_values):
+            self.assertTrue(key in json_response["items"]["extended_info"],
+                            key + " not in item extended info!")
+
+            self.assertEqual(json_response["items"]["extended_info"][key],
+                             value, key + " was not " + value + ", was :" +
+                             json_response["items"]["extended_info"][key])

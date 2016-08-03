@@ -466,7 +466,11 @@ class Item(models.Model):
     subcategory = models.CharField(max_length=50, null=True)
 
     def json_data_structure(self):
-        extended = {i.key: i.value for i in self.itemextendedinfo_set.all()}
+        extended = {}
+
+        for i in self.itemextendedinfo_set.all():
+            extended[i.key] = i.value
+
         data = {
             'id': self.pk,
             'name': self.name,

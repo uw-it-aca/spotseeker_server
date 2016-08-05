@@ -14,13 +14,20 @@
 """
 
 from django.test import TestCase
-from unittest import skip
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
 from django.test.utils import override_settings
 import copy
 import utils_test
+
+try:
+    from unittest import skip
+except ImportError:
+    def skip(*args, **kwargs):
+        def inner(self):
+            pass
+        return inner
 
 
 @override_settings(

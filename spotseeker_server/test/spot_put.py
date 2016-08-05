@@ -15,7 +15,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
-from unittest import skip
 from django.test.client import Client
 from spotseeker_server.models import Spot, Item
 from django.test.utils import override_settings
@@ -25,6 +24,14 @@ import simplejson as json
 import random
 import utils_test
 import copy
+
+try:
+    from unittest import skip
+except ImportError:
+    def skip(*args, **kwargs):
+        def inner(self):
+            pass
+        return inner
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')

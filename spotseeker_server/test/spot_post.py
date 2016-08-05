@@ -152,7 +152,6 @@ class SpotPOSTTest(TestCase):
             actual_ei = out_json['extended_info']
             self.assertEqual(expected_ei, actual_ei)
 
-    @skip("Not yet implemented")
     def test_create_spot_with_items(self):
         """
         Tests the creation of a spot with correct items data.
@@ -161,6 +160,10 @@ class SpotPOSTTest(TestCase):
 
         new_name = self.random_name()
         new_capacity = 10
+
+        spot_json = utils_test.get_spot(new_name, new_capacity)
+
+        spot_json['items'].append(utils_test.get_item())
 
         response = self.post_spot(spot_json)
 
@@ -174,12 +177,12 @@ class SpotPOSTTest(TestCase):
 
         self.assertEqual(len(json_response["items"]), 1)
 
+        original_item = spot_json['items'][0]
         item = json_response["items"][0]
-        self.assertEqual(item["name"], "itemname")
-        self.assertEqual(item["category"], "itemcategory")
-        self.assertEqual(item["subcategory"], "itemsubcategory")
+        self.assertEqual(item["name"], original_item['name'])
+        self.assertEqual(item["category"], original_item['category'])
+        self.assertEqual(item["subcategory"], original_item['subcategory'])
 
-    @skip("Not yet implemented")
     def test_create_spot_with_bad_items(self):
         """
         Tests the creation of a spot with malformed items data, both bad json
@@ -203,9 +206,12 @@ class SpotPOSTTest(TestCase):
             'capacity': new_capacity,
             'location': {'latitude': 50, 'longitude': -30},
             'items': [
-                {'name': 'itemname',
+                {
+                 'name': 'itemname',
                  'category': 'itemcategory',
-                 'subcategory': 'itemsubcategory'}
+                 'subcategory': 'itemsubcategory',
+                 'extended_info': {}
+                 }
             ]
         }
 
@@ -229,12 +235,12 @@ class SpotPOSTTest(TestCase):
             response = self.post_spot(js)
             self.assertEqual(response.status_code, 400, message)
 
-    @skip("Not yet implemented")
     def test_item_extended_info(self):
         """
         Tests to ensure that the item extended info is being saved on creation.
         """
 
+        # todo : change to dict
         ei_keys = ("make_model", "customer_type", "auto_item_status")
         ei_values = ("itemmodel", "UW Student", "active")
 
@@ -243,29 +249,29 @@ class SpotPOSTTest(TestCase):
         spot_json['items'].append(utils_test.get_item())
 
         for key, value in zip(ei_keys, ei_values):
-            spot_json['items']['extended_info'][key] = value
+            spot_json['items'][0]['extended_info'][key] = value
 
-        response = self.client.post('/api/v1/spot', spot_json,
+        response = self.client.post('/api/v1/spot', json.dumps(spot_json),
                                     content_type="application/json")
 
         self.assertEqual(response.status_code, 201)
 
-        response = self.client.get(response['Location'])
+        get_response = self.client.get(response['Location'])
 
-        self.assertEqual(response.status.code, 200)
+        self.assertEqual(get_response.status_code, 200)
 
-        spot_json = json.loads(get_response.content)
+        json_response = json.loads(get_response.content)
 
         self.assertEqual(len(json_response["items"]), 1)
 
-        self.assertTrue('extended_info' in spot_json['items'],
-                        "No extended_info in the item!")
+        self.assertIn('extended_info', spot_json['items'][0],
+                      "No extended_info in the item!")
 
         # assert that values were correct
         for key, value in zip(ei_keys, ei_values):
-            self.assertTrue(key in json_response["items"]["extended_info"],
-                            key + " not in item extended info!")
+            self.assertIn(key, json_response["items"][0]["extended_info"],
+                          key + " not in item extended info!")
 
-            self.assertEqual(json_response["items"]["extended_info"][key],
+            self.assertEqual(json_response["items"][0]["extended_info"][key],
                              value, key + " was not " + value + ", was :" +
-                             json_response["items"]["extended_info"][key])
+                             json_response["items"][0]["extended_info"][key])

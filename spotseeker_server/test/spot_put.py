@@ -423,7 +423,6 @@ class SpotPUTTest(TestCase):
         self.assertContains(new_response3, '"also_new": "ok"')
         self.assertContains(new_response3, '"another_new": "bleh"')
 
-    @skip("Not yet implemented")
     def test_update_spot_with_items(self):
         """Creates a spot and then updates it with items."""
         spot_name = self.random_name()
@@ -439,32 +438,22 @@ class SpotPUTTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         try:
-            updated_items = Item.objects.get(spot=self.spot)
+            updated_items = Item.objects.filter(spot=self.spot)
         except Exception as ex:
-            self.fail("Items shoud exist but do not!")
+            self.fail("Items shoud exist but do not! :" + str(ex))
 
         self.assertEqual(len(updated_items), 10)
 
         for i in range(0, len(updated_items)):
-            self.assertEqual(updated_items[i].json_data_structure(),
-                             spot_json['items'][i])
+            self.assertEqual(updated_items[i].json_data_structure()['name'],
+                             spot_json['items'][i]['name'])
+            self.assertEqual(updated_items[i].json_data_structure()
+                             ['category'],
+                             spot_json['items'][i]['category'])
+            self.assertEqual(updated_items[i].json_data_structure()
+                             ['subcategory'],
+                             spot_json['items'][i]['subcategory'])
 
-    @skip("Not yet implemented")
-    def test_update_spot_items_with_bad_data(self):
-        """Tests that updating a spot with bad data fails"""
-        spot_name = self.random_name()
-        capacity = 20
-
-        spot_json = utils_test.get_spot(spot_name, capacity)
-
-        spot_json['items'].append(utils_test.get_item())
-        spot_json['items'][0]['bad_field'] = 'bad data'
-
-        response = self.put_spot(self.url, spot_json)
-
-        self.assertEqual(response.status_code, 400)
-
-    @skip("Not yet implemented")
     def test_update_spot_with_missing_data(self):
         """
         Tests to make sure that updating a spot without all required fields
@@ -492,17 +481,19 @@ class SpotPUTTest(TestCase):
             response = self.put_spot(self.url, spot)
             self.assertEqual(response.status_code, 400, message)
 
-    @skip("Not yet implemented")
     def test_update_item_extended_info(self):
         """Test that item EI updates correctly."""
-        ei_keys = ("make_model", "customer_type", "auto_item_status")
-        ei_values = ("itemmodel", "UW Student", "active")
+        ei = {
+            "make_model": "itemmodel",
+            "customer_type": "UW Student",
+            "auto_item_status": "active"
+        }
 
         spot_json = utils_test.get_spot(self.random_name(), 20)
 
         spot_json['items'].append(utils_test.get_item())
 
-        for key, value in zip(ei_keys, ei_values):
+        for key, value in ei.iteritems():
             spot_json['items'][0]['extended_info'][key] = value
 
         response = self.put_spot(self.url, spot_json)
@@ -515,14 +506,97 @@ class SpotPUTTest(TestCase):
 
         self.assertEqual(len(spot_json["items"]), 1)
 
-        self.assertTrue('extended_info' in spot_json['items'],
-                        "No extended_info in the item!")
+        self.assertIn('extended_info', spot_json['items'][0],
+                      "No extended_info in the item!")
 
         # assert that values were correct
-        for key, value in zip(ei_keys, ei_values):
-            self.assertTrue(key in json_response["items"]["extended_info"],
+        for key, value in ei.iteritems():
+            self.assertTrue(key in spot_json["items"][0]["extended_info"],
                             key + " not in item extended info!")
 
-            self.assertEqual(spot_json["items"]["extended_info"][key],
+            self.assertEqual(spot_json["items"][0]["extended_info"][key],
                              value, key + " was not " + value + ", was :" +
-                             spot_json["items"]["extended_info"][key])
+                             spot_json["items"][0]["extended_info"][key])
+
+        spot_json['items'][0]['extended_info']['make_model'] = 'new_model'
+        ei['make_model'] = 'new_model'
+
+        response = self.put_spot(self.url, spot_json)
+
+        self.assertEqual(response.status_code, 200)
+
+        get_response = self.client.get(self.url)
+
+        spot_json = json.loads(get_response.content)
+
+        self.assertEqual(len(spot_json["items"]), 1)
+
+        self.assertIn('extended_info', spot_json['items'][0],
+                      "No extended_info in the item!")
+
+        # assert that values were correct
+        for key, value in ei.iteritems():
+            self.assertTrue(key in spot_json["items"][0]["extended_info"],
+                            key + " not in item extended info!")
+
+            self.assertEqual(spot_json["items"][0]["extended_info"][key],
+                             value, key + " was not " + value + ", was :" +
+                             spot_json["items"][0]["extended_info"][key])
+
+    def test_remove_item(self):
+        """Tests to ensure that not including an item in PUT will remove it"""
+        spot_name = self.random_name()
+        capacity = 20
+
+        spot_json = utils_test.get_spot(spot_name, capacity)
+
+        for i in range(0, 10):
+            spot_json['items'].append(utils_test.get_item())
+
+        response = self.put_spot(self.url, spot_json)
+
+        self.assertEqual(response.status_code, 200)
+
+        del spot_json['items'][9]
+
+        response = self.put_spot(self.url, spot_json)
+
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            updated_items = Item.objects.filter(spot=self.spot)
+        except Exception as ex:
+            self.fail("Items shoud exist but do not! :" + str(ex))
+
+        self.assertEqual(len(updated_items), 9)
+
+    def test_remove_item_extended_info(self):
+        """Tests to ensure that not including an item EI in PUT will delete"""
+        ei = {
+            "make_model": "itemmodel",
+            "customer_type": "UW Student",
+            "auto_item_status": "active"
+        }
+
+        spot_json = utils_test.get_spot(self.random_name(), 20)
+
+        spot_json['items'].append(utils_test.get_item())
+
+        for key, value in ei.iteritems():
+            spot_json['items'][0]['extended_info'][key] = value
+
+        response = self.put_spot(self.url, spot_json)
+
+        self.assertEqual(response.status_code, 200)
+
+        del spot_json['items'][0]['extended_info']['make_model']
+
+        response = self.put_spot(self.url, spot_json)
+
+        self.assertEqual(response.status_code, 200)
+
+        get_response = self.client.get(self.url)
+
+        spot_json = json.loads(get_response.content)
+
+        self.assertNotIn("make_model", spot_json['items'][0]['extended_info'])

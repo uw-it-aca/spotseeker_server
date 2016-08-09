@@ -607,3 +607,34 @@ class SpotPUTTest(TestCase):
         spot_json = json.loads(get_response.content)
 
         self.assertNotIn("make_model", spot_json['items'][0]['extended_info'])
+
+    def test_update_spot_items(self):
+        """
+        Tests that when a spot item is updated that changes persist and that
+        the id remains the same.
+        """
+        spot_json = utils_test.get_spot(self.random_name(), 20)
+
+        spot_json['items'].append(utils_test.get_item())
+
+        response = self.put_spot(self.url, spot_json)
+
+        get_response = self.client.get(self.url)
+
+        returned_spot_json = json.loads(get_response.content)
+
+        returned_spot_json['items'][0]['name'] = 'Test!'
+
+        response = self.put_spot(self.url, returned_spot_json)
+
+        get_response = self.client.get(self.url)
+
+        updated_spot_json = json.loads(get_response.content)
+
+        self.assertEqual(updated_spot_json['items'][0]['id'],
+                         returned_spot_json['items'][0]['id'],
+                         "IDs do not match for updated spot!")
+
+        self.assertEqual(updated_spot_json['items'][0]['name'],
+                         returned_spot_json['items'][0]['name'],
+                         "Spot name failed to update!")

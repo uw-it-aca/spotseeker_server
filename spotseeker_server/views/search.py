@@ -338,6 +338,30 @@ class SearchView(RESTDispatch):
                     q_obj |= type_q
                 query = query.filter(q_obj).distinct()
                 has_valid_search_param = True
+            elif key.startswith('item:extended_info:'):
+                try:
+                    for value in get_request.getlist(key):
+                        kwargs = {
+                            'item__itemextendedinfo__key': key[19:],
+                            'item__itemextendedinfo__value': value
+                        }
+                        query = query.filter(**kwargs)
+                    has_valid_search_param = True
+                except Exception as e:
+                    pass
+            elif key.startswith('item:'):
+                try:
+                    for value in get_request.getlist(key):
+                        if key[5:] == "name":
+                            q_obj = Q(item__name=value)
+                        elif key[5:] == "category":
+                            q_obj = Q(item__category=value)
+                        elif key[5:] == "subcategory":
+                            q_obj = Q(item__subcategory=value)
+                        query = query.filter(q_obj)
+                    has_valid_search_param = True
+                except Exception as e:
+                    pass
             elif key.startswith('extended_info:or_group'):
                 values = get_request.getlist(key)
                 or_small_q_obj = Q()

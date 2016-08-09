@@ -31,6 +31,7 @@ except ImportError:
             pass
         return inner
 
+
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotSearchItemTest(TestCase):
     """

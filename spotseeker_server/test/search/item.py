@@ -22,8 +22,14 @@ from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
 import simplejson as json
 from mock import patch
 from spotseeker_server import models
-from unittest import skip
 
+try:
+    from unittest import skip
+except ImportError:
+    def skip(*args, **kwargs):
+        def inner(self):
+            pass
+        return inner
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotSearchItemTest(TestCase):

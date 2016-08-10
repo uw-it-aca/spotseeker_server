@@ -32,6 +32,8 @@ import re
 # and what all of the possible validated values are, or validated types
 validated_ei = {
     "app_type": ['food', 'tech'],
+    "auto_labstats_available": "int",
+    "auto_labstats_total": "int",
     "campus": ['seattle', 'tacoma', 'bothell', 'south_lake_union'],
     "food_nearby": ['space', 'building', 'neighboring'],
     "has_computers": ['true'],
@@ -44,9 +46,12 @@ validated_ei = {
     "has_scanner": ['true'],
     "has_whiteboards": ['true'],
     "is_hidden": ['true'],
+    "labstats_id": "int",
     "noise_level": ['silent', 'quiet', 'moderate', 'variable'],
     "num_computers": "int",
+    "rating": "int",
     "reservable": ['true', 'reservations'],
+    "review_count": "int",
     "s_cuisine_american": ['true'],
     "s_cuisine_bbq": ['true'],
     "s_cuisine_chinese": ['true'],
@@ -82,7 +87,7 @@ validated_ei = {
 }
 
 
-def uw_validate(value, choices):
+def uw_validate(value, key, choices):
     """ Check to see if the value is one of the choices or if it is an int,
         else it throws a validation error
     """
@@ -93,7 +98,8 @@ def uw_validate(value, choices):
             raise forms.ValidationError("Value must be an int")
     elif value not in choices:
         raise forms.ValidationError(
-            "Value must be one of: {0}".format('; '.join(choices)))
+            'Value for %s was %s, must be one of: %s'
+            % (key, repr(value), '; '.join((repr(c) for c in choices))))
 
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
@@ -106,7 +112,7 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
         value = self.cleaned_data['value']
 
         if key in validated_ei:
-            uw_validate(value, validated_ei[key])
+            uw_validate(value, key, validated_ei[key])
 
         return cleaned_data
 

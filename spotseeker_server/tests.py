@@ -13,7 +13,8 @@
     limitations under the License.
 """
 
-from django.utils import unittest
+# Use full test failure messages
+import spotseeker_server.test.long_message
 
 from spotseeker_server.test.buildings import BuildingTest
 from spotseeker_server.test.models import SpotModelToStringTests
@@ -34,6 +35,8 @@ from spotseeker_server.test.images.thumb import ImageThumbTest
 from spotseeker_server.test.images.spot_info import SpotResourceImageTest
 from spotseeker_server.test.images.oauth_spot_info import \
     SpotResourceOAuthImageTest
+from spotseeker_server.test.item.model import ItemModelTest
+from spotseeker_server.test.search.item import SpotSearchItemTest
 from spotseeker_server.test.search.buildings import BuildingSearchTest
 from spotseeker_server.test.search.capacity import SpotSearchCapacityTest
 from spotseeker_server.test.search.limit import SpotSearchLimitTest

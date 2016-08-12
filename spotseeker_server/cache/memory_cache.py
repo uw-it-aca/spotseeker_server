@@ -5,6 +5,16 @@ from spotseeker_server.models import Spot
 spots_cache = {}
 
 
+def get_spot(spot_id):
+    """Retrieves the cached version of the spot with the provided ID."""
+
+    if spot_id not in spots_cache:
+        spot_model = Spot.objects.get(id=spot_id)
+        cache_spot(spot_model)
+
+    return spots_cache[spot_id]
+
+
 def get_spots(spots):
     """Retrieves a list of spots from the cache."""
     try:

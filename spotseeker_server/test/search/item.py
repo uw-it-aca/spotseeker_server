@@ -22,6 +22,7 @@ from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
 import simplejson as json
 from mock import patch
 from spotseeker_server import models
+from spotseeker_server.cache import memory_cache
 
 try:
     from unittest import skip
@@ -142,6 +143,7 @@ class SpotSearchItemTest(TestCase):
         self.spot2.delete()
         self.spot3.delete()
         self.spot4.delete()
+        memory_cache.clear_cache()
 
     def item_common(self, field, cases):
         for case in cases:

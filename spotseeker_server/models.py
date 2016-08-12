@@ -211,6 +211,11 @@ class Spot(models.Model):
         else:
             return Spot.objects.get(pk=spot_id)
 
+    def delete(self):
+        from spotseeker_server.cache import memory_cache
+        memory_cache.delete_spot(self)
+        super(Spot, self).delete()
+
 
 class FavoriteSpot(models.Model):
     """ A FavoriteSpot associates a User and Spot.

@@ -23,13 +23,14 @@ from spotseeker_server.forms.spot import SpotForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
+from spotseeker_server.cache import memory_cache
 
 
 class AllSpotsView(RESTDispatch):
 
     @app_auth_required
     def GET(self, request):
-        spots = []
-        for spot in Spot.objects.all():
-            spots.append(spot.json_data_structure())
+        spots = memory_cache.get_all_spots()
+        # for spot in Spot.objects.all():
+        #     spots.append(spot.json_data_structure())
         return JSONResponse(spots)

@@ -35,6 +35,7 @@ import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+from spotseeker_server.cache import memory_cache
 
 
 class ItemStash(object):
@@ -512,6 +513,9 @@ class SpotView(RESTDispatch):
             partial_update=partial_update,
             stash=stash
         )
+
+        # update the cache
+        memory_cache.cache_spot(spot)
 
         return response
 

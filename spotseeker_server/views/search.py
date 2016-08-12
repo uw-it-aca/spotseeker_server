@@ -30,6 +30,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
+from spotseeker_server.cache import memory_cache
 from pyproj import Geod
 from decimal import *
 from time import *
@@ -52,9 +53,12 @@ class SearchView(RESTDispatch):
         spots = self.filter_on_request(
             request.GET, chain, request.META, 'spot')
 
-        response = []
-        for spot in spots:
-            response.append(spot.json_data_structure())
+        # response = []
+        # for spot in spots:
+        #     response.append(spot.json_data_structure())
+
+        # retrieve spots from cache
+        response = memory_cache.get_spots(spots)
 
         return JSONResponse(response)
 

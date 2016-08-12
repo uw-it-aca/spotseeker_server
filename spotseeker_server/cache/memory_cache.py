@@ -17,20 +17,17 @@ def get_spot(spot_id):
 
 def get_spots(spots):
     """Retrieves a list of spots from the cache."""
-    try:
-        if len(spots_cache.values()) == 0:
-            load_spots()
+    if len(spots_cache.values()) == 0:
+        load_spots()
 
-        spot_dicts = []
-        for spot in spots:
-            if spot.id not in spots_cache:
-                cache_spot(spot)
+    spot_dicts = []
+    for spot in spots:
+        if spot.id not in spots_cache:
+            cache_spot(spot)
 
-            spot_dicts.append(spots_cache[spot.id])
+        spot_dicts.append(spots_cache[spot.id])
 
-        return spot_dicts
-    except Exception as ex:
-        print "Exception!: " + str(ex)
+    return spot_dicts
 
 
 def get_all_spots():

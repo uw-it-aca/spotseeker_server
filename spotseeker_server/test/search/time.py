@@ -19,6 +19,7 @@ from django.test.utils import override_settings
 from spotseeker_server.models import Spot, SpotAvailableHours
 from spotseeker_server.cache import memory_cache
 
+
 def new_spot(name):
     return Spot.objects.create(name=name)
 

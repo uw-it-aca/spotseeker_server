@@ -26,6 +26,7 @@ from time import *
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
+from spotseeker_server.cache import memory_cache
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
@@ -33,6 +34,8 @@ class SpotHoursOpenNowTest(TestCase):
     """ Tests that we can tell if a Spot is available now,
     based on it's Available Hours.
     """
+    def setUp(self):
+        memory_cache.clear_cache()
 
     @mock.patch('spotseeker_server.views.search.SearchView.get_datetime')
     def test_open_now(self, datetime_mock):

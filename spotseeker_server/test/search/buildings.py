@@ -21,12 +21,16 @@ from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 from mock import patch
 from spotseeker_server import models
+from spotseeker_server.cache import memory_cache
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class BuildingSearchTest(TestCase):
     """ Tests the /api/v1/buildings interface.
     """
+
+    def tearDown(self):
+        memory_cache.clear_cache()
 
     def setUp(self):
         self.spot1 = Spot.objects.create(name="Spot on campus A.",

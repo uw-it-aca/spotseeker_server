@@ -18,6 +18,7 @@ from django.test.client import Client
 from django.test.utils import override_settings
 from django.utils.unittest import skipUnless
 from spotseeker_server.models import Spot, SpotExtendedInfo
+from spotseeker_server.cache import memory_cache
 import json
 
 
@@ -31,6 +32,7 @@ class UWSearchTest(TestCase):
         self.spot1 = Spot.objects.create(name="no app type spot", capacity=4)
         # create a spot with app_type
         self.spot2 = Spot.objects.create(name="food spot", capacity=4)
+        self.spot2.save()
         self.ei2 = SpotExtendedInfo.objects.create(
             spot=self.spot2, key="app_type", value="food")
         # create a spot with some other app_type
@@ -54,6 +56,15 @@ class UWSearchTest(TestCase):
         )
         # create a test Client
         self.client = Client()
+        memory_cache.clear_cache()
+
+    def tearDown(self):
+        self.spot1.delete()
+        self.spot2.delete()
+        self.spot3.delete()
+        self.spot4.delete()
+        self.spot5.delete()
+        memory_cache.clear_cache()
 
     def test_app_type(self):
         """ Tests searching with an app_type query param.
@@ -135,8 +146,3 @@ class UWSearchTest(TestCase):
         self.assertTrue(self.spot3.json_data_structure() not in spots)
         self.assertTrue(self.spot4.json_data_structure() in spots)
         self.assertTrue(self.spot5.json_data_structure() in spots)
-
-    def tearDown(self):
-        self.spot1.delete()
-        self.spot2.delete()
-        self.spot3.delete()

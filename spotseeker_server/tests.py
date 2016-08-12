@@ -72,3 +72,4 @@ from spotseeker_server.test.uw_spot.uw_search import UWSearchTest
 from spotseeker_server.test.favorites import FavoritesTest
 from spotseeker_server.test.share_space import ShareSpaceTest
 from spotseeker_server.test.reviews import ReviewsTest
+from spotseeker_server.test.memory_cache import MemoryCacheTest

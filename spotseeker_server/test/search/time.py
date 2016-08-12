@@ -17,7 +17,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
 from spotseeker_server.models import Spot, SpotAvailableHours
-
+from spotseeker_server.cache import memory_cache
 
 def new_spot(name):
     return Spot.objects.create(name=name)
@@ -30,6 +30,9 @@ def new_hours(spot, day, start, end):
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class SpotSearchTimeTest(TestCase):
+
+    def tearDown(self):
+        memory_cache.clear_cache()
 
     def test_SameDayTimeInSerial(self):
         """Simple open hours test with a single date range per spot"""

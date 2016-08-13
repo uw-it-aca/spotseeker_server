@@ -7,7 +7,7 @@ spots_cache = {}
 
 def get_spot(spot_id):
     """Retrieves the cached version of the spot with the provided ID."""
-
+    # TODO : modify to take spot model
     if spot_id not in spots_cache:
         spot_model = Spot.objects.get(id=spot_id)
         cache_spot(spot_model)
@@ -24,8 +24,12 @@ def get_spots(spots):
     for spot in spots:
         if spot.id not in spots_cache:
             cache_spot(spot)
+        spot_json = spots_cache[spot.id]
+        # update the spot if the etags do not match
+        if spot_json['etag'] != spot.etag:
+            cache_spot(spot)
 
-        spot_dicts.append(spots_cache[spot.id])
+        spot_dicts.append()
 
     return spot_dicts
 

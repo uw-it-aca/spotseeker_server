@@ -19,8 +19,8 @@ from spotseeker_server.models import Spot
 import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
 from spotseeker_server import models
+from spotseeker_server.cache import memory_cache
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
@@ -32,66 +32,59 @@ class SpotSearchLimitTest(TestCase):
             i = i + 1
             Spot.objects.create(name="spot %s" % (i))
 
+    def tearDown(self):
+        memory_cache.clear_cache()
+
     def test_more_than_20_no_limit(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache'
+        c = Client()
+        get_request = "/api/v1/spot?"
+        num_spots = self.num_spots
+
+        for i in range(num_spots):
+            i = i + 1
+            get_request = get_request + "id=%s&" % (i)
+
+        response = c.get(get_request)
+        self.assertEquals(
+            response.status_code,
+            400,
+            "400 is thrown if more than 20 spots \
+            are requested without a limit"
         )
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            get_request = "/api/v1/spot?"
-            num_spots = self.num_spots
-
-            for i in range(num_spots):
-                i = i + 1
-                get_request = get_request + "id=%s&" % (i)
-
-            response = c.get(get_request)
-            self.assertEquals(
-                response.status_code,
-                400,
-                "400 is thrown if more than 20 spots \
-                are requested without a limit"
-            )
 
     def test_less_than_20_no_limit(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            get_request = "/api/v1/spot?"
-            num_spots = self.num_spots - 10
+        c = Client()
+        get_request = "/api/v1/spot?"
+        num_spots = self.num_spots - 10
 
-            for i in range(num_spots):
-                i = i + 1
-                get_request = get_request + "id=%s&" % (i)
+        for i in range(num_spots):
+            i = i + 1
+            get_request = get_request + "id=%s&" % (i)
 
-            response = c.get(get_request)
-            spots = json.loads(response.content)
-            self.assertEquals(
-                len(spots),
-                num_spots,
-                "Spots requested were returned if \
-                less than 20 spots are requested without a limit"
-            )
+        response = c.get(get_request)
+        spots = json.loads(response.content)
+        self.assertEquals(
+            len(spots),
+            num_spots,
+            "Spots requested were returned if \
+            less than 20 spots are requested without a limit"
+        )
 
     def test_more_than_20_with_limit(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            get_request = "/api/v1/spot?"
-            num_spots = self.num_spots
+        c = Client()
+        get_request = "/api/v1/spot?"
+        num_spots = self.num_spots
 
-            for i in range(num_spots):
-                i = i + 1
-                get_request = get_request + "id=%s&" % (i)
-            get_request = get_request + "limit=%d" % (num_spots)
+        for i in range(num_spots):
+            i = i + 1
+            get_request = get_request + "id=%s&" % (i)
+        get_request = get_request + "limit=%d" % (num_spots)
 
-            response = c.get(get_request)
-            spots = json.loads(response.content)
-            self.assertEquals(
-                len(spots),
-                num_spots,
-                "Spots requested were returned even though \
-                more than 20 because a limit was included"
-            )
+        response = c.get(get_request)
+        spots = json.loads(response.content)
+        self.assertEquals(
+            len(spots),
+            num_spots,
+            "Spots requested were returned even though \
+            more than 20 because a limit was included"
+        )

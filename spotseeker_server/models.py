@@ -39,7 +39,6 @@ import random
 from PIL import Image
 from cStringIO import StringIO
 import oauth_provider.models
-from django.core.cache import cache
 import re
 from functools import wraps
 
@@ -94,73 +93,74 @@ class Spot(models.Model):
 
     @update_etag
     def save(self, *args, **kwargs):
-        cache.delete(self.pk)
         super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
 
     def json_data_structure(self):
-        spot_json = cache.get(self.pk)
-        if not spot_json:
-            extended_info = {}
-            info = SpotExtendedInfo.objects.filter(spot=self)
-            for attr in info:
-                extended_info[attr.key] = attr.value
+        extended_info = {}
+        info = SpotExtendedInfo.objects.filter(spot=self)
+        for attr in info:
+            extended_info[attr.key] = attr.value
 
-            available_hours = {
-                'monday': [],
-                'tuesday': [],
-                'wednesday': [],
-                'thursday': [],
-                'friday': [],
-                'saturday': [],
-                'sunday': [],
-            }
+        available_hours = {
+            'monday': [],
+            'tuesday': [],
+            'wednesday': [],
+            'thursday': [],
+            'friday': [],
+            'saturday': [],
+            'sunday': [],
+        }
 
-            hours = SpotAvailableHours.objects.filter(spot=self).order_by(
-                'start_time')
-            for window in hours:
-                available_hours[window.get_day_display()].append(
-                    window.json_data_structure())
+        hours = SpotAvailableHours.objects.filter(spot=self).order_by(
+            'start_time')
+        for window in hours:
+            available_hours[window.get_day_display()].append(
+                window.json_data_structure())
 
-            images = []
-            for img in SpotImage.objects.filter(spot=self).order_by(
-                    'display_index'):
-                images.append(img.json_data_structure())
-            types = []
-            for t in self.spottypes.all():
-                types.append(t.name)
+        images = []
+        for img in SpotImage.objects.filter(spot=self).order_by(
+                'display_index'):
+            images.append(img.json_data_structure())
+        types = []
+        for t in self.spottypes.all():
+            types.append(t.name)
 
-            spot_json = {
-                "id": self.pk,
-                "uri": self.rest_url(),
-                "etag": self.etag,
-                "name": self.name,
-                "type": types,
-                "location": {
-                    # If any changes are made to this location dict,
-                    # MAKE SURE to reflect those changes in the
-                    # location_descriptors list in views/schema_gen.py
-                    "latitude": self.latitude,
-                    "longitude": self.longitude,
-                    "height_from_sea_level": self.height_from_sea_level,
-                    "building_name": self.building_name,
-                    "floor": self.floor,
-                    "room_number": self.room_number,
-                },
-                "capacity": self.capacity,
-                "display_access_restrictions":
-                self.display_access_restrictions,
-                "images": images,
-                "available_hours": available_hours,
-                "organization": self.organization,
-                "manager": self.manager,
-                "extended_info": extended_info,
-                "last_modified": self.last_modified.isoformat(),
-                "external_id": self.external_id
-            }
-            cache.add(self.pk, spot_json)
+        checkout_items = []
+        for item in Item.objects.filter(spot=self):
+            checkout_items.append(item.json_data_structure())
+
+        spot_json = {
+            "id": self.pk,
+            "uri": self.rest_url(),
+            "etag": self.etag,
+            "name": self.name,
+            "type": types,
+            "location": {
+                # If any changes are made to this location dict,
+                # MAKE SURE to reflect those changes in the
+                # location_descriptors list in views/schema_gen.py
+                "latitude": self.latitude,
+                "longitude": self.longitude,
+                "height_from_sea_level": self.height_from_sea_level,
+                "building_name": self.building_name,
+                "floor": self.floor,
+                "room_number": self.room_number,
+            },
+            "capacity": self.capacity,
+            "display_access_restrictions":
+            self.display_access_restrictions,
+            "images": images,
+            "available_hours": available_hours,
+            "organization": self.organization,
+            "manager": self.manager,
+            "extended_info": extended_info,
+            "items": checkout_items,
+            "last_modified": self.last_modified.isoformat(),
+            "external_id": self.external_id
+        }
         return spot_json
 
     def update_rating(self):
@@ -202,7 +202,6 @@ class Spot(models.Model):
                                                             )
 
     def delete(self, *args, **kwargs):
-        cache.delete(self.pk)
         super(Spot, self).delete(*args, **kwargs)
 
     @staticmethod
@@ -211,6 +210,11 @@ class Spot(models.Model):
             return Spot.objects.get(external_id=spot_id[9:])
         else:
             return Spot.objects.get(pk=spot_id)
+
+    def delete(self):
+        from spotseeker_server.cache import memory_cache
+        memory_cache.delete_spot(self)
+        super(Spot, self).delete()
 
 
 class FavoriteSpot(models.Model):
@@ -372,13 +376,11 @@ class SpotImage(models.Model):
         self.content_type = SpotImage.CONTENT_TYPES[img.format]
         self.width, self.height = img.size
 
-        cache.delete(self.spot.pk)
         super(SpotImage, self).save(*args, **kwargs)
 
     @update_etag
     def delete(self, *args, **kwargs):
         self.image.delete(save=False)
-        cache.delete(self.spot.pk)
         super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):
@@ -459,3 +461,33 @@ class SharedSpaceRecipient(models.Model):
     shared_count = models.IntegerField()
     date_first_viewed = models.DateTimeField(null=True)
     viewed_count = models.IntegerField()
+
+
+class Item(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50, blank=True)
+    spot = models.ForeignKey(Spot, blank=True, null=True)
+    category = models.CharField(max_length=50, null=True)
+    subcategory = models.CharField(max_length=50, null=True)
+
+    def json_data_structure(self):
+        extended = {}
+
+        for i in self.itemextendedinfo_set.all():
+            extended[i.key] = i.value
+
+        data = {
+            'id': self.pk,
+            'name': self.name,
+            'category': self.category,
+            'subcategory': self.subcategory,
+            'extended_info': extended
+        }
+
+        return data
+
+
+class ItemExtendedInfo(models.Model):
+    item = models.ForeignKey(Item, blank=True, null=True)
+    key = models.CharField(max_length=50)
+    value = models.CharField(max_length=350)

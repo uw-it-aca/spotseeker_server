@@ -16,14 +16,12 @@
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
 from spotseeker_server.require_auth import user_auth_required
-from django.views.decorators.cache import never_cache
 from django.conf import settings
 
 
 class PersonView(RESTDispatch):
     """ Information (username, email) about a person """
     @user_auth_required
-    @never_cache
     def GET(self, request):
         user = self._get_user(request)
 

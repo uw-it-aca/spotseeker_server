@@ -20,14 +20,17 @@ from django.test.utils import override_settings
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 from mock import patch
-from django.core import cache
 from spotseeker_server import models
+from spotseeker_server.cache import memory_cache
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class BuildingSearchTest(TestCase):
     """ Tests the /api/v1/buildings interface.
     """
+
+    def tearDown(self):
+        memory_cache.clear_cache()
 
     def setUp(self):
         self.spot1 = Spot.objects.create(name="Spot on campus A.",
@@ -98,16 +101,12 @@ class BuildingSearchTest(TestCase):
         self.spot7_app_type.save()
 
     def test_content_type(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache'
-        )
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            url = "/api/v1/buildings"
-            response = c.get(url)
-            self.assertEquals(response["Content-Type"],
-                              "application/json",
-                              "Has the json header")
+        c = Client()
+        url = "/api/v1/buildings"
+        response = c.get(url)
+        self.assertEquals(response["Content-Type"],
+                          "application/json",
+                          "Has the json header")
 
     def test_get_all_buildings(self):
         c = Client()

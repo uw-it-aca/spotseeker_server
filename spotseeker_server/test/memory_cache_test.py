@@ -38,3 +38,13 @@ class MemoryCacheTest(ServerTest):
 
         self.assertEquals(spot.json_data_structure(), from_cache,
                           "The cached and DB data should be the same!")
+
+    def test_get_all_spots(self):
+        """Test get_all_spots"""
+        spot = Spot.objects.create(name="Bye!")
+        memory_cache.load_spots()
+
+        cached_spots = memory_cache.get_all_spots()
+        self.assertEqual(len(cached_spots), 1)
+        cached = cached_spots[0]
+        self.assertEqual(spot.name, cached['name'])

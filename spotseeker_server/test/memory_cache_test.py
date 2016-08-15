@@ -25,7 +25,7 @@ class MemoryCacheTest(ServerTest):
         self.assertIn(1, memory_cache.spots_cache.keys())
         spot_model = Spot.objects.get(id=1)
 
-        self.assertEqual(memory_cache.get_spot(1),
+        self.assertEqual(memory_cache.spots_cache[1],
                          spot_model.json_data_structure())
 
     def test_get_spot_not_in_cache(self):
@@ -34,7 +34,7 @@ class MemoryCacheTest(ServerTest):
         """
         spot = Spot.objects.create(name="Hi!")
 
-        from_cache = memory_cache.get_spot(spot.id)
+        from_cache = memory_cache.get_spot(spot)
 
         self.assertEquals(spot.json_data_structure(), from_cache,
                           "The cached and DB data should be the same!")

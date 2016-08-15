@@ -48,3 +48,25 @@ class MemoryCacheTest(ServerTest):
         self.assertEqual(len(cached_spots), 1)
         cached = cached_spots[0]
         self.assertEqual(spot.name, cached['name'])
+
+    def test_spot_update(self):
+
+        old_bldg = 'Small Building'
+        new_bldg = 'Big Building'
+
+        spot = Spot.objects.create(name='Foo',
+                                   building_name=old_bldg)
+        spot_id = spot.id
+        memory_cache.load_spots()
+
+        old_spot_dict = memory_cache.get_spot(spot)
+        old_etag = old_spot_dict['etag']
+
+        spot.building_name = new_bldg
+        spot.save()
+
+        new_spot_dict = memory_cache.get_spot(spot)
+        new_etag = new_spot_dict['etag']
+
+        self.assertNotEqual(old_etag, new_etag, 'Spot etag did not change')
+        self.assertEqual(new_spot_dict['location']['building_name'], new_bldg)

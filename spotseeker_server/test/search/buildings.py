@@ -13,26 +13,22 @@
     limitations under the License.
 """
 
-from django.test import TestCase
 from django.conf import settings
-from django.test.client import Client
 from django.test.utils import override_settings
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 from mock import patch
 from spotseeker_server import models
-from spotseeker_server.cache import memory_cache
+from spotseeker_server.test import ServerTest
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-class BuildingSearchTest(TestCase):
+class BuildingSearchTest(ServerTest):
     """ Tests the /api/v1/buildings interface.
     """
 
-    def tearDown(self):
-        memory_cache.clear_cache()
-
     def setUp(self):
+        super(BuildingSearchTest, self).setUp()
         self.spot1 = Spot.objects.create(name="Spot on campus A.",
                                          building_name="Building 1")
         self.spot1_2 = Spot.objects.create(name="Other spot on campus A.",
@@ -101,7 +97,7 @@ class BuildingSearchTest(TestCase):
         self.spot7_app_type.save()
 
     def test_content_type(self):
-        c = Client()
+        c = self.client
         url = "/api/v1/buildings"
         response = c.get(url)
         self.assertEquals(response["Content-Type"],
@@ -109,7 +105,7 @@ class BuildingSearchTest(TestCase):
                           "Has the json header")
 
     def test_get_all_buildings(self):
-        c = Client()
+        c = self.client
         # TODO: Even though this works, we do not recommend using this method.
         # You should be passing at least one query param.
         response = c.get("/api/v1/buildings")
@@ -117,7 +113,7 @@ class BuildingSearchTest(TestCase):
         self.assertEquals(len(buildings), 8)
 
     def test_buildings_for_campus(self):
-        c = Client()
+        c = self.client
 
         response = c.get("/api/v1/buildings/", {"campus": "campus_a"})
         buildings = json.loads(response.content)
@@ -137,7 +133,7 @@ class BuildingSearchTest(TestCase):
             self.assertNotEqual(building, self.spot1.building_name)
 
     def test_buildings_for_app_type(self):
-        c = Client()
+        c = self.client
 
         response = c.get(
             '/api/v1/buildings/',
@@ -158,7 +154,7 @@ class BuildingSearchTest(TestCase):
         self.assertEqual(buildings[0], self.spot6.building_name)
 
     def test_buildings_for_app_type_and_campus(self):
-        c = Client()
+        c = self.client
 
         response = c.get(
             '/api/v1/buildings/',
@@ -188,7 +184,7 @@ class BuildingSearchTest(TestCase):
         self.assertEqual(buildings[1], self.spot7.building_name)
 
     def test_extended_info_campus(self):
-        c = Client()
+        c = self.client
 
         response = c.get('/api/v1/buildings/',
                          {'extended_info:campus': 'campus_c'})

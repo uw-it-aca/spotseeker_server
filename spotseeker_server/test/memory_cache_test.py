@@ -1,5 +1,4 @@
-from django.test import TestCase
-from spotseeker_server.test import utils_test
+from spotseeker_server.test import utils_test, ServerTest
 from spotseeker_server.cache import memory_cache
 from django.test.utils import override_settings
 from spotseeker_server.models import Spot
@@ -13,14 +12,8 @@ import json
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
                                      'DefaultSpotExtendedInfoForm',
     SPOTSEEKER_AUTH_ADMINS=('demo_user',))
-class MemoryCacheTest(TestCase):
+class MemoryCacheTest(ServerTest):
     """This class should test that the cache functionality works as intended"""
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        memory_cache.clear_cache()
-
     def test_spot_caches(self):
         """Test that once POSTed, a spot will save to the cache"""
         spot = utils_test.get_spot('Spot Name', 20)
@@ -40,7 +33,6 @@ class MemoryCacheTest(TestCase):
         Tests that retrieving a spot not in the cache will return the spot.
         """
         spot = Spot.objects.create(name="Hi!")
-        spot.save()
 
         from_cache = memory_cache.get_spot(spot.id)
 

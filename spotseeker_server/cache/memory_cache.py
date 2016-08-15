@@ -17,7 +17,7 @@ def get_spot(spot_id):
 
 def get_spots(spots):
     """Retrieves a list of spots from the cache."""
-    if len(spots_cache.values()) == 0:
+    if not spots_cache:
         load_spots()
 
     spot_dicts = []
@@ -29,17 +29,14 @@ def get_spots(spots):
         if spot_json['etag'] != spot.etag:
             cache_spot(spot)
 
-        spot_dicts.append()
+        spot_dicts.append(spot_json)
 
     return spot_dicts
 
 
 def get_all_spots():
     """Returns all spots stored in the cache."""
-    all_spots = []
-    for spot in spots_cache.values():
-        all_spots.append(spot)
-    return all_spots
+    return spots_cache.values()
 
 
 def load_spots():

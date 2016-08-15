@@ -5,14 +5,11 @@ from spotseeker_server.models import Spot
 spots_cache = {}
 
 
-def get_spot(spot_id):
+def get_spot(spot_model):
     """Retrieves the cached version of the spot with the provided ID."""
-    # TODO : modify to take spot model
-    if spot_id not in spots_cache:
-        spot_model = Spot.objects.get(id=spot_id)
-        cache_spot(spot_model)
+    verify_cache(spot_model)
 
-    return spots_cache[spot_id]
+    return spots_cache[spot_model.id]
 
 
 def get_spots(spots):
@@ -21,14 +18,10 @@ def get_spots(spots):
         load_spots()
 
     spot_dicts = []
-    for spot in spots:
-        if spot.id not in spots_cache:
-            cache_spot(spot)
-        spot_json = spots_cache[spot.id]
-        # update the spot if the etags do not match
-        if spot_json['etag'] != spot.etag:
-            cache_spot(spot)
 
+    for spot in spots:
+        verify_cache(spot)
+        spot_json = spots_cache[spot.id]
         spot_dicts.append(spot_json)
 
     return spot_dicts
@@ -63,3 +56,22 @@ def delete_spot(spot_model):
 def clear_cache():
     """Clears the cache."""
     spots_cache.clear()
+
+
+def verify_cache(spot_model):
+    """Ensures a given spot model is in the cache and up to date"""
+    is_in_cache(spot)
+
+    verify_etag(spot)
+
+
+def is_in_cache(spot_model):
+    """Checks if a spot model is in the cache, and caches it if not."""
+    if spot_model.id not in spots_cache:
+        cache_spot(spot_model)
+
+
+def verify_etag(spot_model):
+    """Checks the model etag against the cache, updates if out of date."""
+    if spots_cache[spot_model.id]['etag'] != spot_model.etag:
+        cache_spot(spot_model)

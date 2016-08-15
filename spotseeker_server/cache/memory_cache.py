@@ -18,7 +18,6 @@ def get_spots(spots):
         load_spots()
 
     spot_dicts = []
-
     for spot in spots:
         verify_cache(spot)
         spot_json = spots_cache[spot.id]
@@ -29,7 +28,8 @@ def get_spots(spots):
 
 def get_all_spots():
     """Returns all spots stored in the cache."""
-    return spots_cache.values()
+    return get_spots(Spot.objects.all())
+    # return spots_cache.values()
 
 
 def load_spots():
@@ -60,9 +60,9 @@ def clear_cache():
 
 def verify_cache(spot_model):
     """Ensures a given spot model is in the cache and up to date"""
-    is_in_cache(spot)
+    is_in_cache(spot_model)
 
-    verify_etag(spot)
+    verify_etag(spot_model)
 
 
 def is_in_cache(spot_model):

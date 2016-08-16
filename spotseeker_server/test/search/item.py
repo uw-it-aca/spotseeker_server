@@ -48,8 +48,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot1,
             name="itemone",
-            category="laptop",
-            subcategory="dell")
+            item_category="laptop",
+            item_subcategory="dell")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="capacity",
@@ -58,8 +58,8 @@ class SpotSearchItemTest(TestCase):
         self.item2 = Item.objects.create(
             spot=self.spot1,
             name="itemtwo",
-            category="laptop",
-            subcategory="mac")
+            item_category="laptop",
+            item_subcategory="mac")
         self.extended1 = ItemExtendedInfo(
             item=self.item2,
             key="customer",
@@ -71,8 +71,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot2,
             name="itemone",
-            category="car",
-            subcategory="toyota")
+            item_category="car",
+            item_subcategory="toyota")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="customer",
@@ -81,8 +81,8 @@ class SpotSearchItemTest(TestCase):
         self.item2 = Item.objects.create(
             spot=self.spot2,
             name="itemtwo",
-            category="laptop",
-            subcategory="dell")
+            item_category="laptop",
+            item_subcategory="dell")
         self.extended1 = ItemExtendedInfo(
             item=self.item2,
             key="capacity",
@@ -94,8 +94,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot3,
             name="itemthree",
-            category="laptop",
-            subcategory="mac")
+            item_category="laptop",
+            item_subcategory="mac")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="customer",
@@ -104,8 +104,8 @@ class SpotSearchItemTest(TestCase):
         self.item2 = Item.objects.create(
             spot=self.spot3,
             name="itemtwo",
-            category="car",
-            subcategory="toyota")
+            item_category="car",
+            item_subcategory="toyota")
         self.extended1 = ItemExtendedInfo(
             item=self.item2,
             key="customer",
@@ -117,8 +117,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot4,
             name="itemthree",
-            category="car",
-            subcategory="chevy")
+            item_category="car",
+            item_subcategory="chevy")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="customer",

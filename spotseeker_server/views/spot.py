@@ -45,6 +45,8 @@ class ItemStash(object):
     def __init__(self, item):
 
         self.json = item
+        item['item_category'] = item.pop('category', None)
+        item['item_subcategory'] = item.pop('subcategory', None)
         self.form = ItemForm(item)
 
         if not self.form.is_valid():
@@ -183,8 +185,8 @@ def _clean_updated_items(sender, **kwargs):
     for item in updated_items:
         item_json = item.get_json()
         item_model = Item(name=item_json['name'],
-                          category=item_json['category'],
-                          subcategory=item_json['subcategory'],
+                          item_category=item_json['item_category'],
+                          item_subcategory=item_json['item_subcategory'],
                           id=item_json['id'],
                           spot=spot)
         updated_item_models.append(item_model)
@@ -221,8 +223,9 @@ def _clean_updated_items(sender, **kwargs):
 
         # get rid of items that are all the same without EI
         if (updated_item_model.name == old_item.name and
-            updated_item_model.category == old_item.category and
-            updated_item_model.subcategory == old_item.subcategory and
+            updated_item_model.item_category == old_item.item_category and
+            updated_item_model.item_subcategory ==
+            old_item.item_subcategory and
                 len(updated_item_ei) == 0):
             updated_items.remove(updated_item)
 

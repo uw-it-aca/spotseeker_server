@@ -355,9 +355,9 @@ class SearchView(RESTDispatch):
                         if key[5:] == "name":
                             q_obj = Q(item__name=value)
                         elif key[5:] == "category":
-                            q_obj = Q(item__category=value)
+                            q_obj = Q(item__item_category=value)
                         elif key[5:] == "subcategory":
-                            q_obj = Q(item__subcategory=value)
+                            q_obj = Q(item__item_subcategory=value)
                         query = query.filter(q_obj)
                     has_valid_search_param = True
                 except Exception as e:

@@ -19,3 +19,6 @@ spotseeker.db
 
 # django project files added in production
 spotseeker_web
+
+# IDE files
+.idea/

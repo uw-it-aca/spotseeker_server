@@ -17,7 +17,7 @@ def get_spots(spots):
     if not spots_cache:
         load_spots()
 
-    spot_dicts = [get_spot(spot_model) for spot in spots]
+    spot_dicts = [get_spot(spot) for spot in spots]
 
     return spot_dicts
 

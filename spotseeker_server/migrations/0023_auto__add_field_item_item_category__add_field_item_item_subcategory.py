@@ -8,23 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'Item.category'
-        db.delete_column('spotseeker_server_item', 'category')
+        # Adding field 'Item.item_category'
+        db.add_column('spotseeker_server_item', 'item_category',
+                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
+                      keep_default=False)
 
-        # Deleting field 'Item.subcategory'
-        db.delete_column('spotseeker_server_item', 'subcategory')
+        # Adding field 'Item.item_subcategory'
+        db.add_column('spotseeker_server_item', 'item_subcategory',
+                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Adding field 'Item.category'
-        db.add_column('spotseeker_server_item', 'category',
-                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
-                      keep_default=False)
+        # Deleting field 'Item.item_category'
+        db.delete_column('spotseeker_server_item', 'item_category')
 
-        # Adding field 'Item.subcategory'
-        db.add_column('spotseeker_server_item', 'subcategory',
-                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
-                      keep_default=False)
+        # Deleting field 'Item.item_subcategory'
+        db.delete_column('spotseeker_server_item', 'item_subcategory')
 
 
     models = {
@@ -83,10 +83,14 @@ class Migration(SchemaMigration):
         },
         'spotseeker_server.item': {
             'Meta': {'object_name': 'Item'},
+            'category': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'item_category': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
+            'item_subcategory': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'blank': 'True'}),
-            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']", 'null': 'True', 'blank': 'True'})
+            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']", 'null': 'True', 'blank': 'True'}),
+            'subcategory': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'})
         },
         'spotseeker_server.itemextendedinfo': {
             'Meta': {'object_name': 'ItemExtendedInfo'},

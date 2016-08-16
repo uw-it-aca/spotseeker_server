@@ -1,31 +1,28 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
+from spotseeker_server.models import Item
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Adding field 'Item.item_category'
-        db.add_column('spotseeker_server_item', 'item_category',
-                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
-                      keep_default=False)
-
-        # Adding field 'Item.item_subcategory'
-        db.add_column('spotseeker_server_item', 'item_subcategory',
-                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
-                      keep_default=False)
-
+        "Write your forwards methods here."
+        # Note: Don't use "from appname.models import ModelName".
+        # Use orm.ModelName to refer to models in this application,
+        # and orm['appname.ModelName'] for models in other applications.
+        for item in Item.objects.all():
+            item.item_category = item.category
+            item.item_subcategory = item.subcategory
+            item.save()
 
     def backwards(self, orm):
-        # Deleting field 'Item.item_category'
-        db.delete_column('spotseeker_server_item', 'item_category')
-
-        # Deleting field 'Item.item_subcategory'
-        db.delete_column('spotseeker_server_item', 'item_subcategory')
-
+        "Write your backwards methods here."
+        for item in Item.objects.all():
+            item.category = item.item_category
+            item.subcategory = item.item_subcategory
+            item.save()
 
     models = {
         'auth.group': {
@@ -83,12 +80,14 @@ class Migration(SchemaMigration):
         },
         'spotseeker_server.item': {
             'Meta': {'object_name': 'Item'},
+            'category': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'item_category': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'item_subcategory': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'blank': 'True'}),
-            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']", 'null': 'True', 'blank': 'True'})
+            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']", 'null': 'True', 'blank': 'True'}),
+            'subcategory': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'})
         },
         'spotseeker_server.itemextendedinfo': {
             'Meta': {'object_name': 'ItemExtendedInfo'},
@@ -195,3 +194,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['spotseeker_server']
+    symmetrical = True

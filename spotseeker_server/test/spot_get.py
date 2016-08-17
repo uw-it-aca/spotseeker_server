@@ -46,8 +46,8 @@ class SpotGETTest(TestCase):
         for i in xrange(0, 10):
             new_item = Item.objects.create(name="Item%s" % i,
                                            spot=spot_with_items,
-                                           category="Laptops",
-                                           subcategory="Macbooks")
+                                           item_category="Laptops",
+                                           item_subcategory="Macbooks")
 
             for dictdata in xrange(1, 3):
                 new_iei = ItemExtendedInfo.objects.create(
@@ -157,8 +157,8 @@ class SpotGETTest(TestCase):
             self.assertEqual(item['name'], item_model.name)
 
             # assert Item category and subcategory
-            self.assertEqual(item['category'], item_model.category)
-            self.assertEqual(item['subcategory'], item_model.subcategory)
+            self.assertEqual(item['category'], item_model.item_category)
+            self.assertEqual(item['subcategory'], item_model.item_subcategory)
             self.assertIn('extended_info', item)
             for key in item['extended_info']:
                 if key == item_extended_info.key:

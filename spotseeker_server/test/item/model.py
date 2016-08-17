@@ -42,8 +42,8 @@ class ItemModelTest(TestCase):
         self.checkout_item = Item.objects.create(
             name='an item',
             spot=self.spot,
-            category=self.category,
-            subcategory=self.subcategory)
+            item_category=self.category,
+            item_subcategory=self.subcategory)
 
         # create 4 items extended info
         for i in xrange(1, 5):

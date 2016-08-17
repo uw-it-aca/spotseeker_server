@@ -15,6 +15,7 @@
 """
 from spotseeker_server.models import Spot
 from django.conf import settings
+import random
 import sys
 
 spots_cache = {}
@@ -48,7 +49,6 @@ def get_spots(spots):
 
 def get_all_spots():
     """Returns all spots stored in the cache."""
-    print len(spots_cache.keys())
     return get_spots(Spot.objects.all())
     # return spots_cache.values()
 
@@ -67,8 +67,10 @@ def load_spots():
 
 def cache_spot(spot_model):
     """Sets the cache of a spot."""
-    if len(spots_cache.keys()) < spot_cache_limit:
-        spots_cache[spot_model.id] = spot_model.json_data_structure()
+    if len(spots_cache.keys()) > spot_cache_limit:
+        spots_cache.pop(random.choice(spots_cache.keys()))
+
+    spots_cache[spot_model.id] = spot_model.json_data_structure()
 
 
 def delete_spot(spot_model):

@@ -15,8 +15,10 @@
 """
 from spotseeker_server.test import utils_test, ServerTest
 from spotseeker_server.cache import memory_cache
+from django.utils.unittest import skipUnless
 from django.test.utils import override_settings
 from spotseeker_server.models import Spot
+from django.conf import settings
 import json
 
 
@@ -27,6 +29,12 @@ import json
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
                                      'DefaultSpotExtendedInfoForm',
     SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+@skipUnless(
+    hasattr(settings, 'SPOTSEEKER_SPOT_CACHE') and
+    settings.SPOTSEEKER_SPOT_CACHE ==
+    ['spotseeker_server.cache.memory_cache'],
+    "Skip unless the right cache is defined in settings"
+)
 class MemoryCacheTest(ServerTest):
     """This class should test that the cache functionality works as intended"""
     def test_spot_caches(self):

@@ -15,13 +15,14 @@
 
 from django.test import TestCase
 from spotseeker_server.views.search import SearchView
-from spotseeker_server.cache import memory_cache
+from spotseeker_server.cache.spot import SpotCache
 
 
 class SpotSearchViewMethodsTest(TestCase):
 
     def tearDown(self):
-        memory_cache.clear_cache()
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
 
     def test_2_day_range(self):
         view = SearchView()

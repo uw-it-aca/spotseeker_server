@@ -43,7 +43,7 @@ def authenticate_application(*args, **kwargs):
 
         return
     except Exception as e:
-        response = HttpResponse("Error authorizing application")
+        response = HttpResponse("Error authorizing application: %s" % e)
         response.status_code = 401
         return response
 
@@ -82,6 +82,6 @@ def authenticate_user(*args, **kwargs):
 
         return
     except Exception as e:
-        response = HttpResponse("Error authorizing application")
+        response = HttpResponse("Error authorizing user: %s" % e)
         response.status_code = 401
         return response

@@ -30,3 +30,7 @@ def get_all_spots():
     """ Retrieves a list of JSON representations of all spots"""
     spots = Spot.objects.all()
     return [get_spot(spot) for spot in spots]
+
+
+def clear_cache():
+    pass

@@ -14,16 +14,26 @@
 
 """
 from spotseeker_server.models import Spot
-
+from django.conf import settings
+import sys
 
 spots_cache = {}
+spot_cache_limit = sys.maxint
+
+if hasattr(settings, 'SPOTSEEKER_SPOT_CACHE_LIMIT'):
+    spot_cache_limit = settings.SPOTSEEKER_SPOT_CACHE_LIMIT
 
 
 def get_spot(spot_model):
     """Retrieves the cached version of the spot with the provided ID."""
     verify_cache(spot_model)
 
-    return spots_cache[spot_model.id]
+    if spot_model.id in spots_cache:
+        spot_json = spots_cache[spot_model.id]
+    else:
+        spot_json = spot_model.json_data_structure()
+
+    return spot_json
 
 
 def get_spots(spots):
@@ -38,6 +48,7 @@ def get_spots(spots):
 
 def get_all_spots():
     """Returns all spots stored in the cache."""
+    print len(spots_cache.keys())
     return get_spots(Spot.objects.all())
     # return spots_cache.values()
 
@@ -49,12 +60,15 @@ def load_spots():
     """
     spots = Spot.objects.all()
     for spot in spots:
+        if len(spots_cache.keys()) > spot_cache_limit:
+            break
         spots_cache[spot.id] = spot.json_data_structure()
 
 
 def cache_spot(spot_model):
     """Sets the cache of a spot."""
-    spots_cache[spot_model.id] = spot_model.json_data_structure()
+    if len(spots_cache.keys()) < spot_cache_limit:
+        spots_cache[spot_model.id] = spot_model.json_data_structure()
 
 
 def delete_spot(spot_model):
@@ -83,5 +97,6 @@ def is_in_cache(spot_model):
 
 def verify_etag(spot_model):
     """Checks the model etag against the cache, updates if out of date."""
-    if spots_cache[spot_model.id]['etag'] != spot_model.etag:
+    if (spot_model.id in spots_cache.keys() and
+            spots_cache[spot_model.id]['etag'] != spot_model.etag):
         cache_spot(spot_model)

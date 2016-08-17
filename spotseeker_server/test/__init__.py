@@ -1,5 +1,5 @@
 from django.test import TestCase
-from spotseeker_server.cache import memory_cache
+from spotseeker_server.cache.spot import SpotCache
 
 
 class ServerTest(TestCase):
@@ -8,7 +8,9 @@ class ServerTest(TestCase):
 
     def setUp(self):
         if self.clear_mem_cache:
-            memory_cache.clear_cache()
+            spot_cache = SpotCache()
+            spot_cache.clear_cache()
 
     def tearDown(self):
-        memory_cache.clear_cache()
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()

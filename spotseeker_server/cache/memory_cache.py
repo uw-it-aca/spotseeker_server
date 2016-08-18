@@ -57,7 +57,7 @@ def load_spots():
     """
     spots = Spot.objects.all()
     for spot in spots:
-        if len(spots_cache.keys()) > spot_cache_limit:
+        if len(spots_cache) > spot_cache_limit:
             break
         spots_cache[spot.id] = spot.json_data_structure()
 

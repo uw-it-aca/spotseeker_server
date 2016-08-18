@@ -32,5 +32,13 @@ def get_all_spots():
     return [get_spot(spot) for spot in spots]
 
 
+def cache_spot(spot):
+    pass
+
+
+def delete_spot(spot):
+    pass
+
+
 def clear_cache():
     pass

@@ -31,12 +31,11 @@ import json
                          'DefaultSpotForm',
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
                                      'DefaultSpotExtendedInfoForm',
-    SPOTSEEKER_AUTH_ADMINS=('demo_user',))
-@mock.patch.object(SpotCache, 'implementation',
-                   return_value=memory_cache)
+    SPOTSEEKER_AUTH_ADMINS=('demo_user',),
+    SPOTSEEKER_SPOT_CACHE='spotseeker_server.cache.memory_cache')
 class MemoryCacheTest(ServerTest):
     """This class should test that the cache functionality works as intended"""
-    def test_spot_caches(self, _):
+    def test_spot_caches(self):
         """Test that once POSTed, a spot will save to the cache"""
         spot = utils_test.get_spot('Spot Name', 20)
         response = self.client.post('/api/v1/spot/', json.dumps(spot),
@@ -50,7 +49,7 @@ class MemoryCacheTest(ServerTest):
         self.assertEqual(memory_cache.spots_cache[1],
                          spot_model.json_data_structure())
 
-    def test_get_spot_not_in_cache(self, _):
+    def test_get_spot_not_in_cache(self):
         """
         Tests that retrieving a spot not in the cache will return the spot.
         """
@@ -61,7 +60,7 @@ class MemoryCacheTest(ServerTest):
         self.assertEquals(spot.json_data_structure(), from_cache,
                           "The cached and DB data should be the same!")
 
-    def test_get_all_spots(self, _):
+    def test_get_all_spots(self):
         """Test get_all_spots"""
         spot = Spot.objects.create(name="Bye!")
         memory_cache.load_spots()
@@ -71,7 +70,7 @@ class MemoryCacheTest(ServerTest):
         cached = cached_spots[0]
         self.assertEqual(spot.name, cached['name'])
 
-    def test_spot_update(self, _):
+    def test_spot_update(self):
 
         old_bldg = 'Small Building'
         new_bldg = 'Big Building'

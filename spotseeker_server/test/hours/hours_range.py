@@ -18,6 +18,7 @@ from django.test.client import Client
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
+from spotseeker_server.cache.spot import SpotCache
 import json
 import time
 
@@ -232,6 +233,13 @@ class HoursRangeTest(TestCase):
                          "th": "Thursday",
                          "f": "Friday",
                          "sa": "Saturday", }
+
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
+
+    def tearDown(self):
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
 
     def test_spot_opening_within_range(self):
         """ Tests search for a spot that opens during the search range.

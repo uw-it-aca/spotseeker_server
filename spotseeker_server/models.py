@@ -37,7 +37,6 @@ import time
 from wsgiref.handlers import format_date_time
 import random
 from PIL import Image
-from cStringIO import StringIO
 import oauth_provider.models
 import re
 from functools import wraps
@@ -210,6 +209,12 @@ class Spot(models.Model):
             return Spot.objects.get(external_id=spot_id[9:])
         else:
             return Spot.objects.get(pk=spot_id)
+
+    def delete(self):
+        from spotseeker_server.cache.spot import SpotCache
+        spot_cache = SpotCache()
+        spot_cache.delete_spot(self)
+        super(Spot, self).delete()
 
 
 class FavoriteSpot(models.Model):

@@ -20,6 +20,7 @@ import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
+from spotseeker_server.cache.spot import SpotCache
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
@@ -30,6 +31,10 @@ class SpotSearchLimitTest(TestCase):
         for i in range(num_spots):
             i = i + 1
             Spot.objects.create(name="spot %s" % (i))
+
+    def tearDown(self):
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
 
     def test_more_than_20_no_limit(self):
         c = Client()

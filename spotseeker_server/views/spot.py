@@ -35,6 +35,7 @@ import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+from spotseeker_server.cache.spot import SpotCache
 
 
 class ItemStash(object):
@@ -501,7 +502,10 @@ class SpotView(RESTDispatch):
             response = HttpResponse(status=201)
             response['Location'] = spot.rest_url()
         else:
-            response = JSONResponse(spot.json_data_structure(), status=200)
+            spot_json = spot.json_data_structure()
+            spot_cache = SpotCache()
+            spot_cache.cache_spot_json(spot)
+            response = JSONResponse(spot_json, status=200)
         response["ETag"] = spot.etag
 
         spot_post_build.send(

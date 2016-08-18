@@ -19,9 +19,14 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 from decimal import *
+from spotseeker_server.cache.spot import SpotCache
 
 
 class SpotSearchDistanceFieldTest(TestCase):
+
+    def tearDown(self):
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
 
     def test_distances(self):
         # Spots are in the atlantic to make them less likely

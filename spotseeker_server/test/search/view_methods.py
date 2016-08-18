@@ -15,9 +15,15 @@
 
 from django.test import TestCase
 from spotseeker_server.views.search import SearchView
+from spotseeker_server.cache.spot import SpotCache
 
 
 class SpotSearchViewMethodsTest(TestCase):
+
+    def tearDown(self):
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
+
     def test_2_day_range(self):
         view = SearchView()
         days = view.get_days_in_range("m", "t")

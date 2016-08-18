@@ -211,8 +211,9 @@ class Spot(models.Model):
             return Spot.objects.get(pk=spot_id)
 
     def delete(self):
-        from spotseeker_server.cache import memory_cache
-        memory_cache.delete_spot(self)
+        from spotseeker_server.cache.spot import SpotCache
+        spot_cache = SpotCache()
+        spot_cache.delete_spot(self)
         super(Spot, self).delete()
 
 

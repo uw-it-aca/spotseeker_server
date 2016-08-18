@@ -15,10 +15,9 @@
 """
 from spotseeker_server.models import Spot
 from django.conf import settings
-from collections import OrderedDict
 from sys import maxint
 
-spots_cache = OrderedDict()
+spots_cache = {}
 spot_cache_limit = getattr(settings, 'SPOTSEEKER_SPOT_CACHE_LIMIT', maxint)
 
 

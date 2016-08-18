@@ -64,7 +64,7 @@ def load_spots():
 def cache_spot(spot_model):
     """Sets the cache of a spot."""
     if len(spots_cache.keys()) > spot_cache_limit:
-        spots_cache.popitem(last=False)
+        spots_cache.pop(random.choice(spots_cache.keys()))
 
     spots_cache[spot_model.id] = spot_model.json_data_structure()
 

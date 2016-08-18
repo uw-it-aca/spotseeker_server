@@ -37,7 +37,6 @@ import time
 from wsgiref.handlers import format_date_time
 import random
 from PIL import Image
-from cStringIO import StringIO
 import oauth_provider.models
 import re
 from functools import wraps

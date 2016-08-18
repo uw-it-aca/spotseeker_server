@@ -34,5 +34,5 @@ class SpotCache(object):
         else:
             return default_cache
 
-    def __new__(*args, **kwargs):
-        return SpotCache.implementation()
+    def __new__(cls):
+        return cls.implementation()

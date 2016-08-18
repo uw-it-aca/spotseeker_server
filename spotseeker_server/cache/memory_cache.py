@@ -15,14 +15,11 @@
 """
 from spotseeker_server.models import Spot
 from django.conf import settings
-import random
-import sys
+from collections import OrderedDict
+from sys import maxint
 
-spots_cache = {}
-spot_cache_limit = sys.maxint
-
-if hasattr(settings, 'SPOTSEEKER_SPOT_CACHE_LIMIT'):
-    spot_cache_limit = settings.SPOTSEEKER_SPOT_CACHE_LIMIT
+spots_cache = OrderedDict()
+spot_cache_limit = getattr(settings, 'SPOTSEEKER_SPOT_CACHE_LIMIT', maxint)
 
 
 def get_spot(spot_model):
@@ -68,7 +65,7 @@ def load_spots():
 def cache_spot(spot_model):
     """Sets the cache of a spot."""
     if len(spots_cache.keys()) > spot_cache_limit:
-        spots_cache.pop(random.choice(spots_cache.keys()))
+        spots_cache.popitem(last=False)
 
     spots_cache[spot_model.id] = spot_model.json_data_structure()
 
@@ -99,6 +96,6 @@ def is_in_cache(spot_model):
 
 def verify_etag(spot_model):
     """Checks the model etag against the cache, updates if out of date."""
-    if (spot_model.id in spots_cache.keys() and
+    if (spot_model.id in spots_cache and
             spots_cache[spot_model.id]['etag'] != spot_model.etag):
         cache_spot(spot_model)

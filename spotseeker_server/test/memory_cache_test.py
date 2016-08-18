@@ -19,6 +19,9 @@ from django.utils.unittest import skipUnless
 from django.test.utils import override_settings
 from spotseeker_server.models import Spot
 from django.conf import settings
+from spotseeker_server.cache.spot import SpotCache
+from spotseeker_server.cache import memory_cache
+import mock
 import json
 
 
@@ -29,15 +32,11 @@ import json
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
                                      'DefaultSpotExtendedInfoForm',
     SPOTSEEKER_AUTH_ADMINS=('demo_user',))
-@skipUnless(
-    hasattr(settings, 'SPOTSEEKER_SPOT_CACHE') and
-    settings.SPOTSEEKER_SPOT_CACHE ==
-    ['spotseeker_server.cache.memory_cache'],
-    "Skip unless the right cache is defined in settings"
-)
+@mock.patch.object(SpotCache, 'implementation',
+                   return_value=memory_cache)
 class MemoryCacheTest(ServerTest):
     """This class should test that the cache functionality works as intended"""
-    def test_spot_caches(self):
+    def test_spot_caches(self, _):
         """Test that once POSTed, a spot will save to the cache"""
         spot = utils_test.get_spot('Spot Name', 20)
         response = self.client.post('/api/v1/spot/', json.dumps(spot),
@@ -51,7 +50,7 @@ class MemoryCacheTest(ServerTest):
         self.assertEqual(memory_cache.spots_cache[1],
                          spot_model.json_data_structure())
 
-    def test_get_spot_not_in_cache(self):
+    def test_get_spot_not_in_cache(self, _):
         """
         Tests that retrieving a spot not in the cache will return the spot.
         """
@@ -62,7 +61,7 @@ class MemoryCacheTest(ServerTest):
         self.assertEquals(spot.json_data_structure(), from_cache,
                           "The cached and DB data should be the same!")
 
-    def test_get_all_spots(self):
+    def test_get_all_spots(self, _):
         """Test get_all_spots"""
         spot = Spot.objects.create(name="Bye!")
         memory_cache.load_spots()
@@ -72,7 +71,7 @@ class MemoryCacheTest(ServerTest):
         cached = cached_spots[0]
         self.assertEqual(spot.name, cached['name'])
 
-    def test_spot_update(self):
+    def test_spot_update(self, _):
 
         old_bldg = 'Small Building'
         new_bldg = 'Big Building'

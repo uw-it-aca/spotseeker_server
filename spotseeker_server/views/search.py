@@ -53,10 +53,6 @@ class SearchView(RESTDispatch):
         spots = self.filter_on_request(
             request.GET, chain, request.META, 'spot')
 
-        # response = []
-        # for spot in spots:
-        #     response.append(spot.json_data_structure())
-
         # retrieve spots from cache
         spot_cache = SpotCache()
         response = spot_cache.get_spots(spots)

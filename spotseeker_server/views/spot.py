@@ -502,7 +502,10 @@ class SpotView(RESTDispatch):
             response = HttpResponse(status=201)
             response['Location'] = spot.rest_url()
         else:
-            response = JSONResponse(spot.json_data_structure(), status=200)
+            spot_json = spot.json_data_structure()
+            spot_cache = SpotCache()
+            spot_cache.cache_spot_json(spot)
+            response = JSONResponse(spot_json, status=200)
         response["ETag"] = spot.etag
 
         spot_post_build.send(
@@ -513,10 +516,6 @@ class SpotView(RESTDispatch):
             partial_update=partial_update,
             stash=stash
         )
-
-        # update the cache
-        spot_cache = SpotCache()
-        spot_cache.cache_spot(spot)
 
         return response
 

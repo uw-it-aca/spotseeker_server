@@ -69,6 +69,12 @@ def cache_spot(spot_model):
     spots_cache[spot_model.id] = spot_model.json_data_structure()
 
 
+def cache_spot_json(spot_json):
+    """Caches the dict-based json representation of a spot"""
+    if 'id' in spot_json:
+        spots_cache[spot_json['id']] = spot_json
+
+
 def delete_spot(spot_model):
     """Removes a specific spot from the cache"""
     if spot_model.id in spots_cache:
@@ -82,19 +88,15 @@ def clear_cache():
 
 def verify_cache(spot_model):
     """Ensures a given spot model is in the cache and up to date"""
-    is_in_cache(spot_model)
+    if spot_model.id not in spots_cache:
+        cache_spot(spot_model)
 
     verify_etag(spot_model)
 
 
-def is_in_cache(spot_model):
-    """Checks if a spot model is in the cache, and caches it if not."""
-    if spot_model.id not in spots_cache:
-        cache_spot(spot_model)
-
-
 def verify_etag(spot_model):
     """Checks the model etag against the cache, updates if out of date."""
+    spot_model.update()
     if (spot_model.id in spots_cache and
             spots_cache[spot_model.id]['etag'] != spot_model.etag):
         cache_spot(spot_model)

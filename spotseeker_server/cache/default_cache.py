@@ -42,3 +42,7 @@ def delete_spot(spot):
 
 def clear_cache():
     pass
+
+
+def cache_spot_json(spot_json):
+    pass

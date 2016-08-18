@@ -32,6 +32,4 @@ class AllSpotsView(RESTDispatch):
     def GET(self, request):
         spot_cache = SpotCache()
         spots = spot_cache.get_all_spots()
-        # for spot in Spot.objects.all():
-        #     spots.append(spot.json_data_structure())
         return JSONResponse(spots)

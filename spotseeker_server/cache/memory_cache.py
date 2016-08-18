@@ -1,15 +1,40 @@
-"""A cache that stores spot JSON representations in memory for fast loading"""
-from spotseeker_server.models import Spot
+""" Copyright 2012, 2013 UW Information Technology, University of Washington
 
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+"""
+from spotseeker_server.models import Spot
+from django.conf import settings
+import random
+import sys
 
 spots_cache = {}
+spot_cache_limit = sys.maxint
+
+if hasattr(settings, 'SPOTSEEKER_SPOT_CACHE_LIMIT'):
+    spot_cache_limit = settings.SPOTSEEKER_SPOT_CACHE_LIMIT
 
 
 def get_spot(spot_model):
     """Retrieves the cached version of the spot with the provided ID."""
     verify_cache(spot_model)
 
-    return spots_cache[spot_model.id]
+    if spot_model.id in spots_cache:
+        spot_json = spots_cache[spot_model.id]
+    else:
+        spot_json = spot_model.json_data_structure()
+
+    return spot_json
 
 
 def get_spots(spots):
@@ -17,7 +42,7 @@ def get_spots(spots):
     if not spots_cache:
         load_spots()
 
-    spot_dicts = [get_spot(spot_model) for spot in spots]
+    spot_dicts = [get_spot(spot) for spot in spots]
 
     return spot_dicts
 
@@ -35,11 +60,16 @@ def load_spots():
     """
     spots = Spot.objects.all()
     for spot in spots:
+        if len(spots_cache.keys()) > spot_cache_limit:
+            break
         spots_cache[spot.id] = spot.json_data_structure()
 
 
 def cache_spot(spot_model):
     """Sets the cache of a spot."""
+    if len(spots_cache.keys()) > spot_cache_limit:
+        spots_cache.pop(random.choice(spots_cache.keys()))
+
     spots_cache[spot_model.id] = spot_model.json_data_structure()
 
 
@@ -69,5 +99,6 @@ def is_in_cache(spot_model):
 
 def verify_etag(spot_model):
     """Checks the model etag against the cache, updates if out of date."""
-    if spots_cache[spot_model.id]['etag'] != spot_model.etag:
+    if (spot_model.id in spots_cache.keys() and
+            spots_cache[spot_model.id]['etag'] != spot_model.etag):
         cache_spot(spot_model)

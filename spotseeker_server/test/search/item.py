@@ -22,7 +22,7 @@ from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
 import simplejson as json
 from mock import patch
 from spotseeker_server import models
-from spotseeker_server.cache import memory_cache
+from spotseeker_server.cache.spot import SpotCache
 
 try:
     from unittest import skip
@@ -48,8 +48,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot1,
             name="itemone",
-            category="laptop",
-            subcategory="dell")
+            item_category="laptop",
+            item_subcategory="dell")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="capacity",
@@ -58,8 +58,8 @@ class SpotSearchItemTest(TestCase):
         self.item2 = Item.objects.create(
             spot=self.spot1,
             name="itemtwo",
-            category="laptop",
-            subcategory="mac")
+            item_category="laptop",
+            item_subcategory="mac")
         self.extended1 = ItemExtendedInfo(
             item=self.item2,
             key="customer",
@@ -71,8 +71,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot2,
             name="itemone",
-            category="car",
-            subcategory="toyota")
+            item_category="car",
+            item_subcategory="toyota")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="customer",
@@ -81,8 +81,8 @@ class SpotSearchItemTest(TestCase):
         self.item2 = Item.objects.create(
             spot=self.spot2,
             name="itemtwo",
-            category="laptop",
-            subcategory="dell")
+            item_category="laptop",
+            item_subcategory="dell")
         self.extended1 = ItemExtendedInfo(
             item=self.item2,
             key="capacity",
@@ -94,8 +94,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot3,
             name="itemthree",
-            category="laptop",
-            subcategory="mac")
+            item_category="laptop",
+            item_subcategory="mac")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="customer",
@@ -104,8 +104,8 @@ class SpotSearchItemTest(TestCase):
         self.item2 = Item.objects.create(
             spot=self.spot3,
             name="itemtwo",
-            category="car",
-            subcategory="toyota")
+            item_category="car",
+            item_subcategory="toyota")
         self.extended1 = ItemExtendedInfo(
             item=self.item2,
             key="customer",
@@ -117,8 +117,8 @@ class SpotSearchItemTest(TestCase):
         self.item1 = Item.objects.create(
             spot=self.spot4,
             name="itemthree",
-            category="car",
-            subcategory="chevy")
+            item_category="car",
+            item_subcategory="chevy")
         self.extended1 = ItemExtendedInfo(
             item=self.item1,
             key="customer",
@@ -143,7 +143,8 @@ class SpotSearchItemTest(TestCase):
         self.spot2.delete()
         self.spot3.delete()
         self.spot4.delete()
-        memory_cache.clear_cache()
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
 
     def item_common(self, field, cases):
         for case in cases:

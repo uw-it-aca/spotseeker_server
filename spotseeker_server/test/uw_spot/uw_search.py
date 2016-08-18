@@ -18,7 +18,7 @@ from django.test.client import Client
 from django.test.utils import override_settings
 from django.utils.unittest import skipUnless
 from spotseeker_server.models import Spot, SpotExtendedInfo
-from spotseeker_server.cache import memory_cache
+from spotseeker_server.cache.spot import SpotCache
 import json
 
 
@@ -56,7 +56,8 @@ class UWSearchTest(TestCase):
         )
         # create a test Client
         self.client = Client()
-        memory_cache.clear_cache()
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
 
     def tearDown(self):
         self.spot1.delete()
@@ -64,7 +65,8 @@ class UWSearchTest(TestCase):
         self.spot3.delete()
         self.spot4.delete()
         self.spot5.delete()
-        memory_cache.clear_cache()
+        spot_cache = SpotCache()
+        spot_cache.clear_cache()
 
     def test_app_type(self):
         """ Tests searching with an app_type query param.

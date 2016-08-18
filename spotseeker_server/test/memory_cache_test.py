@@ -1,7 +1,24 @@
+""" Copyright 2012, 2013 UW Information Technology, University of Washington
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+"""
 from spotseeker_server.test import utils_test, ServerTest
 from spotseeker_server.cache import memory_cache
+from django.utils.unittest import skipUnless
 from django.test.utils import override_settings
 from spotseeker_server.models import Spot
+from django.conf import settings
 import json
 
 
@@ -12,6 +29,12 @@ import json
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
                                      'DefaultSpotExtendedInfoForm',
     SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+@skipUnless(
+    hasattr(settings, 'SPOTSEEKER_SPOT_CACHE') and
+    settings.SPOTSEEKER_SPOT_CACHE ==
+    ['spotseeker_server.cache.memory_cache'],
+    "Skip unless the right cache is defined in settings"
+)
 class MemoryCacheTest(ServerTest):
     """This class should test that the cache functionality works as intended"""
     def test_spot_caches(self):

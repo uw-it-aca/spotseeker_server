@@ -13,28 +13,24 @@
     limitations under the License.
 
 """
-
-from django import forms
-from spotseeker_server.models import Item, ItemExtendedInfo
-import re
+from spotseeker_server.models import Spot
 
 
-class DefaultItemExtendedInfoForm(forms.ModelForm):
-
-    class Meta:
-        model = ItemExtendedInfo
-        fields = ('key', 'value')
-
-    def clean_key(self):
-        key = self.cleaned_data['key'].strip()
-        if not re.match(r'^[a-z0-9_-]+$', key, re.I):
-            raise forms.ValidationError(
-                "Key must be only alphanumerics, underscores, and hyphens")
-        return key
+def get_spot(spot_model):
+    """Retrieves the json of the spot with the provided ID."""
+    return spot_model.json_data_structure()
 
 
-class DefaultItemForm(forms.ModelForm):
+def get_spots(spots):
+    """Retrieves a list of spots from the backend."""
+    return [get_spot(spot) for spot in spots]
 
-    class Meta:
-        model = Item
-        fields = ('name', 'item_category', 'item_subcategory')
+
+def get_all_spots():
+    """ Retrieves a list of JSON representations of all spots"""
+    spots = Spot.objects.all()
+    return [get_spot(spot) for spot in spots]
+
+
+def clear_cache():
+    pass

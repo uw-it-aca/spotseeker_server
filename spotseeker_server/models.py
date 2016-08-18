@@ -466,8 +466,9 @@ class Item(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField(max_length=50, blank=True)
     spot = models.ForeignKey(Spot, blank=True, null=True)
-    category = models.CharField(max_length=50, null=True)
-    subcategory = models.CharField(max_length=50, null=True)
+    # These need to be item_ cat/subcat due to DB issues
+    item_category = models.CharField(max_length=50, null=True)
+    item_subcategory = models.CharField(max_length=50, null=True)
 
     def json_data_structure(self):
         extended = {}
@@ -478,8 +479,8 @@ class Item(models.Model):
         data = {
             'id': self.pk,
             'name': self.name,
-            'category': self.category,
-            'subcategory': self.subcategory,
+            'category': self.item_category,
+            'subcategory': self.item_subcategory,
             'extended_info': extended
         }
 

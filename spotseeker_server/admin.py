@@ -25,6 +25,7 @@ from django.conf import settings
 from django.utils.importlib import import_module
 from spotseeker_server.models import *
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
+from spotseeker_server.forms.item import ItemForm, ItemExtendedInfoForm
 
 
 class SpotAdmin(admin.ModelAdmin):
@@ -116,3 +117,34 @@ admin.site.register(SpotExtendedInfo, SpotExtendedInfoAdmin)
 
 admin.site.register(SpotType)
 admin.site.register(TrustedOAuthClient)
+
+class ItemAdmin(admin.ModelAdmin):
+    """ The admin model for a Item.
+    """
+    form = ItemForm.implementation()
+
+    list_display = ("name",
+                    "id",
+                    "slug",
+                    "spot",
+                    "item_category",
+                    "item_subcategory")
+    list_filter = ["spot",
+                   "item_category",
+                   "item_subcategory"]
+    search_fields = ["name",
+                     "slug",
+                     "item_category",
+                     "item_subcategory"]
+
+admin.site.register(Item, ItemAdmin)
+
+class ItemExtendedInfoAdmin(admin.ModelAdmin):
+    """ The admin model for ItemExtendedInfo.
+    """
+    form = ItemExtendedInfoForm.implementation()
+
+    list_display = ("item", "key", "value")
+    list_editable = ["key", "value"]
+    list_filter = ["key", "item"]
+admin.site.register(ItemExtendedInfo, ItemExtendedInfoAdmin)

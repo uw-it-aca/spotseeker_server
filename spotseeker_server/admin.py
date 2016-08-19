@@ -118,6 +118,7 @@ admin.site.register(SpotExtendedInfo, SpotExtendedInfoAdmin)
 admin.site.register(SpotType)
 admin.site.register(TrustedOAuthClient)
 
+
 class ItemAdmin(admin.ModelAdmin):
     """ The admin model for a Item.
     """
@@ -138,6 +139,7 @@ class ItemAdmin(admin.ModelAdmin):
                      "item_subcategory"]
 
 admin.site.register(Item, ItemAdmin)
+
 
 class ItemExtendedInfoAdmin(admin.ModelAdmin):
     """ The admin model for ItemExtendedInfo.

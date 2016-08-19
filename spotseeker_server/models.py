@@ -491,7 +491,6 @@ class ItemExtendedInfo(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
 
-
     class Meta:
         verbose_name_plural = "Item extended info"
         unique_together = ('item', 'key')

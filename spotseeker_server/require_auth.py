@@ -33,69 +33,53 @@ from functools import wraps
 from django.conf import settings
 
 
+def get_auth_module():
+    try:
+        mod_name = settings.SPOTSEEKER_AUTH_MODULE
+    except NameError:
+        return spotseeker_server.auth.all_ok
+    try:
+        return import_module(mod_name)
+    except ImportError as e:
+        raise ImproperlyConfigured('Error importing module %s: "%s"' %
+                                   (mod_name, e))
+
+
+def get_auth_method(method_name):
+    mod = get_auth_module()
+    try:
+        return getattr(mod, method_name)
+    except:
+        raise ImproperlyConfigured('Module "%s" does not define a "%s" '
+                                   'method.' % (module, method_name))
+
+
+def check_auth(method_name, func, *args, **kwargs):
+    method = get_auth_method(method_name)
+    bad_response = method(*args, **kwargs)
+    if bad_response:
+        return bad_response
+    else:
+        return func(*args, **kwargs)
+
+
 def app_auth_required(func):
-
+    @wraps(func)
     def _checkAuth(*args, **kwargs):
-        if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
-            module = settings.SPOTSEEKER_AUTH_MODULE
-            try:
-                mod = import_module(module)
-            except ImportError, e:
-                raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                           (module, e))
-
-            try:
-                method = getattr(mod, "authenticate_application")
-            except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define '
-                                           'a "authenticate_application" '
-                                           'method.' % module)
-
-            bad_response = method(*args, **kwargs)
-        else:
-            bad_response = \
-                spotseeker_server.auth.all_ok.authenticate_application(
-                    *args, **kwargs)
-
-        if bad_response:
-            return bad_response
-        else:
-            return func(*args, **kwargs)
-    return wraps(func)(_checkAuth)
+        return check_auth('authenticate_application', func, *args, **kwargs)
+    return _checkAuth
 
 
 def user_auth_required(func):
-
+    @wraps(func)
     def _checkAuth(*args, **kwargs):
-        if hasattr(settings, 'SPOTSEEKER_AUTH_MODULE'):
-            module = settings.SPOTSEEKER_AUTH_MODULE
-            try:
-                mod = import_module(module)
-            except ImportError, e:
-                raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                           (module, e))
-
-            try:
-                method = getattr(mod, "authenticate_user")
-            except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define '
-                                           'a "authenticate_user" method.' %
-                                           module)
-
-            bad_response = method(*args, **kwargs)
-        else:
-            bad_response = spotseeker_server.auth.all_ok.authenticate_user(
-                *args, **kwargs)
-
-        if bad_response:
-            return bad_response
-        else:
-            return func(*args, **kwargs)
-    return wraps(func)(_checkAuth)
+        return check_auth('authenticate_user', func, *args, **kwargs)
+    return _checkAuth
 
 
 def admin_auth_required(func):
 
+    @wraps(func)
     def _checkAuth(*args, **kwargs):
         ###
         # XXX - this needs to change to something else.  stop-gap measure
@@ -118,4 +102,4 @@ def admin_auth_required(func):
             return bad_response
 
         return func(*args, **kwargs)
-    return wraps(func)(_checkAuth)
+    return _checkAuth

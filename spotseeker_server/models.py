@@ -170,7 +170,7 @@ class Spot(models.Model):
             "last_modified": self.last_modified.isoformat(),
             "external_id": self.external_id
         }
-        cache.add(self.pk, spot_json)
+        cache.set(self.pk, spot_json)
         return spot_json
 
     def update_rating(self):

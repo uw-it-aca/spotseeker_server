@@ -152,11 +152,14 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'null': {
+            'class': 'logging.NullHandler'
         }
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
+        '': {
+            'handlers': ['null'],
             'level': 'ERROR',
             'propagate': True,
         },

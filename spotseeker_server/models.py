@@ -38,7 +38,6 @@ import time
 from wsgiref.handlers import format_date_time
 import random
 from PIL import Image
-from cStringIO import StringIO
 import oauth_provider.models
 import re
 from functools import wraps
@@ -115,7 +114,7 @@ class Spot(models.Model):
             return cached_entry
 
         extended_info = {}
-        info = SpotExtendedInfo.objects.filter(spot=self)
+        info = self.spotextendedinfo_set.all()
         for attr in info:
             extended_info[attr.key] = attr.value
 
@@ -129,23 +128,18 @@ class Spot(models.Model):
             'sunday': [],
         }
 
-        hours = SpotAvailableHours.objects.filter(spot=self).order_by(
-            'start_time')
+        hours = self.spotavailablehours_set.order_by('start_time')
         for window in hours:
             available_hours[window.get_day_display()].append(
                 window.json_data_structure())
 
-        images = []
-        for img in SpotImage.objects.filter(spot=self).order_by(
-                'display_index'):
-            images.append(img.json_data_structure())
-        types = []
-        for t in self.spottypes.all():
-            types.append(t.name)
+        images_set = self.spotimage_set.order_by('display_index')
+        images = [img.json_data_structure() for img in images_set]
 
-        checkout_items = []
-        for item in Item.objects.filter(spot=self):
-            checkout_items.append(item.json_data_structure())
+        types = [t.name for t in self.spottypes.all()]
+
+        checkout_items = [item.json_data_structure() for item in
+                          self.item_set.all()]
 
         spot_json = {
             "id": self.pk,
@@ -181,42 +175,27 @@ class Spot(models.Model):
         return spot_json
 
     def update_rating(self):
-        data = SpaceReview.objects.filter(
-            space=self,
-            is_published=True,
-            is_deleted=False
+        data = self.spacereview_set.filter(
+            is_published=True, is_deleted=False
         ).aggregate(total=Sum('rating'), count=Count('rating'))
         if not data['total']:
             return
 
         # Round down to .5 stars:
         new_rating = int(2 * data['total'] / data['count']) / 2.0
-        try:
-            extended_info = SpotExtendedInfo.objects.get(spot=self,
-                                                         key="rating",
-                                                         )
-            if extended_info:
-                extended_info.value = new_rating
-                extended_info.save()
 
-        except ObjectDoesNotExist as ex:
-            extended_info = SpotExtendedInfo.objects.create(spot=self,
-                                                            key="rating",
-                                                            value=new_rating)
+        # update_or_create isn't in this django version, unfortunately
+        ei, created = self.spotextendedinfo_set.get_or_create(
+            key='rating', defaults={'value': new_rating})
+        if not created:
+            ei.value = new_rating
+            ei.save()
 
-        try:
-            extended_info = SpotExtendedInfo.objects.get(spot=self,
-                                                         key="review_count",
-                                                         )
-            if extended_info:
-                extended_info.value = data['count']
-                extended_info.save()
-
-        except ObjectDoesNotExist as ex:
-            extended_info = SpotExtendedInfo.objects.create(spot=self,
-                                                            key="review_count",
-                                                            value=data['count']
-                                                            )
+        ei, created = self.spotextendedinfo_set.get_or_create(
+            key='review_count', defaults={'value': data['count']})
+        if not created:
+            ei.value = data['count']
+            ei.save()
 
     def delete(self, *args, **kwargs):
         self.invalidate_cache()
@@ -242,7 +221,6 @@ class FavoriteSpot(models.Model):
         return self.spot.json_data_structure()
 
     def clean(self):
-        from django.core.exceptions import ValidationError
         spots = self.user.favoritespot_set.all()
         if self.spot in spots:
             raise ValidationError("This Spot has already been favorited")

@@ -93,6 +93,7 @@ class Spot(models.Model):
         return self.name
 
     def invalidate_cache(self):
+        """Remove this spot's cache entry"""
         cache.delete(self.pk)
 
     @update_etag
@@ -104,6 +105,11 @@ class Spot(models.Model):
         return reverse('spot', kwargs={'spot_id': self.pk})
 
     def json_data_structure(self):
+        """
+        Get a dictionary representing this spot which can be JSON encoded
+        """
+        # If this data is cached, and the etags match, return the cached
+        # version.
         cached_entry = cache.get(self.pk)
         if cached_entry and cached_entry['etag'] == self.etag:
             return cached_entry
@@ -170,6 +176,7 @@ class Spot(models.Model):
             "last_modified": self.last_modified.isoformat(),
             "external_id": self.external_id
         }
+        # Add this spot's data to the cache
         cache.set(self.pk, spot_json)
         return spot_json
 

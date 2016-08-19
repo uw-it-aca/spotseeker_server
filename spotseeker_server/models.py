@@ -25,6 +25,7 @@
 
 from django.db import models
 from django.db.models import Sum, Count
+from django.core.cache import cache
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_slug
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -91,14 +92,22 @@ class Spot(models.Model):
     def __unicode__(self):
         return self.name
 
+    def invalidate_cache(self):
+        cache.delete(self.pk)
+
     @update_etag
     def save(self, *args, **kwargs):
+        self.invalidate_cache()
         super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
 
     def json_data_structure(self):
+        cached_entry = cache.get(self.pk)
+        if cached_entry and cached_entry['etag'] == self.etag:
+            return cached_entry
+
         extended_info = {}
         info = SpotExtendedInfo.objects.filter(spot=self)
         for attr in info:
@@ -161,6 +170,7 @@ class Spot(models.Model):
             "last_modified": self.last_modified.isoformat(),
             "external_id": self.external_id
         }
+        cache.add(self.pk, spot_json)
         return spot_json
 
     def update_rating(self):
@@ -202,14 +212,15 @@ class Spot(models.Model):
                                                             )
 
     def delete(self, *args, **kwargs):
+        self.invalidate_cache()
         super(Spot, self).delete(*args, **kwargs)
 
-    @staticmethod
-    def get_with_external(spot_id):
+    @classmethod
+    def get_with_external(cls, spot_id):
         if spot_id and str(spot_id).startswith('external:'):
-            return Spot.objects.get(external_id=spot_id[9:])
+            return cls.objects.get(external_id=spot_id[9:])
         else:
-            return Spot.objects.get(pk=spot_id)
+            return cls.objects.get(pk=spot_id)
 
 
 class FavoriteSpot(models.Model):
@@ -371,10 +382,12 @@ class SpotImage(models.Model):
         self.content_type = SpotImage.CONTENT_TYPES[img.format]
         self.width, self.height = img.size
 
+        self.spot.invalidate_cache()
         super(SpotImage, self).save(*args, **kwargs)
 
     @update_etag
     def delete(self, *args, **kwargs):
+        self.spot.invalidate_cache()
         self.image.delete(save=False)
         super(SpotImage, self).delete(*args, **kwargs)
 

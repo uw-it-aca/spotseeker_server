@@ -538,10 +538,11 @@ class Command(BaseCommand):
                                             value='7',
                                             item=macbook)
 
-            latitude = Item.objects.create(name="Dell Latitude E5440",
-                                           spot=loan_office,
-                                           item_category="Placeholder Category",
-                                           item_subcategory="Laptop Computer")
+            latitude = \
+                Item.objects.create(name="Dell Latitude E5440",
+                                    spot=loan_office,
+                                    item_category="Placeholder Category",
+                                    item_subcategory="Laptop Computer")
             ItemExtendedInfo.objects.create(key='i_quantity',
                                             value='12',
                                             item=latitude)

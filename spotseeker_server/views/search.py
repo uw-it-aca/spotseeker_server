@@ -260,8 +260,8 @@ class SearchView(RESTDispatch):
                                         400)
 
                 or_small_q_obj = Q()
-                for num in range(0, len(starts)):
-                    start_day, start_time = starts[num].split(',')
+                for num, start in enumerate(starts):
+                    start_day, start_time = start.split(',')
                     end_day, end_time = ends[num].split(',')
                     start_day = day_dict[start_day]
                     end_day = day_dict[end_day]

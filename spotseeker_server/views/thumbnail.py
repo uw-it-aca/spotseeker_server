@@ -24,7 +24,7 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
 from django.utils.http import http_date
-from spotseeker_server.require_auth import *
+from spotseeker_server.require_auth import app_auth_required
 from cStringIO import StringIO
 from PIL import Image
 import time
@@ -53,7 +53,7 @@ class ThumbnailView(RESTDispatch):
 
         thumb_width = None
         thumb_height = None
-        if constrain is True:
+        if constrain:
             m = RE_WIDTH.search(thumb_dimensions)
             if m:
                 thumb_width = m.group(1)
@@ -84,7 +84,7 @@ class ThumbnailView(RESTDispatch):
         image = img.image
         im = Image.open(image.path)
 
-        if constrain is True:
+        if constrain:
             im.thumbnail((thumb_width, thumb_height, Image.ANTIALIAS))
             thumb = im
         else:

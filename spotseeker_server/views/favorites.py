@@ -68,7 +68,7 @@ class FavoritesView(RESTDispatch):
         for fav in objects:
             if hasattr(fav, 'spot'):
                 json = fav.spot.json_data_structure()
-                favorites.append(fav.spot.json_data_structure())
+                favorites.append(json)
 
         return JSONResponse(favorites)
 
@@ -77,6 +77,6 @@ class FavoritesView(RESTDispatch):
         spot = Spot.objects.get(pk=spot_id)
 
         fav = FavoriteSpot.objects.filter(user=user, spot=spot)
-        if len(fav):
+        if fav:
             return JSONResponse(True)
         return JSONResponse(False)

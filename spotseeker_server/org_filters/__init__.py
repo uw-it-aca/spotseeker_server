@@ -82,8 +82,8 @@ class SearchFilterChain(object):
     filters = []
     keys = set()
 
-    @staticmethod
-    def _load_filters():
+    @classmethod
+    def _load_filters(cls):
         """Loads the filters and their modules"""
         if hasattr(settings, 'SPOTSEEKER_SEARCH_FILTERS'):
             for filtername in settings.SPOTSEEKER_SEARCH_FILTERS:
@@ -103,8 +103,8 @@ class SearchFilterChain(object):
                         'Module "%s" does not define "%s".' %
                         (modname, attrname))
 
-                SearchFilterChain.filters.append(attr)
-                SearchFilterChain.keys.update(attr.keys)
+                cls.filters.append(attr)
+                cls.keys.update(attr.keys)
 
     def __init__(self, request):
         self.request = request

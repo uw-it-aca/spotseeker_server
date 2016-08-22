@@ -44,8 +44,8 @@ class ItemStash(object):
     def __init__(self, item):
 
         self.json = item
-        item['item_category'] = item.pop('category', None)
-        item['item_subcategory'] = item.pop('subcategory', None)
+        item['item_category'] = item.get('category', None)
+        item['item_subcategory'] = item.get('subcategory', None)
         self.form = ItemForm(item)
 
         if not self.form.is_valid():

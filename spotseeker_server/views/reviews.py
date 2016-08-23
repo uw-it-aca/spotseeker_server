@@ -44,12 +44,11 @@ class ReviewsView(RESTDispatch):
         if rating > 5 or rating < 1:
             return HttpResponse(status=400)
 
-        new_review = SpaceReview.objects.create(space=space,
-                                                reviewer=user,
-                                                original_review=review,
-                                                rating=rating,
-                                                is_published=False,
-                                                is_deleted=False)
+        new_review = space.spacereview_set.create(reviewer=user,
+                                                  original_review=review,
+                                                  rating=rating,
+                                                  is_published=False,
+                                                  is_deleted=False)
 
         response = HttpResponse("OK", status=201)
         return response
@@ -57,18 +56,14 @@ class ReviewsView(RESTDispatch):
     @app_auth_required
     def GET(self, request, spot_id, include_unpublished=False):
         space = Spot.objects.get(pk=spot_id)
-
         # Use the param after validating the user should see unpublished
         # reviews
-        reviews = []
-        objects = SpaceReview.objects.filter(space=space,
-                                             is_published=True
-                                             ).order_by('-date_submitted')
+        objects = space.spacereview_set.filter(
+            is_published=True).order_by('-date_submitted')
 
-        for review in objects:
-            # seems to be a bug in sqlite3's handling of False booleans?
-            if not review.is_deleted:
-                reviews.append(review.json_data_structure())
+        # seems to be a bug in sqlite3's handling of False booleans?
+        reviews = [review.json_data_structure() for review in objects
+                   if not review.is_deleted]
 
         return JSONResponse(reviews)
 
@@ -77,12 +72,9 @@ class UnpublishedReviewsView(RESTDispatch):
     @user_auth_required
     @admin_auth_required
     def GET(self, request):
-        reviews = []
         objects = SpaceReview.objects.filter(is_published=False,
                                              is_deleted=False)
-
-        for review in objects:
-            reviews.append(review.full_json_data_structure())
+        reviews = [review.full_json_data_structure() for review in objects]
 
         return JSONResponse(reviews)
 
@@ -104,5 +96,4 @@ class UnpublishedReviewsView(RESTDispatch):
 
         review.save()
         review.space.update_rating()
-
         return JSONResponse('')

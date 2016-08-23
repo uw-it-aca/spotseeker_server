@@ -92,43 +92,31 @@ class SchemaGenView(RESTDispatch):
         spot_field_array = \
             models.get_model('spotseeker_server', 'Spot')._meta.fields
         for field in spot_field_array:
-            if (field.auto_created or
-                    not field.editable or
-                    field.name == "etag"):
-                # pk (id), auto_now=True, auto_now_add=True, and "etag"
-                schema.update({field.name: "auto"})
-            elif field.get_internal_type() in internal_type_map:
-                if field.name in location_descriptors:
-                    schema["location"].update(
-                        {field.name: internal_type_map[
-                            field.get_internal_type()]})
-                else:
-                    schema.update(
-                        {field.name: internal_type_map[
-                            field.get_internal_type()]})
+            if is_auto_field(field):
+                schema[field.name] = 'auto'
             else:
+                field_itype = field.get_internal_type()
+                if field_itype in internal_type_map:
+                    field_itype = internal_type_map[field_itype]
+
                 if field.name in location_descriptors:
-                    schema["location"].update(
-                        {field.name: field.get_internal_type()})
+                    schema['location'][field.name] = field_itype
                 else:
-                    schema.update({field.name: field.get_internal_type()})
+                    schema[field.name] = field_itype
 
         # To grab spot image info
         spot_image_field_array = models.get_model('spotseeker_server',
                                                   'SpotImage')._meta.fields
         schema_image = {}
         for field in spot_image_field_array:
-            if (field.auto_created or
-                    not field.editable or
-                    field.name == "etag"):
-                # pk (id), auto_now=True, auto_now_add=True, and "etag"
-                schema_image.update({field.name: "auto"})
-            elif field.get_internal_type() in internal_type_map:
-                schema_image.update(
-                    {field.name: internal_type_map[field.get_internal_type()]})
+            if is_auto_field(field):
+                schema_image[field.name] = 'auto'
             else:
-                schema_image.update({field.name: field.get_internal_type()})
-        schema["images"].append(schema_image)
+                itype = field.get_internal_type()
+                if itype in internal_type_map:
+                    itype = internal_type_map[itype]
+                schema_image[field.name] = itype
+        schema['images'].append(schema_image)
 
         # To grab all of the different spot types
         for spot_type in SpotType.objects.all():
@@ -142,9 +130,11 @@ class SchemaGenView(RESTDispatch):
             org_form_exists = False
         for key_dict in SpotExtendedInfo.objects.values("key").distinct():
             key = key_dict["key"]
-            if org_form_exists and key in validated_ei:
-                schema["extended_info"].update({key: validated_ei[key]})
-            else:
-                schema["extended_info"].update({key: "unicode"})
+            if org_form_exists:
+                schema['extended_info'][key] = validated_ei.get(key, 'unicode')
 
         return JSONResponse(schema)
+
+def is_auto_field(field):
+    # pk (id), auto_now=True, auto_now_add=True, and "etag"
+    return field.auto_created or not field.editable or field.name == 'etag'

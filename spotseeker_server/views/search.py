@@ -474,7 +474,10 @@ class SearchView(RESTDispatch):
             except KeyError:
                 raise RESTException(
                     "missing required parameters for this type of search", 400)
-            sortfunc = lambda x: self.distance(x, lon, lat)
+
+            def sortfunc(spot):
+                return self.distance(spot, lon, lat)
+
             sorted_list = sorted(query, key=sortfunc)
             query = sorted_list[:limit]
 

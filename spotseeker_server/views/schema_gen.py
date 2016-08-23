@@ -135,6 +135,7 @@ class SchemaGenView(RESTDispatch):
 
         return JSONResponse(schema)
 
+
 def is_auto_field(field):
     # pk (id), auto_now=True, auto_now_add=True, and "etag"
     return field.auto_created or not field.editable or field.name == 'etag'

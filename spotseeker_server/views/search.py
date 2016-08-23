@@ -397,49 +397,34 @@ class SearchView(RESTDispatch):
         if chain.has_valid_search_param:
             has_valid_search_param = True
 
-        limit = 20
-        if 'limit' in get_request:
-            if get_request['limit'] == '0':
-                limit = 0
-            else:
-                limit = int(get_request['limit'])
+        limit = int(get_request.get('limit', 20))
 
         if ('distance' in get_request and
                 'center_longitude' in get_request and
                 'center_latitude' in get_request):
             try:
                 g = Geod(ellps='clrk66')
-                top = g.fwd(get_request['center_longitude'],
-                            get_request['center_latitude'],
-                            0,
-                            get_request['distance'])
-                right = g.fwd(get_request['center_longitude'],
-                              get_request['center_latitude'],
-                              90,
-                              get_request['distance'])
-                bottom = g.fwd(get_request['center_longitude'],
-                               get_request['center_latitude'],
-                               180,
-                               get_request['distance'])
-                left = g.fwd(get_request['center_longitude'], get_request[
-                             'center_latitude'], 270, get_request['distance'])
-
+                lon = get_request['center_longitude']
+                lat = get_request['center_latitude']
+                dist = get_request['distance']
+                # Get coordinates above/right/below/left our location
+                top = g.fwd(lon, lat, 0, dist)
+                right = g.fwd(lon, lat, 90, dist)
+                bottom = g.fwd(lon, lat, 180, dist)
+                left = g.fwd(lon, lat, 270, dist)
+                # Get relevant lat or long from these points
                 top_limit = "%.8f" % top[1]
                 bottom_limit = "%.8f" % bottom[1]
                 left_limit = "%.8f" % left[0]
                 right_limit = "%.8f" % right[0]
 
-                distance_query = query.filter(longitude__gte=left_limit)
-
-                distance_query = distance_query.filter(
-                    longitude__lte=right_limit)
-                distance_query = distance_query.filter(
-                    latitude__gte=bottom_limit)
-                distance_query = distance_query.filter(latitude__lte=top_limit)
+                distance_query = query.filter(longitude__gte=left_limit,
+                                              longitude__lte=right_limit,
+                                              latitude__gte=bottom_limit,
+                                              latitude__lte=top_limit)
                 has_valid_search_param = True
 
-                if (len(distance_query) > 0 or
-                        'expand_radius' not in get_request):
+                if distance_query or 'expand_radius' not in get_request:
                     query = distance_query
                 else:
                     # If we're querying everything, let's make sure we only

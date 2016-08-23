@@ -128,5 +128,5 @@ def uw_validate_has_extended_info(sender, **kwargs):
     some extended info.
     """
     spot = kwargs['spot']
-    if SpotExtendedInfo.objects.filter(spot=spot).count() <= 0:
+    if spot.spotextendedinfo_set.count() <= 0:
         raise forms.ValidationError("UWSpot must have extended info")

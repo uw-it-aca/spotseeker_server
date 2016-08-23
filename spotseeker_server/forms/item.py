@@ -15,55 +15,14 @@
 """
 from spotseeker_server.default_forms.item import \
     DefaultItemForm, DefaultItemExtendedInfoForm
-from django.utils.importlib import import_module
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+from spotseeker_server.load_module import ModuleObjectLoader
 
 
-class SpotExtendedInfoForm(object):
-    @staticmethod
-    def implementation():
-        if hasattr(settings, 'SPOTSEEKER_ITEMEXTENDEDINFO_FORM'):
-            # This is all taken from django's static file finder
-            module, attr = \
-                settings.SPOTSEEKER_ITEMEXTENDEDINFO_FORM.rsplit('.', 1)
-            try:
-                mod = import_module(module)
-            except ImportError, e:
-                raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                           (module, e))
-            try:
-                SpotExtendedInfoForm = getattr(mod, attr)
-            except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define '
-                                           'a "%s" class.' % (module, attr))
-            return SpotExtendedInfoForm
-        else:
-            return DefaultSpotExtendedInfoForm
-
-    def __new__(*args, **kwargs):
-        return ItemExtendedInfoForm.implementation()(args[1], **kwargs)
+class ItemExtendedInfoForm(ModuleObjectLoader):
+    setting_name = 'SPOTSEEKER_ITEMEXTENDEDINFO_FORM'
+    default = DefaultItemExtendedInfoForm
 
 
-class ItemForm(object):
-    @staticmethod
-    def implementation():
-        if hasattr(settings, 'SPOTSEEKER_ITEM_FORM'):
-            # This is all taken from django's static file finder
-            module, attr = settings.SPOTSEEKER_ITEM_FORM.rsplit('.', 1)
-            try:
-                mod = import_module(module)
-            except ImportError, e:
-                raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                           (module, e))
-            try:
-                ItemForm = getattr(mod, attr)
-            except AttributeError:
-                raise ImproperlyConfigured('Module "%s" does not define '
-                                           'a "%s" class.' % (module, attr))
-            return ItemsForm
-        else:
-            return DefaultItemForm
-
-    def __new__(*args, **kwargs):
-        return ItemForm.implementation()(args[1], **kwargs)
+class ItemForm(ModuleObjectLoader):
+    setting_name = 'SPOTSEEKER_ITEM_FORM'
+    default = DefaultItemForm

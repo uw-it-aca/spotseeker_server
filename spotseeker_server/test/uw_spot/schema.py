@@ -50,17 +50,15 @@ class UWSpotSchemaTest(TestCase):
         schema = json.loads(response.content)
         extended_info = schema["extended_info"]
 
-        self.assertEquals(extended_info["noise_level"], [
-                          "silent", "quiet", "moderate", "variable"],
+        self.assertEquals(extended_info["noise_level"],
+                          ["silent", "quiet", "moderate", "variable"],
                           "Schema ExtendedInfo matches actual ExtendedInfo")
-        self.assertEquals(extended_info["has_computers"], [
-                          "true"],
+        self.assertEquals(extended_info["has_computers"],
+                          ["true"],
                           "Schema ExtendedInfo matches actual ExtendedInfo")
-        self.assertEquals(extended_info[
-                          "orientation"],
+        self.assertEquals(extended_info["orientation"],
                           "unicode",
                           "Schema ExtendedInfo matches actual ExtendedInfo")
-        self.assertEquals(extended_info[
-                          "num_computers"],
+        self.assertEquals(extended_info["num_computers"],
                           "int",
                           "Schema ExtendedInfo matches actual ExtendedInfo")

@@ -67,19 +67,9 @@ class SearchView(RESTDispatch):
     def get_days_in_range(self, start_day, until_day):
         day_lookup = ["su", "m", "t", "w", "th", "f",
                       "sa", "su", "m", "t", "w", "th", "f", "sa"]
-        matched_days = []
-        add_days = False
-
-        for day in day_lookup:
-            if day == start_day:
-                add_days = True
-            if add_days:
-                matched_days.append(day)
-
-            if day == until_day and add_days is True:
-                return matched_days
-
-        return []
+        starting = day_lookup[day_lookup.index(start_day):]
+        matched_days = starting[:starting.index(until_day)+1]
+        return matched_days
 
     def filter_on_request(self, get_request, chain, request_meta, api):
         form = SpotSearchForm(get_request)
@@ -88,7 +78,7 @@ class SearchView(RESTDispatch):
         if not form.is_valid():
             return []
 
-        if len(get_request) == 0:
+        if not get_request:
             # This is here to continue to allow the building api to request all
             # the buildings in the server.
             if api == 'buildings':
@@ -478,23 +468,15 @@ class SearchView(RESTDispatch):
         # Do this when spot api because building api is not required
         # to pass these parameters
         if limit > 0 and limit < len(query) and api == 'spot':
-            sorted_list = list(query)
             try:
-                sorted_list.sort(lambda x, y:
-                                 cmp(self.distance(x,
-                                                   get_request[
-                                                       'center_longitude'],
-                                                   get_request[
-                                                       'center_latitude']),
-                                     self.distance(y,
-                                                   get_request[
-                                                       'center_longitude'],
-                                                   get_request[
-                                                       'center_latitude'])))
-                query = sorted_list[:limit]
+                lat = get_request['center_latitude']
+                lon = get_request['center_longitude']
             except KeyError:
                 raise RESTException(
                     "missing required parameters for this type of search", 400)
+            sortfunc = lambda x: self.distance(x, lon, lat)
+            sorted_list = sorted(query, key=sortfunc)
+            query = sorted_list[:limit]
 
         spots = set(query)
         spots = chain.filter_results(spots)

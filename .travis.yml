@@ -15,6 +15,6 @@ before_script:
 # command to run tests
 script:
     - pep8 spotseeker_server/ --exclude=migrations
-    - coverage run --source=spotseeker_server/ --omit=spotseeker_server/migrations/*,admin.py,create_sample_spots.py manage.py test spotseeker_server
+    - coverage run --source=spotseeker_server/ --omit=spotseeker_server/migrations/*,spotseeker_server/admin.py manage.py test spotseeker_server
 after_script:
     - coveralls

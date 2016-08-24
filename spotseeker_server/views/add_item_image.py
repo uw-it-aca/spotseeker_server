@@ -18,7 +18,7 @@
     sbutler1@illinois.edu: adapt to a simplier RESTDispatch framework.
 """
 
-from Itemseeker_server.views.rest_dispatch import RESTDispatch, RESTException
+from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import ItemImage, Item
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *

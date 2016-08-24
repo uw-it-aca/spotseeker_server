@@ -18,7 +18,7 @@ from django.test.utils import override_settings
 from mock import patch
 from os.path import abspath, dirname
 from spotseeker_server import models
-from spotseeker_server.models import Item
+from spotseeker_server.models import Item, Spot
 import json
 import random
 import shutil
@@ -35,8 +35,12 @@ class ItemImagePOSTTest(TestCase):
 
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()
-        item = Item.objects.create(name="This is to test adding images")
+
+        spot = Spot.objects.create(name="Test spot for retrieval")
+        item = Item.objects.create(name="This is to test adding images",
+                                   spot=spot)
         item.save()
+        self.spot = spot
         self.item = item
 
         self.url = '/api/v1/item/{0}/image'.format(self.item.pk)
@@ -99,8 +103,9 @@ class ItemImagePOSTTest(TestCase):
 
                 self.assertEquals(response.status_code, 201)
 
-                response = c.get(self.item.rest_url())
+                response = c.get(self.spot.rest_url())
                 item_dict = json.loads(response.content)
+                item_dict = item_dict['items'][0]
                 self.assertEquals(item_dict['images'].__len__(),
                                   1,
                                   "Item has only 1 ItemImage")
@@ -128,8 +133,9 @@ class ItemImagePOSTTest(TestCase):
                 f.close()
                 self.assertEquals(response.status_code, 201)
 
-                response = c.get(self.item.rest_url())
+                response = c.get(self.spot.rest_url())
                 item_dict = json.loads(response.content)
+                item_dict = item_dict['items'][0]
                 self.assertEquals(item_dict['images'].__len__(),
                                   2,
                                   "Item has 2 ItemImages")

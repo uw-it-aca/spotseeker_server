@@ -15,6 +15,8 @@ class Migration(SchemaMigration):
             ('display_index', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
             ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
             ('item', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Item'])),
+            ('width', self.gf('django.db.models.fields.IntegerField')()),
+            ('height', self.gf('django.db.models.fields.IntegerField')()),
             ('content_type', self.gf('django.db.models.fields.CharField')(max_length=40)),
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('upload_user', self.gf('django.db.models.fields.CharField')(max_length=40)),
@@ -104,11 +106,13 @@ class Migration(SchemaMigration):
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
             'display_index': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'height': ('django.db.models.fields.IntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
             'item': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Item']"}),
             'upload_application': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'upload_user': ('django.db.models.fields.CharField', [], {'max_length': '40'})
+            'upload_user': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
+            'width': ('django.db.models.fields.IntegerField', [], {})
         },
         'spotseeker_server.sharedspace': {
             'Meta': {'object_name': 'SharedSpace'},

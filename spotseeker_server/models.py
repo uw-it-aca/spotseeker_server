@@ -470,12 +470,18 @@ class Item(models.Model):
         for i in self.itemextendedinfo_set.all():
             extended[i.key] = i.value
 
+        images = []
+
+        for image in self.itemimage_set.all():
+            images.append(image.json_data_structure())
+
         data = {
             'id': self.pk,
             'name': self.name,
             'category': self.item_category,
             'subcategory': self.item_subcategory,
-            'extended_info': extended
+            'extended_info': extended,
+            'images': images
         }
 
         return data
@@ -502,6 +508,8 @@ class ItemImage(models.Model):
     display_index = models.PositiveIntegerField(null=True, blank=True)
     image = models.ImageField(upload_to="item_images")
     item = models.ForeignKey(Item)
+    width = models.IntegerField()
+    height = models.IntegerField()
     content_type = models.CharField(max_length=40)
     creation_date = models.DateTimeField(auto_now_add=True)
     upload_user = models.CharField(max_length=40)
@@ -522,7 +530,7 @@ class ItemImage(models.Model):
             "upload_user": self.upload_user,
             "upload_application": self.upload_application,
             "thumbnail_root": reverse('item-image-thumb',
-                                      kwargs={'item': self.item.pk,
+                                      kwargs={'item_id': self.item.pk,
                                               'image_id': self.pk}
                                       ).rstrip('/'),
             "description": self.description,

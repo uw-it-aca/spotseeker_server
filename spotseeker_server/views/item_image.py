@@ -45,7 +45,6 @@ class ItemImageView(RESTDispatch):
                                 404)
 
         response = HttpResponse(FileWrapper(img.image))
-        response["ETag"] = img.etag
 
         # 7 day timeout?
         response['Expires'] = http_date(time.time() + 60 * 60 * 24 * 7)

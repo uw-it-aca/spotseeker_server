@@ -485,3 +485,73 @@ class ItemExtendedInfo(models.Model):
     item = models.ForeignKey(Item, blank=True, null=True)
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
+
+
+class ItemImage(models.Model):
+    """ An image of a Item. Multiple images can be associated with a Item,
+    and Item objects have a 'Item.itemimage_set' method that will return
+    all ItemImage objects for the Item.
+    """
+    CONTENT_TYPES = {
+        "JPEG": "image/jpeg",
+        "GIF": "image/gif",
+        "PNG": "image/png",
+    }
+
+    description = models.CharField(max_length=200, blank=True)
+    display_index = models.PositiveIntegerField(null=True, blank=True)
+    image = models.ImageField(upload_to="item_images")
+    item = models.ForeignKey(Item)
+    content_type = models.CharField(max_length=40)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    upload_user = models.CharField(max_length=40)
+    upload_application = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        if self.description:
+            return "%s" % self.description
+        else:
+            return "%s" % self.image.name
+
+    def json_data_structure(self):
+        return {
+            "id": self.pk,
+            "url": self.rest_url(),
+            "content-type": self.content_type,
+            "creation_date": self.creation_date.isoformat(),
+            "upload_user": self.upload_user,
+            "upload_application": self.upload_application,
+            "thumbnail_root": reverse('item-image-thumb',
+                                      kwargs={'item': self.item.pk,
+                                              'image_id': self.pk}
+                                      ).rstrip('/'),
+            "description": self.description,
+            "display_index": self.display_index
+        }
+
+    def save(self, *args, **kwargs):
+        try:
+            if (isinstance(self.image, UploadedFile) and
+                    self.image.file.multiple_chunks()):
+                img = Image.open(self.image.file.temporary_file_path())
+            else:
+                img = Image.open(self.image)
+        except:
+            raise ValidationError('Not a valid image format')
+
+        if img.format not in ItemImage.CONTENT_TYPES:
+            raise ValidationError('Not an accepted image format')
+
+        self.content_type = ItemImage.CONTENT_TYPES[img.format]
+        self.width, self.height = img.size
+
+        super(ItemImage, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.image.delete(save=False)
+        super(ItemImage, self).delete(*args, **kwargs)
+
+    def rest_url(self):
+        return reverse('item-image',
+                       kwargs={'item_id': self.item.pk,
+                               'image_id': self.pk})

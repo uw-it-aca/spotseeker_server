@@ -27,6 +27,7 @@ from django.http import HttpResponse
 from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 import spotseeker_server.auth.all_ok
+from spotseeker_server.load_module import load_module_by_name
 
 from functools import wraps
 
@@ -38,11 +39,7 @@ def get_auth_module():
         mod_name = settings.SPOTSEEKER_AUTH_MODULE
     except NameError:
         return spotseeker_server.auth.all_ok
-    try:
-        return import_module(mod_name)
-    except ImportError as e:
-        raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                   (mod_name, e))
+    return load_module_by_name(mod_name)
 
 
 def get_auth_method(method_name):

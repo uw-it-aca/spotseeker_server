@@ -46,6 +46,7 @@ from spotseeker_server.test.search.distance_fields import \
     SpotSearchDistanceFieldTest
 from spotseeker_server.test.search.view_methods import \
     SpotSearchViewMethodsTest
+from spotseeker_server.test.search.noise_level import NoiseLevelTestCase
 from spotseeker_server.test.search.time import SpotSearchTimeTest
 from spotseeker_server.test.hours.model import SpotHoursModelTest
 from spotseeker_server.test.hours.get import SpotHoursGETTest

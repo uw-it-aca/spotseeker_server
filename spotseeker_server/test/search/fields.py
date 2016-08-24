@@ -13,7 +13,7 @@
     limitations under the License.
 """
 
-from django.test import TestCase
+from spotseeker_server.test import SpotServerTestCase
 from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotExtendedInfo, SpotType
@@ -24,209 +24,113 @@ from spotseeker_server import models
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-class SpotSearchFieldTest(TestCase):
+class SpotSearchFieldTest(SpotServerTestCase):
 
-    def setUp(self):
-        self.spot1 = Spot.objects.create(name="This is a \
-                                    searchable Name - OUGL")
-        self.spot1.save()
+    @classmethod
+    def setUpClass(self):
+        # .new_spot() is from spotseeker_server.test.SpotServerTestCase
+        # (__init__.py)
+        self.spot1 = self.new_spot('This is a searchable Name - OUGL')
 
-        self.spot2 = Spot.objects.create(name="This OUGL \
-                                    is an alternative spot")
-        self.spot2.save()
+        self.spot2 = self.new_spot('This OUGL is an alternative spot')
 
-        self.spot3 = Spot.objects.create(name="3rd spot")
-        self.spot3.save()
+        self.spot3 = self.new_spot('3rd spot')
 
-        self.spot4 = Spot.objects.create(name="OUGL  - 3rd spot in the site")
-        self.spot4.save()
+        self.spot4 = self.new_spot('OUGL - 3rd spot in the site')
 
-        self.spot5 = Spot.objects.create(name="Has whiteboards")
-        attr = SpotExtendedInfo(key="has_whiteboards",
-                                value=True, spot=self.spot5)
-        attr.save()
-        self.spot5.save()
+        self.spot5 = self.new_spot('Has whiteboards')
+        self.add_ei_to_spot(self.spot5, has_whiteboards=True)
 
-        self.spot6 = Spot.objects.create(name="Has no whiteboards")
-        attr = SpotExtendedInfo(key="has_whiteboards",
-                                value=False, spot=self.spot6)
-        attr.save()
-        self.spot6.save()
+        self.spot6 = self.new_spot('Has no whiteboards')
+        self.add_ei_to_spot(self.spot6, has_whiteboards=False)
 
-        self.spot7 = Spot.objects.create(
-            name="Text search for the title - Odegaard Undergraduate \
-            Library and Learning Commons"
-        )
-        attr = SpotExtendedInfo(key="has_whiteboards",
-                                value=True, spot=self.spot7)
-        attr.save()
-        self.spot7.save()
+        self.spot7 = self.new_spot(
+            'Text search for the title - Odegaard '
+            'Undergraduate Library and Learning Commons')
+        self.add_ei_to_spot(self.spot7, has_whiteboards=True)
 
-        self.natural = Spot.objects.create(name="Has field value: natural")
-        attr = SpotExtendedInfo(key="lightingmultifieldtest",
-                                value="natural", spot=self.natural)
-        attr.save()
-        self.natural.save()
+        self.natural = self.new_spot('Has field value: natural')
+        self.add_ei_to_spot(self.natural, lightingmultifieldtest='natural')
 
-        self.artificial = Spot.objects.create(
-            name="Has field value: artificial")
-        attr = SpotExtendedInfo(key="lightingmultifieldtest",
-                                value="artificial", spot=self.artificial)
-        attr.save()
-        self.artificial.save()
+        self.artificial = self.new_spot('Has field value: artificial')
+        self.add_ei_to_spot(self.artificial,
+                            lightingmultifieldtest='artificial')
 
-        self.other = Spot.objects.create(name="Has field value: other")
-        attr = SpotExtendedInfo(key="lightingmultifieldtest",
-                                value="other", spot=self.other)
-        attr.save()
-        self.other.save()
+        self.other = self.new_spot('Has field value: other')
+        self.add_ei_to_spot(self.other, lightingmultifieldtest='other')
 
-        self.darkness = Spot.objects.create(name="Has field value: darkness")
-        self.darkness.save()
+        # It doesn't actually have a field value
+        self.darkness = self.new_spot('Has field value: darkness')
+                            
 
-        self.american_food_spot = Spot.objects.create(name='American Food')
-        ei1 = SpotExtendedInfo.objects.create(key='s_cuisine_american',
-                                              value='true',
-                                              spot=self.american_food_spot)
-        ei1.save()
-        at1 = SpotExtendedInfo.objects.create(key='app_type',
-                                              value='food',
-                                              spot=self.american_food_spot)
-        at1.save()
-        attr = SpotExtendedInfo.objects.create(key='s_payment_husky',
-                                               value='true',
-                                               spot=self.american_food_spot)
-        attr.save()
-        self.american_food_spot.save()
+        self.american_food_spot = self.new_spot('American Food')
+        self.add_ei_to_spot(self.american_food_spot,
+                            s_cuisine_american='true',
+                            app_type='food',
+                            s_payment_husky='true')
 
-        self.bbq_food_spot = Spot.objects.create(name='BBQ')
-        ei2 = SpotExtendedInfo.objects.create(key='s_cuisine_bbq',
-                                              value='true',
-                                              spot=self.bbq_food_spot)
-        ei2.save()
-        attr = SpotExtendedInfo.objects.create(key='s_payment_cash',
-                                               value='true',
-                                               spot=self.bbq_food_spot)
-        attr.save()
-        at2 = SpotExtendedInfo.objects.create(key='app_type',
-                                              value='food',
-                                              spot=self.bbq_food_spot)
-        at2.save()
-        self.bbq_food_spot.save()
+        self.bbq_food_spot = self.new_spot('BBQ')
+        self.add_ei_to_spot(self.bbq_food_spot,
+                            s_cuisine_bbq='true',
+                            s_payment_cash='true',
+                            app_type='food')
 
-        self.food_court_spot = Spot.objects.create(name='Food Court')
-        ei3 = SpotExtendedInfo.objects.create(key='s_cuisine_american',
-                                              value='true',
-                                              spot=self.food_court_spot)
-        ei3.save()
-        ei4 = SpotExtendedInfo.objects.create(key='s_cuisine_bbq',
-                                              value='true',
-                                              spot=self.food_court_spot)
-        ei4.save()
-        at3 = SpotExtendedInfo.objects.create(key='app_type',
-                                              value='food',
-                                              spot=self.food_court_spot)
-        at3.save()
-        attr = SpotExtendedInfo.objects.create(key='s_payment_husky',
-                                               value='true',
-                                               spot=self.food_court_spot)
-        attr.save()
-        attr = SpotExtendedInfo.objects.create(key='s_payment_cash',
-                                               value='true',
-                                               spot=self.food_court_spot)
-        attr.save()
-        self.food_court_spot.save()
+        self.food_court_spot = self.new_spot('Food Court')
+        self.add_ei_to_spot(self.food_court_spot,
+                            s_cuisine_american='true',
+                            s_cuisine_bbq='true',
+                            app_type='food',
+                            s_payment_husky='true',
+                            s_payment_cash='true')
 
-        self.chinese_food_spot = Spot.objects.create(name='Chinese Food')
-        ei5 = SpotExtendedInfo.objects.create(key='s_cuisine_chinese',
-                                              value='true',
-                                              spot=self.chinese_food_spot)
-        ei5.save()
-        at4 = SpotExtendedInfo.objects.create(key='app_type',
-                                              value='food',
-                                              spot=self.chinese_food_spot)
-        at4.save()
-        att = SpotExtendedInfo.objects.create(key='s_payment_cash',
-                                              value='true',
-                                              spot=self.chinese_food_spot)
-        attr.save()
-        self.chinese_food_spot.save()
+        self.chinese_food_spot = self.new_spot('Chinese Food')
+        self.add_ei_to_spot(self.chinese_food_spot,
+                            s_cuisine_chinese='true',
+                            app_type='food',
+                            s_payment_cash='true')
 
-        self.study_spot = Spot.objects.create(name='Study Here!')
-        ei6 = SpotExtendedInfo.objects.create(key='has_whiteboards',
-                                              value='true',
-                                              spot=self.study_spot)
-        ei6.save()
-        self.study_spot.save()
+        self.study_spot = self.new_spot('Study Here!')
+        self.add_ei_to_spot(self.study_spot,
+                            has_whiteboards='true')
 
         cafe_type = SpotType.objects.get_or_create(name='cafe_testing')[0]
         open_type = SpotType.objects.get_or_create(name='open_testing')[0]
         never_used_type = SpotType.objects.get_or_create(
             name='never_used_testing')[0]
 
-        self.spot8 = Spot.objects.create(name='Spot8 is a Cafe for \
-                                    multi type test')
+        self.spot8 = self.new_spot('Spot8 is a cafe for multi type test')
         self.spot8.spottypes.add(cafe_type)
-        self.spot8.save()
 
-        self.spot9 = Spot.objects.create(name='Spot 9 is an Open space for \
-                                    multi type test')
+        self.spot9 = self.new_spot('Spot 9 is an Open space for multi type '
+                                   'test')
         self.spot9.spottypes.add(open_type)
-        self.spot9.save()
 
-        self.spot10 = Spot.objects.create(name='Spot 10 is an Open cafe for \
-                                    multi type test')
+        self.spot10 = self.new_spot('Spot 10 is an Open cafe for '
+                                    'multi type test')
         self.spot10.spottypes.add(cafe_type)
         self.spot10.spottypes.add(open_type)
-        self.spot10.save()
 
-        self.spot11 = Spot.objects.create(name='Spot 11 should never \
-                                          get returned')
+        self.spot11 = self.new_spot('Spot 11 should never get returned')
         self.spot11.spottypes.add(never_used_type)
-        self.spot11.save()
 
-        self.spot12 = Spot.objects.create(name='Room A403',
-                                          building_name='Building A')
-        self.spot12.save()
+        self.spot12 = self.new_spot('Room A403', building_name='Building A')
 
-        self.spot13 = Spot.objects.create(name='Room A589',
-                                          building_name='Building A')
-        self.spot13.save()
+        self.spot13 = self.new_spot('Room A589', building_name='Building A')
 
-        self.spot14 = Spot.objects.create(name='Room B328',
-                                          building_name='Building B')
-        self.spot14.save()
+        self.spot14 = self.new_spot('Room B328', building_name='Building B')
 
-        self.spot15 = Spot.objects.create(name='Room B943',
-                                          building_name='Building B')
-        self.spot15.save()
+        self.spot15 = self.new_spot('Room B943', building_name='Building B')
 
-        self.spot16 = Spot.objects.create(name='Room C483',
-                                          building_name='Building C')
-        self.spot16.save()
-
-        self.client = Client()
+        self.spot16 = self.new_spot('Room C483', building_name='Building C')
 
     def test_fields(self):
         response = self.client.get("/api/v1/spot", {'name': 'OUGL'})
 
-        spot_ids = {
-            self.spot1.pk: 1,
-            self.spot2.pk: 1,
-            self.spot4.pk: 1,
-        }
-
         self.assertEqual(response.status_code, 200, "Accepts name query")
-        self.assertEqual(response["Content-Type"],
-                         "application/json",
-                         "Has the json header")
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(len(spots), 3, 'Find 3 matches for OUGL')
-
-        for spot in spots:
-            self.assertEqual(spot_ids[spot['id']], 1,
-                             "Includes each spot, uniquely")
-            spot_ids[spot['id']] = 2
+        expected = [self.spot1, self.spot2, self.spot4]
+        self.assertSpotsToJson(expected, spots)
 
         response = self.client.get(
             "/api/v1/spot",
@@ -234,14 +138,11 @@ class SpotSearchFieldTest(TestCase):
         )
         self.assertEqual(response.status_code, 200,
                          "Accepts whiteboards query")
-        self.assertEqual(response["Content-Type"],
-                         "application/json",
-                         "Has the json header")
-        spots = json.loads(response.content)
-        self.assertEqual(len(spots), 2)
 
-        self.assertEqual(spots[0]['id'], self.spot5.pk,
-                         "Finds spot5 w/ a whiteboard")
+        self.assertJsonHeader(response)
+        spots = json.loads(response.content)
+        expected = [self.spot5, self.spot7]
+        self.assertSpotsToJson(expected, spots)
 
         response = self.client.get(
             "/api/v1/spot",
@@ -252,17 +153,10 @@ class SpotSearchFieldTest(TestCase):
             response.status_code,
             200,
             "Accepts whiteboards + name query")
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header")
-        spots = json.loads(response.content)
-        self.assertEqual(len(spots), 1,
-                         'Finds 1 match for whiteboards + odegaard')
+        self.assertJsonHeader(response)
 
-        self.assertEqual(spots[0]['id'],
-                         self.spot7.pk,
-                         "Finds spot7 w/ a whiteboard + odegaard")
+        spots = json.loads(response.content)
+        self.assertSpotsToJson([self.spot7], spots)
 
     def test_only_invalid_field(self):
         """
@@ -286,131 +180,64 @@ class SpotSearchFieldTest(TestCase):
         response = self.client.get("/api/v1/spot", params)
         self.assertEqual(response.status_code, 200)
         spots = json.loads(response.content)
-        found_spot_ids = sorted([spot['id'] for spot in spots])
-        expected_ids = sorted([self.spot1.pk, self.spot2.pk, self.spot4.pk])
-        self.assertEqual(found_spot_ids, expected_ids)
+        expected = [self.spot1, self.spot2, self.spot4]
+        self.assertSpotsToJson(expected, spots)
 
     def test_invalid_extended_info(self):
         response = self.client.get(
             "/api/v1/spot",
             {'extended_info:invalid_field': 'OUGL'})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"],
-                         "application/json",
-                         "Has the json header")
+        self.assertJsonHeader(response)
         self.assertEqual(response.content,
                          '[]',
                          "Should return no matches")
 
     def test_multi_value_field(self):
+        # Natural lighting
         response = self.client.get(
             "/api/v1/spot",
             {'extended_info:lightingmultifieldtest': 'natural'}
         )
-        self.assertEquals(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEquals(
-            len(spots),
-            1,
-            'Finds 1 match for lightingmultifieldtest - natural'
-        )
-        self.assertEquals(
-            spots[0]['id'],
-            self.natural.pk,
-            "Finds natural light spot"
-        )
-
+        self.assertSpotsToJson([self.natural], spots)
+        # Artificial light
         response = self.client.get(
             "/api/v1/spot",
             {'extended_info:lightingmultifieldtest': 'artificial'}
         )
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(
-            len(spots),
-            1,
-            'Finds 1 match for lightingmultifieldtest - artificial'
-        )
-        self.assertEqual(spots[0]['id'],
-                         self.artificial.pk,
-                         "Finds artificial light spot")
-
+        self.assertSpotsToJson([self.artificial], spots)
+        # Other lighting
         response = self.client.get(
             "/api/v1/spot",
             {'extended_info:lightingmultifieldtest': 'other'}
         )
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(
-            len(spots),
-            1,
-            'Finds 1 match for lightingmultifieldtest - other'
-        )
-        self.assertEqual(spots[0]['id'],
-                         self.other.pk,
-                         "Finds other light spot")
-
+        self.assertSpotsToJson([self.other], spots)
+        # Other + natural
         response = self.client.get(
             "/api/v1/spot",
             {'extended_info:lightingmultifieldtest': ('other', 'natural')}
         )
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(
-            len(spots),
-            2,
-            'Finds 2 match for lightingmultifieldtest - other + natural'
-        )
+        self.assertSpotsToJson([self.other, self.natural], spots)
 
-        spot_ids = {
-            self.other.pk: 1,
-            self.natural.pk: 1,
-        }
-
-        for spot in spots:
-            self.assertEqual(
-                spot_ids[spot['id']],
-                1,
-                "Includes each spot, uniquely"
-            )
-            spot_ids[spot['id']] = 2
-
+    def test_spot_by_id(self):
+        """Test getting spots by ID"""
         # For this next test, make sure
         # we're trying to get spots that actually exist.
-        ids = (Spot.objects.all()[0].id,
-               Spot.objects.all()[1].id,
-               Spot.objects.all()[2].id,
-               Spot.objects.all()[3].id,)
+        spot_models = Spot.objects.all()[0:4]
+        ids = [spot.pk for spot in spot_models]
 
         response = self.client.get("/api/v1/spot", {'id': ids})
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(
-            len(spots),
-            4,
-            'Finds 4 matches for searching for 4 ids'
-            )
-        spot_ids[spot['id']] = 2
+        self.assertSpotsToJson(spot_models, spots)
 
     def test_extended_info_or(self):
         """ Tests searches for Spots with
@@ -423,67 +250,31 @@ class SpotSearchFieldTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         spots = json.loads(response.content)
-        self.assertEqual(len(spots), 3)
-        self.assertTrue(
-            self.american_food_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.bbq_food_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.food_court_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.chinese_food_spot.json_data_structure() not in spots
-        )
-        self.assertTrue(
-            self.study_spot.json_data_structure() not in spots
-        )
+        expected = [self.american_food_spot,
+                    self.bbq_food_spot,
+                    self.food_court_spot]
+        self.assertSpotsToJson(expected, spots)
 
     def test_multi_type_spot(self):
         response = self.client.get("/api/v1/spot",
                                    {"type": "cafe_testing"})
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(
-            len(spots),
-            2,
-            'Finds 2 matches for searching for type cafe_test'
-        )
+        self.assertSpotsToJson([self.spot8, self.spot10], spots)
 
         response = self.client.get("/api/v1/spot",
                                    {"type": "open_testing"})
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(
-            len(spots),
-            2,
-            'Finds 2 matches for searching for type open_test'
-        )
+        self.assertSpotsToJson([self.spot9, self.spot10], spots)
 
         response = self.client.get(
             "/api/v1/spot",
             {"type": ["cafe_testing", "open_testing"]}
         )
-        self.assertEqual(
-            response["Content-Type"],
-            "application/json",
-            "Has the json header"
-        )
+        self.assertJsonHeader(response)
         spots = json.loads(response.content)
-        self.assertEqual(
-            len(spots),
-            3,
-            'Finds 3 matches for searching for cafe_test and open_test'
-        )
+        self.assertSpotsToJson([self.spot8, self.spot9, self.spot10], spots)
 
     def test_multi_building_search(self):
         """ Tests to be sure searching for spots in
@@ -493,26 +284,8 @@ class SpotSearchFieldTest(TestCase):
                                    {"building_name": ['Building A',
                                                       'Building B']})
         spots = json.loads(response.content)
-
-        response_ids = []
-        for s in spots:
-            response_ids.append(s['id'])
-
-        self.assertTrue(self.spot12.pk in response_ids,
-                        'Spot 12 is returned')
-        self.assertTrue(self.spot13.pk in response_ids,
-                        'Spot 13 is returned')
-        self.assertTrue(self.spot14.pk in response_ids,
-                        'Spot 14 is returned')
-        self.assertTrue(self.spot15.pk in response_ids,
-                        'Spot 15 is returned')
-        self.assertTrue(self.spot16.pk not in response_ids,
-                        'Spot 16 is not returned')
-        self.assertEqual(
-            len(spots),
-            4,
-            'Finds 4 matches searching for spots in Buildings A and B'
-        )
+        expected = [self.spot12, self.spot13, self.spot14, self.spot15]
+        self.assertSpotsToJson(expected, spots)
 
     def test_extended_info_or_gouping(self):
         """ Tests searches for Spots with
@@ -525,22 +298,10 @@ class SpotSearchFieldTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         spots = json.loads(response.content)
-        self.assertEqual(len(spots), 3)
-        self.assertTrue(
-            self.american_food_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.bbq_food_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.food_court_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.chinese_food_spot.json_data_structure() not in spots
-        )
-        self.assertTrue(
-            self.study_spot.json_data_structure() not in spots
-        )
+        expected = [self.american_food_spot,
+                    self.bbq_food_spot,
+                    self.food_court_spot]
+        self.assertSpotsToJson(expected, spots)
 
     def test_extended_info_or_gouping_many(self):
         """ Tests searches for Spots with
@@ -555,19 +316,7 @@ class SpotSearchFieldTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         spots = json.loads(response.content)
-        self.assertEqual(len(spots), 3)
-        self.assertTrue(
-            self.american_food_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.bbq_food_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.food_court_spot.json_data_structure() in spots
-        )
-        self.assertTrue(
-            self.chinese_food_spot.json_data_structure() not in spots
-        )
-        self.assertTrue(
-            self.study_spot.json_data_structure() not in spots
-        )
+        expected = [self.american_food_spot,
+                    self.bbq_food_spot,
+                    self.food_court_spot]
+        self.assertSpotsToJson(expected, spots)

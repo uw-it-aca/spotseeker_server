@@ -342,7 +342,9 @@ class SearchView(RESTDispatch):
             elif key.startswith('item:'):
                 try:
                     for value in get_request.getlist(key):
-                        if key[5:] == "name":
+                        if key[5:] == "id":
+                            q_obj = Q(item__id=value)
+                        elif key[5:] == "name":
                             q_obj = Q(item__name=value)
                         elif key[5:] == "category":
                             q_obj = Q(item__item_category=value)

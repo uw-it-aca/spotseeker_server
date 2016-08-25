@@ -62,8 +62,6 @@ class ItemImageView(RESTDispatch):
             raise RESTException("Image Item ID doesn't match item id in url",
                                 404)
 
-        self.validate_etag(request, img)
-
         img.delete()
 
         return HttpResponse(status=200)

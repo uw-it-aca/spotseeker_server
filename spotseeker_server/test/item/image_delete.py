@@ -104,7 +104,6 @@ class ItemImageDELETETest(TestCase):
             response = c.delete(test_url)
             self.assertEquals(response.status_code, 404)
 
-    @skipUnless(False, True)
     def test_actual_delete_no_etag(self):
         dummy_cache = cache.get_cache(
             'django.core.cache.backends.dummy.DummyCache')
@@ -113,6 +112,7 @@ class ItemImageDELETETest(TestCase):
 
             # GIF
             response = c.delete(self.gif_url)
+
             self.assertEquals(response.status_code, 200)
 
             response = c.get(self.gif_url)

@@ -301,11 +301,11 @@ def _save_items(sender, **kwargs):
     for item in items_to_delete:
         item.delete()
 
-    # delete item EI not included
-    item_ei_to_delete = stash['items_ei_to_delete']
+    if 'item_ei_to_delete' in stash:
+        item_ei_to_delete = stash['item_ei_to_delete']
 
-    for item in item_ei_to_delete:
-        ei.delete()
+        for ei in item_ei_to_delete:
+            ei.delete()
 
 
 @django.dispatch.receiver(

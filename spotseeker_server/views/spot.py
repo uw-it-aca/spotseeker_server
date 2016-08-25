@@ -301,10 +301,10 @@ def _save_items(sender, **kwargs):
             item.delete()
 
     # delete item EI not included
-    if 'items_ei_to_delete' in stash:
-        item_ei_to_delete = stash['items_ei_to_delete']
+    if 'item_ei_to_delete' in stash:
+        item_ei_to_delete = stash['item_ei_to_delete']
 
-        for item in item_ei_to_delete:
+        for ei in item_ei_to_delete:
             ei.delete()
 
 

@@ -534,7 +534,9 @@ class ItemImage(models.Model):
                                               'image_id': self.pk}
                                       ).rstrip('/'),
             "description": self.description,
-            "display_index": self.display_index
+            "display_index": self.display_index,
+            "width": self.width,
+            "height": self.height
         }
 
     def save(self, *args, **kwargs):

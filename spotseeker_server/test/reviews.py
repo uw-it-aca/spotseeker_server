@@ -16,6 +16,7 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
+from django.contrib.auth.models import User
 from spotseeker_server.models import Spot, SpaceReview
 import json
 
@@ -63,7 +64,7 @@ class ReviewsTest(TestCase):
     def test_publishing(self):
         spot = Spot.objects.create(name="Test Review")
 
-        c = Client()
+        c = self.client
         url = "/api/v1/spot/%s/reviews" % (spot.pk)
 
         json_data = {
@@ -113,6 +114,52 @@ class ReviewsTest(TestCase):
         spot_data = json.loads(response.content)
         self.assertEquals(spot_data["extended_info"]["rating"], "5.0")
         self.assertEquals(spot_data["extended_info"]["review_count"], "1")
+
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=['is_admin'])
+    def test_deletion(self):
+        c = self.client
+        spot = Spot.objects.create(name='Test Review')
+        user = User.objects.create_user('foo', 'a@b.c', 'pass')
+        # Create a published review
+        review = spot.spacereview_set.create(rating=5,
+                                             review='foo',
+                                             is_published=True,
+                                             reviewer=user)
+        rev_url = '/api/v1/reviews/unpublished'
+        spot_reviews_url = '/api/v1/spot/%s/reviews' % spot.pk
+        # Assert the review shows up before we delete it
+        response = c.get(spot_reviews_url)
+        reviews_data = json.loads(response.content)
+        self.assertEquals(len(reviews_data), 1)
+        self.assertEquals(reviews_data[0]['review'], 'foo')
+
+        json_data = {
+            'review_id': review.pk,
+            'review': 'foo',
+            'delete': True,
+            'publish': True
+        }
+        response = c.post(rev_url, json.dumps(json_data),
+                          content_type='application/json',
+                          TESTING_OAUTH_USER='is_admin')
+        self.assertEquals(response.status_code, 200)
+        # Assert that the review no longer shows up for the spot
+        response = c.get(spot_reviews_url)
+        reviews_data = json.loads(response.content)
+        self.assertEquals(len(reviews_data), 0)
+
+    @override_settings(SPOTSEEKER_AUTH_ADMINS=['is_admin'])
+    def test_invalid_json(self):
+        """Test Error handling behavior"""
+        spot = Spot.objects.create(name='Test Review')
+        url = '/api/v1/spot/%s/reviews' % (spot.pk)
+        invalid_json = '{foo bar'
+        response = self.client.post(url,
+                                    invalid_json,
+                                    content_type='application/json',
+                                    TESTING_OAUTH_USER='review')
+        self.assertEquals(response.status_code, 400)
+        self.assertIn('Unable to parse JSON', response.content)
 
     @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_invalid_ratings(self):

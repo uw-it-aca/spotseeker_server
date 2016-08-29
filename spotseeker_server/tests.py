@@ -18,7 +18,7 @@ import spotseeker_server.test.long_message
 
 from spotseeker_server.test.buildings import BuildingTest
 from spotseeker_server.test.models import SpotModelToStringTests
-from spotseeker_server.test.spot_form import SpotFormTest
+from spotseeker_server.test.spot_form import DefaultSpotFormTest
 from spotseeker_server.test.spot_model import SpotModelTest
 from spotseeker_server.test.spot_put import SpotPUTTest
 from spotseeker_server.test.spot_delete import SpotDELETETest
@@ -46,6 +46,7 @@ from spotseeker_server.test.search.distance_fields import \
     SpotSearchDistanceFieldTest
 from spotseeker_server.test.search.view_methods import \
     SpotSearchViewMethodsTest
+from spotseeker_server.test.search.noise_level import NoiseLevelTestCase
 from spotseeker_server.test.search.time import SpotSearchTimeTest
 from spotseeker_server.test.hours.model import SpotHoursModelTest
 from spotseeker_server.test.hours.get import SpotHoursGETTest
@@ -72,4 +73,5 @@ from spotseeker_server.test.uw_spot.uw_search import UWSearchTest
 from spotseeker_server.test.favorites import FavoritesTest
 from spotseeker_server.test.share_space import ShareSpaceTest
 from spotseeker_server.test.reviews import ReviewsTest
+from spotseeker_server.test.item.form import ItemFormsTest
 from spotseeker_server.test.spot_caching import SpotCacheTest

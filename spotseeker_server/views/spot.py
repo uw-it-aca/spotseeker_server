@@ -266,7 +266,9 @@ def _save_items(sender, **kwargs):
     spot = kwargs['spot']
     stash = kwargs['stash']
 
-    if 'new_items' not in stash:
+    if ('new_items' not in stash or 'updated_items' not in stash or
+            'items_to_delete' not in stash or
+            'item_ei_to_delete' not in stash):
         return
 
     new_items = stash['new_items']
@@ -294,18 +296,16 @@ def _save_items(sender, **kwargs):
             item_ei_model.save()
 
     # delete items not included
-    if 'items_to_delete' in stash:
-        items_to_delete = stash['items_to_delete']
+    items_to_delete = stash['items_to_delete']
 
-        for item in items_to_delete:
-            item.delete()
+    for item in items_to_delete:
+        item.delete()
 
     # delete item EI not included
-    if 'items_ei_to_delete' in stash:
-        item_ei_to_delete = stash['items_ei_to_delete']
+    item_ei_to_delete = stash['items_ei_to_delete']
 
-        for item in item_ei_to_delete:
-            ei.delete()
+    for item in item_ei_to_delete:
+        ei.delete()
 
 
 @django.dispatch.receiver(

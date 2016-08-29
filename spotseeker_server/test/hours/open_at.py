@@ -61,11 +61,7 @@ class SpotHoursOpenAtTest(TestCase):
 
         for s in spots:
             if s['id'] == spot.pk:
-                spot_returned = True
-
-        self.assertTrue(
-            not spot_returned,
-            "The spot that is open later is not in the spots open now")
+                self.fail('The spot should not be open yet')
 
         # Test the spot that is open later
         query_time = datetime.time(now + timedelta(hours=2))
@@ -102,8 +98,5 @@ class SpotHoursOpenAtTest(TestCase):
 
         for s in spots:
             if s['id'] == spot.pk:
-                spot_returned = True
-
-        self.assertTrue(
-            not spot_returned,
-            "The spot that closes at search time is not returned.")
+                self.fail('Should not have found a spot that closes'
+                          'exactly the search time')

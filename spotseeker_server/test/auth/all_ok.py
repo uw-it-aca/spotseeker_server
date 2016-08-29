@@ -15,12 +15,9 @@
 
 from django.test import TestCase
 from django.conf import settings
-from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
@@ -38,7 +35,7 @@ class SpotAuthAllOK(TestCase):
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
     def test_get(self):
-        c = Client()
+        c = self.client
         response = c.get(self.url)
         spot_dict = json.loads(response.content)
         returned_spot = Spot.objects.get(pk=spot_dict['id'])
@@ -46,17 +43,13 @@ class SpotAuthAllOK(TestCase):
                           "Returns the correct spot")
 
     @override_settings(
-        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.sp'
-        'ot.DefaultSpotForm'
-    )
-    @override_settings(
-        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
-        'ot.DefaultSpotExtendedInfoForm'
-    )
-    @override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+        SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.'
+        'spot.DefaultSpotForm',
+        SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.'
+        'spot.DefaultSpotExtendedInfoForm',
+        SPOTSEEKER_AUTH_ADMINS=('demo_user',))
     def test_put(self):
-        c = Client()
-
+        c = self.client
         response = c.get(self.url)
         etag = response["ETag"]
 

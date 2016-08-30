@@ -88,7 +88,6 @@ class SpotGETTest(TestCase):
         """
         url = "/api/v1/spot/%s" % self.spot.pk
         response = self.client.get(url)
-        # import pdb; pdb.set_trace()
         self.assertEqual(response["Content-Type"], "application/json")
 
     def test_etag(self):

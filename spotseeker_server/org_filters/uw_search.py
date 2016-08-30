@@ -32,12 +32,15 @@ class Filter(SearchFilter):
         """Filter based on reservable and noise_level."""
 
         if 'extended_info:app_type' not in self.request.GET:
+            self.has_valid_search_param = True
             query = query.exclude(
                 spotextendedinfo__key="app_type"
                 )
 
         if 'extended_info:uwgroup' in self.request.GET:
             groups = self.request.GET.getlist('extended_info:uwgroup')
+            if groups:
+                self.has_valid_search_param = True
             or_q_obj = Q()
             for group in groups:
                 or_q_obj |= Q(spotextendedinfo__key='uwgroup',
@@ -45,52 +48,29 @@ class Filter(SearchFilter):
             query = query.filter(or_q_obj)
 
         if 'extended_info:reservable' in self.request.GET:
+            self.has_valid_search_param = True
             query = query.filter(
                 spotextendedinfo__key="reservable",
                 spotextendedinfo__value__in=['true', 'reservations']
             )
 
         if 'extended_info:noise_level' in self.request.GET:
-            noise_levels = \
+            included_levels = \
                 self.request.GET.getlist("extended_info:noise_level")
+            if included_levels:
+                self.has_valid_search_param = True
 
-            exclude_silent = True
-            exclude_quiet = True
-            exclude_moderate = True
-            exclude_variable = True
+            if 'quiet' in included_levels or 'moderate' in included_levels:
+                included_levels.append('variable')
 
-            for level in noise_levels:
-                if "silent" == level:
-                    exclude_silent = False
-                if "quiet" == level:
-                    exclude_quiet = False
-                    exclude_variable = False
-                if "moderate" == level:
-                    exclude_moderate = False
-                    exclude_variable = False
+            excludes = set(['silent', 'quiet', 'moderate', 'variable'])
+            # excludes = all noise levels - chosen noise levels
+            excludes.difference_update(included_levels)
 
-            if exclude_silent:
+            for exclude in excludes:
                 query = query.exclude(
-                    spotextendedinfo__key="noise_level",
-                    spotextendedinfo__value__iexact="silent"
-                )
-
-            if exclude_quiet:
-                query = query.exclude(
-                    spotextendedinfo__key="noise_level",
-                    spotextendedinfo__value__iexact="quiet"
-                )
-
-            if exclude_moderate:
-                query = query.exclude(
-                    spotextendedinfo__key="noise_level",
-                    spotextendedinfo__value__iexact="moderate"
-                )
-
-            if exclude_variable:
-                query = query.exclude(
-                    spotextendedinfo__key="noise_level",
-                    spotextendedinfo__value__iexact="variable"
+                    spotextendedinfo__key='noise_level',
+                    spotextendedinfo__value__iexact=exclude
                 )
 
         return query

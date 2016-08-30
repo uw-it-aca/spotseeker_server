@@ -35,13 +35,11 @@ from spotseeker_server import models
 
 
 @override_settings(
-    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.DefaultSpotForm'
-)
-@override_settings(
-    SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.sp'
-    'ot.DefaultSpotExtendedInfoForm'
-)
-@override_settings(SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
+    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.'
+    'spot.DefaultSpotForm',
+    SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.'
+    'spot.DefaultSpotExtendedInfoForm',
+    SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
 class SpotAuthOAuthLogger(TestCase):
     def setUp(self):
         spot = Spot.objects.create(name="This is for testing the oauth module",

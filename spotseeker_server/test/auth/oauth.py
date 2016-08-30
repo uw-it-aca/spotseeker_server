@@ -16,7 +16,6 @@
 from django.test import TestCase
 from django.conf import settings
 from django.core.management import call_command
-from django.test.client import Client
 from spotseeker_server.models import Spot, TrustedOAuthClient
 import simplejson as json
 import hashlib
@@ -41,7 +40,7 @@ class SpotAuthOAuth(TestCase):
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
     def test_get_no_oauth(self):
-        c = Client()
+        c = self.client
         response = c.get(self.url)
         self.assertEquals(response.status_code, 401,
                           "No access to GET w/o oauth")
@@ -75,7 +74,7 @@ class SpotAuthOAuth(TestCase):
 
         oauth_header = req.to_header()
 
-        c = Client()
+        c = self.client
         response = c.get(
             self.url,
             HTTP_AUTHORIZATION=oauth_header['Authorization']
@@ -110,7 +109,7 @@ class SpotAuthOAuth(TestCase):
 
         oauth_header = req.to_header()
 
-        c = Client()
+        c = self.client
         response = c.get(self.url,
                          HTTP_AUTHORIZATION=oauth_header['Authorization'])
 
@@ -129,7 +128,7 @@ class SpotAuthOAuth(TestCase):
         'ot.DefaultSpotExtendedInfoForm'
     )
     def test_put_no_oauth(self):
-        c = Client()
+        c = self.client
 
         response = c.get(self.url)
 
@@ -179,7 +178,7 @@ class SpotAuthOAuth(TestCase):
         )
 
         oauth_header = req.to_header()
-        c = Client()
+        c = self.client
 
         response = c.get(
             self.url,
@@ -240,7 +239,7 @@ class SpotAuthOAuth(TestCase):
         )
 
         oauth_header = req.to_header()
-        c = Client()
+        c = self.client
 
         response = c.get(
             self.url,
@@ -304,7 +303,7 @@ class SpotAuthOAuth(TestCase):
         )
 
         oauth_header = req.to_header()
-        c = Client()
+        c = self.client
 
         response = c.get(self.url,
                          HTTP_AUTHORIZATION=oauth_header['Authorization'])
@@ -366,7 +365,7 @@ class SpotAuthOAuth(TestCase):
         )
 
         oauth_header = req.to_header()
-        c = Client()
+        c = self.client
 
         response = c.get(
             self.url,

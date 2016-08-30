@@ -40,19 +40,27 @@ class ModuleObjectLoader(object):
 
         else:
             # Setting was specified. Split into module + attribute name
-            mod_name, attr = setting.rsplit('.', 1)
-            try:
-                # Try import
-                mod = import_module(mod_name)
-            except ImportError as e:
-                raise ImproperlyConfigured('Error importing module %s: "%s"' %
-                                           (mod_name, e))
-            try:
-                # Grab the desired attribute
-                return getattr(mod, attr)
-            except AttributeError:
-                raise ImproperlyConfigured('Module %s does not define %s' %
-                                           (mod_name, attr))
+            return load_object_by_name(setting)
 
     def __new__(cls, *args, **kwargs):
         return cls.implementation()(*args, **kwargs)
+
+
+def load_module_by_name(mod_name):
+    """Load a module by name"""
+    try:
+        return import_module(mod_name)
+    except ImportError as e:
+        raise ImproperlyConfigured('Error importing module %s: "%s"'
+                                   (mod_name, e))
+
+
+def load_object_by_name(object_name):
+    """Load an object from a module by name"""
+    mod_name, attr = object_name.rsplit('.', 1)
+    mod = load_module_by_name(mod_name)
+    try:
+        return getattr(mod, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Module %s does not define %s' %
+                                   (mod_name, attr))

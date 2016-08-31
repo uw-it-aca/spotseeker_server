@@ -594,6 +594,8 @@ class SpotPUTTest(TestCase):
 
         response = self.put_spot(self.url, spot_json)
 
+        spot_json = json.loads(response.content)
+
         self.assertEqual(response.status_code, 200)
 
         del spot_json['items'][0]['extended_info']['make_model']
@@ -604,9 +606,10 @@ class SpotPUTTest(TestCase):
 
         get_response = self.client.get(self.url)
 
-        spot_json = json.loads(get_response.content)
+        updated_spot_json = json.loads(get_response.content)
 
-        self.assertNotIn("make_model", spot_json['items'][0]['extended_info'])
+        self.assertNotIn('make_model', updated_spot_json['items'][0]
+                         ['extended_info'])
 
     def test_update_spot_items(self):
         """

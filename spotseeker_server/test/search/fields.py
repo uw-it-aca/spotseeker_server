@@ -264,15 +264,31 @@ class SpotSearchFieldTest(TestCase):
                          self.spot7.pk,
                          "Finds spot7 w/ a whiteboard + odegaard")
 
-    def test_invalid_field(self):
+    def test_only_invalid_field(self):
+        """
+        Test that specifying ONLY an invalid parameter does not
+        allow the search to proceed, similar to when no parameters
+        are given.
+        """
         response = self.client.get("/api/v1/spot",
                                    {'invalid_field': 'OUGL'})
-        self.assertEqual(response.status_code, 200,
-                         "Accepts an invalid field in query")
-        self.assertEqual(response["Content-Type"],
-                         "application/json", "Has the json header")
-        self.assertEqual(response.content, '[]',
-                         "Should return no matches")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(json.loads(response.content),
+                         {'error': 'missing required parameters for '
+                                   'this type of search'})
+
+    def test_some_invalid_field(self):
+        """
+        Test that specifying an invalid field and a valid field still allows
+        the search to proceed, ignoring the invalid field.
+        """
+        params = {'name': 'OUGL', 'invalid_param': 'foo_bar'}
+        response = self.client.get("/api/v1/spot", params)
+        self.assertEqual(response.status_code, 200)
+        spots = json.loads(response.content)
+        found_spot_ids = sorted([spot['id'] for spot in spots])
+        expected_ids = sorted([self.spot1.pk, self.spot2.pk, self.spot4.pk])
+        self.assertEqual(found_spot_ids, expected_ids)
 
     def test_invalid_extended_info(self):
         response = self.client.get(

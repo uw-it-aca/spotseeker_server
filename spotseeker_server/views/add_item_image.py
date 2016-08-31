@@ -19,20 +19,20 @@
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
-from spotseeker_server.models import SpotImage, Spot
+from spotseeker_server.models import ItemImage, Item
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 from PIL import Image
 
 
-class AddImageView(RESTDispatch):
-    """ Saves a SpotImage for a particular Spot on POST to
-        /api/v1/spot/<spot id>/image.
+class AddItemImageView(RESTDispatch):
+    """ Saves a ItemImage for a particular Item on POST to
+        /api/v1/item/<item id>/image.
     """
     @user_auth_required
     @admin_auth_required
-    def POST(self, request, spot_id):
-        spot = Spot.objects.get(pk=spot_id)
+    def POST(self, request, item_id):
+        item = Item.objects.get(pk=item_id)
 
         if "image" not in request.FILES:
             raise RESTException("No image", 400)
@@ -49,13 +49,13 @@ class AddImageView(RESTDispatch):
             # TODO: is there a better way?
             # get display_indexes for all of the existing images
             # and set the new one to the biggest + 1
-            indices = [img.display_index for img in spot.spotimage_set.all()]
+            indices = [img.display_index for img in item.itemimage_set.all()]
             if indices:
                 args['display_index'] = max(indices) + 1
             else:
                 args['display_index'] = 0
 
-        image = spot.spotimage_set.create(**args)
+        image = item.itemimage_set.create(**args)
 
         response = HttpResponse(status=201)
         response["Location"] = image.rest_url()

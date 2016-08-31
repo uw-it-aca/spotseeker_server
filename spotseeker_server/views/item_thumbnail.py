@@ -21,7 +21,7 @@
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
-from spotseeker_server.models import SpotImage, Spot
+from spotseeker_server.models import ItemImage, Item
 from django.http import HttpResponse
 from django.utils.http import http_date
 from spotseeker_server.require_auth import app_auth_required
@@ -35,17 +35,17 @@ RE_HEIGHT = re.compile(r'height:(\d+)')
 RE_WIDTHxHEIGHT = re.compile(r'^(\d+)x(\d+)$')
 
 
-class ThumbnailView(RESTDispatch):
-    """ Returns 200 with a thumbnail of a SpotImage.
+class ItemThumbnailView(RESTDispatch):
+    """ Returns 200 with a thumbnail of a ItemImage.
     """
     @app_auth_required
-    def GET(self, request, spot_id, image_id,
+    def GET(self, request, item_id, image_id,
             thumb_dimensions=None, constrain=False):
-        img = SpotImage.objects.get(pk=image_id)
-        spot = img.spot
+        img = ItemImage.objects.get(pk=image_id)
+        item = img.item
 
-        if int(spot.pk) != int(spot_id):
-            raise RESTException("Image Spot ID doesn't match spot id in url",
+        if int(item.pk) != int(item_id):
+            raise RESTException("Image Item ID doesn't match item id in url",
                                 404)
 
         if thumb_dimensions is None:

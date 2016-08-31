@@ -42,10 +42,5 @@ class BuildingListView(RESTDispatch):
                                              request.META,
                                              'buildings')
 
-        buildings = []
-        for spot in spots:
-            if spot.building_name not in buildings:
-                buildings.append(spot.building_name)
-
-        buildings.sort()
+        buildings = sorted(set([s.building_name for s in spots]))
         return JSONResponse(buildings)

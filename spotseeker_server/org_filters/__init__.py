@@ -20,6 +20,7 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
+from spotseeker_server.load_module import load_object_by_name
 
 
 class SearchFilter(object):
@@ -82,29 +83,14 @@ class SearchFilterChain(object):
     filters = []
     keys = set()
 
-    @staticmethod
-    def _load_filters():
+    @classmethod
+    def _load_filters(cls):
         """Loads the filters and their modules"""
         if hasattr(settings, 'SPOTSEEKER_SEARCH_FILTERS'):
             for filtername in settings.SPOTSEEKER_SEARCH_FILTERS:
-                modname, attrname = filtername.rsplit('.', 1)
-                try:
-                    mod = import_module(modname)
-                except ImportError, e:
-                    raise ImproperlyConfigured(
-                        'Error importing module %s: "%s"' %
-                        (modname, e)
-                        )
-
-                try:
-                    attr = getattr(mod, attrname)
-                except AttributeError:
-                    raise ImproperlyConfigured(
-                        'Module "%s" does not define "%s".' %
-                        (modname, attrname))
-
-                SearchFilterChain.filters.append(attr)
-                SearchFilterChain.keys.update(attr.keys)
+                filt = load_object_by_name(filtername)
+                cls.filters.append(filt)
+                cls.keys.update(filt.keys)
 
     def __init__(self, request):
         self.request = request

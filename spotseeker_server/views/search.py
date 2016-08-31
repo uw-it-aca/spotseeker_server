@@ -67,19 +67,9 @@ class SearchView(RESTDispatch):
     def get_days_in_range(self, start_day, until_day):
         day_lookup = ["su", "m", "t", "w", "th", "f",
                       "sa", "su", "m", "t", "w", "th", "f", "sa"]
-        matched_days = []
-        add_days = False
-
-        for day in day_lookup:
-            if day == start_day:
-                add_days = True
-            if add_days:
-                matched_days.append(day)
-
-            if day == until_day and add_days is True:
-                return matched_days
-
-        return []
+        starting = day_lookup[day_lookup.index(start_day):]
+        matched_days = starting[:starting.index(until_day)+1]
+        return matched_days
 
     def filter_on_request(self, get_request, chain, request_meta, api):
         form = SpotSearchForm(get_request)
@@ -88,7 +78,7 @@ class SearchView(RESTDispatch):
         if not form.is_valid():
             return []
 
-        if len(get_request) == 0:
+        if not get_request:
             # This is here to continue to allow the building api to request all
             # the buildings in the server.
             if api == 'buildings':
@@ -260,8 +250,8 @@ class SearchView(RESTDispatch):
                                         400)
 
                 or_small_q_obj = Q()
-                for num in range(0, len(starts)):
-                    start_day, start_time = starts[num].split(',')
+                for num, start in enumerate(starts):
+                    start_day, start_time = start.split(',')
                     end_day, end_time = ends[num].split(',')
                     start_day = day_dict[start_day]
                     end_day = day_dict[end_day]
@@ -352,7 +342,9 @@ class SearchView(RESTDispatch):
             elif key.startswith('item:'):
                 try:
                     for value in get_request.getlist(key):
-                        if key[5:] == "name":
+                        if key[5:] == "id":
+                            q_obj = Q(item__id=value)
+                        elif key[5:] == "name":
                             q_obj = Q(item__name=value)
                         elif key[5:] == "category":
                             q_obj = Q(item__item_category=value)
@@ -407,49 +399,34 @@ class SearchView(RESTDispatch):
         if chain.has_valid_search_param:
             has_valid_search_param = True
 
-        limit = 20
-        if 'limit' in get_request:
-            if get_request['limit'] == '0':
-                limit = 0
-            else:
-                limit = int(get_request['limit'])
+        limit = int(get_request.get('limit', 20))
 
         if ('distance' in get_request and
                 'center_longitude' in get_request and
                 'center_latitude' in get_request):
             try:
                 g = Geod(ellps='clrk66')
-                top = g.fwd(get_request['center_longitude'],
-                            get_request['center_latitude'],
-                            0,
-                            get_request['distance'])
-                right = g.fwd(get_request['center_longitude'],
-                              get_request['center_latitude'],
-                              90,
-                              get_request['distance'])
-                bottom = g.fwd(get_request['center_longitude'],
-                               get_request['center_latitude'],
-                               180,
-                               get_request['distance'])
-                left = g.fwd(get_request['center_longitude'], get_request[
-                             'center_latitude'], 270, get_request['distance'])
-
+                lon = get_request['center_longitude']
+                lat = get_request['center_latitude']
+                dist = get_request['distance']
+                # Get coordinates above/right/below/left our location
+                top = g.fwd(lon, lat, 0, dist)
+                right = g.fwd(lon, lat, 90, dist)
+                bottom = g.fwd(lon, lat, 180, dist)
+                left = g.fwd(lon, lat, 270, dist)
+                # Get relevant lat or long from these points
                 top_limit = "%.8f" % top[1]
                 bottom_limit = "%.8f" % bottom[1]
                 left_limit = "%.8f" % left[0]
                 right_limit = "%.8f" % right[0]
 
-                distance_query = query.filter(longitude__gte=left_limit)
-
-                distance_query = distance_query.filter(
-                    longitude__lte=right_limit)
-                distance_query = distance_query.filter(
-                    latitude__gte=bottom_limit)
-                distance_query = distance_query.filter(latitude__lte=top_limit)
+                distance_query = query.filter(longitude__gte=left_limit,
+                                              longitude__lte=right_limit,
+                                              latitude__gte=bottom_limit,
+                                              latitude__lte=top_limit)
                 has_valid_search_param = True
 
-                if (len(distance_query) > 0 or
-                        'expand_radius' not in get_request):
+                if distance_query or 'expand_radius' not in get_request:
                     query = distance_query
                 else:
                     # If we're querying everything, let's make sure we only
@@ -478,23 +455,18 @@ class SearchView(RESTDispatch):
         # Do this when spot api because building api is not required
         # to pass these parameters
         if limit > 0 and limit < len(query) and api == 'spot':
-            sorted_list = list(query)
             try:
-                sorted_list.sort(lambda x, y:
-                                 cmp(self.distance(x,
-                                                   get_request[
-                                                       'center_longitude'],
-                                                   get_request[
-                                                       'center_latitude']),
-                                     self.distance(y,
-                                                   get_request[
-                                                       'center_longitude'],
-                                                   get_request[
-                                                       'center_latitude'])))
-                query = sorted_list[:limit]
+                lat = get_request['center_latitude']
+                lon = get_request['center_longitude']
             except KeyError:
                 raise RESTException(
                     "missing required parameters for this type of search", 400)
+
+            def sortfunc(spot):
+                return self.distance(spot, lon, lat)
+
+            sorted_list = sorted(query, key=sortfunc)
+            query = sorted_list[:limit]
 
         spots = set(query)
         spots = chain.filter_results(spots)

@@ -75,3 +75,7 @@ from spotseeker_server.test.share_space import ShareSpaceTest
 from spotseeker_server.test.reviews import ReviewsTest
 from spotseeker_server.test.item.form import ItemFormsTest
 from spotseeker_server.test.spot_caching import SpotCacheTest
+from spotseeker_server.test.item.image_delete import ItemImageDELETETest
+from spotseeker_server.test.item.image_get import ItemImageGETTest
+from spotseeker_server.test.item.image_post import ItemImagePOSTTest
+from spotseeker_server.test.item.image_thumbnail import ItemImageThumbTest

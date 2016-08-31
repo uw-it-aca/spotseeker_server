@@ -141,6 +141,35 @@ class ItemAdmin(admin.ModelAdmin):
 admin.site.register(Item, ItemAdmin)
 
 
+class ItemImageAdmin(admin.ModelAdmin):
+    """ The admin model for a ItemImage.
+    Content-type, width, height, and ETag are all filled in by the server on
+    ItemImage save.
+    """
+    exclude = ('content_type', 'width', 'height')
+    list_display = ("pk",
+                    "item",
+                    "description",
+                    "content_type")
+    list_filter = ["item"]
+    actions = ['delete_model']
+
+    def get_actions(self, request):
+        actions = super(ItemImageAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def delete_model(self, request, queryset):
+        if type(queryset) == ItemImage:
+            queryset.delete()
+        else:
+            for item_image in queryset.all():
+                item_image.delete()
+    delete_model.short_description = "Delete selected item images"
+
+admin.site.register(ItemImage, ItemImageAdmin)
+
+
 class ItemExtendedInfoAdmin(admin.ModelAdmin):
     """ The admin model for ItemExtendedInfo.
     """

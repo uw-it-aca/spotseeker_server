@@ -66,7 +66,6 @@ class SpotSearchCapacityTest(SpotServerTestCase):
         self.assertSpotsToJson([], spots,
                                "Shouldn't have found any spots")
 
-
         # TODO: move this somewhere else
         response = c.get("/api/v1/spot",
                          {'capacity': '1',

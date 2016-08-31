@@ -61,7 +61,6 @@ class SpotSearchFieldTest(SpotServerTestCase):
 
         # It doesn't actually have a field value
         self.darkness = self.new_spot('Has field value: darkness')
-                            
 
         self.american_food_spot = self.new_spot('American Food')
         self.add_ei_to_spot(self.american_food_spot,

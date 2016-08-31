@@ -29,25 +29,25 @@ class BuildingSearchTest(SpotServerTestCase):
                                    building_name='Building 1')
 
         self.spot1_2 = self.new_spot("Other spot on campus A.",
-                                           building_name="Building 2")
+                                     building_name="Building 2")
 
         self.spot2 = self.new_spot("Spot on campus B.",
-                                         building_name="Building3")
+                                   building_name="Building3")
 
         self.spot3 = self.new_spot("Another Spot on campus B.",
-                                         building_name="Building 4")
+                                   building_name="Building 4")
 
         self.spot4 = self.new_spot("Spot on campus C.",
-                                         building_name="Building 5")
+                                   building_name="Building 5")
 
         self.spot5 = self.new_spot("Here is a spot on campus D.",
-                                         building_name='Building 6')
+                                   building_name='Building 6')
 
         self.spot6 = self.new_spot('Another spot on campus C.',
-                                         building_name='Building 7')
+                                   building_name='Building 7')
 
         self.spot7 = self.new_spot('Another spot on campus D.',
-                                         building_name='Building 8')
+                                   building_name='Building 8')
 
         self.add_ei_to_spot(self.spot1, campus='campus_a', app_type='food')
         self.add_ei_to_spot(self.spot1_2, campus='campus_a')

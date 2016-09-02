@@ -26,6 +26,7 @@ from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.dispatch import spot_post_build
 import simplejson as json
 import re
+import phonenumbers
 
 
 # dict of all of the uw extended info with values that must be validated
@@ -83,7 +84,7 @@ validated_ei = {
     "s_pay_dining": ['true'],
     "s_pay_husky": ['true'],
     "s_pay_mastercard": ['true'],
-    "s_pay_visa": ['true'],
+    "s_pay_visa": ['true']
 }
 
 
@@ -106,7 +107,6 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
 
     def clean(self):
         cleaned_data = super(UWSpotExtendedInfoForm, self).clean()
-
         # Have to check value here since we look at multiple items
         key = self.cleaned_data['key']
         value = self.cleaned_data['value']
@@ -115,6 +115,22 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
             uw_validate(value, key, validated_ei[key])
 
         return cleaned_data
+
+    def clean_value(self):
+        value = self.cleaned_data['value']
+
+        if self.cleaned_data['key'] == 's_phone':
+            try:
+                number = phonenumbers.parse(value, "US")
+                value = phonenumbers.format_number(number,
+                                                   phonenumbers.
+                                                   PhoneNumberFormat.E164)
+                value = value[2:]
+            except Exception as ex:
+                print "wrong!"
+                print str(ex)
+                raise forms.ValidationError("s_phone must be a phone number")
+        return value
 
 
 class UWSpotForm(DefaultSpotForm):

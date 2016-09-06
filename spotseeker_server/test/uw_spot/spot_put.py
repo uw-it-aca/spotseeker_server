@@ -253,6 +253,10 @@ class UWSpotPUTTest(TransactionTestCase):
             '273.211.2495',
             '(293) 284-2848',
             '(204)-203 2848',
+            '13235659898',  # with country code
+            '+1 234 234 2345',
+            #'121-343-5656 (office)',  # Extra stuff
+            'For reservations, call 245-546-3232'
         )
 
         formatted_phone_numbers = (
@@ -262,6 +266,10 @@ class UWSpotPUTTest(TransactionTestCase):
             '2732112495',
             '2932842848',
             '2042032848',
+            '3235659898',
+            '2342342345',
+            #'1213435656',
+            '2455463232',
         )
 
         spot_json = utils_test.get_spot("Test name", 20)
@@ -280,9 +288,55 @@ class UWSpotPUTTest(TransactionTestCase):
 
             response = self.put_spot(self.url, spot_json)
 
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code,
+                             200,
+                             'Good phone number "%s" was rejected' % number)
 
             spot_json = json.loads(response.content)
 
             self.assertEqual(spot_json['extended_info']['s_phone'],
                              formatted_number)
+
+        last_good_number = formatted_number
+
+    def test_phone_numbers_invalid(self):
+
+        good_phone_number = '4252742853'
+
+        bad_phone_numbers = (
+            #'123456789',  # not enough digits
+            #'',  # empty
+            'This is not a phone number',  # letters
+            '23423423423499999999999',  # too many digits
+        )
+
+        spot_json = utils_test.get_spot("Test name", 20)
+        spot_json['extended_info']['test_ei'] = 'ei'
+
+        response = self.put_spot(self.url, spot_json)
+        response_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        spot_json = json.loads(response.content)
+
+        spot_json['extended_info']['s_phone'] = good_phone_number
+        response = self.put_spot(self.url, spot_json)
+        self.assertEqual(response.status_code,
+                         200,
+                         "Test prep failed, couldn't add valid phone #")
+
+        spot_json = json.loads(response.content)
+        self.assertEqual(spot_json['extended_info']['s_phone'],
+                         good_phone_number)
+
+        for number in bad_phone_numbers:
+            spot_json['extended_info']['s_phone'] = number
+            response = self.put_spot(self.url, spot_json)
+            self.assertEqual(response.status_code,
+                             500,
+                             'Bad phone number "%s" was accepted' % number)
+            new_spot_json = json.loads(self.client.get(self.url).content)
+            self.assertEqual(new_spot_json['extended_info']['s_phone'],
+                             good_phone_number,
+                             'Expected phone to not change after PUTing bad '
+                             'number %s' % number)

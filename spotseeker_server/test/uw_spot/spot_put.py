@@ -301,12 +301,12 @@ class UWSpotPUTTest(TransactionTestCase):
         good_phone_number = '4252742853'
 
         bad_phone_numbers = (
-            # '123456789',  # not enough digits
-            # '',  # empty
+            '123456789',    # not enough digits
             'This is not a phone number',  # letters
             '23423423423499999999999',  # too many digits
             '121-343-5656 (office)',  # Extra stuff
             'For reservations, call 245-546-3232',
+            '2942033829'  # Nonexistent area code
         )
 
         spot_json = utils_test.get_spot("Test name", 20)

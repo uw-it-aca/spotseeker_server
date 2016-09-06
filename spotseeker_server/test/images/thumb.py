@@ -13,8 +13,7 @@
     limitations under the License.
 """
 
-from django.test import TestCase
-from django.conf import settings
+from spotseeker_server.test.images import ImageTestCase
 from django.core.files import File
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotImage
@@ -22,490 +21,99 @@ from cStringIO import StringIO
 from PIL import Image
 from os.path import abspath, dirname
 from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
+
 
 TEST_ROOT = abspath(dirname(__file__))
+image_folder = '%s/../resources' % TEST_ROOT
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
-class ImageThumbTest(TestCase):
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+                   SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+class ImageThumbTest(ImageTestCase):
 
     def setUp(self):
         spot = Spot.objects.create(
             name="This is to test thumbnailing images"
         )
-        spot.save()
         self.spot = spot
+        self.url = '/api/v1/spot/%s/image' % spot.pk
 
-        self.url = '/api/v1/spot/{0}/image'.format(self.spot.pk)
-        self.url = self.url
+    def assertContentType(self, response, expected_type):
 
-    def test_jpeg_thumbs(self):
-        c = Client()
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        response = c.post(
-            self.url,
-            {"description": "This is a jpeg", "image": f}
-        )
-        f.close()
-
-        new_base_location = response["Location"]
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
         self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of same size thumbnail is jpeg"
-        )
-        self.assertEquals(im.size[0], 100,
-                          "Width on same size jpeg thumbnail is 100")
-        self.assertEquals(im.size[1], 100,
-                          "Height on same size jpeg thumbnail is 100")
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of same size thumbnail is still a jpeg"
+            response['Content-type'],
+            expected_type,
+            'Got wrong content type for response'
         )
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
+    def test_all_thumbs(self):
+
+        c = self.client
+
+        image_formats = (
+            ('image/jpeg', 'JPEG', '%s/test_jpeg.jpg' % image_folder),
+            ('image/png', 'PNG', '%s/test_png.png' % image_folder),
+            ('image/gif', 'GIF', '%s/test_gif.gif' % image_folder),
         )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of narrow thumbnail is jpeg"
-        )
-        self.assertEquals(im.size[0], 1,
-                          "Width on narrow jpeg thumbnail is 1")
-        self.assertEquals(im.size[1], 100,
-                          "Height on narrow jpeg thumbnail is 100")
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of narrow thumbnail is still a jpeg"
+        # Width/height pairs of dimensions which should return an image with
+        # the original width/height
+        good_dimensions = (
+            (100, 100),
+            (1, 100),
+            (100, 1),
+            (1, 1),
+            (200, 200)
         )
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of short thumbnail is jpeg"
-        )
-        self.assertEquals(
-            im.size[0],
-            100,
-            "Width on short jpeg thumbnail is 100"
-        )
-        self.assertEquals(
-            im.size[1],
-            1,
-            "Height on short jpeg thumbnail is 1"
-        )
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of short thumbnail is still a jpeg"
+        # Bad pairs which should result in 400s
+        # Width, Height, Comment
+        bad_dimensions = (
+            (100, 0, 'missing height'),
+            (0, 100, 'missing width'),
+            (0, 0, 'missing both'),
+            (100, -100, 'negative height'),
+            (-100, 100, 'negative width'),
+            ('a', 100, 'invalid width'),
+            (100, 'a', 'invalid height')
         )
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of 1-pixel thumbnail is jpeg"
-        )
-        self.assertEquals(im.size[0], 1,
-                          "Width on 1-pixel jpeg thumbnail is 1")
-        self.assertEquals(im.size[1], 1,
-                          "Height on 1-pixel jpeg thumbnail is 1")
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of 1-pixel thumbnail is still a jpeg"
-        )
+        for content_type, img_format, image_name in image_formats:
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of 200x200 'thumbnail' is jpeg"
-        )
-        self.assertEquals(
-            im.size[0],
-            200,
-            "Width on 200x200 jpeg 'thumbnail' is 1"
-        )
-        self.assertEquals(
-            im.size[1],
-            200,
-            "Height on 200x200 jpeg 'thumbnail' is 1"
-        )
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of 200x200 jpeg 'thumbnail' is still a jpeg"
-        )
+            response = self.upload_image(
+                image_name, self.url,
+                {'description': 'this is a %s' % img_format})
+            print response.content
+            new_base_location = response["Location"]
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 0)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no height, jpeg")
+            for width, height in good_dimensions:
+                img_url = '%s/thumb/%sx%s' % (new_base_location, width, height)
+                response = c.get(img_url)
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 0, 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no width, jpeg")
+                self.assertEqual(
+                    response.status_code,
+                    200,
+                    'Expected 200 for %sx%s (%s)'
+                    % (width, height, img_format))
+                self.assertContentType(response, content_type)
+                data = StringIO(response.content)
+                im = Image.open(data)
+                self.assertEquals(im.format, img_format,
+                                  'img format did not match')
+                self.assertEquals(im.size[0], width,
+                                  'img width did not match (%s)'
+                                  % img_format)
+                self.assertEquals(im.size[1], height,
+                                  'img height did not match (%s)'
+                                  % img_format)
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 0, 0)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no width or height, jpeg")
+            for width, height, comment in bad_dimensions:
 
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, -100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for negative height, jpeg")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, -100, 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for negative width, jpeg")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, "a", 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for invalid width, jpeg")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, "a")
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for invalid height, jpeg")
-
-    def test_png_thumbs(self):
-        c = Client()
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        response = c.post(
-            self.url,
-            {"description": "This is a png", "image": f}
-        )
-        f.close()
-
-        new_base_location = response["Location"]
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of same size thumbnail is png"
-        )
-        self.assertEquals(im.size[0], 100,
-                          "Width on same size png thumbnail is 100")
-        self.assertEquals(im.size[1], 100,
-                          "Height on same size png thumbnail is 100")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of same size thumbnail is still a png"
-        )
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of narrow thumbnail is png"
-        )
-        self.assertEquals(im.size[0], 1,
-                          "Width on narrow png thumbnail is 1")
-        self.assertEquals(im.size[1], 100,
-                          "Height on narrow png thumbnail is 100")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of narrow thumbnail is still a png"
-        )
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of short thumbnail is png"
-        )
-        self.assertEquals(im.size[0], 100,
-                          "Width on short png thumbnail is 100")
-        self.assertEquals(im.size[1], 1,
-                          "Height on short png thumbnail is 1")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of short thumbnail is still a png"
-        )
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of 1-pixel thumbnail is png")
-        self.assertEquals(im.size[0], 1,
-                          "Width on 1-pixel png thumbnail is 1")
-        self.assertEquals(im.size[1], 1,
-                          "Height on 1-pixel png thumbnail is 1")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of 1-pixel thumbnail is still a png"
-        )
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of 200x200 'thumbnail' is png"
-        )
-        self.assertEquals(im.size[0], 200,
-                          "Width on 200x200 png 'thumbnail' is 1")
-        self.assertEquals(im.size[1], 200,
-                          "Height on 200x200 png 'thumbnail' is 1")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of 200x200 png 'thumbnail' is still a png"
-        )
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 0)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no height, png")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 0, 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no width, png")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 0, 0)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no width or height, png")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, -100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for negative height, png")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, -100, 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for negative width, png")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, "a", 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for invalid width, png")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, "a")
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for invalid height, png")
-
-    def test_gif_thumbs(self):
-        c = Client()
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        response = c.post(
-            self.url,
-            {"description": "This is a gif", "image": f}
-        )
-        f.close()
-
-        new_base_location = response["Location"]
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of same size thumbnail is gif"
-        )
-        self.assertEquals(im.size[0], 100,
-                          "Width on same size gif thumbnail is 100")
-        self.assertEquals(im.size[1], 100,
-                          "Height on same size gif thumbnail is 100")
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of same size thumbnail is still a gif"
-        )
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of narrow thumbnail is gif")
-        self.assertEquals(im.size[0], 1,
-                          "Width on narrow gif thumbnail is 1")
-        self.assertEquals(im.size[1], 100,
-                          "Height on narrow gif thumbnail is 100")
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of narrow thumbnail is still a gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of short thumbnail is gif")
-        self.assertEquals(im.size[0], 100,
-                          "Width on short gif thumbnail is 100")
-        self.assertEquals(im.size[1], 1,
-                          "Height on short gif thumbnail is 1")
-        self.assertEquals(im.format, 'GIF',
-                          "Actual type of short thumbnail is still a gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of 1-pixel thumbnail is gif")
-        self.assertEquals(
-            im.size[0],
-            1,
-            "Width on 1-pixel gif thumbnail is 1")
-        self.assertEquals(
-            im.size[1],
-            1,
-            "Height on 1-pixel gif thumbnail is 1")
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of 1-pixel thumbnail is still a gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of 200x200 'thumbnail' is gif")
-        self.assertEquals(im.size[0], 200,
-                          "Width on 200x200 gif 'thumbnail' is 1")
-        self.assertEquals(im.size[1], 200,
-                          "Height on 200x200 gif 'thumbnail' is 1")
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of 200x200 gif 'thumbnail' is still a gif"
-        )
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, 0)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no height, gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 0, 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no width, gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 0, 0)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for no width or height, gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, -100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for negative height, gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, -100, 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for negative width, gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, "a", 100)
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for invalid width, gif")
-
-        response = c.get(
-            "{0}/thumb/{1}x{2}".format(new_base_location, 100, "a")
-        )
-        self.assertEquals(response.status_code, 400,
-                          "400 for invalid height, gif")
+                img_url = '%s/thumb/%sx%s' % (new_base_location, width, height)
+                response = c.get(img_url)
+                self.assertEquals(response.status_code,
+                                  400,
+                                  'Expected 400 for image with width %s and'
+                                  ' height %s (%s)' % (width, height, comment))
 
     def test_invalid_url(self):
         c = Client()
@@ -513,15 +121,13 @@ class ImageThumbTest(TestCase):
 
         spot = Spot.objects.create(name="This is to test getting images")
 
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create(
-            description="This is the GIF test",
-            spot=spot,
-            image=File(f))
-        f.close()
+        with open('%s/../resources/test_gif.gif' % TEST_ROOT) as f:
+            gif = SpotImage.objects.create(
+                description='This is the GIF test',
+                spot=spot,
+                image=File(f))
 
-        url = ("/api/v1/spot/{0}/image/{1}/thu"
-               "mb/10x10".format(bad_spot.pk, gif.pk))
+        url = '/api/v1/spot/%s/image/%s/thumb/10x10' % (bad_spot.pk, gif.pk)
         response = c.get(url)
         self.assertEquals(
             response.status_code,
@@ -529,337 +135,75 @@ class ImageThumbTest(TestCase):
             "Give a 404 for a spot id that doesn't match the image's"
         )
 
-    def test_constrain_jpg(self):
-        c = Client()
-        img_path = "%s/../resources/test_jpeg2.jpg" % TEST_ROOT
-        f = open(img_path)
-        response = c.post(
-            self.url,
-            {"description": "This is a jpg", "image": f}
-        )
-        orig_im = Image.open(img_path)
-        f.close()
+    def assertImageRatio(self, im, ratio):
 
-        new_base_location = response["Location"]
+        im_ratio = float(im.size[0]) / float(im.size[1])
+        self.assertAlmostEqual(im_ratio, ratio, places=1)
 
-        # constrain width to 50
-        response = c.get(
-            "{0}/thumb/constrain/width:{1}".format(new_base_location, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of same size thumbnail is jpg"
-        )
-        self.assertEquals(im.size[0], 50,
-                          "Width on same size jpg thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(ratio, orig_ratio,
-                          "Ratio on constrained jpg thumbnail is the same"
-                          )
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of same size thumbnail is still a jpg"
-        )
-
-        # constrain height to 50
-        response = c.get(
-            "{0}/thumb/constrain/hei"
-            "ght:{1}".format(new_base_location, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of same size thumbnail is jpg"
-        )
-        self.assertEquals(im.size[1], 50,
-                          "Height on same size jpg thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(
-            ratio,
-            orig_ratio,
-            "Ratio on constrained jpg thumbnail is the same"
-        )
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of same size thumbnail is still a jpg"
-        )
-
-        # constrain width to 75, height to 50
-        response = c.get(
-            "{0}/thumb/constrain/width:{1},hei"
-            "ght:{2}".format(new_base_location, 75, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of same size thumbnail is jpg"
-        )
-        self.assertEquals(im.size[1], 50,
-                          "Height on same size jpg thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(ratio, orig_ratio,
-                          "Ratio on constrained jpg thumbnail is the same")
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of same size thumbnail is still a jpg")
-
-        # constrain height to 75, width to 50
-        response = c.get(
-            "{0}/thumb/constrain/height:{1},wid"
-            "th:{2}".format(new_base_location, 75, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/jpeg",
-            "Content type of same size thumbnail is jpg"
-        )
-        self.assertEquals(im.size[1], 75,
-                          "Height on same size jpg thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(ratio, orig_ratio,
-                          "Ratio on constrained jpg thumbnail is the same")
-        self.assertEquals(
-            im.format,
-            'JPEG',
-            "Actual type of same size thumbnail is still a jpg"
-        )
+    def test_constrain_jpeg(self):
+        self._test_aspect_ratio('image/jpeg',
+                                'JPEG',
+                                '%s/test_jpeg2.jpg' % image_folder)
 
     def test_constrain_png(self):
-        c = Client()
-        img_path = "%s/../resources/test_png2.png" % TEST_ROOT
-        f = open(img_path)
-        response = c.post(self.url,
-                          {"description": "This is a png", "image": f})
-        orig_im = Image.open(img_path)
-        f.close()
-
-        new_base_location = response["Location"]
-
-        # constrain width to 50
-        response = c.get(
-            "{0}/thumb/constrain/width:{1}".format(new_base_location, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of same size thumbnail is png"
-        )
-        self.assertEquals(im.size[0], 50,
-                          "Width on same size png thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(ratio, orig_ratio,
-                          "Ratio on constrained png thumbnail is the same")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of same size thumbnail is still a png"
-        )
-
-        # constrain height to 50
-        response = c.get(
-            "{0}/thumb/constrain/hei"
-            "ght:{1}".format(new_base_location, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of same size thumbnail is png"
-        )
-        self.assertEquals(im.size[1], 50,
-                          "Height on same size png thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(ratio, orig_ratio,
-                          "Ratio on constrained png thumbnail is the same")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of same size thumbnail is still a png"
-        )
-
-        # constrain width to 75, height to 50
-        response = c.get(
-            "{0}/thumb/constrain/width:{1},hei"
-            "ght:{2}".format(new_base_location, 75, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(response["Content-type"], "image/png",
-                          "Content type of same size thumbnail is png")
-        self.assertEquals(im.size[1], 50,
-                          "Height on same size png thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(ratio, orig_ratio,
-                          "Ratio on constrained png thumbnail is the same")
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of same size thumbnail is still a png"
-        )
-
-        # constrain height to 75, width to 50
-        response = c.get(
-            "{0}/thumb/constrain/height:{1},wid"
-            "th:{2}".format(new_base_location, 75, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/png",
-            "Content type of same size thumbnail is png"
-        )
-        self.assertEquals(im.size[1], 75,
-                          "Height on same size png thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(
-            ratio,
-            orig_ratio,
-            "Ratio on constrained png thumbnail is the same"
-        )
-        self.assertEquals(
-            im.format,
-            'PNG',
-            "Actual type of same size thumbnail is still a png"
-        )
+        self._test_aspect_ratio('image/png',
+                                'PNG',
+                                '%s/test_png2.png' % image_folder)
 
     def test_constrain_gif(self):
-        c = Client()
-        img_path = "%s/../resources/test_gif2.gif" % TEST_ROOT
-        f = open(img_path)
-        response = c.post(
+        self._test_aspect_ratio('image/gif',
+                                'GIF',
+                                '%s/test_gif2.gif' % image_folder)
+
+    def _test_aspect_ratio(self, content_type, img_format, img_file):
+
+        c = self.client
+        response = self.upload_image(
+            img_file,
             self.url,
-            {"description": "This is a gif", "image": f}
-        )
-        orig_im = Image.open(img_path)
-        f.close()
+            {'description': 'test %s #2' % img_format})
 
-        new_base_location = response["Location"]
+        orig_im = Image.open(img_file)
+        orig_ratio = float(orig_im.size[0]) / float(orig_im.size[1])
 
-        # constrain width to 50
-        response = c.get(
-            "{0}/thumb/constrain/wid"
-            "th:{1}".format(new_base_location, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of same size thumbnail is gif"
-        )
-        self.assertEquals(im.size[0], 50,
-                          "Width on same size gif thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(
-            ratio,
-            orig_ratio,
-            "Ratio on constrained gif thumbnail is the same"
-        )
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of same size thumbnail is still a gif"
-        )
+        new_base_location = response['Location']
 
-        # constrain height to 50
-        response = c.get(
-            "{0}/thumb/constrain/hei"
-            "ght:{1}".format(new_base_location, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of same size thumbnail is gif"
-        )
-        self.assertEquals(im.size[1], 50,
-                          "Height on same size gif thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(
-            ratio,
-            orig_ratio,
-            "Ratio on constrained gif thumbnail is the same"
-        )
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of same size thumbnail is still a gif"
-        )
+        def get_thumb_constrained(**kwargs):
+            args = ','.join('%s:%s' % x for x in kwargs.items())
+            url = '%s/thumb/constrain/%s' % (new_base_location, args)
+            response = c.get(url)
+            return response
 
-        # constrain width to 75, height to 50
-        response = c.get(
-            "{0}/thumb/constrain/width:{1},hei"
-            "ght:{2}".format(new_base_location, 75, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of same size thumbnail is gif"
-        )
-        self.assertEquals(im.size[1], 50,
-                          "Height on same size gif thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(ratio, orig_ratio,
-                          "Ratio on constrained gif thumbnail is the same")
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of same size thumbnail is still a gif"
-        )
+        # 50 width test
+        response = get_thumb_constrained(width=50)
+        self.assertContentType(response, content_type)
+        im = Image.open(StringIO(response.content))
+        self.assertEquals(im.size[0], 50, '%s Should have been 50 width')
+        self.assertImageRatio(im, orig_ratio)
+        self.assertEquals(im.format, img_format, '%s Format was not the same')
 
-        # constrain height to 75, width to 50
-        response = c.get(
-            "{0}/thumb/constrain/height:{1},wid"
-            "th:{2}".format(new_base_location, 75, 50)
-        )
-        data = StringIO(response.content)
-        im = Image.open(data)
-        self.assertEquals(
-            response["Content-type"],
-            "image/gif",
-            "Content type of same size thumbnail is gif"
-        )
-        self.assertEquals(im.size[1], 75,
-                          "Height on same size gif thumbnail is 50")
-        orig_ratio = orig_im.size[1] / orig_im.size[0]
-        ratio = im.size[1] / im.size[0]
-        self.assertEquals(
-            ratio,
-            orig_ratio,
-            "Ratio on constrained gif thumbnail is the same"
-        )
-        self.assertEquals(
-            im.format,
-            'GIF',
-            "Actual type of same size thumbnail is still a gif"
-        )
+        # 50 height test
+        response = get_thumb_constrained(height=50)
+        self.assertContentType(response, content_type)
+        im = Image.open(StringIO(response.content))
+        self.assertEquals(im.size[1], 50, 'Should have been 50 height')
+        self.assertImageRatio(im, orig_ratio)
+        self.assertEquals(im.format, img_format, 'Format was not the same')
+
+        # 75 width, 50 height
+        # Should result in 50 height
+        response = get_thumb_constrained(width=75, height=50)
+        self.assertContentType(response, content_type)
+        im = Image.open(StringIO(response.content))
+        self.assertEquals(im.size[1], 50, 'Should have been 50 height')
+        self.assertImageRatio(im, orig_ratio)
+        self.assertEquals(im.format, img_format, 'Format was not the same')
+
+        # 50 width, 75 height
+        # Should result in 50 height
+        response = get_thumb_constrained(width=50, height=75)
+        self.assertContentType(response, content_type)
+        im = Image.open(StringIO(response.content))
+        self.assertEquals(im.size[1], 75, 'Should have been 75 height')
+        self.assertImageRatio(im, orig_ratio)
+        self.assertEquals(im.format, img_format, 'Format was not the same')

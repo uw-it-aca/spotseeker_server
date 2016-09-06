@@ -255,8 +255,6 @@ class UWSpotPUTTest(TransactionTestCase):
             '(204)-203 2848',
             '13235659898',  # with country code
             '+1 234 234 2345',
-            # '121-343-5656 (office)',  # Extra stuff
-            'For reservations, call 245-546-3232'
         )
 
         formatted_phone_numbers = (
@@ -268,7 +266,6 @@ class UWSpotPUTTest(TransactionTestCase):
             '2042032848',
             '3235659898',
             '2342342345',
-            # '1213435656',
             '2455463232',
         )
 
@@ -308,6 +305,8 @@ class UWSpotPUTTest(TransactionTestCase):
             # '',  # empty
             'This is not a phone number',  # letters
             '23423423423499999999999',  # too many digits
+            '121-343-5656 (office)',  # Extra stuff
+            'For reservations, call 245-546-3232',
         )
 
         spot_json = utils_test.get_spot("Test name", 20)
@@ -321,6 +320,7 @@ class UWSpotPUTTest(TransactionTestCase):
 
         spot_json['extended_info']['s_phone'] = good_phone_number
         response = self.put_spot(self.url, spot_json)
+
         self.assertEqual(response.status_code,
                          200,
                          "Test prep failed, couldn't add valid phone #")
@@ -333,7 +333,7 @@ class UWSpotPUTTest(TransactionTestCase):
             spot_json['extended_info']['s_phone'] = number
             response = self.put_spot(self.url, spot_json)
             self.assertEqual(response.status_code,
-                             500,
+                             400,
                              'Bad phone number "%s" was accepted' % number)
             new_spot_json = json.loads(self.client.get(self.url).content)
             self.assertEqual(new_spot_json['extended_info']['s_phone'],

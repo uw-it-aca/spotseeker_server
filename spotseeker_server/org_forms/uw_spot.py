@@ -111,26 +111,29 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
         key = self.cleaned_data['key']
         value = self.cleaned_data['value']
 
-        if key in validated_ei:
-            uw_validate(value, key, validated_ei[key])
-
-        return cleaned_data
-
-    def clean_value(self):
-        value = self.cleaned_data['value']
-
         if self.cleaned_data['key'] == 's_phone':
+            p = re.compile('[A-z]')
+            if p.search(value):
+                raise forms.ValidationError("Phone number cannot contin "
+                                            "letters")
+
             try:
                 number = phonenumbers.parse(value, "US")
                 value = phonenumbers.format_number(number,
                                                    phonenumbers.
                                                    PhoneNumberFormat.E164)
-                value = value[2:]
+                cleaned_data['value'] = value[2:]
             except Exception as ex:
-                print "wrong!"
-                print str(ex)
                 raise forms.ValidationError("s_phone must be a phone number")
-        return value
+
+            if (len(cleaned_data['value']) != 10 and
+                    len(cleaned_data['value']) != 11):
+                raise forms.ValidationError("s_phone is an incorrect length!")
+
+        if key in validated_ei:
+            uw_validate(value, key, validated_ei[key])
+
+        return cleaned_data
 
 
 class UWSpotForm(DefaultSpotForm):

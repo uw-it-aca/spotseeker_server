@@ -119,16 +119,17 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
 
             try:
                 number = phonenumbers.parse(value, "US")
+
+                if(not phonenumbers.is_valid_number(number) or not
+                   phonenumbers.is_possible_number(number)):
+                    raise forms.ValidationError("")
+
                 value = phonenumbers.format_number(number,
                                                    phonenumbers.
                                                    PhoneNumberFormat.E164)
                 cleaned_data['value'] = value[2:]
             except Exception as ex:
                 raise forms.ValidationError("s_phone must be a phone number")
-
-            if (len(cleaned_data['value']) != 10 and
-                    len(cleaned_data['value']) != 11):
-                raise forms.ValidationError("s_phone is an incorrect length!")
 
         if key in validated_ei:
             uw_validate(value, key, validated_ei[key])

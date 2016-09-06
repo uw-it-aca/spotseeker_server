@@ -121,7 +121,7 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
                 number = phonenumbers.parse(value, "US")
 
                 if (not phonenumbers.is_valid_number(number) or not
-                    phonenumbers.is_possible_number(number)):
+                        phonenumbers.is_possible_number(number)):
                     raise forms.ValidationError("")
 
                 value = phonenumbers.format_number(number,

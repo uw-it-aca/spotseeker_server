@@ -255,7 +255,7 @@ class UWSpotPUTTest(TransactionTestCase):
             '(204)-203 2848',
             '13235659898',  # with country code
             '+1 234 234 2345',
-            #'121-343-5656 (office)',  # Extra stuff
+            # '121-343-5656 (office)',  # Extra stuff
             'For reservations, call 245-546-3232'
         )
 
@@ -268,7 +268,7 @@ class UWSpotPUTTest(TransactionTestCase):
             '2042032848',
             '3235659898',
             '2342342345',
-            #'1213435656',
+            # '1213435656',
             '2455463232',
         )
 
@@ -304,8 +304,8 @@ class UWSpotPUTTest(TransactionTestCase):
         good_phone_number = '4252742853'
 
         bad_phone_numbers = (
-            #'123456789',  # not enough digits
-            #'',  # empty
+            # '123456789',  # not enough digits
+            # '',  # empty
             'This is not a phone number',  # letters
             '23423423423499999999999',  # too many digits
         )

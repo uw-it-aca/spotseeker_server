@@ -464,6 +464,9 @@ class Item(models.Model):
     item_category = models.CharField(max_length=50, null=True)
     item_subcategory = models.CharField(max_length=50, null=True)
 
+    def __unicode__(self):
+        return self.name
+
     def json_data_structure(self):
         extended = {}
 
@@ -491,6 +494,10 @@ class ItemExtendedInfo(models.Model):
     item = models.ForeignKey(Item, blank=True, null=True)
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
+
+    class Meta:
+        verbose_name_plural = "Item extended info"
+        unique_together = ('item', 'key')
 
 
 class ItemImage(models.Model):

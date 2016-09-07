@@ -19,7 +19,6 @@
 """
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.importlib import import_module
 from spotseeker_server.load_module import load_object_by_name
 
 

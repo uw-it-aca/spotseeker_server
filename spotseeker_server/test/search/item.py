@@ -243,12 +243,10 @@ class SpotSearchItemTest(TestCase):
         cases = {"10": "0", "UW": "0"}
         self.item_ei_common(field, cases)
 
-    def test_multi_value_item(self):
+    def test_multi_subcategory_item(self):
         """
-        Runs tests against multple queries to verify that the filters work
-        as intended.
+        Tests filtering on multiple subcategories.
         """
-
         response = self.client.get(
             "/api/v1/spot",
             {"item:subcategory": ["dell", "toyota"]}
@@ -265,6 +263,10 @@ class SpotSearchItemTest(TestCase):
             "Expected 1 spot in the JSON for dell and toyota"
         )
 
+    def test_multi_item_extended_info(self):
+        """
+        Tests filtering on multiple item extended info.
+        """
         response = self.client.get(
             "/api/v1/spot",
             {"item:extended_info:capacity": "10",
@@ -282,6 +284,10 @@ class SpotSearchItemTest(TestCase):
             "Expected 3 spots in the JSON for ei:capacity and ei:customer"
         )
 
+    def test_item_category_and_extended_info(self):
+        """
+        Tests filtering on a category and an item extended info.
+        """
         response = self.client.get(
             "/api/v1/spot",
             {"item:category": "laptop", "item:extended_info:capacity": "10"}
@@ -298,6 +304,10 @@ class SpotSearchItemTest(TestCase):
             "Expected 2 spots in the JSON for laptop and ei:capacity"
         )
 
+    def test_invalid_item_key(self):
+        """
+        Tests filtering against keys that don't exist.
+        """
         response = self.client.get(
             "/api/v1/spot",
             {"item:category": "laptop",
@@ -316,11 +326,14 @@ class SpotSearchItemTest(TestCase):
             "Expected 2 spots in the JSON. Ignores invalid key."
         )
 
+    def test_nonexisting_item_value(self):
+        """
+        Tests filtering against values that don't exist.
+        """
         response = self.client.get(
             "/api/v1/spot",
             {"item:category": "laptop",
-             "item:extended_info:capacity": "100",
-             "invalid": "23"}
+             "item:extended_info:capacity": "100"}
         )
         self.assertEquals(
             response["Content-Type"],

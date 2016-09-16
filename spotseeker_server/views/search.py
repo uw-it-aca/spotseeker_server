@@ -331,11 +331,8 @@ class SearchView(RESTDispatch):
             elif key.startswith('item:extended_info:'):
                 try:
                     for value in get_request.getlist(key):
-                        kwargs = {
-                            'item__itemextendedinfo__key': key[19:],
-                            'item__itemextendedinfo__value': value
-                        }
-                        query = query.filter(**kwargs)
+                        or_qs.append(Q(item__itemextendedinfo__key=key[19:],
+                                       item__itemextendedinfo__value=value))
                     has_valid_search_param = True
                 except Exception as e:
                     pass
@@ -343,14 +340,13 @@ class SearchView(RESTDispatch):
                 try:
                     for value in get_request.getlist(key):
                         if key[5:] == "id":
-                            q_obj = Q(item__id=value)
+                            or_qs.append(Q(item__id=value))
                         elif key[5:] == "name":
-                            q_obj = Q(item__name=value)
+                            or_qs.append(Q(item__name=value))
                         elif key[5:] == "category":
-                            q_obj = Q(item__item_category=value)
+                            or_qs.append(Q(item__item_category=value))
                         elif key[5:] == "subcategory":
-                            q_obj = Q(item__item_subcategory=value)
-                        query = query.filter(q_obj)
+                            or_qs.append(Q(item__item_subcategory=value))
                     has_valid_search_param = True
                 except Exception as e:
                     pass
@@ -365,9 +361,6 @@ class SearchView(RESTDispatch):
             elif key.startswith('extended_info:or'):
                 or_qs.append(Q(spotextendedinfo__key=key[17:],
                                spotextendedinfo__value='true'))
-                for or_q in or_qs:
-                    or_q_obj |= or_q
-                # The query gets filtered for ORs after the if/else switch.
                 has_valid_search_param = True
             elif key.startswith('extended_info:'):
                 kwargs = {
@@ -390,6 +383,8 @@ class SearchView(RESTDispatch):
                     if not request_meta['SERVER_NAME'] == 'testserver':
                         print >> sys.stderr, "E: ", e
 
+        for or_q in or_qs:
+            or_q_obj |= or_q
         # This handles all of the OR queries on extended_info we've collected.
         query = query.filter(or_q_obj).distinct()
         # Always prefetch the related extended info

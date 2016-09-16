@@ -42,7 +42,7 @@ class SpotSearchItemTest(TestCase):
     def setUp(self):
         """
         Creates spots with items which have some extended_info.
-        
+
         spot1 has customer UW, capacity 10, a dell laptop and a mac laptop.
         spot2 has customer UW, capacity 10, a toyota and a dell laptop.
         spot3 has customer UW, customer UW, a mac laptop and a toyota.

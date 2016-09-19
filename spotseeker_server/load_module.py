@@ -51,7 +51,7 @@ def load_module_by_name(mod_name):
     try:
         return import_module(mod_name)
     except ImportError as e:
-        raise ImproperlyConfigured('Error importing module %s: "%s"'
+        raise ImproperlyConfigured('Error importing module %s: "%s"' %
                                    (mod_name, e))
 
 

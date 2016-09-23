@@ -25,6 +25,7 @@ from django.conf import settings
 from django.utils.importlib import import_module
 from spotseeker_server.models import *
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
+from spotseeker_server.forms.item import ItemForm, ItemExtendedInfoForm
 
 
 class SpotAdmin(admin.ModelAdmin):
@@ -34,16 +35,19 @@ class SpotAdmin(admin.ModelAdmin):
     form = SpotForm.implementation()
 
     list_display = ("name",
+                    "id",
                     "building_name",
-                    "floor",
-                    "room_number",
-                    "capacity",
                     "organization",
-                    "manager")
+                    "manager",
+                    "last_modified")
     list_filter = ["spottypes",
                    "building_name",
                    "organization",
                    "manager"]
+    search_fields = ["name",
+                     "building_name",
+                     "organization",
+                     "manager"]
 
     actions = ['delete_model']
 
@@ -113,3 +117,65 @@ admin.site.register(SpotExtendedInfo, SpotExtendedInfoAdmin)
 
 admin.site.register(SpotType)
 admin.site.register(TrustedOAuthClient)
+
+
+class ItemAdmin(admin.ModelAdmin):
+    """ The admin model for a Item.
+    """
+    form = ItemForm.implementation()
+
+    list_display = ("name",
+                    "id",
+                    "slug",
+                    "spot",
+                    "item_category",
+                    "item_subcategory")
+    list_filter = ["spot",
+                   "item_category",
+                   "item_subcategory"]
+    search_fields = ["name",
+                     "slug",
+                     "item_category",
+                     "item_subcategory"]
+
+admin.site.register(Item, ItemAdmin)
+
+
+class ItemImageAdmin(admin.ModelAdmin):
+    """ The admin model for a ItemImage.
+    Content-type, width, height, and ETag are all filled in by the server on
+    ItemImage save.
+    """
+    exclude = ('content_type', 'width', 'height')
+    list_display = ("pk",
+                    "item",
+                    "description",
+                    "content_type")
+    list_filter = ["item"]
+    actions = ['delete_model']
+
+    def get_actions(self, request):
+        actions = super(ItemImageAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def delete_model(self, request, queryset):
+        if type(queryset) == ItemImage:
+            queryset.delete()
+        else:
+            for item_image in queryset.all():
+                item_image.delete()
+    delete_model.short_description = "Delete selected item images"
+
+admin.site.register(ItemImage, ItemImageAdmin)
+
+
+class ItemExtendedInfoAdmin(admin.ModelAdmin):
+    """ The admin model for ItemExtendedInfo.
+    """
+    form = ItemExtendedInfoForm.implementation()
+
+    list_display = ("item", "key", "value")
+    list_editable = ["key", "value"]
+    list_filter = ["key", "item"]
+admin.site.register(ItemExtendedInfo, ItemExtendedInfoAdmin)

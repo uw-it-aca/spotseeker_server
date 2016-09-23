@@ -163,16 +163,6 @@ LOGGING = {
     }
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        'LOCATION': 'sposeeker_server'
-    }
-}
-
-CACHE_MIDDLEWARE_SECONDS = 60 * 60 # Cache what we can for an hour
-
-
 OAUTH_AUTHORIZE_VIEW = 'spotseeker_server.views.oauth.authorize'
 OAUTH_CALLBACK_VIEW = 'spotseeker_server.views.oauth.callback'
 

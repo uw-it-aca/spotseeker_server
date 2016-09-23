@@ -18,7 +18,6 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
 from spotseeker_server.require_auth import user_auth_required
 from spotseeker_server.models import Spot, FavoriteSpot
 from django.http import HttpResponse
-from django.views.decorators.cache import never_cache
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,7 +28,6 @@ class FavoritesView(RESTDispatch):
     GET returns 200 with a list of spots.
     """
     @user_auth_required
-    @never_cache
     def GET(self, request, spot_id=None):
         if spot_id is None:
             return self._get_all_favorites(request)
@@ -70,7 +68,7 @@ class FavoritesView(RESTDispatch):
         for fav in objects:
             if hasattr(fav, 'spot'):
                 json = fav.spot.json_data_structure()
-                favorites.append(fav.spot.json_data_structure())
+                favorites.append(json)
 
         return JSONResponse(favorites)
 
@@ -79,6 +77,6 @@ class FavoritesView(RESTDispatch):
         spot = Spot.objects.get(pk=spot_id)
 
         fav = FavoriteSpot.objects.filter(user=user, spot=spot)
-        if len(fav):
+        if fav:
             return JSONResponse(True)
         return JSONResponse(False)

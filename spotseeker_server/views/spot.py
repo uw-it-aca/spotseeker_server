@@ -24,6 +24,9 @@
 from spotseeker_server.views.rest_dispatch import \
     RESTDispatch, RESTException, RESTFormInvalidError, JSONResponse
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
+from spotseeker_server.default_forms.item import DefaultItemForm as ItemForm
+from spotseeker_server.default_forms.item import DefaultItemExtendedInfoForm \
+                                                as ItemExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
@@ -32,6 +35,7 @@ import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+import spot_item
 
 
 @django.dispatch.receiver(

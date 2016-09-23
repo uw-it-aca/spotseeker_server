@@ -13,170 +13,64 @@
     limitations under the License.
 """
 
-from django.test import TestCase
+from spotseeker_server.test import SpotServerTestCase
 from django.conf import settings
-from django.test.client import Client
 from spotseeker_server.models import Spot, SpotExtendedInfo, SpotType
 import simplejson as json
 from django.test.utils import override_settings
 from mock import patch
-from django.core import cache
 from spotseeker_server import models
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-class SpotSearchCapacityTest(TestCase):
+class SpotSearchCapacityTest(SpotServerTestCase):
     def test_capacity(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache'
+
+        # Create spots with 1, 2, 3, 4, 50 capacity, respectively
+        caps = (1, 2, 3, 4, 50)
+        ALL_SPOTS =\
+            [self.new_spot('capacity: %s' % c, capacity=c) for c in caps]
+        spot1, spot2, spot3, spot4, spot5 = ALL_SPOTS
+
+        # Test with unspecified capacity
+        c = self.client
+        response = c.get(
+            "/api/v1/spot",
+            {'capacity': '',
+             'name':
+             'capacity'}
         )
-        with patch.object(models, 'cache', dummy_cache):
-            spot1 = Spot.objects.create(name="capacity: 1", capacity=1)
-            spot1.save()
+        self.assertJsonHeader(response)
+        spots = json.loads(response.content)
+        # Should return all spots
+        self.assertSpotsToJson(ALL_SPOTS, spots,
+                               'Expected all spots to be returned when '
+                               'capacity is unspecified')
 
-            spot2 = Spot.objects.create(name="capacity: 2", capacity=2)
-            spot2.save()
+        response = c.get("/api/v1/spot", {'capacity': '1'})
+        self.assertJsonHeader(response)
+        spots = json.loads(response.content)
+        self.assertSpotsToJson(ALL_SPOTS, spots,
+                               'Expected all spots to be returned for'
+                               'capacity: 1')
 
-            spot3 = Spot.objects.create(name="capacity: 3", capacity=3)
-            spot3.save()
+        response = c.get("/api/v1/spot", {'capacity': '49'})
+        self.assertJsonHeader(response)
+        spots = json.loads(response.content)
+        self.assertSpotsToJson([spot5], spots,
+                               'Should only find the big spot')
 
-            spot4 = Spot.objects.create(name="capacity: 4", capacity=4)
-            spot4.save()
+        response = c.get("/api/v1/spot", {'capacity': '501'})
+        self.assertJsonHeader(response)
+        spots = json.loads(response.content)
+        self.assertSpotsToJson([], spots,
+                               "Shouldn't have found any spots")
 
-            spot5 = Spot.objects.create(name="capacity: 50", capacity=50)
-            spot5.save()
-
-            c = Client()
-            response = c.get(
-                "/api/v1/spot",
-                {'capacity': '',
-                 'name':
-                 'capacity'}
-            )
-            self.assertEquals(response["Content-Type"],
-                              "application/json",
-                              "Has the json header")
-            spots = json.loads(response.content)
-
-            has_1 = False
-            has_2 = False
-            has_3 = False
-            has_4 = False
-            has_5 = False
-
-            for spot in spots:
-                if spot['id'] == spot1.pk:
-                    has_1 = True
-                if spot['id'] == spot2.pk:
-                    has_2 = True
-                if spot['id'] == spot3.pk:
-                    has_3 = True
-                if spot['id'] == spot4.pk:
-                    has_4 = True
-                if spot['id'] == spot5.pk:
-                    has_5 = True
-
-            self.assertEquals(has_1, True)
-            self.assertEquals(has_2, True)
-            self.assertEquals(has_3, True)
-            self.assertEquals(has_4, True)
-            self.assertEquals(has_5, True)
-
-            response = c.get("/api/v1/spot", {'capacity': '1'})
-            self.assertEquals(
-                response["Content-Type"],
-                "application/json",
-                "Has the json header")
-            spots = json.loads(response.content)
-
-            has_1 = False
-            has_2 = False
-            has_3 = False
-            has_4 = False
-            has_5 = False
-
-            for spot in spots:
-                if spot['id'] == spot1.pk:
-                    has_1 = True
-                if spot['id'] == spot2.pk:
-                    has_2 = True
-                if spot['id'] == spot3.pk:
-                    has_3 = True
-                if spot['id'] == spot4.pk:
-                    has_4 = True
-                if spot['id'] == spot5.pk:
-                    has_5 = True
-
-            self.assertEquals(has_1, True)
-            self.assertEquals(has_2, True)
-            self.assertEquals(has_3, True)
-            self.assertEquals(has_4, True)
-            self.assertEquals(has_5, True)
-
-            response = c.get("/api/v1/spot", {'capacity': '49'})
-            self.assertEquals(response["Content-Type"],
-                              "application/json",
-                              "Has the json header")
-            spots = json.loads(response.content)
-
-            has_1 = False
-            has_2 = False
-            has_3 = False
-            has_4 = False
-            has_5 = False
-
-            for spot in spots:
-                if spot['id'] == spot1.pk:
-                    has_1 = True
-                if spot['id'] == spot2.pk:
-                    has_2 = True
-                if spot['id'] == spot3.pk:
-                    has_3 = True
-                if spot['id'] == spot4.pk:
-                    has_4 = True
-                if spot['id'] == spot5.pk:
-                    has_5 = True
-
-            self.assertEquals(has_1, False)
-            self.assertEquals(has_2, False)
-            self.assertEquals(has_3, False)
-            self.assertEquals(has_4, False)
-            self.assertEquals(has_5, True)
-
-            response = c.get("/api/v1/spot", {'capacity': '501'})
-            self.assertEquals(response["Content-Type"],
-                              "application/json",
-                              "Has the json header")
-            spots = json.loads(response.content)
-
-            has_1 = False
-            has_2 = False
-            has_3 = False
-            has_4 = False
-            has_5 = False
-
-            for spot in spots:
-                if spot['id'] == spot1.pk:
-                    has_1 = True
-                if spot['id'] == spot2.pk:
-                    has_2 = True
-                if spot['id'] == spot3.pk:
-                    has_3 = True
-                if spot['id'] == spot4.pk:
-                    has_4 = True
-                if spot['id'] == spot5.pk:
-                    has_5 = True
-
-            self.assertEquals(has_1, False)
-            self.assertEquals(has_2, False)
-            self.assertEquals(has_3, False)
-            self.assertEquals(has_4, False)
-            self.assertEquals(has_5, False)
-
-            response = c.get("/api/v1/spot",
-                             {'capacity': '1',
-                              'distance': '100',
-                              'limit': '4'}
-                             )
-            # testing sorting by distance, which is impossible given no center
-            self.assertEquals(response.status_code, 400)
+        # TODO: move this somewhere else
+        response = c.get("/api/v1/spot",
+                         {'capacity': '1',
+                          'distance': '100',
+                          'limit': '4'}
+                         )
+        # testing sorting by distance, which is impossible given no center
+        self.assertEquals(response.status_code, 400)

@@ -504,3 +504,72 @@ class Command(BaseCommand):
             food_info = SpotExtendedInfo.objects.create(key='has_outlets',
                                                         value='true',
                                                         spot=food)
+
+            # get_or_create returns a tuple
+            item_place_type = \
+                SpotType.objects.get_or_create(name="item_place")[0]
+            loan_office = Spot.objects.create(name="Tech Loan Office")
+            loan_office.spottypes.add(item_place_type)
+            loan_office.save()
+            SpotExtendedInfo.objects.create(key='app_type',
+                                            value='tech',
+                                            spot=loan_office)
+            SpotExtendedInfo.objects.create(key='has_cte_techloan',
+                                            value='true',
+                                            spot=loan_office)
+            SpotExtendedInfo.objects.create(key='cte_techloan_id',
+                                            value='1',
+                                            spot=loan_office)
+
+            macbook = Item.objects.create(name="Apple Macbook Pro",
+                                          spot=loan_office,
+                                          item_category="Placeholder Category",
+                                          item_subcategory="Laptop Computer")
+            ItemExtendedInfo.objects.create(key='i_quantity',
+                                            value='10',
+                                            item=macbook)
+            ItemExtendedInfo.objects.create(key='i_model',
+                                            value='Macbook Pro',
+                                            item=macbook)
+            ItemExtendedInfo.objects.create(key='i_brand',
+                                            value='Apple',
+                                            item=macbook)
+            ItemExtendedInfo.objects.create(key='i_check_out_period',
+                                            value='7',
+                                            item=macbook)
+
+            latitude = \
+                Item.objects.create(name="Dell Latitude E5440",
+                                    spot=loan_office,
+                                    item_category="Placeholder Category",
+                                    item_subcategory="Laptop Computer")
+            ItemExtendedInfo.objects.create(key='i_quantity',
+                                            value='12',
+                                            item=latitude)
+            ItemExtendedInfo.objects.create(key='i_model',
+                                            value='Latitude E5440',
+                                            item=latitude)
+            ItemExtendedInfo.objects.create(key='i_brand',
+                                            value='Dell',
+                                            item=latitude)
+            ItemExtendedInfo.objects.create(key='i_check_out_period',
+                                            value='14',
+                                            item=latitude)
+
+            passport = \
+                Item.objects.create(name="Fender Passport P-150",
+                                    spot=loan_office,
+                                    item_category="Placeholder Category",
+                                    item_subcategory="Portable Audio System")
+            ItemExtendedInfo.objects.create(key='i_quantity',
+                                            value='5',
+                                            item=passport)
+            ItemExtendedInfo.objects.create(key='i_model',
+                                            value='Passport P-150',
+                                            item=passport)
+            ItemExtendedInfo.objects.create(key='i_brand',
+                                            value='Fender',
+                                            item=passport)
+            ItemExtendedInfo.objects.create(key='i_check_out_period',
+                                            value='7',
+                                            item=passport)

@@ -24,6 +24,7 @@ from django.http import HttpResponse
 from django.utils.http import http_date
 from django.core.servers.basehttp import FileWrapper
 from django.core.exceptions import ValidationError
+from django.core.files.images import ImageFile
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
 
@@ -64,17 +65,16 @@ class ImageView(RESTDispatch):
 
         self.validate_etag(request, img)
 
-        # This trick was taken from piston
         request.method = "POST"
         request._load_post_and_files()
         request.method = "PUT"
 
-        if "image" in request.FILES:
-            img.image = request.FILES["image"]
-        if "description" in request.POST:
-            img.description = request.POST["description"]
-        if "display_index" in request.POST:
-            img.display_index = request.POST["display_index"]
+        if "image" in request.META['files']:
+            img.image = ImageFile(request.META['files']["image"])
+        if "description" in request.META['files']:
+            img.description = request.META['files']["description"]
+        if "display_index" in request.META['files']:
+            img.display_index = request.META['files']["display_index"]
         img.save()
 
         return self.GET(request, spot_id, image_id)

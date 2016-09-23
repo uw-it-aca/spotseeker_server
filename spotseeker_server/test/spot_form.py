@@ -20,24 +20,24 @@ from django.conf import settings
 from django.test.utils import override_settings
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 @override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
     SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
-                         'DefaultSpotForm')
-@override_settings(
+                         'DefaultSpotForm',
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
                                      'DefaultSpotExtendedInfoForm')
-class SpotFormTest(TestCase):
+class DefaultSpotFormTest(TestCase):
 
     def test_default(self):
         form = SpotForm({})
-        self.assertEqual(form.__class__,
-                         DefaultSpotForm({}).__class__,
-                         "Tests shouldn't be run with a defined "
-                         "SPOTSEEKER_SPOT_FORM")
+        self.assertIs(type(form), DefaultSpotForm,
+                      "Tests shouldn't be run with a defined "
+                      "SPOTSEEKER_SPOT_FORM")
 
     def test_errors(self):
+        """Assert that an empty form produces validation errors"""
         form = SpotForm({})
         errors = form.errors
-        self.assertTrue("name" in errors)
-        self.assertFalse("capacity" in errors)
+        self.assertIn('name', errors)
+        # Capacity is not required, so it should not have an error
+        self.assertNotIn('capacity', errors)

@@ -25,6 +25,7 @@
 
 from django.db import models
 from django.db.models import Sum, Count
+from django.core.cache import cache
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_slug
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -37,9 +38,7 @@ import time
 from wsgiref.handlers import format_date_time
 import random
 from PIL import Image
-from cStringIO import StringIO
 import oauth_provider.models
-from django.core.cache import cache
 import re
 from functools import wraps
 
@@ -92,125 +91,122 @@ class Spot(models.Model):
     def __unicode__(self):
         return self.name
 
+    def invalidate_cache(self):
+        """Remove this spot's cache entry"""
+        cache.delete(self.pk)
+
     @update_etag
     def save(self, *args, **kwargs):
-        cache.delete(self.pk)
+        self.invalidate_cache()
         super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
         return reverse('spot', kwargs={'spot_id': self.pk})
 
     def json_data_structure(self):
-        spot_json = cache.get(self.pk)
-        if not spot_json:
-            extended_info = {}
-            info = SpotExtendedInfo.objects.filter(spot=self)
-            for attr in info:
-                extended_info[attr.key] = attr.value
+        """
+        Get a dictionary representing this spot which can be JSON encoded
+        """
+        # If this data is cached, and the etags match, return the cached
+        # version.
+        cached_entry = cache.get(self.pk)
+        if cached_entry and cached_entry['etag'] == self.etag:
+            return cached_entry
 
-            available_hours = {
-                'monday': [],
-                'tuesday': [],
-                'wednesday': [],
-                'thursday': [],
-                'friday': [],
-                'saturday': [],
-                'sunday': [],
-            }
+        extended_info = {}
+        info = self.spotextendedinfo_set.all()
+        for attr in info:
+            extended_info[attr.key] = attr.value
 
-            hours = SpotAvailableHours.objects.filter(spot=self).order_by(
-                'start_time')
-            for window in hours:
-                available_hours[window.get_day_display()].append(
-                    window.json_data_structure())
+        available_hours = {
+            'monday': [],
+            'tuesday': [],
+            'wednesday': [],
+            'thursday': [],
+            'friday': [],
+            'saturday': [],
+            'sunday': [],
+        }
 
-            images = []
-            for img in SpotImage.objects.filter(spot=self).order_by(
-                    'display_index'):
-                images.append(img.json_data_structure())
-            types = []
-            for t in self.spottypes.all():
-                types.append(t.name)
+        hours = self.spotavailablehours_set.order_by('start_time')
+        for window in hours:
+            available_hours[window.get_day_display()].append(
+                window.json_data_structure())
 
-            spot_json = {
-                "id": self.pk,
-                "uri": self.rest_url(),
-                "etag": self.etag,
-                "name": self.name,
-                "type": types,
-                "location": {
-                    # If any changes are made to this location dict,
-                    # MAKE SURE to reflect those changes in the
-                    # location_descriptors list in views/schema_gen.py
-                    "latitude": self.latitude,
-                    "longitude": self.longitude,
-                    "height_from_sea_level": self.height_from_sea_level,
-                    "building_name": self.building_name,
-                    "floor": self.floor,
-                    "room_number": self.room_number,
-                },
-                "capacity": self.capacity,
-                "display_access_restrictions":
-                self.display_access_restrictions,
-                "images": images,
-                "available_hours": available_hours,
-                "organization": self.organization,
-                "manager": self.manager,
-                "extended_info": extended_info,
-                "last_modified": self.last_modified.isoformat(),
-                "external_id": self.external_id
-            }
-            cache.add(self.pk, spot_json)
+        images_set = self.spotimage_set.order_by('display_index')
+        images = [img.json_data_structure() for img in images_set]
+
+        types = [t.name for t in self.spottypes.all()]
+
+        checkout_items = [item.json_data_structure() for item in
+                          self.item_set.all()]
+
+        spot_json = {
+            "id": self.pk,
+            "uri": self.rest_url(),
+            "etag": self.etag,
+            "name": self.name,
+            "type": types,
+            "location": {
+                # If any changes are made to this location dict,
+                # MAKE SURE to reflect those changes in the
+                # location_descriptors list in views/schema_gen.py
+                "latitude": self.latitude,
+                "longitude": self.longitude,
+                "height_from_sea_level": self.height_from_sea_level,
+                "building_name": self.building_name,
+                "floor": self.floor,
+                "room_number": self.room_number,
+            },
+            "capacity": self.capacity,
+            "display_access_restrictions":
+            self.display_access_restrictions,
+            "images": images,
+            "available_hours": available_hours,
+            "organization": self.organization,
+            "manager": self.manager,
+            "extended_info": extended_info,
+            "items": checkout_items,
+            "last_modified": self.last_modified.isoformat(),
+            "external_id": self.external_id
+        }
+        # Add this spot's data to the cache
+        cache.set(self.pk, spot_json)
         return spot_json
 
     def update_rating(self):
-        data = SpaceReview.objects.filter(
-            space=self,
-            is_published=True,
-            is_deleted=False
+        data = self.spacereview_set.filter(
+            is_published=True, is_deleted=False
         ).aggregate(total=Sum('rating'), count=Count('rating'))
         if not data['total']:
             return
 
         # Round down to .5 stars:
         new_rating = int(2 * data['total'] / data['count']) / 2.0
-        try:
-            extended_info = SpotExtendedInfo.objects.get(spot=self,
-                                                         key="rating",
-                                                         )
-            if extended_info:
-                extended_info.value = new_rating
-                extended_info.save()
 
-        except ObjectDoesNotExist as ex:
-            extended_info = SpotExtendedInfo.objects.create(spot=self,
-                                                            key="rating",
-                                                            value=new_rating)
+        # update_or_create isn't in this django version, unfortunately
+        ei, created = self.spotextendedinfo_set.get_or_create(
+            key='rating', defaults={'value': new_rating})
+        if not created:
+            ei.value = new_rating
+            ei.save()
 
-        try:
-            extended_info = SpotExtendedInfo.objects.get(spot=self,
-                                                         key="review_count",
-                                                         )
-            if extended_info:
-                extended_info.value = data['count']
-                extended_info.save()
-
-        except ObjectDoesNotExist as ex:
-            extended_info = SpotExtendedInfo.objects.create(spot=self,
-                                                            key="review_count",
-                                                            value=data['count']
-                                                            )
+        ei, created = self.spotextendedinfo_set.get_or_create(
+            key='review_count', defaults={'value': data['count']})
+        if not created:
+            ei.value = data['count']
+            ei.save()
 
     def delete(self, *args, **kwargs):
-        cache.delete(self.pk)
+        self.invalidate_cache()
         super(Spot, self).delete(*args, **kwargs)
 
-    @staticmethod
-    def get_with_external(spot_id):
+    @classmethod
+    def get_with_external(cls, spot_id):
         if spot_id and str(spot_id).startswith('external:'):
-            return Spot.objects.get(external_id=spot_id[9:])
+            return cls.objects.get(external_id=spot_id[9:])
         else:
-            return Spot.objects.get(pk=spot_id)
+            return cls.objects.get(pk=spot_id)
 
 
 class FavoriteSpot(models.Model):
@@ -225,7 +221,6 @@ class FavoriteSpot(models.Model):
         return self.spot.json_data_structure()
 
     def clean(self):
-        from django.core.exceptions import ValidationError
         spots = self.user.favoritespot_set.all()
         if self.spot in spots:
             raise ValidationError("This Spot has already been favorited")
@@ -372,13 +367,13 @@ class SpotImage(models.Model):
         self.content_type = SpotImage.CONTENT_TYPES[img.format]
         self.width, self.height = img.size
 
-        cache.delete(self.spot.pk)
+        self.spot.invalidate_cache()
         super(SpotImage, self).save(*args, **kwargs)
 
     @update_etag
     def delete(self, *args, **kwargs):
+        self.spot.invalidate_cache()
         self.image.delete(save=False)
-        cache.delete(self.spot.pk)
         super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):
@@ -459,3 +454,121 @@ class SharedSpaceRecipient(models.Model):
     shared_count = models.IntegerField()
     date_first_viewed = models.DateTimeField(null=True)
     viewed_count = models.IntegerField()
+
+
+class Item(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50, blank=True)
+    spot = models.ForeignKey(Spot, blank=True, null=True)
+    # These need to be item_ cat/subcat due to DB issues
+    item_category = models.CharField(max_length=50, null=True)
+    item_subcategory = models.CharField(max_length=50, null=True)
+
+    def __unicode__(self):
+        return self.name
+
+    def json_data_structure(self):
+        extended = {}
+
+        for i in self.itemextendedinfo_set.all():
+            extended[i.key] = i.value
+
+        images = []
+
+        for image in self.itemimage_set.all():
+            images.append(image.json_data_structure())
+
+        data = {
+            'id': self.pk,
+            'name': self.name,
+            'category': self.item_category,
+            'subcategory': self.item_subcategory,
+            'extended_info': extended,
+            'images': images
+        }
+
+        return data
+
+
+class ItemExtendedInfo(models.Model):
+    item = models.ForeignKey(Item, blank=True, null=True)
+    key = models.CharField(max_length=50)
+    value = models.CharField(max_length=350)
+
+    class Meta:
+        verbose_name_plural = "Item extended info"
+        unique_together = ('item', 'key')
+
+
+class ItemImage(models.Model):
+    """ An image of a Item. Multiple images can be associated with a Item,
+    and Item objects have a 'Item.itemimage_set' method that will return
+    all ItemImage objects for the Item.
+    """
+    CONTENT_TYPES = {
+        "JPEG": "image/jpeg",
+        "GIF": "image/gif",
+        "PNG": "image/png",
+    }
+
+    description = models.CharField(max_length=200, blank=True)
+    display_index = models.PositiveIntegerField(null=True, blank=True)
+    image = models.ImageField(upload_to="item_images")
+    item = models.ForeignKey(Item)
+    width = models.IntegerField()
+    height = models.IntegerField()
+    content_type = models.CharField(max_length=40)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    upload_user = models.CharField(max_length=40)
+    upload_application = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        if self.description:
+            return "%s" % self.description
+        else:
+            return "%s" % self.image.name
+
+    def json_data_structure(self):
+        return {
+            "id": self.pk,
+            "url": self.rest_url(),
+            "content-type": self.content_type,
+            "creation_date": self.creation_date.isoformat(),
+            "upload_user": self.upload_user,
+            "upload_application": self.upload_application,
+            "thumbnail_root": reverse('item-image-thumb',
+                                      kwargs={'item_id': self.item.pk,
+                                              'image_id': self.pk}
+                                      ).rstrip('/'),
+            "description": self.description,
+            "display_index": self.display_index,
+            "width": self.width,
+            "height": self.height
+        }
+
+    def save(self, *args, **kwargs):
+        try:
+            if (isinstance(self.image, UploadedFile) and
+                    self.image.file.multiple_chunks()):
+                img = Image.open(self.image.file.temporary_file_path())
+            else:
+                img = Image.open(self.image)
+        except:
+            raise ValidationError('Not a valid image format')
+
+        if img.format not in ItemImage.CONTENT_TYPES:
+            raise ValidationError('Not an accepted image format')
+
+        self.content_type = ItemImage.CONTENT_TYPES[img.format]
+        self.width, self.height = img.size
+
+        super(ItemImage, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.image.delete(save=False)
+        super(ItemImage, self).delete(*args, **kwargs)
+
+    def rest_url(self):
+        return reverse('item-image',
+                       kwargs={'item_id': self.item.pk,
+                               'image_id': self.pk})

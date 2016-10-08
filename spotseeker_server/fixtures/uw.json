@@ -103,5 +103,26 @@
     "fields": {
       "name": "food_truck"
     }
+  },
+  {
+    "pk": 16,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "checkout"
+    }
+  },
+  {
+    "pk": 17,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "conference"
+    }
+  },
+  {
+    "pk": 18,
+    "model": "spotseeker_server.spottype",
+    "fields": {
+      "name": "maker_space"
+    }
   }
 ]

@@ -507,7 +507,7 @@ class Command(BaseCommand):
 
             # get_or_create returns a tuple
             item_place_type = \
-                SpotType.objects.get_or_create(name="item_place")[0]
+                SpotType.objects.get_or_create(name="checkout")[0]
             loan_office = Spot.objects.create(name="Tech Loan Office")
             loan_office.spottypes.add(item_place_type)
             loan_office.save()

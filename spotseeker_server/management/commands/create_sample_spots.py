@@ -238,7 +238,8 @@ class Command(BaseCommand):
                                          capacity=20,
                                          longitude=Decimal('-122.437212'),
                                          latitude=Decimal('47.246213'),
-                                         building_name="West Coast Grocery (WCG)")
+                                         building_name="West Coast Grocery "
+                                                       "(WCG)")
             tacoma.spottypes.add(study_room_type)
             tacoma.save()
             wcg_outlets = SpotExtendedInfo.objects.create(key="has_outlets",
@@ -258,7 +259,8 @@ class Command(BaseCommand):
                                           capacity=20,
                                           longitude=Decimal('-122.437708'),
                                           latitude=Decimal('47.244832'),
-                                          building_name="West Coast Grocery (WCG)")
+                                          building_name="West Coast Grocery "
+                                                        "(WCG)")
             tacoma2.spottypes.add(study_room_type)
             tacoma2.save()
             tacoma_outlets = SpotExtendedInfo.objects.create(key="has_outlets",
@@ -278,7 +280,8 @@ class Command(BaseCommand):
                                           capacity=20,
                                           longitude=Decimal('-122.438368'),
                                           latitude=Decimal('47.245838'),
-                                          building_name="West Coast Grocery (WCG)")
+                                          building_name="West Coast Grocery "
+                                                        "(WCG)")
             tacoma3.spottypes.add(study_room_type)
             tacoma3.save()
             tacoma_outlets = SpotExtendedInfo.objects.create(key="has_outlets",
@@ -322,7 +325,8 @@ class Command(BaseCommand):
             fish_patio = Spot.objects.create(name="FSH 2nd Floor Patio/Deck",
                                              longitude=Decimal('-122.31659'),
                                              latitude=Decimal('47.65289'),
-                                             building_name="Fishery Sciences (FSH)",
+                                             building_name="Fishery Sciences "
+                                                           "(FSH)",
                                              floor="2nd floor",
                                              capacity=12)
             fish_patio.spottypes.add(outdoor_type)

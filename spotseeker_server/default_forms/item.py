@@ -36,4 +36,4 @@ class DefaultItemForm(forms.ModelForm):
 
     class Meta:
         model = Item
-        fields = ('name', 'item_category', 'item_subcategory')
+        fields = ('name',)

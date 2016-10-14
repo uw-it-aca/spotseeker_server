@@ -45,12 +45,39 @@ class ItemImageView(RESTDispatch):
                                 404)
 
         response = HttpResponse(FileWrapper(img.image))
+        response["ETag"] = img.etag
 
         # 7 day timeout?
         response['Expires'] = http_date(time.time() + 60 * 60 * 24 * 7)
         response["Content-length"] = img.image.size
         response["Content-type"] = img.content_type
         return response
+
+    @user_auth_required
+    @admin_auth_required
+    def PUT(self, request, item_id, image_id):
+        img = ItemImage.objects.get(pk=image_id)
+        item = img.item
+
+        if int(item.pk) != int(item_id):
+            raise RESTException("Image Spot ID doesn't match spot id in url",
+                                404)
+
+        self.validate_etag(request, img)
+
+        request.method = "POST"
+        request._load_post_and_files()
+        request.method = "PUT"
+
+        if "image" in request.META['files']:
+            img.image = ImageFile(request.META['files']["image"])
+        if "description" in request.META['files']:
+            img.description = request.META['files']["description"]
+        if "display_index" in request.META['files']:
+            img.display_index = request.META['files']["display_index"]
+        img.save()
+
+        return self.GET(request, item_id, image_id)
 
     @user_auth_required
     @admin_auth_required

@@ -497,7 +497,7 @@ class ItemExtendedInfo(models.Model):
 
     class Meta:
         verbose_name_plural = "Item extended info"
-        unique_together = ('item', 'key')
+        # unique_together = ('item', 'key')
 
 
 class ItemImage(models.Model):
@@ -515,10 +515,12 @@ class ItemImage(models.Model):
     display_index = models.PositiveIntegerField(null=True, blank=True)
     image = models.ImageField(upload_to="item_images")
     item = models.ForeignKey(Item)
+    content_type = models.CharField(max_length=40)
     width = models.IntegerField()
     height = models.IntegerField()
-    content_type = models.CharField(max_length=40)
     creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    etag = models.CharField(max_length=40)
     upload_user = models.CharField(max_length=40)
     upload_application = models.CharField(max_length=100)
 
@@ -546,6 +548,7 @@ class ItemImage(models.Model):
             "height": self.height
         }
 
+    @update_etag
     def save(self, *args, **kwargs):
         try:
             if (isinstance(self.image, UploadedFile) and
@@ -564,6 +567,7 @@ class ItemImage(models.Model):
 
         super(ItemImage, self).save(*args, **kwargs)
 
+    @update_etag
     def delete(self, *args, **kwargs):
         self.image.delete(save=False)
         super(ItemImage, self).delete(*args, **kwargs)

@@ -180,7 +180,8 @@ class SpotView(RESTDispatch):
 
         self.validate_etag(request, spot)
 
-        return self.build_and_save_from_input(request, spot)
+        response = self.build_and_save_from_input(request, spot)
+        return response
 
     @user_auth_required
     @admin_auth_required

@@ -497,7 +497,7 @@ class ItemExtendedInfo(models.Model):
 
     class Meta:
         verbose_name_plural = "Item extended info"
-        # unique_together = ('item', 'key')
+        unique_together = ('item', 'key')
 
 
 class ItemImage(models.Model):

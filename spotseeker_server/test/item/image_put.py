@@ -14,7 +14,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client, encode_multipart
 from django.core.files import File
-from Itemseeker_server.models import Item, ItemImage
+from spotseeker_server.models import Item, ItemImage
 from os.path import abspath, dirname
 import os
 import random
@@ -22,13 +22,13 @@ import tempfile
 import shutil
 from django.test.utils import override_settings
 from mock import patch
-from Itemseeker_server import models
+from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(ItemSEEKER_AUTH_MODULE='Itemseeker_server.auth.all_ok')
-@override_settings(ItemSEEKER_AUTH_ADMINS=('demo_user',))
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
 class ItemImagePUTTest(TestCase):
     """ Tests updating a ItemImage by PUTting to
         /api/v1/Item/<Item id>/image/<image_id>.
@@ -37,18 +37,17 @@ class ItemImagePUTTest(TestCase):
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-            Item = Item.objects.create(
-                name="This is to test PUTtingimages",
-                capacity=1)
-            Item.save()
-            self.Item = Item
+            item = Item.objects.create(
+                name="This is to test PUTtingimages")
+            item.save()
+            self.item = item
 
-            self.url = '/api/v1/Item/{0}'.format(self.Item.pk)
+            self.url = '/api/v1/item/{0}'.format(self.item.pk)
             self.url = self.url
 
             # GIF
             f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-            gif = self.Item.Itemimage_set.create(
+            gif = self.item.itemimage_set.create(
                 description="This is the GIF test",
                 image=File(f))
             f.close()
@@ -58,7 +57,7 @@ class ItemImagePUTTest(TestCase):
 
             # JPEG
             f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-            jpeg = self.Item.Itemimage_set.create(
+            jpeg = self.item.itemimage_set.create(
                 description="This is the JPEG test",
                 image=File(f))
             f.close()
@@ -68,7 +67,7 @@ class ItemImagePUTTest(TestCase):
 
             # PNG
             f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            png = self.Item.Itemimage_set.create(
+            png = self.item.itemimage_set.create(
                 description="This is the PNG test",
                 image=File(f))
             f.close()
@@ -79,10 +78,10 @@ class ItemImagePUTTest(TestCase):
     def test_bad_url(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
-            Item = Item.objects.create(name="This is the wrong Item")
+            item = Item.objects.create(name="This is the wrong Item")
 
-            url = "/api/v1/Item/{0}/image/{1}".format(
-                Item.pk,
+            url = "/api/v1/item/{0}/image/{1}".format(
+                item.pk,
                 self.jpeg.pk)
             response = c.put(url, '{}', content_type="application/json")
             self.assertEquals(response.status_code, 404)
@@ -110,7 +109,7 @@ class ItemImagePUTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get(self.jpeg_url)
-            etag = response["etag"]
+            etag = response['etag']
 
             f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
             f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
@@ -133,6 +132,7 @@ class ItemImagePUTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get(self.gif_url)
+
             etag = response["etag"]
 
             f = open("%s/../resources/test_png.png" % TEST_ROOT)
@@ -161,7 +161,7 @@ class ItemImagePUTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get(self.gif_url)
-            etag = response["etag"]
+            etag = response["ETag"]
 
             f = open("%s/../resources/test_png.png" % TEST_ROOT)
             f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT)

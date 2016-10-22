@@ -412,6 +412,7 @@ class SpaceReview(models.Model):
 
     def json_data_structure(self):
         submitted = self.date_submitted.replace(microsecond=0)
+
         return {
             'reviewer': self.reviewer.username,
             'review': self.review,

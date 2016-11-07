@@ -110,7 +110,7 @@ python manage.py test spotseeker_server
 
 ## Contributing
 
-Please read [CONTRIBUTING.md] for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md] (To be completed.) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
@@ -137,3 +137,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+## List of settings
+
+(To be completed.)

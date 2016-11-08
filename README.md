@@ -113,7 +113,7 @@ python manage.py test spotseeker_server
 
 ## Contributing
 
-Please read [CONTRIBUTING.md] (To be completed.) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md] for details on our code of conduct, and the process for submitting pull requests to us. (This has yet to be writtien.)
 
 ## Versioning
 
@@ -143,4 +143,10 @@ limitations under the License.
 
 ## List of settings
 
-(To be completed.)
+(To be moved to the wiki eventually.)
+
+JSON_PRETTY_PRINT
+SPOTSEEKER_AUTH_ADMINS
+SPOTSEEKER_AUTH_MODULE
+SPOTSEEKER_SEARCH_FILTERS
+USER_EMAIL_DOMAIN

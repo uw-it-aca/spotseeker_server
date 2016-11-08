@@ -79,7 +79,10 @@ Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_fo
 ```
 SPOTSEEKER_SPOT_FORM = 'spotseeker_server.org_forms.MODULE'
 SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.MODULE'
+SPOTSEEKER_SEARCH_FILTERS = 'spotseeker_server.org_filters.MODULE'
 ```
+
+For additional settings, see [some page that doesn't exist.]
 
 Create your database, and you can run the server.
 

@@ -40,7 +40,7 @@ AUTHENTICATION_BACKENDS = (
 )
 ```
 
-Add spotseeker_server to your INSTALLED_APPS in settings.py:
+Add spotseeker_server and oauth_provider to your INSTALLED_APPS in settings.py:
 
 ```
 INSTALLED_APPS = (

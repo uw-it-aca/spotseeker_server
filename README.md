@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/uw-it-aca/spotseeker_server.svg?branch=develop)](https://travis-ci.org/uw-it-aca/spotseeker_server)  [![Coverage Status](https://coveralls.io/repos/uw-it-aca/spotseeker_server/badge.svg?branch=master&service=github)](https://coveralls.io/github/uw-it-aca/spotseeker_server?branch=master)
+
 # SpaceScout Server
 
 This is the server for the SpaceScout suite of applications. It stores space metadata and resources as well as provides services to the SpaceScout web and mobile apps.

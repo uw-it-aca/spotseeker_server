@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/uw-it-aca/spotseeker_server.svg?branch=develop)](https://travis-ci.org/uw-it-aca/spotseeker_server)  [![Coverage Status](https://coveralls.io/repos/uw-it-aca/spotseeker_server/badge.svg?branch=master&service=github)](https://coveralls.io/github/uw-it-aca/spotseeker_server?branch=master)
+
 # SpaceScout Server
 
 This is the server for the SpaceScout suite of applications. It stores space metadata and resources as well as provides services to the SpaceScout web and mobile apps.
@@ -38,7 +40,7 @@ AUTHENTICATION_BACKENDS = (
 )
 ```
 
-Add spotseeker_server to your INSTALLED_APPS in settings.py:
+Add spotseeker_server and oauth_provider to your INSTALLED_APPS in settings.py:
 
 ```
 INSTALLED_APPS = (
@@ -53,10 +55,10 @@ Add the app to your project's urls.py:
 
 ```
 urlpatterns = patterns('',
-...
+    ...
     url(r'^auth/', include('oauth_provider.urls')),
     url(r'^api/', include('spotseeker_server.urls')),
-...
+    ...
 )
 ```
 

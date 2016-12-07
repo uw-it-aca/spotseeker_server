@@ -61,7 +61,7 @@ class Command(BaseCommand):
                                             capacity=200,
                                             longitude=Decimal('-122.306644'),
                                             latitude=Decimal('47.658241'),
-                                            building_name="Art Building")
+                                            building_name="Art Building (ART)")
             # get_or_create returns a tuple
             production_studio = \
                 SpotType.objects.get_or_create(name="studio")[0]
@@ -82,7 +82,7 @@ class Command(BaseCommand):
                                       capacity=10,
                                       longitude=Decimal('-122.306644'),
                                       latitude=Decimal('47.658241'),
-                                      building_name="Art Building")
+                                      building_name="Art Building (ART)")
             art.spottypes.add(cafe_type)
             art.save()
             art_ada = SpotExtendedInfo.objects.create(key="location_"
@@ -146,7 +146,7 @@ class Command(BaseCommand):
                                        capacity=10,
                                        longitude=Decimal('-122.306644'),
                                        latitude=Decimal('47.658241'),
-                                       building_name="Art Building")
+                                       building_name="Art Building (ART)")
             art2.spottypes.add(cafe_type)
             art2.save()
             art_ada = SpotExtendedInfo.objects.create(key="has_whiteboards",
@@ -238,7 +238,8 @@ class Command(BaseCommand):
                                          capacity=20,
                                          longitude=Decimal('-122.437212'),
                                          latitude=Decimal('47.246213'),
-                                         building_name="tacoma")
+                                         building_name="West Coast Grocery "
+                                                       "(WCG)")
             tacoma.spottypes.add(study_room_type)
             tacoma.save()
             wcg_outlets = SpotExtendedInfo.objects.create(key="has_outlets",
@@ -258,7 +259,8 @@ class Command(BaseCommand):
                                           capacity=20,
                                           longitude=Decimal('-122.437708'),
                                           latitude=Decimal('47.244832'),
-                                          building_name="tacoma")
+                                          building_name="West Coast Grocery "
+                                                        "(WCG)")
             tacoma2.spottypes.add(study_room_type)
             tacoma2.save()
             tacoma_outlets = SpotExtendedInfo.objects.create(key="has_outlets",
@@ -278,7 +280,8 @@ class Command(BaseCommand):
                                           capacity=20,
                                           longitude=Decimal('-122.438368'),
                                           latitude=Decimal('47.245838'),
-                                          building_name="tacoma")
+                                          building_name="West Coast Grocery "
+                                                        "(WCG)")
             tacoma3.spottypes.add(study_room_type)
             tacoma3.save()
             tacoma_outlets = SpotExtendedInfo.objects.create(key="has_outlets",
@@ -299,7 +302,7 @@ class Command(BaseCommand):
                 Spot.objects.create(name="FSH 2nd Floor South Kitchen",
                                     longitude=Decimal('-122.31659'),
                                     latitude=Decimal('47.65296'),
-                                    building_name="Fishery Sciences",
+                                    building_name="Fishery Sciences (FSH)",
                                     floor="2nd floor",
                                     room_number="266",
                                     capacity=12)
@@ -322,7 +325,8 @@ class Command(BaseCommand):
             fish_patio = Spot.objects.create(name="FSH 2nd Floor Patio/Deck",
                                              longitude=Decimal('-122.31659'),
                                              latitude=Decimal('47.65289'),
-                                             building_name="Fishery Sciences",
+                                             building_name="Fishery Sciences "
+                                                           "(FSH)",
                                              floor="2nd floor",
                                              capacity=12)
             fish_patio.spottypes.add(outdoor_type)
@@ -409,7 +413,7 @@ class Command(BaseCommand):
                 capacity=8,
                 longitude=Decimal('-122.306382'),
                 latitude=Decimal('47.653477'),
-                building_name="Library"
+                building_name="Odegaard Undergraduate Library (OUGL)"
             )
             study_room_233.spottypes.add(study_room_type)
             study_room_233.save()
@@ -459,7 +463,7 @@ class Command(BaseCommand):
                                            capacity=10,
                                            longitude=Decimal('-122.437708'),
                                            latitude=Decimal('47.244832'),
-                                           building_name="Sad")
+                                           building_name="Joy")
             room_301.spottypes.add(study_room_type)
             room_301.save()
 
@@ -507,8 +511,9 @@ class Command(BaseCommand):
 
             # get_or_create returns a tuple
             item_place_type = \
-                SpotType.objects.get_or_create(name="item_place")[0]
-            loan_office = Spot.objects.create(name="Tech Loan Office")
+                SpotType.objects.get_or_create(name="checkout")[0]
+            loan_office = Spot.objects.create(name="Tech Loan Office",
+                                              building_name="Kane Hall (KNE)")
             loan_office.spottypes.add(item_place_type)
             loan_office.save()
             SpotExtendedInfo.objects.create(key='app_type',

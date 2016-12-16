@@ -37,8 +37,10 @@ class JSONResponse(HttpResponse):
     """
 
     def __init__(self, content='', *args, **kwargs):
+        debug = getattr(settings, 'DEBUG', False)
+        pretty_print = getattr(settings, 'JSON_PRETTY_PRINT', False)
         if content != '':
-            if settings.DEBUG and settings.JSON_PRETTY_PRINT:
+            if debug and pretty_print:
                 content = json.dumps(content, sort_keys=True, indent=4 * ' ')
             else:
                 content = json.dumps(content)

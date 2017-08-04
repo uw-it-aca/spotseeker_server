@@ -43,6 +43,12 @@ class Command(BaseCommand):
                     action="store_true",
                     default="False",
                     help="Set this param if you'd like to wipe all spot data"),
+
+        make_option('--no-images',
+                    dest='no_images',
+                    action="store_true",
+                    default="False",
+                    help="Set this param if you'd like to ignore images"),
     )
 
     def handle(self, *args, **options):
@@ -115,13 +121,14 @@ class Command(BaseCommand):
                 # Create spot
                 view.build_and_save_from_input(fake_req, None)
                 spot_model = Spot.objects.latest('pk')
-                json_to_model[spot['etag']] = spot_model
-                spot_model = json_to_model[spot['etag']]
                 content_types = {v: k for k, v in
                                  SpotImage.CONTENT_TYPES.iteritems()}
+
+                if options["no_images"]:
+                    continue
+
                 # retrieve spot images
                 for image in spot["images"]:
-                    print base_url + image["url"]
                     resp, content = client.request(base_url + image["url"],
                                                    method="GET")
                     im = SpotImage()
@@ -132,8 +139,11 @@ class Command(BaseCommand):
                     im.display_index = image["display_index"]
                     im.upload_application = "retrieve_spots_command"
                     im.upload_user = "n/a"
-                    im.image.save(str(uuid.uuid4()) + "." + content_types[resp["content-type"]],
-                                  SimpleUploadedFile(str(uuid.uuid4()) + "." + content_types[resp["content-type"]], content, resp["content-type"]))
+                    im.image.save(str(uuid.uuid4()) + "." +
+                                  content_types[resp["content-type"]],
+                                  SimpleUploadedFile(str(uuid.uuid4()) + "." +
+                                  content_types[resp["content-type"]],
+                                  content, resp["content-type"]))
                     im.save()
             except Exception as ex:
                 print ex

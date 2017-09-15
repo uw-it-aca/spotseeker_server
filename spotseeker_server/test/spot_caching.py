@@ -13,7 +13,7 @@ class SpotCacheTest(TestCase):
         # Assert that a cache entry is created when we call
         # json_data_structure()
         js = spot.json_data_structure()
-        cached_js = cache.get(spot.cache_key())
+        cached_js = cache.get(spot.json_cache_key())
         self.assertEqual(js, cached_js)
 
         # Assert that saving the spot removes the cache entry
@@ -26,7 +26,7 @@ class SpotCacheTest(TestCase):
         self.assertEqual(new_js['etag'], spot.etag)
 
         # Assert the new cache entry reflects the updated etag
-        new_cached_js = cache.get(spot.cache_key())
+        new_cached_js = cache.get(spot.json_cache_key())
         self.assertEqual(new_js, new_cached_js)
 
         # Assert that deleting the spot removes the cache entry

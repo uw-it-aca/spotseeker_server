@@ -91,12 +91,12 @@ class Spot(models.Model):
     def __unicode__(self):
         return self.name
 
-    def cache_key(self):
+    def json_cache_key(self):
         return "Spot:" + str(self.id) + ":json"
 
     def invalidate_cache(self):
         """Remove this spot's cache entry"""
-        cache.delete(self.cache_key())
+        cache.delete(self.json_cache_key())
 
     @update_etag
     def save(self, *args, **kwargs):
@@ -112,7 +112,7 @@ class Spot(models.Model):
         """
         # If this data is cached, and the etags match, return the cached
         # version.
-        cached_entry = cache.get(self.cache_key())
+        cached_entry = cache.get(self.json_cache_key())
         if cached_entry and cached_entry['etag'] == self.etag:
             return cached_entry
 
@@ -174,7 +174,7 @@ class Spot(models.Model):
             "external_id": self.external_id
         }
         # Add this spot's data to the cache
-        cache.set(self.cache_key(), spot_json)
+        cache.set(self.json_cache_key(), spot_json)
         return spot_json
 
     def update_rating(self):

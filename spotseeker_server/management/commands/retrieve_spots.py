@@ -84,6 +84,7 @@ class Command(BaseCommand):
             FavoriteSpot.objects.all().delete()
             SpotAvailableHours.objects.all().delete()
             SpotExtendedInfo.objects.all().delete()
+            ItemExtendedInfo.objects.all().delete()
             Item.objects.all().delete()
             ItemImage.objects.all().delete()
             SpaceReview.objects.all().delete()

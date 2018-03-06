@@ -13,7 +13,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
 from django.core.files import File
-from spotseeker_server.models import Item, ItemImage
+from spotseeker_server.models import Item, ItemImage, Spot
 from os.path import abspath, dirname, isfile
 from django.test.utils import override_settings
 from django.utils.unittest import skipUnless
@@ -30,7 +30,13 @@ class ItemImageDELETETest(TestCase):
     """ Tests DELETE of a ItemImage at /api/v1/item/<item id>/image/<image id>.
     """
     def setUp(self):
-        item = Item.objects.create(name="This is to test DELETEing images")
+        spot = Spot.objects.create(
+            name="This is a spot for testing DELETEing images")
+        spot.save()
+        item = Item.objects.create(
+            name="This is to test DELETEing images",
+            spot=spot    
+        )
         item.save()
         self.item = item
 

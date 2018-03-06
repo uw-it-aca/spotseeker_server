@@ -76,6 +76,7 @@ class ItemImageView(RESTDispatch):
         if "display_index" in request.META['files']:
             img.display_index = request.META['files']["display_index"]
         img.save()
+        item.spot.save()
 
         return self.GET(request, item_id, image_id)
 
@@ -90,5 +91,6 @@ class ItemImageView(RESTDispatch):
                                 404)
 
         img.delete()
+        item.spot.save()
 
         return HttpResponse(status=200)

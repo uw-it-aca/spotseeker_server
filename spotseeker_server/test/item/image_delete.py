@@ -35,7 +35,7 @@ class ItemImageDELETETest(TestCase):
         spot.save()
         item = Item.objects.create(
             name="This is to test DELETEing images",
-            spot=spot    
+            spot=spot
         )
         item.save()
         self.item = item

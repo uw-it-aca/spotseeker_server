@@ -56,6 +56,7 @@ class AddItemImageView(RESTDispatch):
                 args['display_index'] = 0
 
         image = item.itemimage_set.create(**args)
+        item.spot.save()
 
         response = HttpResponse(status=201)
         response["Location"] = image.rest_url()

@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* Django <1.4.
+* Django == 1.4 (older versions untested)
 * A Python installation (2.6 or 2.7)
 * pip or easy_install
 * git
@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     ...
     'oauth_provider',
     'spotseeker_server',
+    'south',
     ...
 )
 ```
@@ -76,12 +77,12 @@ A list or tuple of usernames allowed to use methods that modify server data (PUT
 SPOTSEEKER_AUTH_ADMINS = []
 ```
 
-Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here. (For example, in the spot form, MODULE could be default.DefaultSpotForm or org_forms.UWSpotForm.)
+Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here. (For example, SPOTSEEKER_SPOT_FORM could be default.DefaultSpotForm or org_forms.UWSpotForm , SPOTSEEKER_SPOTEXTENDEDINFO_FORM could be org_forms.UWSpotExtendedInfoForm or default.DefaultSpotExtendedInfoForm, and SPOTSEEKER_SEARCH_FILTERS could contain or  org_filters.uw_search.Filter or org_filters.sample_search.Filter)
 
 ```
 SPOTSEEKER_SPOT_FORM = 'spotseeker_server.org_forms.MODULE'
 SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.MODULE'
-SPOTSEEKER_SEARCH_FILTERS = 'spotseeker_server.org_filters.MODULE'
+SPOTSEEKER_SEARCH_FILTERS = ('spotseeker_server.org_filters.MODULE', )
 ```
 
 For additional settings, see [some page that doesn't exist.]
@@ -90,6 +91,7 @@ Create your database, and you can run the server.
 
 ```
 python manage.py syncdb
+python manage.py migrate
 python manage.py runserver
 ```
 

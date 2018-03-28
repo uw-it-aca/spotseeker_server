@@ -14,7 +14,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.core.files import File
 from django.test.client import Client
-from spotseeker_server.models import Item, ItemImage
+from spotseeker_server.models import Item, ItemImage, Spot
 from cStringIO import StringIO
 from PIL import Image
 from os.path import abspath, dirname
@@ -35,8 +35,13 @@ class ItemImageThumbTest(TestCase):
             'django.core.cache.backends.dummy.DummyCache'
         )
         with patch.object(models, 'cache', dummy_cache):
+            spot = Spot.objects.create(
+                name="This spot is for testing thumbnailing images"
+            )
+            spot.save()
             item = Item.objects.create(
-                name="This is to test thumbnailing images"
+                name="This is to test thumbnailing images",
+                spot=spot
             )
             item.save()
             self.item = item

@@ -14,7 +14,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client, encode_multipart
 from django.core.files import File
-from spotseeker_server.models import Item, ItemImage
+from spotseeker_server.models import Item, ItemImage, Spot
 from os.path import abspath, dirname
 import os
 import random
@@ -37,8 +37,13 @@ class ItemImagePUTTest(TestCase):
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            spot = Spot.objects.create(
+                name="This is a spot fot testing PUTting images")
+            spot.save()
             item = Item.objects.create(
-                name="This is to test PUTtingimages")
+                name="This is to test PUTtingimages",
+                spot=spot
+            )
             item.save()
             self.item = item
 

@@ -20,7 +20,7 @@ class Migration(SchemaMigration):
         # Changing field 'Item.category'
         db.alter_column('spotseeker_server_item', 'category', self.gf('django.db.models.fields.CharField')(max_length=50, null=True))
         # Removing index on 'Item', fields ['category']
-        db.delete_index('spotseeker_server_item', ['category_id'])
+        #db.delete_index('spotseeker_server_item', ['category_id'])
 
 
         # Renaming column for 'Item.subcategory' to match new field type.
@@ -28,7 +28,7 @@ class Migration(SchemaMigration):
         # Changing field 'Item.subcategory'
         db.alter_column('spotseeker_server_item', 'subcategory', self.gf('django.db.models.fields.CharField')(max_length=50, null=True))
         # Removing index on 'Item', fields ['subcategory']
-        db.delete_index('spotseeker_server_item', ['subcategory_id'])
+        #db.delete_index('spotseeker_server_item', ['subcategory_id'])
 
 
     def backwards(self, orm):

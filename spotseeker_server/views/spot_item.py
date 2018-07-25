@@ -28,6 +28,7 @@ import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class ItemStash(object):
@@ -252,8 +253,14 @@ def _save_items(sender, **kwargs):
         for item_ei in ei_forms:
             # save the new EI
             item_ei_model = item_ei.save(commit=False)
-            item_ei_model.item = item_model
-            item_ei_model.save()
+            try:
+                actual_item_ei = item_model.itemextendedinfo_set.get(key=item_ei_model.key)
+                if actual_item_ei.value != item_ei_model.value:
+                    actual_item_ei.value = item_ei_model.value
+                    actual_item_ei.save()
+            except ObjectDoesNotExist:
+                item_ei_model.item = item_model
+                item_ei_model.save()
 
     # delete items not included
     items_to_delete = stash['items_to_delete']

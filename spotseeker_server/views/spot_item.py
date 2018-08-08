@@ -197,20 +197,14 @@ def clean_ei(old_ei_list, new_ei_forms):
     """Returns deleted EI keys and removes unchanged EI"""
     to_delete = []
     forms_to_remove = []
+    new_ei_form_keys = []
+
+    for ei_form in new_ei_forms:
+        new_ei_form_keys.append(ei_form.cleaned_data['key'])
+
     for old_ei in old_ei_list:
-        found = True
-
-        for ei_form in new_ei_forms:
-            if ei_form.cleaned_data['key'] != old_ei.key:
-                found = False
-
-        # put the EI that has been removed in to_remove for removal
-        if found:
+        if old_ei.key not in new_ei_form_keys:
             to_delete.append(old_ei)
-
-    # get rid of unchanged item EI
-    for form in forms_to_remove:
-        new_ei_forms.remove(form)
 
     return to_delete
 

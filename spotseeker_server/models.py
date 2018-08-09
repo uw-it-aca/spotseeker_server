@@ -503,6 +503,9 @@ class ItemExtendedInfo(models.Model):
         verbose_name_plural = "Item extended info"
         unique_together = ('item', 'key')
 
+    def __unicode__(self):
+        return "ItemExtendedInfo ({}) - {}: {}".format(self.item, self.key, self.value)
+
 
 class ItemImage(models.Model):
     """ An image of a Item. Multiple images can be associated with a Item,

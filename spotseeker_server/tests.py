@@ -38,6 +38,7 @@ from spotseeker_server.test.images.oauth_spot_info import \
 from spotseeker_server.test.item.model import ItemModelTest
 from spotseeker_server.test.search.item import SpotSearchItemTest
 from spotseeker_server.test.search.buildings import BuildingSearchTest
+from spotseeker_server.test.search.uw_buildings import UWBuildingSearchTest
 from spotseeker_server.test.search.capacity import SpotSearchCapacityTest
 from spotseeker_server.test.search.limit import SpotSearchLimitTest
 from spotseeker_server.test.search.distance import SpotSearchDistanceTest

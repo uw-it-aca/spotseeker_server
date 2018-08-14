@@ -58,6 +58,15 @@ class BuildingSearchTest(SpotServerTestCase):
         self.add_ei_to_spot(self.spot6, campus='campus_c', app_type='book')
         self.add_ei_to_spot(self.spot7, campus='campus_d', app_type='food')
 
+    def tearDown(self):
+        self.spot1.delete()
+        self.spot1_2.delete()
+        self.spot2.delete()
+        self.spot3.delete()
+        self.spot4.delete()
+        self.spot5.delete()
+        self.spot6.delete()
+
     def test_content_type(self):
         c = self.client
         url = "/api/v1/buildings"
@@ -75,22 +84,11 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEquals(len(buildings), 8)
 
     def test_buildings_for_campus(self):
-        c = self.client
+        """ Tests that the correct buildings are returned when campus extended info is passed.
 
-        response = c.get("/api/v1/buildings/", {"campus": "campus_a"})
-        buildings = json.loads(response.content)
-
-        self.assertEquals(len(buildings), 1)
-        # Assert that the building returned is not from the tacoma campus.
-        self.assertNotEqual(buildings[0], self.spot1.building_name)
-        # Assert that the building returned is from the seattle campus.
-        self.assertEquals(buildings[0], self.spot1_2.building_name)
-
-        response = c.get("/api/v1/buildings", {"campus": "campus_b"})
-        buildings = json.loads(response.content)
-
-        self.assertEquals(len(buildings), 2)
-        self.assertNotIn(self.spot1.building_name, buildings)
+            This test was implemented against the UW Search Filter, so it was moved to tests/search/uw_buildings.py as test_uw_buildings_for_campus. This is now a stub for someone to write a test against the Default search filter.
+        """
+        pass
 
     def test_buildings_for_app_type(self):
         c = self.client
@@ -144,18 +142,8 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEqual(buildings[1], self.spot7.building_name)
 
     def test_extended_info_campus(self):
-        c = self.client
+        """ Tests that the correct buildings are returned when campus extended info is passed.
 
-        response = c.get('/api/v1/buildings/',
-                         {'extended_info:campus': 'campus_c'})
-        buildings = json.loads(response.content)
-        self.assertEqual(len(buildings), 1)
-        self.assertEqual(buildings[0], self.spot4.building_name)
-
-        response = c.get(
-            '/api/v1/buildings/',
-            {'extended_info:campus': 'campus_d',
-             'extended_info:app_type': 'food'}
-        )
-        buildings = json.loads(response.content)
-        self.assertEqual(len(buildings), 2)
+            This test was implemented against the UW Search Filter, so it was moved to tests/search/uw_buildings.py as test_uw_extended_info_campus. This is now a stub for someone to write a test against the Default search filter.
+        """
+        pass

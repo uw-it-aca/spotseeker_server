@@ -18,7 +18,7 @@ import simplejson as json
 #from django.conf import settings
 from django.test.utils import override_settings
 from spotseeker_server.test import SpotServerTestCase
-
+from spotseeker_server.org_filters import SearchFilterChain
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
                    SPOTSEEKER_SEARCH_FILTERS=('spotseeker_server.org_filters.uw_search.Filter',))
@@ -27,6 +27,7 @@ class UWBuildingSearchTest(SpotServerTestCase):
     """
 
     def setUp(self):
+        SearchFilterChain._load_filters()
         self.spot1 = self.new_spot('Spot on campus A.',
                                    building_name='Building 1')
 

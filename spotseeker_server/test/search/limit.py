@@ -36,9 +36,8 @@ class SpotSearchLimitTest(TestCase):
         get_request = "/api/v1/spot?"
         num_spots = self.num_spots
 
-        for i in range(num_spots):
-            i = i + 1
-            get_request = get_request + "id=%s&" % (i)
+        for i in Spot.objects.all():
+            get_request = get_request + "id=%s&" % (i.id)
 
         response = c.get(get_request)
         self.assertEquals(
@@ -71,9 +70,8 @@ class SpotSearchLimitTest(TestCase):
         get_request = "/api/v1/spot?"
         num_spots = self.num_spots
 
-        for i in range(num_spots):
-            i = i + 1
-            get_request = get_request + "id=%s&" % (i)
+        for i in Spot.objects.all():
+            get_request = get_request + "id=%s&" % (i.id)
         get_request = get_request + "limit=%d" % (num_spots)
 
         response = c.get(get_request)

@@ -54,7 +54,7 @@ class SpotSearchLimitTest(TestCase):
 
         for i in range(num_spots):
             i = i + 1
-            get_request = get_request + "id=%s&" % (i)
+            get_request = get_request + "id=%s&" % (Spot.objects.all()[i].id)
 
         response = c.get(get_request)
         spots = json.loads(response.content)

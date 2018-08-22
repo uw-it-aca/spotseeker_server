@@ -43,8 +43,8 @@ class SpotSearchLimitTest(TestCase):
         self.assertEquals(
             response.status_code,
             400,
-            "400 is thrown if more than 20 spots \
-            are requested without a limit"
+            ("400 is thrown if more than 20 spots "
+             "are requested without a limit")
         )
 
     def test_less_than_20_no_limit(self):
@@ -61,8 +61,8 @@ class SpotSearchLimitTest(TestCase):
         self.assertEquals(
             len(spots),
             num_spots,
-            "Spots requested were returned if \
-            less than 20 spots are requested without a limit"
+            ("Spots requested were returned if "
+             "less than 20 spots are requested without a limit")
         )
 
     def test_more_than_20_with_limit(self):
@@ -79,6 +79,6 @@ class SpotSearchLimitTest(TestCase):
         self.assertEquals(
             len(spots),
             num_spots,
-            "Spots requested were returned even though \
-            more than 20 because a limit was included"
+            ("Spots requested were returned even though "
+             "more than 20 because a limit was included")
         )

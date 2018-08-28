@@ -19,7 +19,7 @@ from spotseeker_server.views.rest_dispatch import \
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.default_forms.item import DefaultItemForm as ItemForm
 from spotseeker_server.default_forms.item import DefaultItemExtendedInfoForm \
-                                                as ItemExtendedInfoForm
+    as ItemExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
@@ -35,6 +35,7 @@ class ItemStash(object):
     """
     This object handles the storing and validation of an Item
     """
+
     def __init__(self, item):
 
         self.json = item
@@ -244,7 +245,8 @@ def _save_items(sender, **kwargs):
             # save the new EI
             item_ei_model = item_ei.save(commit=False)
             try:
-                actual_item_ei = item_model.itemextendedinfo_set.get(key=item_ei_model.key)
+                actual_item_ei = item_model.itemextendedinfo_set.get(
+                    key=item_ei_model.key)
                 if actual_item_ei.value != item_ei_model.value:
                     actual_item_ei.value = item_ei_model.value
                     actual_item_ei.save()

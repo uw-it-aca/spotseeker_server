@@ -35,7 +35,7 @@ import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
-import spot_item  #TODO: dangling import?
+import spot_item
 
 
 @django.dispatch.receiver(

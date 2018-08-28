@@ -84,9 +84,13 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEquals(len(buildings), 8)
 
     def test_buildings_for_campus(self):
-        """ Tests that the correct buildings are returned when campus extended info is passed.
+        """ Tests that the correct buildings are returned when campus extended
+        info is passed.
 
-            This test was implemented against the UW Search Filter, so it was moved to tests/search/uw_buildings.py as test_uw_buildings_for_campus. This is now a stub for someone to write a test against the Default search filter.
+            This test was implemented against the UW Search Filter, so it was
+            moved to tests/search/uw_buildings.py as
+            test_uw_buildings_for_campus. This is now a stub for someone to
+            write a test against the Default search filter.
         """
         pass
 
@@ -142,8 +146,12 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEqual(buildings[1], self.spot7.building_name)
 
     def test_extended_info_campus(self):
-        """ Tests that the correct buildings are returned when campus extended info is passed.
+        """ Tests that the correct buildings are returned when campus extended
+        info is passed.
 
-            This test was implemented against the UW Search Filter, so it was moved to tests/search/uw_buildings.py as test_uw_extended_info_campus. This is now a stub for someone to write a test against the Default search filter.
+            This test was implemented against the UW Search Filter, so it was
+            moved to tests/search/uw_buildings.py as
+            test_uw_extended_info_campus. This is now a stub for someone to
+            write a test against the Default search filter.
         """
         pass

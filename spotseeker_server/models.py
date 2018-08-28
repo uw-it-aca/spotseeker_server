@@ -504,7 +504,9 @@ class ItemExtendedInfo(models.Model):
         unique_together = ('item', 'key')
 
     def __unicode__(self):
-        return "ItemExtendedInfo ({}) - {}: {}".format(self.item, self.key, self.value)
+        return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
+                                                       self.key,
+                                                       self.value)
 
 
 class ItemImage(models.Model):

@@ -15,13 +15,17 @@
 
 import simplejson as json
 
-#from django.conf import settings
 from django.test.utils import override_settings
 from spotseeker_server.test import SpotServerTestCase
 from spotseeker_server.org_filters import SearchFilterChain
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                   SPOTSEEKER_SEARCH_FILTERS=('spotseeker_server.org_filters.uw_search.Filter',))
+
+@override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+    SPOTSEEKER_SEARCH_FILTERS=(
+        'spotseeker_server.org_filters.uw_search.Filter',
+        )
+    )
 class UWBuildingSearchTest(SpotServerTestCase):
     """ Tests the /api/v1/buildings interface specifically for the UW Filter.
     """
@@ -61,7 +65,6 @@ class UWBuildingSearchTest(SpotServerTestCase):
         self.add_ei_to_spot(self.spot6, campus='campus_c', app_type='book')
         self.add_ei_to_spot(self.spot7, campus='campus_d', app_type='food')
 
-
     def tearDown(self):
         self.spot1.delete()
         self.spot1_2.delete()
@@ -71,7 +74,6 @@ class UWBuildingSearchTest(SpotServerTestCase):
         self.spot5.delete()
         self.spot6.delete()
         self.spot7.delete()
-
 
     def test_uw_buildings_for_campus(self):
         c = self.client
@@ -90,7 +92,6 @@ class UWBuildingSearchTest(SpotServerTestCase):
 
         self.assertEquals(len(buildings), 2)
         self.assertNotIn(self.spot1.building_name, buildings)
-
 
     def test_uw_extended_info_campus(self):
         c = self.client

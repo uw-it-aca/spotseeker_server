@@ -1,6 +1,6 @@
 # Django settings for travis_ci project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 JSON_PRETTY_PRINT = False
 
@@ -129,7 +129,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'south',
     'spotseeker_server',
     'oauth_provider',
 )
@@ -167,16 +166,16 @@ OAUTH_AUTHORIZE_VIEW = 'spotseeker_server.views.oauth.authorize'
 OAUTH_CALLBACK_VIEW = 'spotseeker_server.views.oauth.callback'
 
 # Values can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair.
-SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
-SPOTSEEKER_AUTH_ADMINS = ()
+#SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.all_ok'
+#SPOTSEEKER_AUTH_ADMINS = ()
 
 # Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here.
-SPOTSEEKER_SPOT_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotForm'
-SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm'
-SPOTSEEKER_SEARCH_FILTERS = ['spotseeker_server.org_filters.uw_search.Filter']
+#SPOTSEEKER_SPOT_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotForm'
+#SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm'
+#SPOTSEEKER_SEARCH_FILTERS = ['spotseeker_server.org_filters.uw_search.Filter']
 
 # Preferred web app hostname
-SS_APP_SERVER = 'localhost'
+#SS_APP_SERVER = 'localhost'
 
 # Path used by web app to display a space
-SS_APP_SPACE_PATH = "/space/{{ spot_id }}/{{ spot_name }}"
+#SS_APP_SPACE_PATH = "/space/{{ spot_id }}/{{ spot_name }}"

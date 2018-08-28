@@ -88,6 +88,24 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        }
+    },
+    'loggers': {
+        'spotseeker_server.views.share_space': {
+            'handlers': ['null'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
+    }
+}
+
 JSON_PRETTY_PRINT = False
 
 OAUTH_AUTHORIZE_VIEW = 'spotseeker_server.views.oauth.authorize'

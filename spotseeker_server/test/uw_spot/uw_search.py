@@ -18,15 +18,21 @@ from django.test.client import Client
 from django.test.utils import override_settings
 from django.utils.unittest import skipUnless
 from spotseeker_server.models import Spot, SpotExtendedInfo
+from spotseeker_server.org_filters import SearchFilterChain
 import json
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+    SPOTSEEKER_SEARCH_FILTERS=(
+        'spotseeker_server.org_filters.uw_search.Filter',
+        )
+    )
 class UWSearchTest(TestCase):
     """ Tests that special Extended Info searches behave properly.
     """
 
     def setUp(self):
+        SearchFilterChain._load_filters()
         # create a spot without app_type
         self.spot1 = Spot.objects.create(name="no app type spot", capacity=4)
         # create a spot with app_type
@@ -72,12 +78,6 @@ class UWSearchTest(TestCase):
         self.assertTrue(self.spot2.json_data_structure() in spots)
         self.assertTrue(self.spot3.json_data_structure() not in spots)
 
-    @skipUnless(
-        getattr(settings, 'SPOTSEEKER_SEARCH_FILTERS', False) and
-        settings.SPOTSEEKER_SEARCH_FILTERS ==
-        ['spotseeker_server.org_filters.uw_search.Filter'],
-        "Skip unless the right search filter is defined in settings"
-    )
     def test_no_app_type(self):
         """ Tests searching with no app_type query param.
         """
@@ -96,12 +96,6 @@ class UWSearchTest(TestCase):
         self.assertTrue(self.spot4.json_data_structure() in spots)
         self.assertTrue(self.spot5.json_data_structure() in spots)
 
-    @skipUnless(
-        getattr(settings, 'SPOTSEEKER_SEARCH_FILTERS', False) and
-        settings.SPOTSEEKER_SEARCH_FILTERS ==
-        ['spotseeker_server.org_filters.uw_search.Filter'],
-        "Skip unless the right search filter is defined in settings"
-    )
     def test_single_group_filtering(self):
         response = self.client.get("/api/v1/spot",
                                    {"extended_info:uwgroup": "our_group"})
@@ -115,12 +109,6 @@ class UWSearchTest(TestCase):
         self.assertTrue(self.spot3.json_data_structure() not in spots)
         self.assertTrue(self.spot4.json_data_structure() in spots)
 
-    @skipUnless(
-        getattr(settings, 'SPOTSEEKER_SEARCH_FILTERS', False) and
-        settings.SPOTSEEKER_SEARCH_FILTERS ==
-        ['spotseeker_server.org_filters.uw_search.Filter'],
-        "Skip unless the right search filter is defined in settings"
-    )
     def test_multiple_group_filtering(self):
         response = self.client.get("/api/v1/spot",
                                    {"extended_info:uwgroup":

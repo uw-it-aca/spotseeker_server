@@ -32,7 +32,7 @@ class BuildingSearchTest(SpotServerTestCase):
                                      building_name="Building 2")
 
         self.spot2 = self.new_spot("Spot on campus B.",
-                                   building_name="Building3")
+                                   building_name="Building 3")
 
         self.spot3 = self.new_spot("Another Spot on campus B.",
                                    building_name="Building 4")
@@ -84,15 +84,28 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEquals(len(buildings), 8)
 
     def test_buildings_for_campus(self):
-        """ Tests that the correct buildings are returned when campus extended
-        info is passed.
-
-            This test was implemented against the UW Search Filter, so it was
-            moved to tests/search/uw_buildings.py as
-            test_uw_buildings_for_campus. This is now a stub for someone to
-            write a test against the Default search filter.
+        """ Tests that the correct buildings are returned from the
+        corresponding campus when campus extended info is passed.
         """
-        pass
+        c = self.client
+
+        #Query buildings on campus_a: Only spot1 and spot1_2 should be returned in buildings list
+        response = c.get("/api/v1/buildings/", {"campus": "campus_a"})
+        buildings = json.loads(response.content)
+        #Assert that the correct number of buildings were returned for campus_a
+        self.assertEquals(len(buildings), 2)
+        #Assert that this building is not from campus_b or any campus other than campus_a
+        expected = [self.spot1.building_name, self.spot1_2.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)
+
+        #Query buildings on campus_b: Only spot3 and spot4 should be returned in buildings list
+        response = c.get("/api/v1/buildings", {"campus": "campus_b"})
+        buildings = json.loads(response.content)
+        self.assertEqual(len(buildings), 2)
+        expected = [self.spot2.building_name, self.spot3.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)
 
     def test_buildings_for_app_type(self):
         c = self.client
@@ -146,12 +159,28 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEqual(buildings[1], self.spot7.building_name)
 
     def test_extended_info_campus(self):
-        """ Tests that the correct buildings are returned when campus extended
-        info is passed.
-
-            This test was implemented against the UW Search Filter, so it was
-            moved to tests/search/uw_buildings.py as
-            test_uw_extended_info_campus. This is now a stub for someone to
-            write a test against the Default search filter.
+        """ Tests that the correct buildings are returned from the corresponding campus
+            when campus extended info is passed.
         """
-        pass
+        c = self.client
+        #Query buildings on campus_c but using the extended_info option
+        response = c.get('/api/v1/buildings/',
+                        {'extended_info:campus': 'campus_c'})
+        buildings = json.loads(response.content)
+        #This should return spot4 and spot6 as they are both on campus_c
+        self.assertEqual(len(buildings), 2)
+        expected = [self.spot4.building_name, self.spot6.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)
+
+        #Query buildings on campus_d but using the extended_info of app_type: 'food' as well
+        response = c.get('/api/v1/buildings/',
+                        {'extended_info:campus': 'campus_d',
+                         'extended_info:app_type': 'food'}
+                        )
+        buildings = json.loads(response.content)
+        #This should return spot5 and spot7 as they both are on campus_d and have the food app_type
+        self.assertEqual(len(buildings), 2)
+        expected = [self.spot5.building_name, self.spot7.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)

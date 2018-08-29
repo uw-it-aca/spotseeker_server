@@ -22,7 +22,8 @@ from spotseeker_server.org_filters import SearchFilterChain
 import json
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+@override_settings(
+    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
     SPOTSEEKER_SEARCH_FILTERS=(
         'spotseeker_server.org_filters.uw_search.Filter',
         )

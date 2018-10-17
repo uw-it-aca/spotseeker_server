@@ -67,8 +67,11 @@ class Command(BaseCommand):
                                            secret=secret)
 
         if options['trusted']:
-            trusted = TrustedOAuthClient.objects.create(consumer=consumer,
-                                                        is_trusted=1)
+            trusted = TrustedOAuthClient.objects.create(
+                consumer=consumer,
+                is_trusted=1,
+                bypasses_user_authorization=False
+            )
 
         if not options['silent']:
             self.stdout.write("Key: %s\n" % key)

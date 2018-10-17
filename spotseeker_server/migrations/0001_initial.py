@@ -1,194 +1,258 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import re
+from django.conf import settings
+import django.core.validators
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Spot'
-        db.create_table('spotseeker_server_spot', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('type_name', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('latitude', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=11, decimal_places=8)),
-            ('longitude', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=11, decimal_places=8)),
-            ('height_from_sea_level', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=11, decimal_places=8, blank=True)),
-            ('building_name', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('floor', self.gf('django.db.models.fields.CharField')(max_length=50, blank=True)),
-            ('room_number', self.gf('django.db.models.fields.CharField')(max_length=25, blank=True)),
-            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('capacity', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('display_access_restrictions', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('organization', self.gf('django.db.models.fields.CharField')(max_length=50, blank=True)),
-            ('manager', self.gf('django.db.models.fields.CharField')(max_length=50, blank=True)),
-            ('etag', self.gf('django.db.models.fields.CharField')(max_length=40)),
-        ))
-        db.send_create_signal('spotseeker_server', ['Spot'])
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('oauth_provider', '0001_initial'),
+    ]
 
-        # Adding model 'SpotAvailableHours'
-        db.create_table('spotseeker_server_spotavailablehours', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('spot', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Spot'])),
-            ('day', self.gf('django.db.models.fields.CharField')(max_length=3)),
-            ('start_time', self.gf('django.db.models.fields.TimeField')()),
-            ('end_time', self.gf('django.db.models.fields.TimeField')()),
-        ))
-        db.send_create_signal('spotseeker_server', ['SpotAvailableHours'])
-
-        # Adding model 'SpotExtendedInfo'
-        db.create_table('spotseeker_server_spotextendedinfo', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('value', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('spot', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Spot'])),
-        ))
-        db.send_create_signal('spotseeker_server', ['SpotExtendedInfo'])
-
-        # Adding model 'SpotImage'
-        db.create_table('spotseeker_server_spotimage', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('description', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('image', self.gf('django.db.models.fields.files.ImageField')(max_length=100)),
-            ('spot', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['spotseeker_server.Spot'])),
-            ('content_type', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('width', self.gf('django.db.models.fields.IntegerField')()),
-            ('height', self.gf('django.db.models.fields.IntegerField')()),
-            ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('modification_date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('etag', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('upload_user', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('upload_application', self.gf('django.db.models.fields.CharField')(max_length=100)),
-        ))
-        db.send_create_signal('spotseeker_server', ['SpotImage'])
-
-        # Adding model 'TrustedOAuthClient'
-        db.create_table('spotseeker_server_trustedoauthclient', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('consumer', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['oauth_provider.Consumer'])),
-            ('is_trusted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('spotseeker_server', ['TrustedOAuthClient'])
-
-    def backwards(self, orm):
-        # Deleting model 'Spot'
-        db.delete_table('spotseeker_server_spot')
-
-        # Deleting model 'SpotAvailableHours'
-        db.delete_table('spotseeker_server_spotavailablehours')
-
-        # Deleting model 'SpotExtendedInfo'
-        db.delete_table('spotseeker_server_spotextendedinfo')
-
-        # Deleting model 'SpotImage'
-        db.delete_table('spotseeker_server_spotimage')
-
-        # Deleting model 'TrustedOAuthClient'
-        db.delete_table('spotseeker_server_trustedoauthclient')
-
-    models = {
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'oauth_provider.consumer': {
-            'Meta': {'object_name': 'Consumer'},
-            'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'secret': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'status': ('django.db.models.fields.SmallIntegerField', [], {'default': '1'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'})
-        },
-        'spotseeker_server.spot': {
-            'Meta': {'object_name': 'Spot'},
-            'building_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'capacity': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'display_access_restrictions': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
-            'etag': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'floor': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'height_from_sea_level': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '11', 'decimal_places': '8', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'latitude': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '11', 'decimal_places': '8'}),
-            'longitude': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '11', 'decimal_places': '8'}),
-            'manager': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'organization': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'room_number': ('django.db.models.fields.CharField', [], {'max_length': '25', 'blank': 'True'}),
-            'type_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
-        },
-        'spotseeker_server.spotavailablehours': {
-            'Meta': {'object_name': 'SpotAvailableHours'},
-            'day': ('django.db.models.fields.CharField', [], {'max_length': '3'}),
-            'end_time': ('django.db.models.fields.TimeField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']"}),
-            'start_time': ('django.db.models.fields.TimeField', [], {})
-        },
-        'spotseeker_server.spotextendedinfo': {
-            'Meta': {'object_name': 'SpotExtendedInfo'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']"}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': '200'})
-        },
-        'spotseeker_server.spotimage': {
-            'Meta': {'object_name': 'SpotImage'},
-            'content_type': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
-            'etag': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'height': ('django.db.models.fields.IntegerField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100'}),
-            'modification_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'spot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['spotseeker_server.Spot']"}),
-            'upload_application': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'upload_user': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'width': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'spotseeker_server.trustedoauthclient': {
-            'Meta': {'object_name': 'TrustedOAuthClient'},
-            'consumer': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['oauth_provider.Consumer']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_trusted': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
-        }
-    }
-
-    complete_apps = ['spotseeker_server']
+    operations = [
+        migrations.CreateModel(
+            name='FavoriteSpot',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Item',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=50)),
+                ('slug', models.SlugField(blank=True)),
+                ('item_category', models.CharField(max_length=50, null=True)),
+                ('item_subcategory', models.CharField(max_length=50, null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ItemExtendedInfo',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('key', models.CharField(max_length=50)),
+                ('value', models.CharField(max_length=350)),
+                ('item', models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True)),
+            ],
+            options={
+                'verbose_name_plural': 'Item extended info',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ItemImage',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('description', models.CharField(max_length=200, blank=True)),
+                ('display_index', models.PositiveIntegerField(null=True, blank=True)),
+                ('image', models.ImageField(upload_to=b'item_images')),
+                ('content_type', models.CharField(max_length=40)),
+                ('width', models.IntegerField()),
+                ('height', models.IntegerField()),
+                ('creation_date', models.DateTimeField(auto_now_add=True)),
+                ('modification_date', models.DateTimeField(auto_now=True)),
+                ('etag', models.CharField(max_length=40)),
+                ('upload_user', models.CharField(max_length=40)),
+                ('upload_application', models.CharField(max_length=100)),
+                ('item', models.ForeignKey(to='spotseeker_server.Item')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SharedSpace',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('user', models.CharField(max_length=16)),
+                ('sender', models.CharField(max_length=256)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SharedSpaceRecipient',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('hash_key', models.CharField(max_length=32)),
+                ('recipient', models.CharField(max_length=256)),
+                ('user', models.CharField(default=None, max_length=16, null=True, blank=True)),
+                ('date_shared', models.DateTimeField(auto_now_add=True)),
+                ('shared_count', models.IntegerField()),
+                ('date_first_viewed', models.DateTimeField(null=True)),
+                ('viewed_count', models.IntegerField()),
+                ('shared_space', models.ForeignKey(to='spotseeker_server.SharedSpace')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SpaceReview',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('review', models.CharField(default=b'', max_length=1000)),
+                ('original_review', models.CharField(default=b'', max_length=1000)),
+                ('rating', models.IntegerField(validators=[django.core.validators.MaxValueValidator(5), django.core.validators.MinValueValidator(1)])),
+                ('date_submitted', models.DateTimeField(auto_now_add=True)),
+                ('date_published', models.DateTimeField(null=True)),
+                ('is_published', models.BooleanField()),
+                ('is_deleted', models.BooleanField()),
+                ('published_by', models.ForeignKey(related_name='published_by', to=settings.AUTH_USER_MODEL, null=True)),
+                ('reviewer', models.ForeignKey(related_name='reviewer', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Spot',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=100, blank=True)),
+                ('latitude', models.DecimalField(null=True, max_digits=11, decimal_places=8)),
+                ('longitude', models.DecimalField(null=True, max_digits=11, decimal_places=8)),
+                ('height_from_sea_level', models.DecimalField(null=True, max_digits=11, decimal_places=8, blank=True)),
+                ('building_name', models.CharField(max_length=100, blank=True)),
+                ('floor', models.CharField(max_length=50, blank=True)),
+                ('room_number', models.CharField(max_length=25, blank=True)),
+                ('capacity', models.IntegerField(null=True, blank=True)),
+                ('display_access_restrictions', models.CharField(max_length=200, blank=True)),
+                ('organization', models.CharField(max_length=50, blank=True)),
+                ('manager', models.CharField(max_length=50, blank=True)),
+                ('etag', models.CharField(max_length=40)),
+                ('last_modified', models.DateTimeField(auto_now=True, auto_now_add=True)),
+                ('external_id', models.CharField(null=True, default=None, validators=[django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+\\Z'), "Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens.", 'invalid')], max_length=100, blank=True, unique=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SpotAvailableHours',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('day', models.CharField(max_length=3, choices=[(b'm', b'monday'), (b't', b'tuesday'), (b'w', b'wednesday'), (b'th', b'thursday'), (b'f', b'friday'), (b'sa', b'saturday'), (b'su', b'sunday')])),
+                ('start_time', models.TimeField()),
+                ('end_time', models.TimeField()),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+            ],
+            options={
+                'verbose_name_plural': 'Spot available hours',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SpotExtendedInfo',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('key', models.CharField(max_length=50)),
+                ('value', models.CharField(max_length=350)),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+            ],
+            options={
+                'verbose_name_plural': 'Spot extended info',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SpotImage',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('description', models.CharField(max_length=200, blank=True)),
+                ('display_index', models.PositiveIntegerField(null=True, blank=True)),
+                ('image', models.ImageField(upload_to=b'space_images')),
+                ('content_type', models.CharField(max_length=40)),
+                ('width', models.IntegerField()),
+                ('height', models.IntegerField()),
+                ('creation_date', models.DateTimeField(auto_now_add=True)),
+                ('modification_date', models.DateTimeField(auto_now=True)),
+                ('etag', models.CharField(max_length=40)),
+                ('upload_user', models.CharField(max_length=40)),
+                ('upload_application', models.CharField(max_length=100)),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SpotType',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.SlugField()),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TrustedOAuthClient',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('is_trusted', models.BooleanField()),
+                ('bypasses_user_authorization', models.BooleanField()),
+                ('consumer', models.ForeignKey(to='oauth_provider.Consumer')),
+            ],
+            options={
+                'verbose_name_plural': 'Trusted OAuth clients',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='spotextendedinfo',
+            unique_together=set([('spot', 'key')]),
+        ),
+        migrations.AddField(
+            model_name='spot',
+            name='spottypes',
+            field=models.ManyToManyField(related_name='spots', max_length=50, null=True, to='spotseeker_server.SpotType', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='spacereview',
+            name='space',
+            field=models.ForeignKey(to='spotseeker_server.Spot'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='sharedspace',
+            name='space',
+            field=models.ForeignKey(to='spotseeker_server.Spot'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='itemextendedinfo',
+            unique_together=set([('item', 'key')]),
+        ),
+        migrations.AddField(
+            model_name='item',
+            name='spot',
+            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='favoritespot',
+            name='spot',
+            field=models.ForeignKey(to='spotseeker_server.Spot'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='favoritespot',
+            name='user',
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
+        ),
+    ]

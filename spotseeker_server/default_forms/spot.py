@@ -34,6 +34,7 @@ class DefaultSpotExtendedInfoForm(forms.ModelForm):
 
     class Meta:
         model = SpotExtendedInfo
+        fields = '__all__'
 
     def clean_key(self):
         key = self.cleaned_data['key'].strip()

@@ -387,8 +387,8 @@ class SpotImage(models.Model):
 
 class TrustedOAuthClient(models.Model):
     consumer = models.ForeignKey(oauth_provider.models.Consumer)
-    is_trusted = models.BooleanField()
-    bypasses_user_authorization = models.BooleanField()
+    is_trusted = models.BooleanField(default=False)
+    bypasses_user_authorization = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Trusted OAuth clients"
@@ -410,8 +410,8 @@ class SpaceReview(models.Model):
                                  )
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_published = models.DateTimeField(null=True)
-    is_published = models.BooleanField()
-    is_deleted = models.BooleanField()
+    is_published = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def json_data_structure(self):
         submitted = self.date_submitted.replace(microsecond=0)
@@ -502,6 +502,11 @@ class ItemExtendedInfo(models.Model):
     class Meta:
         verbose_name_plural = "Item extended info"
         unique_together = ('item', 'key')
+
+    def __unicode__(self):
+        return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
+                                                       self.key,
+                                                       self.value)
 
 
 class ItemImage(models.Model):

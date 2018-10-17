@@ -23,6 +23,7 @@ class DefaultItemExtendedInfoForm(forms.ModelForm):
 
     class Meta:
         model = ItemExtendedInfo
+        fields = '__all__'
 
     def clean_key(self):
         key = self.cleaned_data['key'].strip()

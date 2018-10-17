@@ -195,7 +195,7 @@ class SpotView(RESTDispatch):
         return response
 
     # These are utility methods for the HTTP methods
-    @transaction.commit_on_success
+    @transaction.atomic
     def build_and_save_from_input(self, request, spot):
         body = request.read()
         try:

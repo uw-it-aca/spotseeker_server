@@ -19,7 +19,7 @@ from spotseeker_server.views.rest_dispatch import \
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.default_forms.item import DefaultItemForm as ItemForm
 from spotseeker_server.default_forms.item import DefaultItemExtendedInfoForm \
-                                                as ItemExtendedInfoForm
+    as ItemExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
@@ -28,12 +28,14 @@ import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class ItemStash(object):
     """
     This object handles the storing and validation of an Item
     """
+
     def __init__(self, item):
 
         self.json = item
@@ -196,24 +198,14 @@ def clean_ei(old_ei_list, new_ei_forms):
     """Returns deleted EI keys and removes unchanged EI"""
     to_delete = []
     forms_to_remove = []
+    new_ei_form_keys = []
+
+    for ei_form in new_ei_forms:
+        new_ei_form_keys.append(ei_form.cleaned_data['key'])
+
     for old_ei in old_ei_list:
-        found = False
-
-        for ei_form in new_ei_forms:
-            if ei_form.fields['key'] == old_ei.key:
-                found = True
-                if ei_form.fields['value'] == old_ei.value:
-                    forms_to_remove.append(ei_form)
-                else:
-                    ei_form.instance = old_ei
-
-        # put the EI that has been removed in to_remove for removal
-        if not found:
+        if old_ei.key not in new_ei_form_keys:
             to_delete.append(old_ei)
-
-    # get rid of unchanged item EI
-    for form in forms_to_remove:
-        new_ei_forms.remove(form)
 
     return to_delete
 
@@ -252,8 +244,15 @@ def _save_items(sender, **kwargs):
         for item_ei in ei_forms:
             # save the new EI
             item_ei_model = item_ei.save(commit=False)
-            item_ei_model.item = item_model
-            item_ei_model.save()
+            try:
+                actual_item_ei = item_model.itemextendedinfo_set.get(
+                    key=item_ei_model.key)
+                if actual_item_ei.value != item_ei_model.value:
+                    actual_item_ei.value = item_ei_model.value
+                    actual_item_ei.save()
+            except ObjectDoesNotExist:
+                item_ei_model.item = item_model
+                item_ei_model.save()
 
     # delete items not included
     items_to_delete = stash['items_to_delete']

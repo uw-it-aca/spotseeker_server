@@ -124,6 +124,7 @@ class ReviewsTest(TestCase):
         review = spot.spacereview_set.create(rating=5,
                                              review='foo',
                                              is_published=True,
+                                             is_deleted=False,
                                              reviewer=user)
         rev_url = '/api/v1/reviews/unpublished'
         spot_reviews_url = '/api/v1/spot/%s/reviews' % spot.pk

@@ -82,7 +82,6 @@ class ImageThumbTest(ImageTestCase):
             response = self.upload_image(
                 image_name, self.url,
                 {'description': 'this is a %s' % img_format})
-            print response.content
             new_base_location = response["Location"]
 
             for width, height in good_dimensions:

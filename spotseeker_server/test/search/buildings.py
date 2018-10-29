@@ -32,7 +32,7 @@ class BuildingSearchTest(SpotServerTestCase):
                                      building_name="Building 2")
 
         self.spot2 = self.new_spot("Spot on campus B.",
-                                   building_name="Building3")
+                                   building_name="Building 3")
 
         self.spot3 = self.new_spot("Another Spot on campus B.",
                                    building_name="Building 4")
@@ -58,6 +58,15 @@ class BuildingSearchTest(SpotServerTestCase):
         self.add_ei_to_spot(self.spot6, campus='campus_c', app_type='book')
         self.add_ei_to_spot(self.spot7, campus='campus_d', app_type='food')
 
+    def tearDown(self):
+        self.spot1.delete()
+        self.spot1_2.delete()
+        self.spot2.delete()
+        self.spot3.delete()
+        self.spot4.delete()
+        self.spot5.delete()
+        self.spot6.delete()
+
     def test_content_type(self):
         c = self.client
         url = "/api/v1/buildings"
@@ -75,22 +84,32 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEquals(len(buildings), 8)
 
     def test_buildings_for_campus(self):
+        """ Tests that the correct buildings are returned from the
+        corresponding campus when campus extended info is passed.
+        """
         c = self.client
 
+        # Query buildings on campus_a: Only spot1 and spot1_2 should be
+        # returned in buildings list
         response = c.get("/api/v1/buildings/", {"campus": "campus_a"})
         buildings = json.loads(response.content)
+        # Assert that the correct number of buildings were returned for
+        # campus_a
+        self.assertEquals(len(buildings), 2)
+        # Assert that this building is not from campus_b or any campus other
+        # than campus_a
+        expected = [self.spot1.building_name, self.spot1_2.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)
 
-        self.assertEquals(len(buildings), 1)
-        # Assert that the building returned is not from the tacoma campus.
-        self.assertNotEqual(buildings[0], self.spot1.building_name)
-        # Assert that the building returned is from the seattle campus.
-        self.assertEquals(buildings[0], self.spot1_2.building_name)
-
+        # Query buildings on campus_b: Only spot3 and spot4 should be returned
+        # in buildings list
         response = c.get("/api/v1/buildings", {"campus": "campus_b"})
         buildings = json.loads(response.content)
-
-        self.assertEquals(len(buildings), 2)
-        self.assertNotIn(self.spot1.building_name, buildings)
+        self.assertEqual(len(buildings), 2)
+        expected = [self.spot2.building_name, self.spot3.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)
 
     def test_buildings_for_app_type(self):
         c = self.client
@@ -144,18 +163,30 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEqual(buildings[1], self.spot7.building_name)
 
     def test_extended_info_campus(self):
+        """ Tests that the correct buildings are returned from the
+        corresponding campus when campus extended info is passed.
+        """
         c = self.client
-
+        # Query buildings on campus_c but using the extended_info option
         response = c.get('/api/v1/buildings/',
                          {'extended_info:campus': 'campus_c'})
         buildings = json.loads(response.content)
-        self.assertEqual(len(buildings), 1)
-        self.assertEqual(buildings[0], self.spot4.building_name)
-
-        response = c.get(
-            '/api/v1/buildings/',
-            {'extended_info:campus': 'campus_d',
-             'extended_info:app_type': 'food'}
-        )
-        buildings = json.loads(response.content)
+        # This should return spot4 and spot6 as they are both on campus_c
         self.assertEqual(len(buildings), 2)
+        expected = [self.spot4.building_name, self.spot6.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)
+
+        # Query buildings on campus_d but using the extended_info of app_type:
+        # 'food' as well
+        response = c.get('/api/v1/buildings/',
+                         {'extended_info:campus': 'campus_d',
+                          'extended_info:app_type': 'food'}
+                         )
+        buildings = json.loads(response.content)
+        # This should return spot5 and spot7 as they both are on campus_d and
+        # have the food app_type
+        self.assertEqual(len(buildings), 2)
+        expected = [self.spot5.building_name, self.spot7.building_name]
+        self.assertTrue(buildings[0] in expected)
+        self.assertTrue(buildings[1] in expected)

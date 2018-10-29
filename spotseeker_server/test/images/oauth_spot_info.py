@@ -61,7 +61,8 @@ class SpotResourceOAuthImageTest(TestCase):
                 secret=secret)
             trusted_consumer = TrustedOAuthClient.objects.create(
                 consumer=create_consumer,
-                is_trusted=True)
+                is_trusted=True,
+                bypasses_user_authorization=False)
 
             consumer = oauth2.Consumer(key=key, secret=secret)
 

@@ -36,16 +36,15 @@ class SpotSearchLimitTest(TestCase):
         get_request = "/api/v1/spot?"
         num_spots = self.num_spots
 
-        for i in range(num_spots):
-            i = i + 1
-            get_request = get_request + "id=%s&" % (i)
+        for i in Spot.objects.all():
+            get_request = get_request + "id=%s&" % (i.id)
 
         response = c.get(get_request)
         self.assertEquals(
             response.status_code,
             400,
-            "400 is thrown if more than 20 spots \
-            are requested without a limit"
+            ("400 is thrown if more than 20 spots "
+             "are requested without a limit")
         )
 
     def test_less_than_20_no_limit(self):
@@ -55,15 +54,15 @@ class SpotSearchLimitTest(TestCase):
 
         for i in range(num_spots):
             i = i + 1
-            get_request = get_request + "id=%s&" % (i)
+            get_request = get_request + "id=%s&" % (Spot.objects.all()[i].id)
 
         response = c.get(get_request)
         spots = json.loads(response.content)
         self.assertEquals(
             len(spots),
             num_spots,
-            "Spots requested were returned if \
-            less than 20 spots are requested without a limit"
+            ("Spots requested were returned if "
+             "less than 20 spots are requested without a limit")
         )
 
     def test_more_than_20_with_limit(self):
@@ -71,9 +70,8 @@ class SpotSearchLimitTest(TestCase):
         get_request = "/api/v1/spot?"
         num_spots = self.num_spots
 
-        for i in range(num_spots):
-            i = i + 1
-            get_request = get_request + "id=%s&" % (i)
+        for i in Spot.objects.all():
+            get_request = get_request + "id=%s&" % (i.id)
         get_request = get_request + "limit=%d" % (num_spots)
 
         response = c.get(get_request)
@@ -81,6 +79,6 @@ class SpotSearchLimitTest(TestCase):
         self.assertEquals(
             len(spots),
             num_spots,
-            "Spots requested were returned even though \
-            more than 20 because a limit was included"
+            ("Spots requested were returned even though "
+             "more than 20 because a limit was included")
         )

@@ -38,6 +38,7 @@ from spotseeker_server.test.images.oauth_spot_info import \
 from spotseeker_server.test.item.model import ItemModelTest
 from spotseeker_server.test.search.item import SpotSearchItemTest
 from spotseeker_server.test.search.buildings import BuildingSearchTest
+from spotseeker_server.test.search.uw_buildings import UWBuildingSearchTest
 from spotseeker_server.test.search.capacity import SpotSearchCapacityTest
 from spotseeker_server.test.search.limit import SpotSearchLimitTest
 from spotseeker_server.test.search.distance import SpotSearchDistanceTest
@@ -47,6 +48,7 @@ from spotseeker_server.test.search.distance_fields import \
 from spotseeker_server.test.search.view_methods import \
     SpotSearchViewMethodsTest
 from spotseeker_server.test.search.noise_level import NoiseLevelTestCase
+from spotseeker_server.test.search.uw_noise_level import UWNoiseLevelTestCase
 from spotseeker_server.test.search.time import SpotSearchTimeTest
 from spotseeker_server.test.hours.model import SpotHoursModelTest
 from spotseeker_server.test.hours.get import SpotHoursGETTest

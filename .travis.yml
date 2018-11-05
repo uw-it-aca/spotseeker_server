@@ -9,7 +9,6 @@ install:
     - pip install python-coveralls
 before_script:
     - cp travis_ci/manage.py manage.py
-    - python manage.py syncdb --noinput
     - python manage.py migrate
 # command to run tests
 script:

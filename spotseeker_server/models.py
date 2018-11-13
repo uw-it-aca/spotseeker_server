@@ -68,8 +68,7 @@ class Spot(models.Model):
     """
     name = models.CharField(max_length=100, blank=True)
     spottypes = models.ManyToManyField(SpotType, max_length=50,
-                                       related_name='spots', blank=True,
-                                       null=True)
+                                       related_name='spots', blank=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     height_from_sea_level = models.DecimalField(max_digits=11,
@@ -83,7 +82,7 @@ class Spot(models.Model):
     organization = models.CharField(max_length=50, blank=True)
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
-    last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
     external_id = models.CharField(max_length=100, null=True, blank=True,
                                    default=None, unique=True,
                                    validators=[validate_slug])

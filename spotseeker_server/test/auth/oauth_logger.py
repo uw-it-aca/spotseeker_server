@@ -41,12 +41,14 @@ from spotseeker_server import models
     'spot.DefaultSpotExtendedInfoForm',
     SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
 class SpotAuthOAuthLogger(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(self):
         spot = Spot.objects.create(name="This is for testing the oauth module",
                                    capacity=10)
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
+    def setUp(self):
         new_middleware = []
         has_logger = False
         self.original_middleware = settings.MIDDLEWARE_CLASSES

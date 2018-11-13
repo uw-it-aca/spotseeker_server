@@ -388,7 +388,7 @@ class SearchView(RESTDispatch):
         # This handles all of the OR queries on extended_info we've collected.
         query = query.filter(or_q_obj).distinct()
         # Always prefetch the related extended info
-        query = query.select_related('SpotExtendedInfo')
+        query = query.prefetch_related('spotextendedinfo_set')
 
         query = chain.filter_query(query)
         if chain.has_valid_search_param:

@@ -42,7 +42,7 @@ from spotseeker_server.views.item_thumbnail import ItemThumbnailView
 
 urlpatterns = patterns('',
                        url(r'v1/null$', csrf_exempt(NullView().run)),
-                       url(r'v1/spot/(?P<spot_id>(\d+|external:[\w-]+))$',
+                       url(r'v1/spot/(?P<spot_id>([0-9]+|external:[\w-]+))$',
                            csrf_exempt(SpotView().run), name='spot'),
                        url(r'v1/spot/?$',
                            csrf_exempt(SearchView().run),
@@ -56,49 +56,49 @@ urlpatterns = patterns('',
                        url(r'v1/schema$',
                            csrf_exempt(SchemaGenView().run),
                            name='schema'),
-                       url(r'v1/spot/(?P<spot_id>\d+)/image$',
+                       url(r'v1/spot/(?P<spot_id>[0-9]+)/image$',
                            csrf_exempt(AddImageView().run)),
-                       url(r'v1/spot/(?P<spot_id>\d+)/image/'
-                           '(?P<image_id>\d+)$',
+                       url(r'v1/spot/(?P<spot_id>[0-9]+)/image/'
+                           '(?P<image_id>[0-9]+)$',
                            csrf_exempt(ImageView().run),
                            name='spot-image'),
-                       url(r'v1/spot/(?P<spot_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/constrain/'
+                       url(r'v1/spot/(?P<spot_id>[0-9]+)/image/'
+                           '(?P<image_id>[0-9]+)/thumb/constrain/'
                            '(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ThumbnailView().run),
                            {'constrain': True}),
-                       url(r'v1/spot/(?P<spot_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/'
+                       url(r'v1/spot/(?P<spot_id>[0-9]+)/image/'
+                           '(?P<image_id>[0-9]+)/thumb/'
                            '(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ThumbnailView().run),
                            name='spot-image-thumb'),
-                       url(r'v1/item/(?P<item_id>\d+)/image$',
+                       url(r'v1/item/(?P<item_id>[0-9]+)/image$',
                            csrf_exempt(AddItemImageView().run)),
-                       url(r'v1/item/(?P<item_id>\d+)/image/'
-                           '(?P<image_id>\d+)$',
+                       url(r'v1/item/(?P<item_id>[0-9]+)/image/'
+                           '(?P<image_id>[0-9]+)$',
                            csrf_exempt(ItemImageView().run),
                            name='item-image'),
-                       url(r'v1/item/(?P<item_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/constrain/'
+                       url(r'v1/item/(?P<item_id>[0-9]+)/image/'
+                           '(?P<image_id>[0-9]+)/thumb/constrain/'
                            '(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ItemThumbnailView().run),
                            {'constrain': True}),
-                       url(r'v1/item/(?P<item_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/'
+                       url(r'v1/item/(?P<item_id>[0-9]+)/image/'
+                           '(?P<image_id>[0-9]+)/thumb/'
                            '(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ItemThumbnailView().run),
                            name='item-image-thumb'),
-                       url(r'v1/spot/(?P<spot_id>\d+)/reviews$',
+                       url(r'v1/spot/(?P<spot_id>[0-9]+)/reviews$',
                            csrf_exempt(ReviewsView().run)),
                        url(r'v1/user/me/favorites/?$',
                            csrf_exempt(FavoritesView().run)),
                        url(r'v1/user/me$',
                            csrf_exempt(PersonView().run)),
-                       url(r'v1/user/me/favorite/(?P<spot_id>\d+)$',
+                       url(r'v1/user/me/favorite/(?P<spot_id>[0-9]+)$',
                            csrf_exempt(FavoritesView().run)),
-                       url(r'v1/spot/(?P<spot_id>\d+)/share$',
+                       url(r'v1/spot/(?P<spot_id>[0-9]+)/share$',
                            csrf_exempt(ShareSpaceView().run)),
-                       url(r'v1/spot/(?P<spot_id>\d+)/shared$',
+                       url(r'v1/spot/(?P<spot_id>[0-9]+)/shared$',
                            csrf_exempt(SharedSpaceReferenceView().run)),
                        url(r'v1/reviews/unpublished$',
                            csrf_exempt(UnpublishedReviewsView().run)),

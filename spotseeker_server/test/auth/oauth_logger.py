@@ -115,8 +115,8 @@ class SpotAuthOAuthLogger(TestCase):
             self.handler.flush()
             log_message = self.stream.getvalue()
 
-            matches = re.search('\[.*?\] ([\d]+)\t"(.*?)"\t-\t"GET /api'
-                                '/v1/spot/([\d]+)" ([\d]+) ([\d]+)',
+            matches = re.search(r'\[.*?\] ([\d]+)\t"(.*?)"\t-\t"GET /api'
+                                r'/v1/spot/([\d]+)" ([\d]+) ([\d]+)',
                                 log_message)
 
             consumer_id = int(matches.group(1))
@@ -206,8 +206,8 @@ class SpotAuthOAuthLogger(TestCase):
             log_message = self.stream.getvalue()
 
             matches = re.search(
-                '\n\[.*?\] ([\d]+)\t"(.*?)"\t(.*?)\t"PUT /api/v1/spo'
-                't/([\d]+)" ([\d]+) ([\d]+)',
+                r'\n\[.*?\] ([\d]+)\t"(.*?)"\t(.*?)\t"PUT /api/v1/spo'
+                r't/([\d]+)" ([\d]+) ([\d]+)',
                 log_message,
                 re.MULTILINE
             )
@@ -248,8 +248,8 @@ class SpotAuthOAuthLogger(TestCase):
             log_message = self.stream.getvalue()
 
             matches = re.search(
-                '\[.*?\] -\t"-"\t-\t"GET /api/v1/spot'
-                '/([\d]+)" ([\d]+) ([\d]+)',
+                r'\[.*?\] -\t"-"\t-\t"GET /api/v1/spot'
+                r'/([\d]+)" ([\d]+) ([\d]+)',
                 log_message)
 
             spot_id = int(matches.group(1))

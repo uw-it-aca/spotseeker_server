@@ -19,13 +19,14 @@
         adapt to the new form style.
 """
 
-from spotseeker_server.views.rest_dispatch import RESTDispatch
-from spotseeker_server.forms.spot import SpotForm
-from spotseeker_server.require_auth import *
-from spotseeker_server.models import *
-from django.http import HttpResponse
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from spotseeker_server.views.rest_dispatch import JSONResponse
+from django.http import HttpResponse
+
+from spotseeker_server.forms.spot import SpotForm
+from spotseeker_server.models import *
+from spotseeker_server.require_auth import *
+from spotseeker_server.views.rest_dispatch import JSONResponse, RESTDispatch
 
 
 class SchemaGenView(RESTDispatch):
@@ -126,7 +127,7 @@ class SchemaGenView(RESTDispatch):
         try:
             validated_ei = SpotForm.implementation().validated_extended_info
             org_form_exists = True
-        except:
+        except ImproperlyConfigured:
             org_form_exists = False
         for key_dict in SpotExtendedInfo.objects.values("key").distinct():
             key = key_dict["key"]

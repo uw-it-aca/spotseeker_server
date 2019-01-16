@@ -116,4 +116,5 @@ class SearchFilterChain(object):
     def filters_key(self, key):
         return key in SearchFilterChain.keys
 
+
 SearchFilterChain._load_filters()

@@ -95,7 +95,7 @@ def uw_validate(value, key, choices):
     if choices == "int":
         try:
             int(value)
-        except:
+        except ValueError:
             raise forms.ValidationError("Value must be an int")
     elif value not in choices:
         raise forms.ValidationError(

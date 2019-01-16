@@ -133,7 +133,8 @@ class RESTDispatch:
     def _get_user(self, request):
         if 'SS_OAUTH_USER' not in request.META:
             print request.META
-            raise Exception("missing oauth user - improper auth backend?")
+            raise RESTException("missing oauth user - improper auth backend?",
+                                400)
         username = request.META['SS_OAUTH_USER']
 
         user = User.objects.get(username=username)

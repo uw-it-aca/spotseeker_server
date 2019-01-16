@@ -28,6 +28,7 @@ from spotseeker_server.views.spot import SpotView
 from spotseeker_server.org_filters import SearchFilterChain
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
+from django.utils.datastructures import MultiValueDictKeyError
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
@@ -224,7 +225,7 @@ class SearchView(RESTDispatch):
                 if get_request["open_at"]:
                     try:
                         get_request["open_until"]
-                    except:
+                    except MultiValueDictKeyError:
                         day, time = get_request['open_at'].split(',')
                         day = day_dict[day]
                         query = \

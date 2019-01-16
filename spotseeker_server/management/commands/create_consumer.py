@@ -65,10 +65,8 @@ class Command(BaseCommand):
 
         # django-oauth-plus now wants secrets to be 16 chars
         charset = "abcdefghijklmnopqrstuvwxyz1234567890"
-        len_charset = len(charset)
         random_bytes = os.urandom(16)
-        indices = [int(len_charset * (ord(byte) / 256.0)) for byte in
-                   random_bytes]
+        indices = [ord(byte) % len(charset) for byte in random_bytes]
         secret = "".join([charset[index] for index in indices])
 
         consumer = Consumer.objects.create(name=consumer_name,

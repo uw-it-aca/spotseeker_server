@@ -360,7 +360,7 @@ class SpotImage(models.Model):
                 img = Image.open(self.image.file.temporary_file_path())
             else:
                 img = Image.open(self.image)
-        except:
+        except IOError:
             raise ValidationError('Not a valid image format')
 
         if img.format not in SpotImage.CONTENT_TYPES:
@@ -564,7 +564,7 @@ class ItemImage(models.Model):
                 img = Image.open(self.image.file.temporary_file_path())
             else:
                 img = Image.open(self.image)
-        except:
+        except IOError:
             raise ValidationError('Not a valid image format')
 
         if img.format not in ItemImage.CONTENT_TYPES:

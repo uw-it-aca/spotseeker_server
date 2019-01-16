@@ -59,33 +59,33 @@ urlpatterns = patterns('',
                        url(r'v1/spot/(?P<spot_id>\d+)/image$',
                            csrf_exempt(AddImageView().run)),
                        url(r'v1/spot/(?P<spot_id>\d+)/image/'
-                           '(?P<image_id>\d+)$',
+                           r'(?P<image_id>\d+)$',
                            csrf_exempt(ImageView().run),
                            name='spot-image'),
                        url(r'v1/spot/(?P<spot_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/constrain/'
+                           r'(?P<image_id>\d+)/thumb/constrain/'
                            '(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ThumbnailView().run),
                            {'constrain': True}),
                        url(r'v1/spot/(?P<spot_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/'
-                           '(?P<thumb_dimensions>.+)?$',
+                           r'(?P<image_id>\d+)/thumb/'
+                           r'(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ThumbnailView().run),
                            name='spot-image-thumb'),
                        url(r'v1/item/(?P<item_id>\d+)/image$',
                            csrf_exempt(AddItemImageView().run)),
                        url(r'v1/item/(?P<item_id>\d+)/image/'
-                           '(?P<image_id>\d+)$',
+                           r'(?P<image_id>[\d]+)$',
                            csrf_exempt(ItemImageView().run),
                            name='item-image'),
                        url(r'v1/item/(?P<item_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/constrain/'
-                           '(?P<thumb_dimensions>.+)?$',
+                           r'(?P<image_id>\d+)/thumb/constrain/'
+                           r'(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ItemThumbnailView().run),
                            {'constrain': True}),
                        url(r'v1/item/(?P<item_id>\d+)/image/'
-                           '(?P<image_id>\d+)/thumb/'
-                           '(?P<thumb_dimensions>.+)?$',
+                           r'(?P<image_id>\d+)/thumb/'
+                           r'(?P<thumb_dimensions>.+)?$',
                            csrf_exempt(ItemThumbnailView().run),
                            name='item-image-thumb'),
                        url(r'v1/spot/(?P<spot_id>\d+)/reviews$',

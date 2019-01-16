@@ -56,12 +56,12 @@ def uiuc_validate(value, choices):
     if choices == "int":
         try:
             int(value)
-        except:
+        except ValueError:
             raise forms.ValidationError("Value must be an int")
     if choices == "re":
         try:
             re.compile(value)
-        except:
+        except TypeError:
             raise forms.ValidationError("Value must be a regular expression")
     elif value not in choices:
         raise forms.ValidationError(

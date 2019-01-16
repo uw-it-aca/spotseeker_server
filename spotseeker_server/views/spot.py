@@ -302,5 +302,6 @@ class SpotView(RESTDispatch):
                 try:
                     t = SpotType.objects.get(name=name)
                     json_values['spottypes'].append(t.pk)
-                except:
+                except (SpotType.DoesNotExist,
+                        SpotType.MultipleObjectsReturned):
                     pass

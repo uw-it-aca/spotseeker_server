@@ -64,6 +64,7 @@ class SpotAdmin(admin.ModelAdmin):
                 spot.delete()
     delete_model.short_description = "Delete selected spots"
 
+
 admin.site.register(Spot, SpotAdmin)
 
 
@@ -94,6 +95,7 @@ class SpotImageAdmin(admin.ModelAdmin):
                 spot_image.delete()
     delete_model.short_description = "Delete selected spot images"
 
+
 admin.site.register(SpotImage, SpotImageAdmin)
 
 
@@ -101,6 +103,8 @@ class SpotAvailableHoursAdmin(admin.ModelAdmin):
     """ The admin model for SpotAvailableHours.
     """
     list_filter = ('day', 'spot')
+
+
 admin.site.register(SpotAvailableHours, SpotAvailableHoursAdmin)
 
 
@@ -112,6 +116,8 @@ class SpotExtendedInfoAdmin(admin.ModelAdmin):
     list_display = ("spot", "key", "value")
     list_editable = ["key", "value"]
     list_filter = ["key", "spot"]
+
+
 admin.site.register(SpotExtendedInfo, SpotExtendedInfoAdmin)
 
 
@@ -137,6 +143,7 @@ class ItemAdmin(admin.ModelAdmin):
                      "slug",
                      "item_category",
                      "item_subcategory"]
+
 
 admin.site.register(Item, ItemAdmin)
 
@@ -167,6 +174,7 @@ class ItemImageAdmin(admin.ModelAdmin):
                 item_image.delete()
     delete_model.short_description = "Delete selected item images"
 
+
 admin.site.register(ItemImage, ItemImageAdmin)
 
 
@@ -178,4 +186,6 @@ class ItemExtendedInfoAdmin(admin.ModelAdmin):
     list_display = ("item", "key", "value")
     list_editable = ["key", "value"]
     list_filter = ["key", "item"]
+
+
 admin.site.register(ItemExtendedInfo, ItemExtendedInfoAdmin)

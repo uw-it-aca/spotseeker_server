@@ -17,12 +17,15 @@ This provides a management command to django's manage.py called create_consumer
 that will generate a oauth key and secret based on the consumer name.
 
 """
-from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 import hashlib
-import time
+import os
 import random
+import time
+
+from django.core.management.base import BaseCommand, CommandError
 from oauth_provider.models import Consumer
+
 from spotseeker_server.models import TrustedOAuthClient
 
 
@@ -59,16 +62,23 @@ class Command(BaseCommand):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time())).hexdigest()
-        secret = hashlib.sha1("{0} - {1}".format(random.random(),
-                                                 time.time())).hexdigest()
+
+        # django-oauth-plus now wants secrets to be 16 chars
+        charset = "abcdefghijklmnopqrstuvwxyz1234567890"
+        random_bytes = os.urandom(16)
+        indices = [ord(byte) % len(charset) for byte in random_bytes]
+        secret = "".join([charset[index] for index in indices])
 
         consumer = Consumer.objects.create(name=consumer_name,
                                            key=key,
                                            secret=secret)
 
         if options['trusted']:
-            trusted = TrustedOAuthClient.objects.create(consumer=consumer,
-                                                        is_trusted=1)
+            trusted = TrustedOAuthClient.objects.create(
+                consumer=consumer,
+                is_trusted=1,
+                bypasses_user_authorization=False
+            )
 
         if not options['silent']:
             self.stdout.write("Key: %s\n" % key)

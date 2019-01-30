@@ -195,7 +195,7 @@ class SpotView(RESTDispatch):
         return response
 
     # These are utility methods for the HTTP methods
-    @transaction.commit_on_success
+    @transaction.atomic
     def build_and_save_from_input(self, request, spot):
         body = request.read()
         try:
@@ -302,5 +302,6 @@ class SpotView(RESTDispatch):
                 try:
                     t = SpotType.objects.get(name=name)
                     json_values['spottypes'].append(t.pk)
-                except:
+                except (SpotType.DoesNotExist,
+                        SpotType.MultipleObjectsReturned):
                     pass

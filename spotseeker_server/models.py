@@ -68,8 +68,7 @@ class Spot(models.Model):
     """
     name = models.CharField(max_length=100, blank=True)
     spottypes = models.ManyToManyField(SpotType, max_length=50,
-                                       related_name='spots', blank=True,
-                                       null=True)
+                                       related_name='spots', blank=True)
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     height_from_sea_level = models.DecimalField(max_digits=11,
@@ -83,7 +82,7 @@ class Spot(models.Model):
     organization = models.CharField(max_length=50, blank=True)
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
-    last_modified = models.DateTimeField(auto_now=True, auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
     external_id = models.CharField(max_length=100, null=True, blank=True,
                                    default=None, unique=True,
                                    validators=[validate_slug])
@@ -361,7 +360,7 @@ class SpotImage(models.Model):
                 img = Image.open(self.image.file.temporary_file_path())
             else:
                 img = Image.open(self.image)
-        except:
+        except IOError:
             raise ValidationError('Not a valid image format')
 
         if img.format not in SpotImage.CONTENT_TYPES:
@@ -387,8 +386,8 @@ class SpotImage(models.Model):
 
 class TrustedOAuthClient(models.Model):
     consumer = models.ForeignKey(oauth_provider.models.Consumer)
-    is_trusted = models.BooleanField()
-    bypasses_user_authorization = models.BooleanField()
+    is_trusted = models.BooleanField(default=False)
+    bypasses_user_authorization = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Trusted OAuth clients"
@@ -410,8 +409,8 @@ class SpaceReview(models.Model):
                                  )
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_published = models.DateTimeField(null=True)
-    is_published = models.BooleanField()
-    is_deleted = models.BooleanField()
+    is_published = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def json_data_structure(self):
         submitted = self.date_submitted.replace(microsecond=0)
@@ -503,6 +502,11 @@ class ItemExtendedInfo(models.Model):
         verbose_name_plural = "Item extended info"
         unique_together = ('item', 'key')
 
+    def __unicode__(self):
+        return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
+                                                       self.key,
+                                                       self.value)
+
 
 class ItemImage(models.Model):
     """ An image of a Item. Multiple images can be associated with a Item,
@@ -560,7 +564,7 @@ class ItemImage(models.Model):
                 img = Image.open(self.image.file.temporary_file_path())
             else:
                 img = Image.open(self.image)
-        except:
+        except IOError:
             raise ValidationError('Not a valid image format')
 
         if img.format not in ItemImage.CONTENT_TYPES:

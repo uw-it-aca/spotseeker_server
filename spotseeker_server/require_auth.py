@@ -45,7 +45,7 @@ def get_auth_method(method_name):
     mod = get_auth_module()
     try:
         return getattr(mod, method_name)
-    except:
+    except (AttributeError, NameError):
         raise ImproperlyConfigured('Module "%s" does not define a "%s" '
                                    'method.' % (module, method_name))
 

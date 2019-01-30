@@ -28,6 +28,7 @@ from spotseeker_server.views.spot import SpotView
 from spotseeker_server.org_filters import SearchFilterChain
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
+from django.utils.datastructures import MultiValueDictKeyError
 from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
@@ -224,7 +225,7 @@ class SearchView(RESTDispatch):
                 if get_request["open_at"]:
                     try:
                         get_request["open_until"]
-                    except:
+                    except MultiValueDictKeyError:
                         day, time = get_request['open_at'].split(',')
                         day = day_dict[day]
                         query = \
@@ -388,7 +389,7 @@ class SearchView(RESTDispatch):
         # This handles all of the OR queries on extended_info we've collected.
         query = query.filter(or_q_obj).distinct()
         # Always prefetch the related extended info
-        query = query.select_related('SpotExtendedInfo')
+        query = query.prefetch_related('spotextendedinfo_set')
 
         query = chain.filter_query(query)
         if chain.has_valid_search_param:
@@ -445,7 +446,8 @@ class SearchView(RESTDispatch):
         # Only do this if spot api because buildings api
         # is able to not pass any valid filters
         if not has_valid_search_param and api == 'spot':
-            return []
+            raise RESTException(
+                "missing required parameters for this type of search", 400)
 
         # Do this when spot api because building api is not required
         # to pass these parameters

@@ -41,12 +41,14 @@ from spotseeker_server import models
     'spot.DefaultSpotExtendedInfoForm',
     SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
 class SpotAuthOAuthLogger(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(self):
         spot = Spot.objects.create(name="This is for testing the oauth module",
                                    capacity=10)
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
+    def setUp(self):
         new_middleware = []
         has_logger = False
         self.original_middleware = settings.MIDDLEWARE_CLASSES
@@ -113,8 +115,8 @@ class SpotAuthOAuthLogger(TestCase):
             self.handler.flush()
             log_message = self.stream.getvalue()
 
-            matches = re.search('\[.*?\] ([\d]+)\t"(.*?)"\t-\t"GET /api'
-                                '/v1/spot/([\d]+)" ([\d]+) ([\d]+)',
+            matches = re.search(r'\[.*?\] ([\d]+)\t"(.*?)"\t-\t"GET /api'
+                                r'/v1/spot/([\d]+)" ([\d]+) ([\d]+)',
                                 log_message)
 
             consumer_id = int(matches.group(1))
@@ -156,7 +158,8 @@ class SpotAuthOAuthLogger(TestCase):
             )
             trusted_consumer = TrustedOAuthClient.objects.create(
                 consumer=create_consumer,
-                is_trusted=True
+                is_trusted=True,
+                bypasses_user_authorization=False
             )
 
             consumer = oauth2.Consumer(key=key, secret=secret)
@@ -203,8 +206,8 @@ class SpotAuthOAuthLogger(TestCase):
             log_message = self.stream.getvalue()
 
             matches = re.search(
-                '\n\[.*?\] ([\d]+)\t"(.*?)"\t(.*?)\t"PUT /api/v1/spo'
-                't/([\d]+)" ([\d]+) ([\d]+)',
+                r'\n\[.*?\] ([\d]+)\t"(.*?)"\t(.*?)\t"PUT /api/v1/spo'
+                r't/([\d]+)" ([\d]+) ([\d]+)',
                 log_message,
                 re.MULTILINE
             )
@@ -245,8 +248,8 @@ class SpotAuthOAuthLogger(TestCase):
             log_message = self.stream.getvalue()
 
             matches = re.search(
-                '\[.*?\] -\t"-"\t-\t"GET /api/v1/spot'
-                '/([\d]+)" ([\d]+) ([\d]+)',
+                r'\[.*?\] -\t"-"\t-\t"GET /api/v1/spot'
+                r'/([\d]+)" ([\d]+) ([\d]+)',
                 log_message)
 
             spot_id = int(matches.group(1))

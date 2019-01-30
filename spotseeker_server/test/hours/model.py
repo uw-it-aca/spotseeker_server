@@ -15,6 +15,7 @@
 
 from django.test import TestCase
 from django.conf import settings
+from django.core.exceptions import ValidationError
 import datetime
 from spotseeker_server.models import Spot, SpotAvailableHours
 
@@ -86,7 +87,7 @@ class SpotHoursModelTest(TestCase):
                 hours = SpotAvailableHours.objects.create(spot=spot,
                                                           day="m",
                                                           end_time="01:30")
-            except:
+            except ValidationError:
                 has_error = True
 
             self.assertEqual(has_error,
@@ -105,7 +106,7 @@ class SpotHoursModelTest(TestCase):
                 hours = SpotAvailableHours.objects.create(spot=spot,
                                                           day="m",
                                                           start_time="01:30")
-            except:
+            except ValidationError:
                 has_error = True
 
             self.assertEqual(has_error,
@@ -122,7 +123,7 @@ class SpotHoursModelTest(TestCase):
             has_error = False
             try:
                 hours = SpotAvailableHours.objects.create(spot=spot, day="m")
-            except:
+            except ValidationError:
                 has_error = True
 
             self.assertEqual(has_error,
@@ -141,7 +142,7 @@ class SpotHoursModelTest(TestCase):
                 hours = SpotAvailableHours.objects.create(spot=spot,
                                                           start_time="01:30",
                                                           end_time="02:30")
-            except:
+            except ValidationError:
                 has_error = True
 
             self.assertEqual(has_error,

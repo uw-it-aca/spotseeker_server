@@ -13,9 +13,7 @@ def spot_with_noise_level(name, noise_level):
     return spot
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-                   SPOTSEEKER_SEARCH_FILTERS=[
-                       'spotseeker_server.org_filters.uw_search.Filter'])
+@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class NoiseLevelTestCase(TestCase):
 
     @classmethod
@@ -56,35 +54,41 @@ class NoiseLevelTestCase(TestCase):
         self.assertResponseSpaces(res_json, [self.silent_spot])
 
     def test_only_quiet(self):
-        """Quiet should return both a quiet spot and variable"""
-        res_json = self.get_spots_for_noise_levels(['quiet'])
-        expected = [self.quiet_spot, self.variable_spot]
-        self.assertResponseSpaces(res_json, expected)
+        """Quiet should return...
+           This test relied on UW-specific filters, and has been moved to
+           test/search/uw_noise.py as test_uw_only_quiet(). This remains as a
+           test stub for a test for generic filters.
+        """
+        pass
 
     def test_only_moderate(self):
-        """Moderate should return moderate and variable"""
-        res_json = self.get_spots_for_noise_levels(['moderate'])
-        expected = [self.moderate_spot, self.variable_spot]
-        self.assertResponseSpaces(res_json, expected)
+        """Moderate should return...
+           This test relied on UW-specific filters, and has been moved to
+           test/search/uw_noise.py as test_uw_only_moderate(). This remains as
+           a test stub for a test for generic filters.
+        """
+        pass
 
     def test_silent_and_quiet(self):
-        """Silent+quiet should give everything but moderate"""
-        res_json = self.get_spots_for_noise_levels(['silent', 'quiet'])
-        expected = [self.quiet_spot, self.silent_spot, self.variable_spot]
-        self.assertResponseSpaces(res_json, expected)
+        """Silent+quiet should return...
+           This test relied on UW-specific filters, and has been moved to
+           test/search/uw_noise.py as test_uw_silent_and_quiet(). This remains
+           as a test stub for a test for generic filters.
+        """
+        pass
 
     def test_silent_and_moderate(self):
-        """Silent+moderate should give everything but quiet"""
-        res_json = self.get_spots_for_noise_levels(['silent', 'moderate'])
-        expected = [self.silent_spot, self.moderate_spot, self.variable_spot]
-        self.assertResponseSpaces(res_json, expected)
+        """Silent+moderate should return...
+           This test relied on UW-specific filters, and has been moved to
+           test/search/uw_noise.py as test_uw_silent_and_moderate(). This
+           remains as a test stub for a test for generic filters.
+        """
+        pass
 
     def test_all_three(self):
-        """All 3 should give everything"""
-        query = ['silent', 'quiet', 'moderate']
-        res_json = self.get_spots_for_noise_levels(query)
-        expected = [self.silent_spot,
-                    self.quiet_spot,
-                    self.moderate_spot,
-                    self.variable_spot]
-        self.assertResponseSpaces(res_json, expected)
+        """All 3 should return...
+           This test relied on UW-specific filters, and has been moved to
+           test/search/uw_noise.py as test_uw_all_three(). This remains as a
+           test stub for a test for generic filters.
+        """
+        pass

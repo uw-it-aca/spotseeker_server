@@ -192,7 +192,7 @@ class SharedSpaceReferenceView(RESTDispatch):
         try:
             authenticate_user(self, request)
             user = self._get_user(request)
-        except:
+        except RESTException:
             pass
 
         body = request.read()

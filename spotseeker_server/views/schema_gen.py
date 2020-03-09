@@ -105,6 +105,32 @@ class SchemaGenView(RESTDispatch):
                 else:
                     schema[field.name] = field_itype
 
+        # To grab spot item info
+        schema_item = {}
+        subcategory_list = []
+        brand_list = []
+        categories = \
+            Item.objects.all().values_list('item_category',
+                                           flat=True)
+        subcategories = \
+            Item.objects.all().values_list('item_subcategory',
+                                           flat=True)
+        brands = \
+            ItemExtendedInfo.objects.filter(key='i_brand')
+
+        for brand in brands.values():
+            brand_list.append(brand['value'])
+
+        for subcategory in subcategories.values():
+            subcategory_list.append(
+                subcategory['item_category'] + ':'
+                + subcategory['item_subcategory'])
+
+        schema_item['categories'] = list(categories)
+        schema_item['subcategories'] = subcategory_list
+        schema_item['brands'] = brand_list
+        schema['items'] = schema_item
+
         # To grab spot image info
         spot_image_field_array = models.get_model('spotseeker_server',
                                                   'SpotImage')._meta.fields

@@ -119,10 +119,12 @@ class SchemaGenView(RESTDispatch):
             brand_list.append(brand['value'])
 
         for subcategory in subcategories.values():
-            if subcategory['item_category'] not in subcategory_list:
-                subcategory_list[subcategory['item_category']] = []
-            subcategory_list[subcategory['item_category']].append(
-                subcategory['item_subcategory'])
+            main = subcategory["item_category"]
+            sub = subcategory["item_subcategory"]
+            if main not in subcategory_list:
+                subcategory_list[main] = []
+            if sub not in subcategory_list[main]:
+                subcategory_list[main].append(sub)
 
         schema_item['categories'] = subcategory_list
         schema_item['brands'] = brand_list

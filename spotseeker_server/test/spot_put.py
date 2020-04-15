@@ -22,7 +22,7 @@ from mock import patch
 from spotseeker_server import models
 import simplejson as json
 import random
-import utils_test
+from spotseeker_server.test import utils_test
 import copy
 
 try:
@@ -63,7 +63,7 @@ class SpotPUTTest(TestCase):
         response = self.client.get(url)
 
         if 'ETag' not in response:
-            print "ETag not found for URL " + url
+            print("ETag not found for URL " + url)
 
         return response['ETag']
 

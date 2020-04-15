@@ -10,12 +10,15 @@
     limitations under the License.
 """
 
+try:
+    from cStringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
 from django.test import TestCase
 from django.conf import settings
 from django.core.files import File
 from django.test.client import Client
 from spotseeker_server.models import Item, ItemImage, Spot
-from cStringIO import StringIO
 from PIL import Image
 from os.path import abspath, dirname
 from django.test.utils import override_settings

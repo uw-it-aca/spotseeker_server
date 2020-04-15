@@ -20,12 +20,15 @@
         framework.
 """
 
+try:
+    from cStringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import ItemImage, Item
 from django.http import HttpResponse
 from django.utils.http import http_date
 from spotseeker_server.require_auth import app_auth_required
-from cStringIO import StringIO
 from PIL import Image
 import time
 import re

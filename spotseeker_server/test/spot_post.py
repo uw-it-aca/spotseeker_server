@@ -19,7 +19,7 @@ import simplejson as json
 import random
 from django.test.utils import override_settings
 import copy
-import utils_test
+from spotseeker_server.test import utils_test
 
 try:
     from unittest import skip

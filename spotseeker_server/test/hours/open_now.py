@@ -105,25 +105,25 @@ class SpotHoursOpenNowTest(TestCase):
         open_hours = SpotAvailableHours.objects.create(
             spot=open_spot,
             day='m',
-            start_time=datetime(12, 03, 12, 18, 00, 00).time(),
-            end_time=datetime(12, 03, 12, 23, 59, 00).time())
+            start_time=datetime(12, 3, 12, 18, 0, 0).time(),
+            end_time=datetime(12, 3, 12, 23, 59, 0).time())
         open_hours = SpotAvailableHours.objects.create(
             spot=open_spot,
             day='t',
-            start_time=datetime(12, 03, 12, 00, 00, 00).time(),
-            end_time=datetime(12, 03, 12, 06, 00, 00).time())
+            start_time=datetime(12, 3, 12, 0, 0, 0).time(),
+            end_time=datetime(12, 3, 12, 6, 0, 0).time())
         early_open_spot = Spot.objects.create(name="Spot open at midnight")
         open_hours = SpotAvailableHours.objects.create(
             spot=early_open_spot,
             day='t',
-            start_time=datetime(12, 03, 12, 00, 00, 00).time(),
-            end_time=datetime(12, 03, 12, 18, 00, 00).time())
+            start_time=datetime(12, 3, 12, 0, 0, 0).time(),
+            end_time=datetime(12, 3, 12, 18, 0, 0).time())
 
         # Mock the call to now() so that the time returned
         # is 23:59:30
         datetime_mock.return_value = (
             'm',
-            datetime(12, 03, 12, 23, 59, 30).time())
+            datetime(12, 3, 12, 23, 59, 30).time())
 
         c = Client()
         response = c.get("/api/v1/spot", {'open_now': True})
@@ -138,7 +138,7 @@ class SpotHoursOpenNowTest(TestCase):
         # is 23:59:00
         datetime_mock.return_value = (
             'm',
-            datetime(12, 03, 12, 23, 59, 00).time())
+            datetime(12, 3, 12, 23, 59, 00).time())
         response = c.get("/api/v1/spot", {'open_now': True})
         self.assertEqual(response.status_code, 200)
 
@@ -151,7 +151,7 @@ class SpotHoursOpenNowTest(TestCase):
         # is 23:58:30
         datetime_mock.return_value = (
             'm',
-            datetime(12, 03, 12, 23, 58, 30).time())
+            datetime(12, 3, 12, 23, 58, 30).time())
         response = c.get("/api/v1/spot", {'open_now': True})
         self.assertEqual(response.status_code, 200)
 
@@ -164,7 +164,7 @@ class SpotHoursOpenNowTest(TestCase):
         # is 23:58:00
         datetime_mock.return_value = (
             'm',
-            datetime(12, 03, 12, 23, 58, 00).time())
+            datetime(12, 3, 12, 23, 58, 0).time())
         response = c.get("/api/v1/spot", {'open_now': True})
         self.assertEqual(response.status_code, 200)
 

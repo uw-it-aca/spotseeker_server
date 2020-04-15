@@ -13,7 +13,11 @@
     limitations under the License.
 """
 
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
+
 from django.conf import settings
 from django.core.files import File
 from django.test import TestCase

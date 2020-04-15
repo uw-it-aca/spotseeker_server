@@ -56,7 +56,7 @@ class UWSpotPUTTest(TransactionTestCase):
         response = self.client.get(url)
 
         if 'ETag' not in response:
-            print "ETag not found for URL " + url
+            print("ETag not found for URL " + url)
 
         return response['ETag']
 

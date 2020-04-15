@@ -19,13 +19,15 @@ from spotseeker_server.models import Spot, TrustedOAuthClient
 from django.test.client import Client
 import re
 import simplejson as json
-import StringIO
 import logging
+try:
+    from StringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
 
 import hashlib
 import time
 import random
-from contextlib import nested
 
 from oauth_provider.models import Consumer
 import oauth2

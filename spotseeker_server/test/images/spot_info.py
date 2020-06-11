@@ -40,7 +40,7 @@ class SpotResourceImageTest(TestCase):
             name="This is to test images in the spot resource")
         self.spot = spot
 
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
         gif = SpotImage.objects.create(
             description="This is the GIF test",
             display_index=1,
@@ -50,7 +50,7 @@ class SpotResourceImageTest(TestCase):
 
         self.gif = gif
 
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
         jpeg = SpotImage.objects.create(
             description="This is the JPEG test",
             display_index=0,
@@ -60,7 +60,7 @@ class SpotResourceImageTest(TestCase):
 
         self.jpeg = jpeg
 
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
         png = SpotImage.objects.create(
             description="This is the PNG test",
             spot=spot,

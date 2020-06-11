@@ -76,7 +76,7 @@ class SpotResourceOAuthImageTest(TestCase):
             oauth_header = req.to_header()
             c = Client()
 
-            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
             response = c.post("/api/v1/spot/{0}/image".
                               format(self.spot.pk),
                               {"description": "oauth image", "image": f},

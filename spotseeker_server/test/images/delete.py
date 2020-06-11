@@ -40,7 +40,7 @@ class SpotImageDELETETest(TestCase):
         self.url = self.url
 
         # GIF
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
         gif = self.spot.spotimage_set.create(
             description="This is the GIF test",
             image=File(f))
@@ -50,7 +50,7 @@ class SpotImageDELETETest(TestCase):
         self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
 
         # JPEG
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
         jpeg = self.spot.spotimage_set.create(
             description="This is the JPEG test",
             image=File(f))
@@ -60,7 +60,7 @@ class SpotImageDELETETest(TestCase):
         self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
 
         # PNG
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
         png = self.spot.spotimage_set.create(
             description="This is the PNG test",
             image=File(f))
@@ -79,7 +79,7 @@ class SpotImageDELETETest(TestCase):
         c = Client()
         spot = Spot.objects.create(name="This is the wrong spot")
 
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
         png = self.spot.spotimage_set.create(
             description="This is another PNG", image=File(f))
         f.close()

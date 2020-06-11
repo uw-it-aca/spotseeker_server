@@ -52,7 +52,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description": "This is a jpeg",
                                    "image": f})
@@ -66,7 +66,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+                f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description": "This is a gif",
                                    "image": f})
@@ -80,7 +80,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_png.png" % TEST_ROOT)
+                f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description": "This is a png",
                                    "image": f})
@@ -94,7 +94,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description": "This is a jpeg",
                                    "display_index": 1,
@@ -120,13 +120,13 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description": "This is a jpeg",
                                    "image": f})
                 f.close()
                 self.assertEquals(response.status_code, 201)
-                f = open("%s/../resources/test_png.png" % TEST_ROOT)
+                f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description": "This is a png",
                                    "image": f})
@@ -160,7 +160,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_bmp.bmp" % TEST_ROOT)
+                f = open("%s/../resources/test_bmp.bmp" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description":
                                    "This is a bmp file - invalid format",
@@ -175,7 +175,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
+                f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description":
                                    "This is really a text file", "image": f})
@@ -201,7 +201,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+                f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
                 response = c.post(self.url,
                                   {"description": "This is a gif",
                                    "not_image": f})
@@ -215,7 +215,7 @@ class ItemImagePOSTTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+                f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
                 response = c.post('/api/v1/item/{0}/image'.
                                   format(self.item.pk + 1),
                                   {"description": "This is a gif",

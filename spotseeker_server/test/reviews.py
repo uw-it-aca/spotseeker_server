@@ -160,7 +160,7 @@ class ReviewsTest(TestCase):
                                     content_type='application/json',
                                     TESTING_OAUTH_USER='review')
         self.assertEquals(response.status_code, 400)
-        self.assertIn('Unable to parse JSON', response.content)
+        self.assertIn('Unable to parse JSON', response.content.decode('utf-8'))
 
     @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_invalid_ratings(self):

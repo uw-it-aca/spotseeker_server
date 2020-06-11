@@ -44,7 +44,7 @@ class ItemImageDELETETest(TestCase):
         self.url = self.url
 
         # GIF
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
         gif = self.item.itemimage_set.create(
             description="This is the GIF test",
             image=File(f))
@@ -54,7 +54,7 @@ class ItemImageDELETETest(TestCase):
         self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
 
         # JPEG
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
         jpeg = self.item.itemimage_set.create(
             description="This is the JPEG test",
             image=File(f))
@@ -64,7 +64,7 @@ class ItemImageDELETETest(TestCase):
         self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
 
         # PNG
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
         png = self.item.itemimage_set.create(
             description="This is the PNG test",
             image=File(f))
@@ -89,7 +89,7 @@ class ItemImageDELETETest(TestCase):
             c = Client()
             item = Item.objects.create(name="This is the wrong item")
 
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
             png = self.item.itemimage_set.create(
                 description="This is another PNG", image=File(f))
             f.close()

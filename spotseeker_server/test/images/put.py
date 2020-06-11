@@ -50,7 +50,7 @@ class SpotImagePUTTest(TestCase):
             self.url = self.url
 
             # GIF
-            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
             gif = self.spot.spotimage_set.create(
                 description="This is the GIF test",
                 image=File(f))
@@ -60,7 +60,7 @@ class SpotImagePUTTest(TestCase):
             self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
 
             # JPEG
-            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
             jpeg = self.spot.spotimage_set.create(
                 description="This is the JPEG test",
                 image=File(f))
@@ -70,7 +70,7 @@ class SpotImagePUTTest(TestCase):
             self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
 
             # PNG
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
             png = self.spot.spotimage_set.create(
                 description="This is the PNG test",
                 image=File(f))
@@ -115,8 +115,8 @@ class SpotImagePUTTest(TestCase):
             response = c.get(self.jpeg_url)
             etag = response["etag"]
 
-            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
-            f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb')
+            f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
 
             new_jpeg_name = "testing PUT name: {0}".format(random.random())
 
@@ -124,7 +124,7 @@ class SpotImagePUTTest(TestCase):
                              files={"description": new_jpeg_name,
                                     "image": f},
                              If_Match=etag)
-            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
+            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb')
             self.assertEquals(response.status_code, 200)
             self.assertEquals(int(response["content-length"]),
                               len(f.read()))
@@ -138,8 +138,8 @@ class SpotImagePUTTest(TestCase):
             response = c.get(self.gif_url)
             etag = response["etag"]
 
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
+            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
 
             new_name = "testing PUT name: {0}".format(random.random())
 
@@ -150,7 +150,7 @@ class SpotImagePUTTest(TestCase):
                                           "boundary=--aklsjf--",
                              If_Match=etag)
             self.assertEquals(response.status_code, 200)
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
 
             # Just to be sure
             response = c.get(self.gif_url)
@@ -166,8 +166,8 @@ class SpotImagePUTTest(TestCase):
             response = c.get(self.gif_url)
             etag = response["etag"]
 
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
+            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
 
             new_name = "testing PUT name: {0}".format(random.random())
 

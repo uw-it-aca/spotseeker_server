@@ -49,7 +49,7 @@ class SpotModelToStringTests(TestCase):
 
     def test_image(self):
         spot = Spot.objects.create(name="This is the test name")
-        f = open("%s/resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/resources/test_gif.gif" % TEST_ROOT, 'rb')
         gif = SpotImage.objects.create(
             description="This is the GIF test",
             spot=spot,

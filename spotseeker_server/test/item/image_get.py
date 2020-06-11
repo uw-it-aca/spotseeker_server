@@ -14,6 +14,12 @@ try:
     from cStringIO import StringIO ## for Python 2
 except ImportError:
     from io import StringIO ## for Python 3
+
+try:
+    from BytesIO import BytesIO ## for Python 2
+except ImportError:
+    from io import BytesIO ## for Python 3
+
 from django.conf import settings
 from django.core import cache
 from django.core.files import File
@@ -38,7 +44,7 @@ class ItemImageGETTest(TestCase):
         item.save()
         self.item = item
 
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
         gif = ItemImage.objects.create(
             description="This is the GIF test",
             item=item, image=File(f))
@@ -46,7 +52,7 @@ class ItemImageGETTest(TestCase):
 
         self.gif = gif
 
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
         jpeg = ItemImage.objects.create(
             description="This is the JPEG test",
             item=item, image=File(f))
@@ -54,7 +60,7 @@ class ItemImageGETTest(TestCase):
 
         self.jpeg = jpeg
 
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
         png = ItemImage.objects.create(
             description="This is the PNG test",
             item=item,
@@ -83,7 +89,7 @@ class ItemImageGETTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/jpeg")
 
@@ -99,7 +105,7 @@ class ItemImageGETTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.gif.pk))
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/gif")
 
@@ -115,7 +121,7 @@ class ItemImageGETTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.png.pk))
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/png")
 

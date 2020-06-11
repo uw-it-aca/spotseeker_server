@@ -14,6 +14,12 @@ try:
     from cStringIO import StringIO ## for Python 2
 except ImportError:
     from io import StringIO ## for Python 3
+
+try:
+    from BytesIO import BytesIO ## for Python 2
+except ImportError:
+    from io import BytesIO ## for Python 3
+
 from django.test import TestCase
 from django.conf import settings
 from django.core.files import File
@@ -58,7 +64,7 @@ class ItemImageThumbTest(TestCase):
         )
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
-            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
             response = c.post(
                 self.url,
                 {"description": "This is a jpeg", "image": f}
@@ -70,7 +76,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -90,7 +96,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -110,7 +116,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -136,7 +142,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -156,7 +162,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -227,7 +233,7 @@ class ItemImageThumbTest(TestCase):
         )
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
             response = c.post(
                 self.url,
                 {"description": "This is a png", "image": f}
@@ -239,7 +245,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -259,7 +265,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -279,7 +285,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -299,7 +305,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -318,7 +324,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -383,7 +389,7 @@ class ItemImageThumbTest(TestCase):
         )
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
-            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
             response = c.post(
                 self.url,
                 {"description": "This is a gif", "image": f}
@@ -395,7 +401,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -415,7 +421,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -433,7 +439,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -449,7 +455,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -471,7 +477,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -539,7 +545,7 @@ class ItemImageThumbTest(TestCase):
 
             item = Item.objects.create(name="This is to test getting images")
 
-            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
             gif = ItemImage.objects.create(
                 description="This is the GIF test",
                 item=item,
@@ -562,7 +568,7 @@ class ItemImageThumbTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             img_path = "%s/../resources/test_jpeg2.jpg" % TEST_ROOT
-            f = open(img_path)
+            f = open(img_path, 'rb')
             response = c.post(
                 self.url,
                 {"description": "This is a jpg", "image": f}
@@ -576,7 +582,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/constrain/width:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -601,7 +607,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/hei"
                 "ght:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -628,7 +634,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/width:{1},hei"
                 "ght:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -651,7 +657,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/height:{1},wid"
                 "th:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -660,8 +666,8 @@ class ItemImageThumbTest(TestCase):
             )
             self.assertEquals(im.size[1], 75,
                               "Height on same size jpg thumbnail is 50")
-            orig_ratio = orig_im.size[1] / orig_im.size[0]
-            ratio = im.size[1] / im.size[0]
+            orig_ratio = orig_im.size[1] // orig_im.size[0]
+            ratio = im.size[1] // im.size[0]
             self.assertEquals(ratio, orig_ratio,
                               "Ratio on constrained jpg thumbnail is the same")
             self.assertEquals(
@@ -677,7 +683,7 @@ class ItemImageThumbTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             img_path = "%s/../resources/test_png2.png" % TEST_ROOT
-            f = open(img_path)
+            f = open(img_path, 'rb')
             response = c.post(self.url,
                               {"description": "This is a png", "image": f})
             orig_im = Image.open(img_path)
@@ -689,7 +695,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/constrain/width:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -713,7 +719,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/hei"
                 "ght:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -737,7 +743,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/width:{1},hei"
                 "ght:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/png",
                               "Content type of same size thumbnail is png")
@@ -758,7 +764,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/height:{1},wid"
                 "th:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -767,8 +773,8 @@ class ItemImageThumbTest(TestCase):
             )
             self.assertEquals(im.size[1], 75,
                               "Height on same size png thumbnail is 50")
-            orig_ratio = orig_im.size[1] / orig_im.size[0]
-            ratio = im.size[1] / im.size[0]
+            orig_ratio = orig_im.size[1] // orig_im.size[0]
+            ratio = im.size[1] // im.size[0]
             self.assertEquals(
                 ratio,
                 orig_ratio,
@@ -787,7 +793,7 @@ class ItemImageThumbTest(TestCase):
         with patch.object(models, 'cache', dummy_cache):
             c = Client()
             img_path = "%s/../resources/test_gif2.gif" % TEST_ROOT
-            f = open(img_path)
+            f = open(img_path, 'rb')
             response = c.post(
                 self.url,
                 {"description": "This is a gif", "image": f}
@@ -802,7 +808,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/wid"
                 "th:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -829,7 +835,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/hei"
                 "ght:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -856,7 +862,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/width:{1},hei"
                 "ght:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -880,7 +886,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/height:{1},wid"
                 "th:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = BytesIO(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -889,8 +895,8 @@ class ItemImageThumbTest(TestCase):
             )
             self.assertEquals(im.size[1], 75,
                               "Height on same size gif thumbnail is 50")
-            orig_ratio = orig_im.size[1] / orig_im.size[0]
-            ratio = im.size[1] / im.size[0]
+            orig_ratio = orig_im.size[1] // orig_im.size[0]
+            ratio = im.size[1] // im.size[0]
             self.assertEquals(
                 ratio,
                 orig_ratio,

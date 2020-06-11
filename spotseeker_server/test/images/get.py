@@ -31,6 +31,10 @@ from spotseeker_server import models
 import random
 
 TEST_ROOT = abspath(dirname(__file__))
+try:
+    from BytesIO import BytesIO ## for Python 2
+except ImportError:
+    from io import BytesIO ## for Python 3
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
@@ -41,7 +45,7 @@ class SpotImageGETTest(TestCase):
         spot.save()
         self.spot = spot
 
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+        f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
         gif = SpotImage.objects.create(
             description="This is the GIF test",
             spot=spot, image=File(f))
@@ -49,7 +53,7 @@ class SpotImageGETTest(TestCase):
 
         self.gif = gif
 
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
         jpeg = SpotImage.objects.create(
             description="This is the JPEG test",
             spot=spot, image=File(f))
@@ -57,7 +61,7 @@ class SpotImageGETTest(TestCase):
 
         self.jpeg = jpeg
 
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
         png = SpotImage.objects.create(
             description="This is the PNG test",
             spot=spot,
@@ -80,7 +84,7 @@ class SpotImageGETTest(TestCase):
     def test_jpeg(self):
         c = Client()
         response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))
-        data = StringIO(response.content)
+        data = BytesIO(response.content)
         im = Image.open(data)
         self.assertEquals(response["Content-type"], "image/jpeg")
 
@@ -93,7 +97,7 @@ class SpotImageGETTest(TestCase):
     def test_gif(self):
         c = Client()
         response = c.get("{0}/{1}".format(self.url, self.gif.pk))
-        data = StringIO(response.content)
+        data = BytesIO(response.content)
         im = Image.open(data)
         self.assertEquals(response["Content-type"], "image/gif")
 
@@ -106,7 +110,7 @@ class SpotImageGETTest(TestCase):
     def test_png(self):
         c = Client()
         response = c.get("{0}/{1}".format(self.url, self.png.pk))
-        data = StringIO(response.content)
+        data = BytesIO(response.content)
         im = Image.open(data)
         self.assertEquals(response["Content-type"], "image/png")
 

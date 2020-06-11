@@ -65,7 +65,7 @@ class SpotAuthOAuthLogger(TestCase):
             )
         settings.MIDDLEWARE_CLASSES = new_middleware
 
-        self.stream = StringIO.StringIO()
+        self.stream = StringIO()
         self.handler = logging.StreamHandler(self.stream)
         self.log = logging.getLogger('spotseeker_server.logger.oauth')
         self.log.setLevel(logging.INFO)
@@ -82,11 +82,11 @@ class SpotAuthOAuthLogger(TestCase):
 
             key = hashlib.sha1("{0} - {1}".format(random.random(),
                                                   time.time()
-                                                  )
+                                                  ).encode('utf-8')
                                ).hexdigest()
             secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                      time.time()
-                                                     )
+                                                     ).encode('utf-8')
                                   ).hexdigest()
 
             create_consumer = Consumer.objects.create(name=consumer_name,
@@ -146,11 +146,11 @@ class SpotAuthOAuthLogger(TestCase):
 
             key = hashlib.sha1("{0} - {1}".format(random.random(),
                                                   time.time()
-                                                  )
+                                                  ).encode('utf-8')
                                ).hexdigest()
             secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                      time.time()
-                                                     )
+                                                     ).encode('utf-8')
                                   ).hexdigest()
 
             create_consumer = Consumer.objects.create(

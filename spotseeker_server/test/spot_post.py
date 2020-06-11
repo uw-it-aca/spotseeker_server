@@ -22,6 +22,11 @@ import copy
 from spotseeker_server.test import utils_test
 
 try:
+  basestring
+except NameError:
+  basestring = str
+
+try:
     from unittest import skip
 except ImportError:
     def skip(*args, **kwargs):

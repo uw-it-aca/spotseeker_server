@@ -50,11 +50,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(
@@ -155,11 +155,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(
@@ -216,11 +216,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(
@@ -278,11 +278,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name,
@@ -341,11 +341,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name,

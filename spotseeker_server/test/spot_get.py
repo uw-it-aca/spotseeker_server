@@ -19,6 +19,13 @@ from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
 import simplejson as json
 from django.test.utils import override_settings
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
+
+
 
 @override_settings(
     SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',

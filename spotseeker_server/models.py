@@ -49,7 +49,7 @@ def update_etag(func):
     wrapped function, however, to call save()."""
     def _newETag(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(),
-                                 time.time())).hexdigest()
+                                 time.time()).encode('utf-8')).hexdigest()
         return func(self, *args, **kwargs)
     return wraps(func)(_newETag)
 
@@ -88,6 +88,9 @@ class Spot(models.Model):
                                    validators=[validate_slug])
 
     def __unicode__(self):
+        return self.name
+
+    def __str__(self):
         return self.name
 
     def json_cache_key(self):
@@ -257,6 +260,12 @@ class SpotAvailableHours(models.Model):
                                   self.start_time,
                                   self.end_time)
 
+    def __str__(self):
+        return "%s: %s, %s-%s" % (self.spot.name,
+                                  self.day,
+                                  self.start_time,
+                                  self.end_time)
+
     def json_data_structure(self):
         return [self.start_time.strftime("%H:%M"),
                 self.end_time.strftime("%H:%M")]
@@ -297,6 +306,9 @@ class SpotExtendedInfo(models.Model):
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
 
+    def __str__(self):
+        return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
+
     def save(self, *args, **kwargs):
         self.full_clean()
         self.spot.save()  # Update the last_modified on the spot
@@ -332,6 +344,13 @@ class SpotImage(models.Model):
             return "%s" % self.description
         else:
             return "%s" % self.image.name
+
+    def __str__(self):
+        if self.description:
+            return "%s" % self.description
+        else:
+            return "%s" % self.image.name
+
 
     def json_data_structure(self):
         return {
@@ -470,6 +489,9 @@ class Item(models.Model):
     def __unicode__(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     def json_data_structure(self):
         extended = {}
 
@@ -506,6 +528,11 @@ class ItemExtendedInfo(models.Model):
         return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
                                                        self.key,
                                                        self.value)
+    def __str__(self):
+        return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
+                                                       self.key,
+                                                       self.value)
+
 
 
 class ItemImage(models.Model):
@@ -537,6 +564,13 @@ class ItemImage(models.Model):
             return "%s" % self.description
         else:
             return "%s" % self.image.name
+
+    def __str__(self):
+        if self.description:
+            return "%s" % self.description
+        else:
+            return "%s" % self.image.name
+
 
     def json_data_structure(self):
         return {

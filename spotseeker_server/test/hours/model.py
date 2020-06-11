@@ -36,7 +36,7 @@ class SpotHoursModelTest(TestCase):
                                                           start_time="01:30",
                                                           end_time="01:30")
             except Exception as e:
-                self.assertEqual(e[0],
+                self.assertEqual(str(e),
                                  "Invalid time range - start time must be "
                                  "before end time",
                                  "Got an error trying to save a time range "
@@ -54,7 +54,7 @@ class SpotHoursModelTest(TestCase):
                                                           start_time="01:40",
                                                           end_time="01:30")
             except Exception as e:
-                self.assertEqual(e[0],
+                self.assertEqual(str(e),
                                  "Invalid time range - start time must be "
                                  "before end time",
                                  "Got an error trying to save a time range "

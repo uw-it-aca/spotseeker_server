@@ -37,6 +37,10 @@ from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
 from spotseeker_server.views import spot_item
 
+try:
+  basestring
+except NameError:
+  basestring = str
 
 @django.dispatch.receiver(
     spot_pre_save,
@@ -62,7 +66,7 @@ def _build_extended_info(sender, **kwargs):
     if new_extended_info is not None:
         for key in new_extended_info.keys():
             value = new_extended_info[key]
-            if value is None or unicode(value) == '':
+            if value is None or value.encode('utf-8') == '':
                 del new_extended_info[key]
 
     old_extended_info = {}

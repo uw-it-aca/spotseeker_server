@@ -61,7 +61,7 @@ class Command(BaseCommand):
             consumer_name = raw_input('Enter consumer name: ')
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
-                                              time.time())).hexdigest()
+                                              time.time()).encode('utf-8')).hexdigest()
 
         # django-oauth-plus now wants secrets to be 16 chars
         charset = "abcdefghijklmnopqrstuvwxyz1234567890"

@@ -36,7 +36,7 @@ class ReviewsTest(TestCase):
         response = c.get(url)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "[]")
+        self.assertEquals(response.content.decode('utf-8'), "[]")
 
     def test_submit_no_publish(self):
         spot = Spot.objects.create(name="Test Review")
@@ -58,7 +58,7 @@ class ReviewsTest(TestCase):
         response = c.get(url)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "[]")
+        self.assertEquals(response.content.decode('utf-8'), "[]")
 
     @override_settings(SPOTSEEKER_AUTH_ADMINS=["is_admin"])
     def test_publishing(self):
@@ -81,7 +81,7 @@ class ReviewsTest(TestCase):
         response = c.get(url)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "[]")
+        self.assertEquals(response.content.decode('utf-8'), "[]")
 
         url = "/api/v1/reviews/unpublished"
         response = c.get(url, TESTING_OAUTH_USER="is_admin")
@@ -100,7 +100,7 @@ class ReviewsTest(TestCase):
                                   content_type="application/json",
                                   TESTING_OAUTH_USER="is_admin")
                 self.assertEquals(response.status_code, 200)
-                self.assertEquals(response.content, "")
+                self.assertEquals(response.content.decode('utf-8'), "")
 
         url = "/api/v1/spot/%s/reviews" % (spot.pk)
         response = c.get(url)
@@ -205,7 +205,7 @@ class ReviewsTest(TestCase):
         response = c.get(url)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "[]")
+        self.assertEquals(response.content.decode('utf-8'), "[]")
 
         url = "/api/v1/reviews/unpublished"
         response = c.get(url, TESTING_OAUTH_USER="is_admin")
@@ -261,7 +261,7 @@ class ReviewsTest(TestCase):
         response = c.get(url)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "[]")
+        self.assertEquals(response.content.decode('utf-8'), "[]")
 
         url = "/api/v1/reviews/unpublished"
         response = c.get(url, TESTING_OAUTH_USER="is_admin")
@@ -280,7 +280,7 @@ class ReviewsTest(TestCase):
                                   content_type="application/json",
                                   TESTING_OAUTH_USER="is_admin")
                 self.assertEquals(response.status_code, 200)
-                self.assertEquals(response.content, "")
+                self.assertEquals(response.content.decode('utf-8'), "")
 
         url = "/api/v1/spot/%s/reviews" % (spot.pk)
         response = c.get(url)

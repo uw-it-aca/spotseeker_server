@@ -20,6 +20,10 @@ import random
 from string import ascii_lowercase
 
 from spotseeker_server.models import Spot, Item, ItemExtendedInfo
+try:
+    xrange
+except NameError:
+    xrange = range
 
 
 @override_settings(

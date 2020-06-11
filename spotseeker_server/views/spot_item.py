@@ -29,6 +29,7 @@ import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
 from django.core.exceptions import ObjectDoesNotExist
+import six
 
 
 class ItemStash(object):
@@ -53,7 +54,7 @@ class ItemStash(object):
 
         self.ei_forms = []
 
-        for key, value in ei_json.iteritems():
+        for key, value in six.iteritems(ei_json):
             ei = {
                 "key": key,
                 "value": value
@@ -170,7 +171,7 @@ def _clean_updated_items(sender, **kwargs):
         items_to_delete.append(item_to_delete)
 
     # find items that haven't been updated and remove them
-    for updated_item_model, old_item, in equality_hashmap.iteritems():
+    for updated_item_model, old_item, in six.iteritems(equality_hashmap):
 
         updated_item = updated_item_models_to_stash[updated_item_model]
         updated_item_form = updated_item.get_form()

@@ -77,6 +77,7 @@ class Command(BaseCommand):
 
             # get_or_create returns a tuple
             cafe_type = SpotType.objects.get_or_create(name="cafe")[0]
+            rest_type = SpotType.objects.get_or_create(name="restaurant")[0]
             art = Spot.objects.create(name="In the Art Building - multiline "
                                            "name to test",
                                       capacity=10,

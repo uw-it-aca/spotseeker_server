@@ -23,7 +23,6 @@ from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
 
-
 ALL_OK = 'spotseeker_server.auth.all_ok'
 UW_SPOT_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotForm'
 UW_EXT_INFO_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm'
@@ -329,5 +328,5 @@ class UWSpotPOSTTest(TransactionTestCase):
 
         error_message = json.loads(response.content)['error']
         self.assertEquals(error_message,
-                          "[u'UWSpot must have extended info']",
+                          "['UWSpot must have extended info']",
                           "Doesn't add spot info; invalid extended info")

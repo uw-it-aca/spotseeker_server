@@ -24,6 +24,12 @@ try:
     from cStringIO import StringIO ## for Python 2
 except ImportError:
     from io import StringIO ## for Python 3
+
+try:
+    from BytesIO import BytesIO ## for Python 2
+except ImportError:
+    from io import BytesIO ## for Python 3
+
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
@@ -93,7 +99,7 @@ class ThumbnailView(RESTDispatch):
         else:
             thumb = im.resize((thumb_width, thumb_height), Image.ANTIALIAS)
 
-        tmp = StringIO()
+        tmp = BytesIO()
         thumb.save(tmp, im.format, quality=95)
         tmp.seek(0)
 

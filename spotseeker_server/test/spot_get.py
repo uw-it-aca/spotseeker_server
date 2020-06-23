@@ -25,8 +25,6 @@ except NameError:
     xrange = range
 
 
-
-
 @override_settings(
     SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
     SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'

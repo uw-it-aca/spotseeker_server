@@ -22,9 +22,9 @@ import copy
 from spotseeker_server.test import utils_test
 
 try:
-  basestring
+    basestring
 except NameError:
-  basestring = str
+    basestring = str
 
 try:
     from unittest import skip

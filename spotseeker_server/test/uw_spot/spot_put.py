@@ -25,9 +25,9 @@ from spotseeker_server import models
 from spotseeker_server.test import utils_test
 
 try:
-  basestring
+    basestring
 except NameError:
-  basestring = str
+    basestring = str
 
 
 ALL_OK = 'spotseeker_server.auth.all_ok'

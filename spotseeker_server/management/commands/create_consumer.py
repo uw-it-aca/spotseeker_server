@@ -60,12 +60,13 @@ class Command(BaseCommand):
         else:
             consumer_name = raw_input('Enter consumer name: ')
 
-        key = hashlib.sha1("{0} - {1}".format(random.random(),
-                                              time.time()).encode('utf-8')).hexdigest()
+        prehash = "{0} - {1}".format(random.random(), time.time())
+        key = hashlib.sha1(prehash.encode('utf-8')).hexdigest()
 
         # django-oauth-plus now wants secrets to be 16 chars
         charset = "abcdefghijklmnopqrstuvwxyz1234567890"
-        indices = [ord(random.choice(charset)) % len(charset) for i in range(16)]
+        charlen = len(charset)
+        indices = [ord(random.choice(charset)) % charlen for i in range(16)]
         secret = "".join([charset[index] for index in indices])
 
         consumer = Consumer.objects.create(name=consumer_name,

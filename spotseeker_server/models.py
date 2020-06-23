@@ -351,7 +351,6 @@ class SpotImage(models.Model):
         else:
             return "%s" % self.image.name
 
-
     def json_data_structure(self):
         return {
             "id": self.pk,
@@ -528,11 +527,11 @@ class ItemExtendedInfo(models.Model):
         return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
                                                        self.key,
                                                        self.value)
+
     def __str__(self):
         return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
                                                        self.key,
                                                        self.value)
-
 
 
 class ItemImage(models.Model):
@@ -570,7 +569,6 @@ class ItemImage(models.Model):
             return "%s" % self.description
         else:
             return "%s" % self.image.name
-
 
     def json_data_structure(self):
         return {

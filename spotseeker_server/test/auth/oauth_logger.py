@@ -21,9 +21,9 @@ import re
 import simplejson as json
 import logging
 try:
-    from StringIO import StringIO ## for Python 2
+    from StringIO import StringIO
 except ImportError:
-    from io import StringIO ## for Python 3
+    from io import StringIO
 
 import hashlib
 import time

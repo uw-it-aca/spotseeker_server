@@ -38,9 +38,10 @@ from spotseeker_server.dispatch import \
 from spotseeker_server.views import spot_item
 
 try:
-  basestring
+    basestring
 except NameError:
-  basestring = str
+    basestring = str
+
 
 @django.dispatch.receiver(
     spot_pre_save,

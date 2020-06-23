@@ -14,9 +14,9 @@
 """
 
 try:
-    from cStringIO import StringIO ## for Python 2
+    from cStringIO import StringIO
 except ImportError:
-    from io import StringIO ## for Python 3
+    from io import StringIO
 
 from django.conf import settings
 from django.core.files import File
@@ -32,9 +32,9 @@ import random
 
 TEST_ROOT = abspath(dirname(__file__))
 try:
-    from BytesIO import BytesIO ## for Python 2
+    from BytesIO import BytesIO
 except ImportError:
-    from io import BytesIO ## for Python 3
+    from io import BytesIO
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')

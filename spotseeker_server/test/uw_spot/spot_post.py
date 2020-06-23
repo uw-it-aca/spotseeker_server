@@ -19,6 +19,7 @@ from django.test.client import Client
 from spotseeker_server.models import Spot
 import simplejson as json
 import random
+import sys
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
@@ -327,6 +328,10 @@ class UWSpotPOSTTest(TransactionTestCase):
                           content_type="application/json", follow=False)
 
         error_message = json.loads(response.content)['error']
+        if (sys.version_info > (3, 0)):
+            expected_error = "['UWSpot must have extended info']"
+        else:
+            expected_error = "[u'UWSpot must have extended info']"
         self.assertEquals(error_message,
-                          "['UWSpot must have extended info']",
+                          expected_error,
                           "Doesn't add spot info; invalid extended info")

@@ -79,7 +79,6 @@ class ItemImageGETTest(TestCase):
         self.assertEquals(response.status_code, 404)
 
     @override_settings(CACHES=dummy_cache_setting)
-
     def test_jpeg(self):
         c = Client()
         response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))

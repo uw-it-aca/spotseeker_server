@@ -22,3 +22,7 @@ spotseeker_web
 
 # IDE files
 .idea/
+
+# pipenv
+Pipfile
+Pipfile.lock

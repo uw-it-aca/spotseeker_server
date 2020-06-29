@@ -13,7 +13,7 @@ setup(name='SpaceScout-Server',
                         'pyproj',
                         'pytz',
                         'simplejson>=2.1',
-                        'django-oauth-plus==2.2.7',
+                        'django-oauth-plus==2.2.8',
                         'phonenumbers'
                        ],
      )

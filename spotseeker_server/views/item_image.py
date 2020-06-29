@@ -22,7 +22,7 @@ from spotseeker_server.views.rest_dispatch import \
     RESTDispatch, RESTException, JSONResponse
 from django.http import HttpResponse
 from django.utils.http import http_date
-from django.core.servers.basehttp import FileWrapper
+from wsgiref.util import FileWrapper
 from django.core.exceptions import ValidationError
 from django.core.files.images import ImageFile
 from spotseeker_server.require_auth import *

@@ -70,8 +70,7 @@ class SpotPOSTTest(TestCase):
 
         self.spot = Spot.objects.get(name=new_name)
 
-        self.assertEqual(response["Location"],
-                         'http://testserver' + self.spot.rest_url())
+        self.assertEqual(response["Location"], self.spot.rest_url())
 
         get_response = c.get(response["Location"])
         self.assertEqual(get_response.status_code, 200)

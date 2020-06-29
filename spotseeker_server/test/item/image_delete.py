@@ -16,7 +16,6 @@ from django.core.files import File
 from spotseeker_server.models import Item, ItemImage, Spot
 from os.path import abspath, dirname, isfile
 from django.test.utils import override_settings
-from django.utils.unittest import skipUnless
 from mock import patch
 from django.core import cache
 from spotseeker_server import models
@@ -29,6 +28,12 @@ TEST_ROOT = abspath(dirname(__file__))
 class ItemImageDELETETest(TestCase):
     """ Tests DELETE of a ItemImage at /api/v1/item/<item id>/image/<image id>.
     """
+    dummy_cache_setting = {
+        'default': { 
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+
     def setUp(self):
         spot = Spot.objects.create(
             name="This is a spot for testing DELETEing images")
@@ -73,67 +78,59 @@ class ItemImageDELETETest(TestCase):
         self.png = png
         self.png_url = "%s/image/%s" % (self.url, self.png.pk)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_bad_url(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            bad_url = "%s/image/aa" % self.url
-            response = c.delete(bad_url)
-            self.assertEquals(response.status_code, 404)
+        c = Client()
+        bad_url = "%s/image/aa" % self.url
+        response = c.delete(bad_url)
+        self.assertEquals(response.status_code, 404)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_wrong_item_id(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
-            item = Item.objects.create(name="This is the wrong item")
+        c = Client()
+        item = Item.objects.create(name="This is the wrong item")
 
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            png = self.item.itemimage_set.create(
-                description="This is another PNG", image=File(f))
-            f.close()
+        f = open("%s/../resources/test_png.png" % TEST_ROOT)
+        png = self.item.itemimage_set.create(
+            description="This is another PNG", image=File(f))
+        f.close()
 
-            response = \
-                c.delete("/api/v1/item/{0}/image/{1}".format(item.pk, png.pk))
-            self.assertEquals(response.status_code, 404)
+        response = \
+            c.delete("/api/v1/item/{0}/image/{1}".format(item.pk, png.pk))
+        self.assertEquals(response.status_code, 404)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_invalid_id_too_high(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
+        c = Client()
 
-            # GIF
-            test_gif_id = self.gif.pk + 10000
-            test_url = "/api/v1/item/%s/image/%s" % (self.url, test_gif_id)
-            response = c.delete(test_url)
-            self.assertEquals(response.status_code, 404)
+        # GIF
+        test_gif_id = self.gif.pk + 10000
+        test_url = "/api/v1/item/%s/image/%s" % (self.url, test_gif_id)
+        response = c.delete(test_url)
+        self.assertEquals(response.status_code, 404)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_actual_delete_no_etag(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            c = Client()
+        c = Client()
 
-            # GIF
-            response = c.delete(self.gif_url)
+        # GIF
+        response = c.delete(self.gif_url)
 
-            self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, 200)
 
-            response = c.get(self.gif_url)
-            self.assertEquals(response.status_code, 404)
+        response = c.get(self.gif_url)
+        self.assertEquals(response.status_code, 404)
 
-            # JPEG
-            response = c.delete(self.jpeg_url)
-            self.assertEquals(response.status_code, 200)
+        # JPEG
+        response = c.delete(self.jpeg_url)
+        self.assertEquals(response.status_code, 200)
 
-            response = c.get(self.jpeg_url)
-            self.assertEquals(response.status_code, 404)
+        response = c.get(self.jpeg_url)
+        self.assertEquals(response.status_code, 404)
 
-            # PNG
-            response = c.delete(self.png_url)
-            self.assertEquals(response.status_code, 200)
+        # PNG
+        response = c.delete(self.png_url)
+        self.assertEquals(response.status_code, 200)
 
-            response = c.get(self.png_url)
-            self.assertEquals(response.status_code, 404)
+        response = c.get(self.png_url)
+        self.assertEquals(response.status_code, 404)

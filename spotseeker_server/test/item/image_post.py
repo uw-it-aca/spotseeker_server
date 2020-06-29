@@ -33,6 +33,12 @@ class ItemImagePOSTTest(TestCase):
     """ Tests POSTing to /api/v1/item/<item id>/image.
     """
 
+    dummy_cache_setting = {
+        'default': { 
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()
 
@@ -46,183 +52,163 @@ class ItemImagePOSTTest(TestCase):
         self.url = '/api/v1/item/{0}/image'.format(self.item.pk)
         self.url = self.url
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_jpeg(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description": "This is a jpeg",
-                                   "image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description": "This is a jpeg",
+                                "image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 201)
+            self.assertEquals(response.status_code, 201)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_gif(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description": "This is a gif",
-                                   "image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description": "This is a gif",
+                                "image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 201)
+            self.assertEquals(response.status_code, 201)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_png(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_png.png" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description": "This is a png",
-                                   "image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_png.png" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description": "This is a png",
+                                "image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 201)
+            self.assertEquals(response.status_code, 201)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_display_index(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description": "This is a jpeg",
-                                   "display_index": 1,
-                                   "image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description": "This is a jpeg",
+                                "display_index": 1,
+                                "image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 201)
+            self.assertEquals(response.status_code, 201)
 
-                response = c.get(self.spot.rest_url())
-                item_dict = json.loads(response.content)
-                item_dict = item_dict['items'][0]
-                self.assertEquals(item_dict['images'].__len__(),
-                                  1,
-                                  "Item has only 1 ItemImage")
-                self.assertEquals(item_dict['images'][0]['display_index'],
-                                  1,
-                                  "Image created with a display index of 1 "
-                                  "has a display index of 1")
+            response = c.get(self.spot.rest_url())
+            item_dict = json.loads(response.content)
+            item_dict = item_dict['items'][0]
+            self.assertEquals(item_dict['images'].__len__(),
+                                1,
+                                "Item has only 1 ItemImage")
+            self.assertEquals(item_dict['images'][0]['display_index'],
+                                1,
+                                "Image created with a display index of 1 "
+                                "has a display index of 1")
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_no_display_index(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description": "This is a jpeg",
-                                   "image": f})
-                f.close()
-                self.assertEquals(response.status_code, 201)
-                f = open("%s/../resources/test_png.png" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description": "This is a png",
-                                   "image": f})
-                f.close()
-                self.assertEquals(response.status_code, 201)
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description": "This is a jpeg",
+                                "image": f})
+            f.close()
+            self.assertEquals(response.status_code, 201)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description": "This is a png",
+                                "image": f})
+            f.close()
+            self.assertEquals(response.status_code, 201)
 
-                response = c.get(self.spot.rest_url())
-                item_dict = json.loads(response.content)
-                item_dict = item_dict['items'][0]
-                self.assertEquals(item_dict['images'].__len__(),
-                                  2,
-                                  "Item has 2 ItemImages")
-                self.assertEquals(item_dict['images'][0]['display_index'],
-                                  0,
-                                  "First returned item has a display "
-                                  "index of 0")
-                self.assertEquals(item_dict['images'][0]['description'],
-                                  "This is a jpeg",
-                                  "First returned item is the jpeg")
-                self.assertEquals(item_dict['images'][1]['display_index'],
-                                  1,
-                                  "Second returned item has a display index "
-                                  "of 1")
-                self.assertEquals(item_dict['images'][1]['description'],
-                                  "This is a png",
-                                  "First returned item is the png")
+            response = c.get(self.spot.rest_url())
+            item_dict = json.loads(response.content)
+            item_dict = item_dict['items'][0]
+            self.assertEquals(item_dict['images'].__len__(),
+                                2,
+                                "Item has 2 ItemImages")
+            self.assertEquals(item_dict['images'][0]['display_index'],
+                                0,
+                                "First returned item has a display "
+                                "index of 0")
+            self.assertEquals(item_dict['images'][0]['description'],
+                                "This is a jpeg",
+                                "First returned item is the jpeg")
+            self.assertEquals(item_dict['images'][1]['display_index'],
+                                1,
+                                "Second returned item has a display index "
+                                "of 1")
+            self.assertEquals(item_dict['images'][1]['description'],
+                                "This is a png",
+                                "First returned item is the png")
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_invalid_image_type(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_bmp.bmp" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description":
-                                   "This is a bmp file - invalid format",
-                                   "image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_bmp.bmp" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description":
+                                "This is a bmp file - invalid format",
+                                "image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 400)
+            self.assertEquals(response.status_code, 400)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_invalid_file(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description":
-                                   "This is really a text file", "image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description":
+                                "This is really a text file", "image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 400)
+            self.assertEquals(response.status_code, 400)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_no_file(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                response = c.post(self.url,
-                                  {"description":
-                                   "This is really a text file"})
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            response = c.post(self.url,
+                                {"description":
+                                "This is really a text file"})
 
-                self.assertEquals(response.status_code, 400)
+            self.assertEquals(response.status_code, 400)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_wrong_field(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-                response = c.post(self.url,
-                                  {"description": "This is a gif",
-                                   "not_image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            response = c.post(self.url,
+                                {"description": "This is a gif",
+                                "not_image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 400)
+            self.assertEquals(response.status_code, 400)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_wrong_url(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
-            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
-                c = Client()
-                f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-                response = c.post('/api/v1/item/{0}/image'.
-                                  format(self.item.pk + 1),
-                                  {"description": "This is a gif",
-                                   "image": f})
-                f.close()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            response = c.post('/api/v1/item/{0}/image'.
+                                format(self.item.pk + 1),
+                                {"description": "This is a gif",
+                                "image": f})
+            f.close()
 
-                self.assertEquals(response.status_code, 404)
+            self.assertEquals(response.status_code, 404)
 
     def tearDown(self):
         shutil.rmtree(self.TEMP_DIR)

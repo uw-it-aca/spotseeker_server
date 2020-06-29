@@ -56,8 +56,7 @@ class UWSpotPOSTTest(TransactionTestCase):
 
         self.spot = Spot.objects.get(name=new_name)
 
-        self.assertEquals(response["Location"],
-                          "http://testserver" + self.spot.rest_url(),
+        self.assertEquals(response["Location"], self.spot.rest_url(),
                           "The uri for the new spot is correct")
 
         get_response = c.get(response["Location"])

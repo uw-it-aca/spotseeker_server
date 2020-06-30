@@ -12,13 +12,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+import shutil
+import tempfile
 
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
 from os.path import abspath, dirname
 from spotseeker_server.models import Spot, SpotImage, TrustedOAuthClient
-from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from PIL import Image
 from oauth_provider.models import Consumer
@@ -36,9 +38,14 @@ TEST_ROOT = abspath(dirname(__file__))
 @override_settings(SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
 class SpotResourceOAuthImageTest(TestCase):
     def setUp(self):
-        spot = Spot.objects.create(
-            name="This is to test images in the spot resource, with oauth")
-        self.spot = spot
+        self.TEMP_DIR = tempfile.mkdtemp()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            spot = Spot.objects.create(
+                name="This is to test images in the spot resource, with oauth")
+            self.spot = spot
+
+    def tearDown(self):
+        shutil.rmtree(self.TEMP_DIR)
 
     def test_oauth_attributes(self):
         with self.settings(
@@ -74,15 +81,22 @@ class SpotResourceOAuthImageTest(TestCase):
                 format(self.spot.pk))
 
             oauth_header = req.to_header()
-            c = Client()
 
-            f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-            response = c.post("/api/v1/spot/{0}/image".
-                              format(self.spot.pk),
-                              {"description": "oauth image", "image": f},
-                              HTTP_AUTHORIZATION=oauth_header[
-                                  'Authorization'],
-                              HTTP_X_OAUTH_USER="pmichaud")
+            with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+                c = Client()
+                response = c.post("/api/v1/spot/{0}/image".
+                                format(self.spot.pk),
+                                {
+                                    "description": "oauth image",
+                                    "image": SimpleUploadedFile(
+                                        "test_jpeg.jpg",
+                                        open("%s/../resources/test_jpeg.jpg" % TEST_ROOT).read(),
+                                        'image/jpeg'
+                                    )
+                                },
+                                HTTP_AUTHORIZATION=oauth_header[
+                                    'Authorization'],
+                                HTTP_X_OAUTH_USER="pmichaud")
 
         with self.settings(
                 SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):

@@ -6,7 +6,7 @@ setup(name='SpaceScout-Server',
       version='1.0',
       description='REST Backend for SpaceScout',
       install_requires=[
-                        'Django==1.10',
+                        'Django==1.11',
                         'mock<=1.0.1',
                         'oauth2<=1.5.211',
                         'Pillow',

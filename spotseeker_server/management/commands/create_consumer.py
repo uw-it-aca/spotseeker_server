@@ -33,26 +33,30 @@ class Command(BaseCommand):
     help = 'Creates a unique key and secret for clients ' \
         'connecting to the server'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--name',
-                    dest='consumer_name',
-                    default=False,
-                    help='A name for the consumer'),
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--name',
+            dest='consumer_name',
+            default=False,
+            help='A name for the consumer',
+        )
 
-        make_option('--trusted',
-                    dest='trusted',
-                    action='store_true',
-                    default=False,
-                    help="Makes this consumer trusted "
-                    "(Adds a TrustedOAuthClient for it)"),
+        parser.add_argument(
+            '--trusted',
+            dest='trusted',
+            action='store_true',
+            default=False,
+            help="Makes this consumer trusted "
+            "(Adds a TrustedOAuthClient for it)",
+        )
 
-        make_option('--silent',
-                    dest='silent',
-                    action='store_true',
-                    default=False,
-                    help="With silent set, the command will "
-                         "generate no output"),
-    )
+        parser.add_argument(
+            '--silent',
+            dest='silent',
+            action='store_true',
+            default=False,
+            help="With silent set, the command will generate no output",
+        )
 
     def handle(self, *args, **options):
         if options['consumer_name']:

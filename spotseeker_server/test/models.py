@@ -12,8 +12,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+import shutil
+import tempfile
 
-from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from os.path import abspath, dirname
 from spotseeker_server.models import *
@@ -48,12 +50,21 @@ class SpotModelToStringTests(TestCase):
         self.assertEqual(test_str, "This is the test name[has_whiteboards: 1]")
 
     def test_image(self):
-        spot = Spot.objects.create(name="This is the test name")
-        f = open("%s/resources/test_gif.gif" % TEST_ROOT)
-        gif = SpotImage.objects.create(
-            description="This is the GIF test",
-            spot=spot,
-            image=File(f))
+        TEMP_DIR = tempfile.mkdtemp()
+        with self.settings(MEDIA_ROOT=TEMP_DIR):
+            spot = Spot.objects.create(name="This is the test name")
 
-        test_str = "{0}".format(gif)
-        self.assertEqual(test_str, "This is the GIF test")
+            gif = SpotImage.objects.create(
+                description="This is the GIF test",
+                spot=spot,
+                image=SimpleUploadedFile(
+                    "test_gif.gif",
+                    open("%s/resources/test_gif.gif" % TEST_ROOT).read(),
+                    'image/gif'
+                )
+            )
+
+            test_str = "{0}".format(gif)
+            self.assertEqual(test_str, "This is the GIF test")
+
+        shutil.rmtree(TEMP_DIR)

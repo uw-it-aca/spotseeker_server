@@ -27,7 +27,6 @@ from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import get_template
-from django.template import Context
 from django.utils.http import urlquote
 from django.utils import timezone
 import json
@@ -132,7 +131,7 @@ class ShareSpaceView(RESTDispatch):
                 spottypes = spot.spottypes.all()
                 spottypes = ["server_%s" % x for x in spottypes]
 
-                context = Context({
+                context = {
                     'user_name': user.username,
                     'spot_name': spot.name,
                     'spot_type': spottypes,
@@ -141,7 +140,7 @@ class ShareSpaceView(RESTDispatch):
                     'spot_floor': spot.floor,
                     'share_url': share_url,
                     'comment': comment,
-                })
+                }
 
                 subject_template = \
                     get_template('email/share_space/subject.txt')

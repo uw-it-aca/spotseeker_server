@@ -6,14 +6,14 @@ setup(name='SpaceScout-Server',
       version='1.0',
       description='REST Backend for SpaceScout',
       install_requires=[
-                        'Django==1.9',
+                        'Django==1.10',
                         'mock<=1.0.1',
                         'oauth2<=1.5.211',
                         'Pillow',
                         'pyproj',
                         'pytz',
                         'simplejson>=2.1',
-                        'django-oauth-plus==2.2.8',
+                        'django-oauth-plus@git+https://github.com/edx-unsupported/django-oauth-plus#egg=2.2.9.edx-2',
                         'phonenumbers'
                        ],
      )

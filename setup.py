@@ -8,7 +8,7 @@ setup(name='SpaceScout-Server',
       install_requires=[
                         'Django==1.11',
                         'mock<=1.0.1',
-                        'oauth2<=1.5.211',
+                        'oauth2<=1.9',
                         'Pillow',
                         'pyproj',
                         'pytz',

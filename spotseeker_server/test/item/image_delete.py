@@ -9,10 +9,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+import shutil
+import tempfile
+
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
-from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from spotseeker_server.models import Item, ItemImage, Spot
 from os.path import abspath, dirname, isfile
 from django.test.utils import override_settings
@@ -29,108 +32,127 @@ class ItemImageDELETETest(TestCase):
     """ Tests DELETE of a ItemImage at /api/v1/item/<item id>/image/<image id>.
     """
     dummy_cache_setting = {
-        'default': { 
+        'default': {
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
 
     def setUp(self):
-        spot = Spot.objects.create(
-            name="This is a spot for testing DELETEing images")
-        spot.save()
-        item = Item.objects.create(
-            name="This is to test DELETEing images",
-            spot=spot
-        )
-        item.save()
-        self.item = item
+        self.TEMP_DIR = tempfile.mkdtemp()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            spot = Spot.objects.create(
+                name="This is a spot for testing DELETEing images")
+            spot.save()
+            item = Item.objects.create(
+                name="This is to test DELETEing images",
+                spot=spot
+            )
+            item.save()
+            self.item = item
 
-        self.url = '/api/v1/item/{0}'.format(self.item.pk)
-        self.url = self.url
+            self.url = '/api/v1/item/{0}'.format(self.item.pk)
+            self.url = self.url
 
-        # GIF
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = self.item.itemimage_set.create(
-            description="This is the GIF test",
-            image=File(f))
-        f.close()
+            # GIF
+            gif = self.item.itemimage_set.create(
+                description="This is the GIF test",
+                image=SimpleUploadedFile(
+                    "test_gif.gif",
+                    open("%s/../resources/test_gif.gif" % TEST_ROOT).read(),
+                    'image/gif'
+                )
+            )
+            self.gif = gif
+            self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
 
-        self.gif = gif
-        self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
+            # JPEG
+            jpeg = self.item.itemimage_set.create(
+                description="This is the JPEG test",
+                image=SimpleUploadedFile(
+                    "test_jpeg.jpg",
+                    open("%s/../resources/test_jpeg.jpg" % TEST_ROOT).read(),
+                    'image/jpeg'
+                )
+            )
+            self.jpeg = jpeg
+            self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
 
-        # JPEG
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = self.item.itemimage_set.create(
-            description="This is the JPEG test",
-            image=File(f))
-        f.close()
+            # PNG
+            png = self.item.itemimage_set.create(
+                description="This is the PNG test",
+                image=SimpleUploadedFile(
+                    "test_png.png",
+                    open("%s/../resources/test_png.png" % TEST_ROOT).read(),
+                    'image/png'
+                )
+            )
+            self.png = png
+            self.png_url = "%s/image/%s" % (self.url, self.png.pk)
 
-        self.jpeg = jpeg
-        self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
-
-        # PNG
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = self.item.itemimage_set.create(
-            description="This is the PNG test",
-            image=File(f))
-        f.close()
-
-        self.png = png
-        self.png_url = "%s/image/%s" % (self.url, self.png.pk)
+    def tearDown(self):
+        shutil.rmtree(self.TEMP_DIR)
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_bad_url(self):
-        c = Client()
-        bad_url = "%s/image/aa" % self.url
-        response = c.delete(bad_url)
-        self.assertEquals(response.status_code, 404)
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            bad_url = "%s/image/aa" % self.url
+            response = c.delete(bad_url)
+            self.assertEquals(response.status_code, 404)
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_wrong_item_id(self):
-        c = Client()
-        item = Item.objects.create(name="This is the wrong item")
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
+            item = Item.objects.create(name="This is the wrong item")
 
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = self.item.itemimage_set.create(
-            description="This is another PNG", image=File(f))
-        f.close()
+            png = self.item.itemimage_set.create(
+                description="This is another PNG",
+                image=SimpleUploadedFile(
+                    "test_png.png",
+                    open("%s/../resources/test_png.png" % TEST_ROOT).read(),
+                    'image/png'
+                )
+            )
 
-        response = \
-            c.delete("/api/v1/item/{0}/image/{1}".format(item.pk, png.pk))
-        self.assertEquals(response.status_code, 404)
+            response = \
+                c.delete("/api/v1/item/{0}/image/{1}".format(item.pk, png.pk))
+            self.assertEquals(response.status_code, 404)
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_invalid_id_too_high(self):
-        c = Client()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
 
-        # GIF
-        test_gif_id = self.gif.pk + 10000
-        test_url = "/api/v1/item/%s/image/%s" % (self.url, test_gif_id)
-        response = c.delete(test_url)
-        self.assertEquals(response.status_code, 404)
+            # GIF
+            test_gif_id = self.gif.pk + 10000
+            test_url = "/api/v1/item/%s/image/%s" % (self.url, test_gif_id)
+            response = c.delete(test_url)
+            self.assertEquals(response.status_code, 404)
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_actual_delete_no_etag(self):
-        c = Client()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            c = Client()
 
-        # GIF
-        response = c.delete(self.gif_url)
+            # GIF
+            response = c.delete(self.gif_url)
 
-        self.assertEquals(response.status_code, 200)
+            self.assertEquals(response.status_code, 200)
 
-        response = c.get(self.gif_url)
-        self.assertEquals(response.status_code, 404)
+            response = c.get(self.gif_url)
+            self.assertEquals(response.status_code, 404)
 
-        # JPEG
-        response = c.delete(self.jpeg_url)
-        self.assertEquals(response.status_code, 200)
+            # JPEG
+            response = c.delete(self.jpeg_url)
+            self.assertEquals(response.status_code, 200)
 
-        response = c.get(self.jpeg_url)
-        self.assertEquals(response.status_code, 404)
+            response = c.get(self.jpeg_url)
+            self.assertEquals(response.status_code, 404)
 
-        # PNG
-        response = c.delete(self.png_url)
-        self.assertEquals(response.status_code, 200)
+            # PNG
+            response = c.delete(self.png_url)
+            self.assertEquals(response.status_code, 200)
 
-        response = c.get(self.png_url)
-        self.assertEquals(response.status_code, 404)
+            response = c.get(self.png_url)
+            self.assertEquals(response.status_code, 404)

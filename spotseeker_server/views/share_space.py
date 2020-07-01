@@ -103,7 +103,7 @@ class ShareSpaceView(RESTDispatch):
                     re.sub(r'{{\s*spot_name\s*}}', urlquote(spot.name), path)
                 hash_val = \
                     hashlib.md5("%s|%s|%s" %
-                                (spot.pk, send_from, to)).hexdigest()
+                                (spot.pk, send_from, to).encode('utf-8')).hexdigest()
                 share_url = "http://%s%s/%s" % (server, path, hash_val)
 
                 try:

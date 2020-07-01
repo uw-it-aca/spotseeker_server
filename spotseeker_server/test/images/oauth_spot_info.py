@@ -56,11 +56,11 @@ class SpotResourceOAuthImageTest(TestCase):
             key = hashlib.sha1(
                 "{0} - {1}".format(
                     random.random(),
-                    time.time())).hexdigest()
+                    time.time()).encode('utf-8')).hexdigest()
             secret = hashlib.sha1(
                 "{0} - {1}".format(
                     random.random(),
-                    time.time())).hexdigest()
+                    time.time()).encode('utf-8')).hexdigest()
 
             create_consumer = Consumer.objects.create(
                 name=consumer_name,

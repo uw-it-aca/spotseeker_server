@@ -25,6 +25,8 @@ import random
 from spotseeker_server.test import utils_test
 import copy
 
+from past.builtins import basestring
+
 try:
     from unittest import skip
 except ImportError:

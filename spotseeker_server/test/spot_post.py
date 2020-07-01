@@ -21,6 +21,8 @@ from django.test.utils import override_settings
 import copy
 from spotseeker_server.test import utils_test
 
+from past.builtins import basestring
+
 try:
     from unittest import skip
 except ImportError:

@@ -53,7 +53,9 @@ class ItemImageGETTest(TestCase):
                 description="This is the GIF test",
                 item=item, image=SimpleUploadedFile(
                     "test_gif.gif",
-                    open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb').read(),
+                    open(
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/gif'
                 )
             )
@@ -63,7 +65,9 @@ class ItemImageGETTest(TestCase):
                 description="This is the JPEG test",
                 item=item, image=SimpleUploadedFile(
                     "test_jpeg.jpg",
-                    open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb').read(),
+                    open(
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/jpeg'
                 )
             )
@@ -74,7 +78,9 @@ class ItemImageGETTest(TestCase):
                 item=item,
                 image=SimpleUploadedFile(
                     "test_png.png",
-                    open("%s/../resources/test_png.png" % TEST_ROOT, 'rb').read(),
+                    open(
+                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/png'
                 )
             )

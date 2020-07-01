@@ -305,7 +305,7 @@ class SpotExtendedInfo(models.Model):
 
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
-    
+
     def __str__(self):
         return self.__unicode__()
 

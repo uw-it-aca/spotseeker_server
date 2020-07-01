@@ -39,6 +39,7 @@ import spotseeker_server.views.spot_item
 
 from past.builtins import basestring
 
+
 @django.dispatch.receiver(
     spot_pre_save,
     dispatch_uid='spotseeker_server.views.spot.build_available_hours')

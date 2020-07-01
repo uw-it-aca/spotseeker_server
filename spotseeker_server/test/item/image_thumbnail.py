@@ -657,7 +657,9 @@ class ItemImageThumbTest(TestCase):
                 item=item,
                 image=SimpleUploadedFile(
                     "test_gif.gif",
-                    open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb').read(),
+                    open(
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/gif'
                 ),
             )

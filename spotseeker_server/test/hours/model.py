@@ -30,8 +30,10 @@ class SpotHoursModelTest(TestCase):
         with self.settings(
                 SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             spot = Spot.objects.create(name='testing hours')
-            with self.assertRaises(Exception,
-                msg="Got an error trying to save a time range with no time in it",
+            with self.assertRaises(
+                Exception,
+                msg="Got an error trying to save a time" +
+                "range with no time in it",
             ) as ex:
                 SpotAvailableHours.objects.create(
                     day="m", spot=spot,  start_time="01:30", end_time="01:30"
@@ -47,8 +49,10 @@ class SpotHoursModelTest(TestCase):
         with self.settings(
                 SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             spot = Spot.objects.create(name='testing hours')
-            with self.assertRaises(Exception,
-                msg="Got an error trying to save a time range with no time in it",
+            with self.assertRaises(
+                Exception,
+                msg="Got an error trying to save a time" +
+                "range with no time in it",
             ) as ex:
                 SpotAvailableHours.objects.create(
                     day="m", spot=spot,  start_time="01:30", end_time="01:30"

@@ -129,7 +129,7 @@ class SpotAuthOAuthLogger(TestCase):
                               "Logging correct uri")
             self.assertEquals(status_code, response.status_code,
                               "Logging correct status_code")
-            self.assertEquals(response_size, len(response.content),
+            self.assertEquals(response_size, len(response.content.decode()),
                               "Logging correct content size")
 
     def test_log_trusted_3_legged(self):
@@ -219,7 +219,7 @@ class SpotAuthOAuthLogger(TestCase):
                               "Logging correct uri")
             self.assertEquals(status_code, response.status_code,
                               "Logging correct status_code")
-            self.assertEquals(response_size, len(response.content),
+            self.assertEquals(response_size, len(response.content.decode()),
                               "Logging correct content size")
 
     def test_invalid(self):

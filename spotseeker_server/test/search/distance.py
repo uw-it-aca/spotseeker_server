@@ -40,7 +40,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_invalid_longitude(self):
@@ -56,7 +56,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_invalid_height(self):
@@ -73,7 +73,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_invalid_distance(self):
@@ -89,7 +89,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_large_longitude(self):
@@ -105,7 +105,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_large_latitude(self):
@@ -121,7 +121,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_large_negative_latitude(self):
@@ -137,7 +137,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_large_negative_longitude(self):
@@ -153,7 +153,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_no_params(self):
@@ -164,7 +164,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
     def test_distances(self):
@@ -277,7 +277,7 @@ class SpotSearchDistanceTest(TestCase):
         self.assertEquals(response["Content-Type"],
                           "application/json",
                           "Has the json header")
-        self.assertEquals(response.content, '[]',
+        self.assertEquals(response.content.decode(), '[]',
                           "Should return no matches")
 
         # Testing the inner ring

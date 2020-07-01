@@ -87,7 +87,9 @@ class SpotAuthOAuth(TestCase):
         )
 
     def test_invalid_oauth(self):
-        client = oauth1.Client("This is a fake key", client_secret="This is a fake secret")
+        client = oauth1.Client(
+            "This is a fake key", client_secret="This is a fake secret"
+        )
         _, headers, _ = client.sign("http://testserver" + self.url)
 
         c = self.client

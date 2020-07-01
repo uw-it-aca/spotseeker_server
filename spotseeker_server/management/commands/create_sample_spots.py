@@ -41,8 +41,10 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        print ("This will delete all of your existing spots - if you "
-               "really want to do that, type 'delete my spots':")
+        print(
+            "This will delete all of your existing spots - if you "
+            "really want to do that, type 'delete my spots':"
+        )
 
         if options['delete_spots'] == 'yes':
             confirmation = "delete my spots"

@@ -106,8 +106,10 @@ class SchemaGenView(RESTDispatch):
                     schema[field.name] = field_itype
 
         # To grab spot image info
-        spot_image_field_array = apps.get_model('spotseeker_server',
-                                                  'SpotImage')._meta.fields
+        spot_image_field_array = apps.get_model(
+            'spotseeker_server',
+            'SpotImage'
+        )._meta.fields
         schema_image = {}
         for field in spot_image_field_array:
             if is_auto_field(field):

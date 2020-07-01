@@ -34,7 +34,7 @@ class ItemImagePOSTTest(TestCase):
     """
 
     dummy_cache_setting = {
-        'default': { 
+        'default': {
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
@@ -57,9 +57,10 @@ class ItemImagePOSTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description": "This is a jpeg",
-                                "image": f})
+            response = c.post(
+                self.url,
+                {"description": "This is a jpeg", "image": f}
+            )
             f.close()
 
             self.assertEquals(response.status_code, 201)
@@ -69,9 +70,10 @@ class ItemImagePOSTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description": "This is a gif",
-                                "image": f})
+            response = c.post(
+                self.url,
+                {"description": "This is a gif", "image": f}
+            )
             f.close()
 
             self.assertEquals(response.status_code, 201)
@@ -81,9 +83,10 @@ class ItemImagePOSTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description": "This is a png",
-                                "image": f})
+            response = c.post(
+                self.url,
+                {"description": "This is a png", "image": f}
+            )
             f.close()
 
             self.assertEquals(response.status_code, 201)
@@ -93,10 +96,14 @@ class ItemImagePOSTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description": "This is a jpeg",
-                                "display_index": 1,
-                                "image": f})
+            response = c.post(
+                self.url,
+                {
+                    "description": "This is a jpeg",
+                    "display_index": 1,
+                    "image": f
+                }
+            )
             f.close()
 
             self.assertEquals(response.status_code, 201)
@@ -104,61 +111,73 @@ class ItemImagePOSTTest(TestCase):
             response = c.get(self.spot.rest_url())
             item_dict = json.loads(response.content)
             item_dict = item_dict['items'][0]
-            self.assertEquals(item_dict['images'].__len__(),
-                                1,
-                                "Item has only 1 ItemImage")
-            self.assertEquals(item_dict['images'][0]['display_index'],
-                                1,
-                                "Image created with a display index of 1 "
-                                "has a display index of 1")
+            self.assertEquals(
+                item_dict['images'].__len__(), 1,
+                "Item has only 1 ItemImage"
+            )
+            self.assertEquals(
+                item_dict['images'][0]['display_index'], 1,
+                "Image created with a display index of" +
+                " 1 has a display index of 1"
+            )
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_no_display_index(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description": "This is a jpeg",
-                                "image": f})
+            response = c.post(
+                self.url,
+                {"description": "This is a jpeg", "image": f}
+            )
             f.close()
             self.assertEquals(response.status_code, 201)
             f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description": "This is a png",
-                                "image": f})
+            response = c.post(
+                self.url,
+                {"description": "This is a png", "image": f}
+            )
             f.close()
             self.assertEquals(response.status_code, 201)
 
             response = c.get(self.spot.rest_url())
             item_dict = json.loads(response.content)
             item_dict = item_dict['items'][0]
-            self.assertEquals(item_dict['images'].__len__(),
-                                2,
-                                "Item has 2 ItemImages")
-            self.assertEquals(item_dict['images'][0]['display_index'],
-                                0,
-                                "First returned item has a display "
-                                "index of 0")
-            self.assertEquals(item_dict['images'][0]['description'],
-                                "This is a jpeg",
-                                "First returned item is the jpeg")
-            self.assertEquals(item_dict['images'][1]['display_index'],
-                                1,
-                                "Second returned item has a display index "
-                                "of 1")
-            self.assertEquals(item_dict['images'][1]['description'],
-                                "This is a png",
-                                "First returned item is the png")
+            self.assertEquals(
+                item_dict['images'].__len__(), 2,
+                "Item has 2 ItemImages"
+            )
+            self.assertEquals(
+                item_dict['images'][0]['display_index'], 0,
+                "First returned item has a display index of 0"
+            )
+            self.assertEquals(
+                item_dict['images'][0]['description'],
+                "This is a jpeg",
+                "First returned item is the jpeg"
+            )
+            self.assertEquals(
+                item_dict['images'][1]['display_index'], 1,
+                "Second returned item has a display index of 1"
+            )
+            self.assertEquals(
+                item_dict['images'][1]['description'],
+                "This is a png",
+                "First returned item is the png"
+            )
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_invalid_image_type(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_bmp.bmp" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description":
-                                "This is a bmp file - invalid format",
-                                "image": f})
+            response = c.post(
+                self.url,
+                {
+                    "description": "This is a bmp file - invalid format",
+                    "image": f
+                }
+            )
             f.close()
 
             self.assertEquals(response.status_code, 400)
@@ -168,9 +187,10 @@ class ItemImagePOSTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description":
-                                "This is really a text file", "image": f})
+            response = c.post(
+                self.url,
+                {"description": "This is really a text file", "image": f}
+            )
             f.close()
 
             self.assertEquals(response.status_code, 400)
@@ -179,9 +199,10 @@ class ItemImagePOSTTest(TestCase):
     def test_no_file(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
-            response = c.post(self.url,
-                                {"description":
-                                "This is really a text file"})
+            response = c.post(
+                self.url,
+                {"description": "This is really a text file"}
+            )
 
             self.assertEquals(response.status_code, 400)
 
@@ -190,9 +211,10 @@ class ItemImagePOSTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-            response = c.post(self.url,
-                                {"description": "This is a gif",
-                                "not_image": f})
+            response = c.post(
+                self.url,
+                {"description": "This is a gif", "not_image": f}
+            )
             f.close()
 
             self.assertEquals(response.status_code, 400)
@@ -202,10 +224,10 @@ class ItemImagePOSTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-            response = c.post('/api/v1/item/{0}/image'.
-                                format(self.item.pk + 1),
-                                {"description": "This is a gif",
-                                "image": f})
+            response = c.post(
+                '/api/v1/item/{0}/image'.format(self.item.pk + 1),
+                {"description": "This is a gif", "image": f}
+            )
             f.close()
 
             self.assertEquals(response.status_code, 404)

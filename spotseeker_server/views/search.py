@@ -20,6 +20,7 @@
         move some UW options into new org_filter; add org_filter
         support (hooks).
 """
+from __future__ import print_function
 
 from spotseeker_server.views.rest_dispatch import \
     RESTDispatch, RESTException, JSONResponse

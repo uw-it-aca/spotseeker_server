@@ -13,7 +13,7 @@
     limitations under the License.
 """
 try:
-    import StringIO
+    from StringIO import StringIO
 except ModuleNotFoundError:
     from io import StringIO
 
@@ -66,7 +66,7 @@ class SpotAuthOAuthLogger(TestCase):
             )
         settings.MIDDLEWARE_CLASSES = new_middleware
 
-        self.stream = StringIO.StringIO()
+        self.stream = StringIO()
         self.handler = logging.StreamHandler(self.stream)
         self.log = logging.getLogger('spotseeker_server.logger.oauth')
         self.log.setLevel(logging.INFO)

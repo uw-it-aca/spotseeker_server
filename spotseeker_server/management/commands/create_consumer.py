@@ -19,8 +19,8 @@ that will generate a oauth key and secret based on the consumer name.
 """
 from optparse import make_option
 import hashlib
-import os
 import random
+import string
 import time
 
 from django.core.management.base import BaseCommand, CommandError
@@ -68,10 +68,9 @@ class Command(BaseCommand):
                                               time.time()).encode('utf-8')).hexdigest()
 
         # django-oauth-plus now wants secrets to be 16 chars
-        charset = "abcdefghijklmnopqrstuvwxyz1234567890"
-        random_bytes = os.urandom(16)
-        indices = [ord(byte) % len(charset) for byte in random_bytes]
-        secret = "".join([charset[index] for index in indices])
+        secret = ''.join(random.choice(
+            string.ascii_letters + string.digits) for _ in range(16)
+        )
 
         consumer = Consumer.objects.create(name=consumer_name,
                                            key=key,

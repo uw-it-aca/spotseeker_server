@@ -19,13 +19,16 @@
         here to simplify the URL patterns; adapt to the new RESTDispatch
         framework.
 """
+try:
+    from cStringIO import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
 from django.utils.http import http_date
 from spotseeker_server.require_auth import app_auth_required
-from cStringIO import StringIO
 from PIL import Image
 import time
 import re

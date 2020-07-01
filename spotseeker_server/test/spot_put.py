@@ -22,7 +22,7 @@ from mock import patch
 from spotseeker_server import models
 import simplejson as json
 import random
-import utils_test
+from spotseeker_server.test import utils_test
 import copy
 
 try:

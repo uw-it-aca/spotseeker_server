@@ -12,7 +12,10 @@
 
 import shutil
 import tempfile
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 
 from django.conf import settings
 from django.core import cache

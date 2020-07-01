@@ -37,7 +37,7 @@ class FavoritesTest(TestCase):
         response = c.get(url, TESTING_OAUTH_USER="fav_test0")
 
         self.assertEquals(response.status_code, 200, "200 on empty")
-        self.assertEquals(response.content, "[]", "Empty array")
+        self.assertEquals(response.content.decode(), "[]", "Empty array")
 
     def test_one_favorite(self):
         user, created = User.objects.get_or_create(username="fav_test1")

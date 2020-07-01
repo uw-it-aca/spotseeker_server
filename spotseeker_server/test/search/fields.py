@@ -188,7 +188,7 @@ class SpotSearchFieldTest(SpotServerTestCase):
             {'extended_info:invalid_field': 'OUGL'})
         self.assertEqual(response.status_code, 200)
         self.assertJsonHeader(response)
-        self.assertEqual(response.content,
+        self.assertEqual(response.content.decode(),
                          '[]',
                          "Should return no matches")
 

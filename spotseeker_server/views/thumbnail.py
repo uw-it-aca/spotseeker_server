@@ -91,7 +91,10 @@ class ThumbnailView(RESTDispatch):
             im.thumbnail((thumb_width, thumb_height), resample=Image.LANCZOS)
             thumb = im
         else:
-            thumb = im.resize((thumb_width, thumb_height), resample=Image.LANCZOS)
+            thumb = im.resize(
+                (thumb_width, thumb_height),
+                resample=Image.LANCZOS
+            )
 
         tmp = IOStream()
         thumb.save(tmp, im.format, quality=95)

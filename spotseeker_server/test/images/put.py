@@ -128,7 +128,10 @@ class SpotImagePUTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get(self.jpeg_url)
-            etag = unicode(response["etag"])
+            try:
+                etag = unicode(response['etag'])
+            except NameError:
+                etag = response['etag']
             new_jpeg_name = "testing PUT name: {0}".format(random.random())
 
             response = c.put(
@@ -158,7 +161,10 @@ class SpotImagePUTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get(self.gif_url)
-            etag = unicode(response["etag"])
+            try:
+                etag = unicode(response['etag'])
+            except NameError:
+                etag = response['etag']
             new_name = "testing PUT name: {0}".format(random.random())
 
             response = c.put(

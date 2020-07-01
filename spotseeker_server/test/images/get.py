@@ -14,8 +14,11 @@
 """
 import shutil
 import tempfile
+try:
+    from cStringIO import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 
-from cStringIO import StringIO
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase

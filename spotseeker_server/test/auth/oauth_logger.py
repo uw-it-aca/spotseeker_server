@@ -12,6 +12,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+try:
+    import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 
 from django.test import TestCase
 from django.conf import settings
@@ -19,13 +23,11 @@ from spotseeker_server.models import Spot, TrustedOAuthClient
 from django.test.client import Client
 import re
 import simplejson as json
-import StringIO
 import logging
 
 import hashlib
 import time
 import random
-from contextlib import nested
 
 from oauth_provider.models import Consumer
 from django.test.utils import override_settings

@@ -11,7 +11,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.temp import NamedTemporaryFile
 import base64
 import json
-import StringIO
 from tempfile import SpooledTemporaryFile
 import uuid
 import time

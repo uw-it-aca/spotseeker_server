@@ -14,12 +14,15 @@
 """
 import shutil
 import tempfile
+try:
+    from cStringIO import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 
 from spotseeker_server.test.images import ImageTestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotImage
-from cStringIO import StringIO
 from PIL import Image
 from os.path import abspath, dirname
 from django.test.utils import override_settings

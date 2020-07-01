@@ -27,7 +27,7 @@ from oauth_provider.models import Consumer
 import random
 import hashlib
 import time
-import oauth2
+from oauthlib import oauth1
 import simplejson as json
 from mock import patch
 from spotseeker_server import models
@@ -71,16 +71,8 @@ class SpotResourceOAuthImageTest(TestCase):
                 is_trusted=True,
                 bypasses_user_authorization=False)
 
-            consumer = oauth2.Consumer(key=key, secret=secret)
-
-            req = oauth2.Request.from_consumer_and_token(
-                consumer,
-                None,
-                http_method='POST',
-                http_url="http://testserver/api/v1/spot/{0}/image/".
-                format(self.spot.pk))
-
-            oauth_header = req.to_header()
+            client = oauth1.Client(key, client_secret=secret)
+            _, headers, _ = client.sign("http://testserver/api/v1/spot/%s" % self.spot.pk)
 
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
@@ -94,8 +86,7 @@ class SpotResourceOAuthImageTest(TestCase):
                                         'image/jpeg'
                                     )
                                 },
-                                HTTP_AUTHORIZATION=oauth_header[
-                                    'Authorization'],
+                                HTTP_AUTHORIZATION=headers['Authorization'],
                                 HTTP_X_OAUTH_USER="pmichaud")
 
         with self.settings(

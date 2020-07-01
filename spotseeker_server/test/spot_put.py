@@ -500,7 +500,7 @@ class SpotPUTTest(TestCase):
 
         spot_json['items'].append(utils_test.get_item())
 
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             spot_json['items'][0]['extended_info'][key] = value
 
         response = self.put_spot(self.url, spot_json)
@@ -517,7 +517,7 @@ class SpotPUTTest(TestCase):
                       "No extended_info in the item!")
 
         # assert that values were correct
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             self.assertTrue(key in spot_json["items"][0]["extended_info"],
                             key + " not in item extended info!")
 
@@ -542,7 +542,7 @@ class SpotPUTTest(TestCase):
                       "No extended_info in the item!")
 
         # assert that values were correct
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             self.assertTrue(key in spot_json["items"][0]["extended_info"],
                             key + " not in item extended info!")
 
@@ -589,7 +589,7 @@ class SpotPUTTest(TestCase):
 
         spot_json['items'].append(utils_test.get_item())
 
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             spot_json['items'][0]['extended_info'][key] = value
 
         response = self.put_spot(self.url, spot_json)

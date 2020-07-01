@@ -127,7 +127,7 @@ class Command(BaseCommand):
                 view.build_and_save_from_input(fake_req, None)
                 spot_model = Spot.objects.latest('pk')
                 content_types = {v: k for k, v in
-                                 SpotImage.CONTENT_TYPES.iteritems()}
+                                 SpotImage.CONTENT_TYPES.items()}
 
                 if options["no_images"]:
                     continue

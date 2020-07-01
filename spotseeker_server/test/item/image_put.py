@@ -55,7 +55,7 @@ class ItemImagePUTTest(TestCase):
                 description="This is the GIF test",
                 image=SimpleUploadedFile(
                     "test_gif.gif",
-                    open("%s/../resources/test_gif.gif" % TEST_ROOT).read(),
+                    open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb').read(),
                     'image/gif'
                 )
             )
@@ -68,7 +68,7 @@ class ItemImagePUTTest(TestCase):
                 description="This is the JPEG test",
                 image=SimpleUploadedFile(
                     "test_jpeg.jpg",
-                    open("%s/../resources/test_jpeg.jpg" % TEST_ROOT).read(),
+                    open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb').read(),
                     'image/jpeg'
                 )
             )
@@ -81,7 +81,7 @@ class ItemImagePUTTest(TestCase):
                 description="This is the PNG test",
                 image=SimpleUploadedFile(
                     "test_png.png",
-                    open("%s/../resources/test_png.png" % TEST_ROOT).read(),
+                    open("%s/../resources/test_png.png" % TEST_ROOT, 'rb').read(),
                     'image/png'
                 )
             )
@@ -133,15 +133,15 @@ class ItemImagePUTTest(TestCase):
                     "image": SimpleUploadedFile(
                         new_jpeg_name,
                         open(
-                            "%s/../resources/test_jpeg2.jpg" % TEST_ROOT
+                            "%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb'
                         ).read(),
                         'image/jpeg'
                     )
                 },
                 If_Match=etag
             )
-            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
-            f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
+            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb')
+            f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
             self.assertEquals(response.status_code, 200)
             self.assertEquals(int(response["content-length"]),
                               len(f.read()))
@@ -163,7 +163,7 @@ class ItemImagePUTTest(TestCase):
                     "image": SimpleUploadedFile(
                         new_name,
                         open(
-                            "%s/../resources/test_png.png" % TEST_ROOT
+                            "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
                         ).read(),
                         'image/png'
                     )
@@ -172,8 +172,8 @@ class ItemImagePUTTest(TestCase):
                 If_Match=etag
             )
             self.assertEquals(response.status_code, 200)
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
+            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
 
             # Just to be sure
             response = c.get(self.gif_url)
@@ -189,13 +189,13 @@ class ItemImagePUTTest(TestCase):
             response = c.get(self.gif_url)
             etag = response["ETag"]
 
-            f = open("%s/../resources/test_png.png" % TEST_ROOT)
-            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
+            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
 
             new_name = "testing PUT name: {0}".format(random.random())
 
             c = Client()
-            f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
+            f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT, 'rb')
             response = c.put(
                 self.gif_url,
                 files={"description": "This is a text file", "image": f},
@@ -209,7 +209,7 @@ class ItemImagePUTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             # GIF
-            f = open("%s/../resources/test_gif2.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_gif2.gif" % TEST_ROOT, 'rb')
             new_gif_name = "testing PUT name: {0}".format(random.random())
             response = c.put(self.gif_url,
                              files={"description": new_gif_name,
@@ -221,7 +221,7 @@ class ItemImagePUTTest(TestCase):
             self.assertEquals(updated_img.image, self.gif.image)
 
             # JPEG
-            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT)
+            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb')
             new_jpeg_name = "testing PUT name: {0}".format(random.random())
             response = c.put(self.gif_url,
                              files={"description": new_jpeg_name,
@@ -234,7 +234,7 @@ class ItemImagePUTTest(TestCase):
                               self.jpeg.description)
 
             # PNG
-            f = open("%s/../resources/test_png2.png" % TEST_ROOT)
+            f = open("%s/../resources/test_png2.png" % TEST_ROOT, 'rb')
             new_png_name = "testing PUT name: {0}".format(random.random())
             response = c.put(self.gif_url,
                              files={"description": new_png_name,
@@ -251,7 +251,7 @@ class ItemImagePUTTest(TestCase):
             self.assertNotEqual(os.fstat(f.fileno()).st_size,
                                 int(content_length))
 
-            f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
             self.assertEquals(os.fstat(f.fileno()).st_size,
                               int(content_length))
 

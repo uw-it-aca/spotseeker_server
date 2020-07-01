@@ -49,7 +49,7 @@ def update_etag(func):
     wrapped function, however, to call save()."""
     def _newETag(self, *args, **kwargs):
         self.etag = hashlib.sha1("{0} - {1}".format(random.random(),
-                                 time.time())).hexdigest()
+                                 time.time()).encode('utf-8')).hexdigest()
         return func(self, *args, **kwargs)
     return wraps(func)(_newETag)
 

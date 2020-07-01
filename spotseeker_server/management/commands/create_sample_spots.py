@@ -171,26 +171,34 @@ class Command(BaseCommand):
                                                   spot=art2)
 
             base_dir = os.path.dirname(os.path.realpath(__file__))
-            f = open(os.path.join(base_dir, 'resources', "building3.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building3.jpg"), 'rb'
+            )
             art_img1 = SpotImage.objects.create(description="This is one "
                                                             "building",
                                                 spot=art,
                                                 display_index=0,
                                                 image=File(f))
-            f = open(os.path.join(base_dir, 'resources', "building4.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building4.jpg"), 'rb'
+            )
             art_img2 = SpotImage.objects.create(description="This is another "
                                                             "building",
                                                 spot=art,
                                                 display_index=1,
                                                 image=File(f))
-            f = open(os.path.join(base_dir, 'resources', "building5.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building5.jpg"), 'rb'
+            )
             art_img3 = SpotImage.objects.create(description="This is a third "
                                                             "art building",
                                                 spot=art,
                                                 display_index=2,
                                                 image=File(f))
 
-            f = open(os.path.join(base_dir, 'resources', "building6.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building6.jpg"), 'rb'
+            )
             art_img4 = SpotImage.objects.create(description="This is a third "
                                                             "art building",
                                                 spot=art,

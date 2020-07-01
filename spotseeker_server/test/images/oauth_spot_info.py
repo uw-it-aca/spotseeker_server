@@ -85,7 +85,8 @@ class SpotResourceOAuthImageTest(TestCase):
                         "image": SimpleUploadedFile(
                             "test_jpeg.jpg",
                             open(
-                                "%s/../resources/test_jpeg.jpg" % TEST_ROOT
+                                "%s/../resources/test_jpeg.jpg" % TEST_ROOT,
+                                'rb'
                             ).read(),
                             'image/jpeg'
                         )

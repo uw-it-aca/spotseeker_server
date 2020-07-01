@@ -62,7 +62,7 @@ class Command(BaseCommand):
         if options['consumer_name']:
             consumer_name = options['consumer_name']
         else:
-            consumer_name = raw_input('Enter consumer name: ')
+            consumer_name = input('Enter consumer name: ')
 
         key = hashlib.sha1("{0} - {1}".format(
             random.random(),

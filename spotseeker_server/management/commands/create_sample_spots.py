@@ -31,14 +31,14 @@ import os
 class Command(BaseCommand):
     help = 'Deletes all existing spots, and creates new ones for testing.'
 
-    option_list = BaseCommand.option_list + (
-        make_option(
+    def add_arguments(self, parser):
+        parser.add_argument(
             '--force-delete',
             dest='delete_spots',
             default=False,
             help='Set to yes to force deletion of spots '
-                 'without typing delete my spots',),
-    )
+                 'without typing delete my spots',
+        )
 
     def handle(self, *args, **options):
         print(
@@ -49,7 +49,7 @@ class Command(BaseCommand):
         if options['delete_spots'] == 'yes':
             confirmation = "delete my spots"
         else:
-            confirmation = raw_input("Type it please: ")
+            confirmation = input("Type it please: ")
 
         if confirmation != "delete my spots":
             raise CommandError("I'm only going to run if you're sure "

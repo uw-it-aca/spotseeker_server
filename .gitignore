@@ -17,6 +17,10 @@ media/
 spotseeker/
 spotseeker.db
 
+# test project files
+project
+db.sqlite3
+
 # django project files added in production
 spotseeker_web
 

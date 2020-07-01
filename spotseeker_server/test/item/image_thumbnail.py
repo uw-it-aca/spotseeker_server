@@ -73,7 +73,7 @@ class ItemImageThumbTest(TestCase):
                     "image": SimpleUploadedFile(
                         "test_jpeg.jpg",
                         open(
-                            "%s/../resources/test_jpeg.jpg" % TEST_ROOT
+                            "%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb'
                         ).read(),
                         'image/jpeg'
                     )
@@ -272,7 +272,7 @@ class ItemImageThumbTest(TestCase):
                     "image": SimpleUploadedFile(
                         "test_png.png",
                         open(
-                            "%s/../resources/test_png.png" % TEST_ROOT
+                            "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
                         ).read(),
                         'image/png'
                     )
@@ -466,7 +466,7 @@ class ItemImageThumbTest(TestCase):
                     "image": SimpleUploadedFile(
                         "test_gif.gif",
                         open(
-                            "%s/../resources/test_gif.gif" % TEST_ROOT
+                            "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
                         ).read(),
                         'image/gif'
                     )
@@ -657,7 +657,7 @@ class ItemImageThumbTest(TestCase):
                 item=item,
                 image=SimpleUploadedFile(
                     "test_gif.gif",
-                    open("%s/../resources/test_gif.gif" % TEST_ROOT).read(),
+                    open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb').read(),
                     'image/gif'
                 ),
             )
@@ -682,7 +682,7 @@ class ItemImageThumbTest(TestCase):
                     "description": "This is a jpg",
                     "image": SimpleUploadedFile(
                         "test_jpeg2.jpg",
-                        open(img_path).read(),
+                        open(img_path, 'rb').read(),
                         'image/jpeg'
                     )
                 }
@@ -813,7 +813,7 @@ class ItemImageThumbTest(TestCase):
                     "description": "This is a png",
                     "image": SimpleUploadedFile(
                         "test_png2.png",
-                        open(img_path).read(),
+                        open(img_path, 'rb').read(),
                         'image/png'
                     )
                 }
@@ -944,7 +944,7 @@ class ItemImageThumbTest(TestCase):
                     "description": "This is a gif",
                     "image": SimpleUploadedFile(
                         "test_gif2.gif",
-                        open(img_path).read(),
+                        open(img_path, 'rb').read(),
                         'image/gif'
                     )
                 }

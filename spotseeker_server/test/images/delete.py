@@ -48,7 +48,9 @@ class SpotImageDELETETest(TestCase):
                 description="This is the GIF test",
                 image=SimpleUploadedFile(
                     "test_gif.gif",
-                    open("%s/../resources/test_gif.gif" % TEST_ROOT).read(),
+                    open(
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/gif'
                 )
             )
@@ -60,7 +62,9 @@ class SpotImageDELETETest(TestCase):
                 description="This is the JPEG test",
                 image=SimpleUploadedFile(
                     "test_jpeg.jpg",
-                    open("%s/../resources/test_jpeg.jpg" % TEST_ROOT).read(),
+                    open(
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/jpeg'
                 )
             )
@@ -72,7 +76,9 @@ class SpotImageDELETETest(TestCase):
                 description="This is the PNG test",
                 image=SimpleUploadedFile(
                     "test_png.png",
-                    open("%s/../resources/test_png.png" % TEST_ROOT).read(),
+                    open(
+                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/png'
                 )
             )
@@ -98,7 +104,9 @@ class SpotImageDELETETest(TestCase):
                 description="This is another PNG",
                 image=SimpleUploadedFile(
                     "test_png.png",
-                    open("%s/../resources/test_png.png" % TEST_ROOT).read(),
+                    open(
+                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                    ).read(),
                     'image/png'
                 )
             )

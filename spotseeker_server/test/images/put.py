@@ -131,7 +131,9 @@ class SpotImagePUTTest(TestCase):
                     "description": new_jpeg_name,
                     "image": SimpleUploadedFile(
                         "test_jpeg2.jpg",
-                        open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT).read(),
+                        open(
+                            "%s/../resources/test_jpeg2.jpg" % TEST_ROOT
+                        ).read(),
                         'image/jpeg'
                     )
                 },
@@ -159,12 +161,13 @@ class SpotImagePUTTest(TestCase):
                     "description": new_name,
                     "image": SimpleUploadedFile(
                         new_name,
-                        open("%s/../resources/test_png.png" % TEST_ROOT).read(),
+                        open(
+                            "%s/../resources/test_png.png" % TEST_ROOT
+                        ).read(),
                         'image/png'
                     )
                 },
-                content_type="multipart/form-data; "
-                            "boundary=--aklsjf--",
+                content_type="multipart/form-data; boundary=--aklsjf--",
                 If_Match=etag
             )
             self.assertEquals(response.status_code, 200)

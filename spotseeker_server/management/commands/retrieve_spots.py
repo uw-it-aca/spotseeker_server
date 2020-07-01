@@ -57,9 +57,11 @@ class Command(BaseCommand):
             print "Please pass an URL!"
             return
 
-        print ("This command should not be used as a production data " +
-               "migration technique! It is only intended for development. Do" +
-               " you wish to proceed? (Y/N)")
+        print(
+            "This command should not be used as a production data " +
+            "migration technique! It is only intended for development. Do" +
+            " you wish to proceed? (Y/N)"
+        )
 
         response = raw_input()
 
@@ -74,8 +76,10 @@ class Command(BaseCommand):
         base_url = options["url"].split("api")[0][:-1]
 
         if options["wipe"]:
-            print ("If you proceed here, all Spot/Space related data will be" +
-                   " deleted! Do you wish to proceed? (Y/N)")
+            print(
+                "If you proceed here, all Spot/Space related data will be" +
+                " deleted! Do you wish to proceed? (Y/N)"
+            )
 
             response = raw_input()
 

@@ -40,7 +40,7 @@ from spotseeker_server.views.item_image import ItemImageView
 from spotseeker_server.views.add_item_image import AddItemImageView
 from spotseeker_server.views.item_thumbnail import ItemThumbnailView
 
-urlpatterns = [ 
+urlpatterns = [
     url(r'v1/null$', csrf_exempt(NullView().run)),
     url(r'v1/spot/(?P<spot_id>(\d+|external:[\w-]+))$',
         csrf_exempt(SpotView().run), name='spot'),

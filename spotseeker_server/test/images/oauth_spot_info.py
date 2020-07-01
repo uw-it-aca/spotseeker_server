@@ -72,22 +72,27 @@ class SpotResourceOAuthImageTest(TestCase):
                 bypasses_user_authorization=False)
 
             client = oauth1.Client(key, client_secret=secret)
-            _, headers, _ = client.sign("http://testserver/api/v1/spot/%s" % self.spot.pk)
+            _, headers, _ = client.sign(
+                "http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             with self.settings(MEDIA_ROOT=self.TEMP_DIR):
                 c = Client()
-                response = c.post("/api/v1/spot/{0}/image".
-                                format(self.spot.pk),
-                                {
-                                    "description": "oauth image",
-                                    "image": SimpleUploadedFile(
-                                        "test_jpeg.jpg",
-                                        open("%s/../resources/test_jpeg.jpg" % TEST_ROOT).read(),
-                                        'image/jpeg'
-                                    )
-                                },
-                                HTTP_AUTHORIZATION=headers['Authorization'],
-                                HTTP_X_OAUTH_USER="pmichaud")
+                response = c.post(
+                    "/api/v1/spot/{0}/image".format(self.spot.pk),
+                    {
+                        "description": "oauth image",
+                        "image": SimpleUploadedFile(
+                            "test_jpeg.jpg",
+                            open(
+                                "%s/../resources/test_jpeg.jpg" % TEST_ROOT
+                            ).read(),
+                            'image/jpeg'
+                        )
+                    },
+                    HTTP_AUTHORIZATION=headers['Authorization'],
+                    HTTP_X_OAUTH_USER="pmichaud"
+                )
 
         with self.settings(
                 SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
@@ -97,9 +102,13 @@ class SpotResourceOAuthImageTest(TestCase):
 
             self.assertEquals(len(spot_dict["images"]), 1, "Has 1 image")
 
-            self.assertEquals(spot_dict["images"][0]["upload_application"],
-                              "Test consumer",
-                              "Image has the proper upload application")
-            self.assertEquals(spot_dict["images"][0]["upload_user"],
-                              "pmichaud",
-                              "Image has the proper upload user")
+            self.assertEquals(
+                spot_dict["images"][0]["upload_application"],
+                "Test consumer",
+                "Image has the proper upload application"
+            )
+            self.assertEquals(
+                spot_dict["images"][0]["upload_user"],
+                "pmichaud",
+                "Image has the proper upload user"
+            )

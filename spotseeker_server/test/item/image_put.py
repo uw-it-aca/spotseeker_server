@@ -132,7 +132,9 @@ class ItemImagePUTTest(TestCase):
                     "description": new_jpeg_name,
                     "image": SimpleUploadedFile(
                         new_jpeg_name,
-                        open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT).read(),
+                        open(
+                            "%s/../resources/test_jpeg2.jpg" % TEST_ROOT
+                        ).read(),
                         'image/jpeg'
                     )
                 },
@@ -160,12 +162,13 @@ class ItemImagePUTTest(TestCase):
                     "description": new_name,
                     "image": SimpleUploadedFile(
                         new_name,
-                        open("%s/../resources/test_png.png" % TEST_ROOT).read(),
+                        open(
+                            "%s/../resources/test_png.png" % TEST_ROOT
+                        ).read(),
                         'image/png'
                     )
                 },
-                content_type="multipart/form-data; "
-                            "boundary=--aklsjf--",
+                content_type="multipart/form-data; boundary=--aklsjf--",
                 If_Match=etag
             )
             self.assertEquals(response.status_code, 200)
@@ -193,10 +196,11 @@ class ItemImagePUTTest(TestCase):
 
             c = Client()
             f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT)
-            response = c.put(self.gif_url,
-                             files={"description": "This is a text file",
-                                    "image": f},
-                             If_Match=etag)
+            response = c.put(
+                self.gif_url,
+                files={"description": "This is a text file", "image": f},
+                If_Match=etag
+            )
             f.close()
             self.assertEquals(response.status_code, 400)
 

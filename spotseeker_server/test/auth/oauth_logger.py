@@ -93,7 +93,9 @@ class SpotAuthOAuthLogger(TestCase):
                                                       secret=secret)
 
             client = oauth1.Client(key, client_secret=secret)
-            _, headers, _ = client.sign("http://testserver/api/v1/spot/%s" % self.spot.pk)
+            _, headers, _ = client.sign(
+                "http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             response = Client().get(
                 self.url,
@@ -155,7 +157,9 @@ class SpotAuthOAuthLogger(TestCase):
             )
 
             client = oauth1.Client(key, client_secret=secret)
-            _, headers, _ = client.sign("http://testserver/api/v1/spot/%s" % self.spot.pk)
+            _, headers, _ = client.sign(
+                "http://testserver/api/v1/spot/%s" % self.spot.pk
+            )
 
             c = Client()
             response = c.get(

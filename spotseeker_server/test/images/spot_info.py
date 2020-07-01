@@ -105,12 +105,18 @@ class SpotResourceImageTest(TestCase):
 
             # I'm not entirely happy with this batch of assertions, but
             # right now don't have any better ideas
-            self.assertEquals(images_fr_json[0]['description'],
-                            'This is the PNG test')
-            self.assertEquals(images_fr_json[1]['description'],
-                            'This is the JPEG test')
-            self.assertEquals(images_fr_json[2]['description'],
-                            'This is the GIF test')
+            self.assertEquals(
+                images_fr_json[0]['description'],
+                'This is the PNG test'
+            )
+            self.assertEquals(
+                images_fr_json[1]['description'],
+                'This is the JPEG test'
+            )
+            self.assertEquals(
+                images_fr_json[2]['description'],
+                'This is the GIF test'
+            )
 
     def test_image_data(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
@@ -131,14 +137,17 @@ class SpotResourceImageTest(TestCase):
                     self.assertEquals(
                         image["url"],
                         "/api/v1/spot/{0}/image/{1}".
-                        format(self.spot.pk, self.gif.pk))
+                        format(self.spot.pk, self.gif.pk)
+                    )
                     self.assertEquals(
                         image["thumbnail_root"],
                         "/api/v1/spot/{0}/image/{1}/thumb".
-                        format(self.spot.pk, self.gif.pk))
+                        format(self.spot.pk, self.gif.pk)
+                    )
                     self.assertEquals(image["content-type"], "image/gif")
-                    img = Image.open("%s/../resources/test_gif.gif"
-                                    % TEST_ROOT)
+                    img = Image.open(
+                        "%s/../resources/test_gif.gif" % TEST_ROOT
+                    )
                     self.assertEquals(image["width"], img.size[0])
                     self.assertEquals(image["height"], img.size[1])
 
@@ -153,9 +162,11 @@ class SpotResourceImageTest(TestCase):
                         image["modification_date"],
                         "%Y-%m-%dT%H:%M:%S.%f+00:00")
                     delta = mod - create
-                    self.assertTrue(delta < one_sec,
-                                    "creation_date and modification_date are "
-                                    "less than one second apart")
+                    self.assertTrue(
+                        delta < one_sec,
+                        "creation_date and modification_date are " +
+                        "less than one second apart"
+                    )
 
                     self.assertEquals(image["upload_user"], "")
                     self.assertEquals(image["upload_application"], "")
@@ -172,8 +183,9 @@ class SpotResourceImageTest(TestCase):
                         "/api/v1/spot/{0}/image/{1}/thumb".
                         format(self.spot.pk, self.png.pk))
                     self.assertEquals(image["content-type"], "image/png")
-                    img = Image.open("%s/../resources/test_png.png"
-                                    % TEST_ROOT)
+                    img = Image.open(
+                        "%s/../resources/test_png.png" % TEST_ROOT
+                    )
                     self.assertEquals(image["width"], img.size[0])
                     self.assertEquals(image["height"], img.size[1])
 
@@ -206,8 +218,9 @@ class SpotResourceImageTest(TestCase):
                         "/api/v1/spot/{0}/image/{1}/thumb".
                         format(self.spot.pk, self.jpeg.pk))
                     self.assertEquals(image["content-type"], "image/jpeg")
-                    img = Image.open("%s/../resources/test_jpeg.jpg"
-                                    % TEST_ROOT)
+                    img = Image.open(
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT
+                    )
                     self.assertEquals(image["width"], img.size[0])
                     self.assertEquals(image["height"], img.size[1])
 

@@ -54,7 +54,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["url"] == "":
-            print "Please pass an URL!"
+            print("Please pass an URL!")
             return
 
         print(
@@ -100,7 +100,7 @@ class Command(BaseCommand):
         resp, content = client.get(url)
 
         if resp.status != 200:
-            print "Request failed with status code: " + str(resp.status)
+            print("Request failed with status code: " + str(resp.status))
             return
 
         # load spot JSON, create spots
@@ -152,9 +152,9 @@ class Command(BaseCommand):
                                   content, resp["content-type"]))
                     im.save()
             except Exception as ex:
-                print "Spot ID # " + str(spot["id"]) + " failed to save!"
+                print("Spot ID # " + str(spot["id"]) + " failed to save!")
                 for field, errors in ex.form.errors.items():
-                    print "{}: {}".format(ex.form.data, errors.as_text())
+                    print("{}: {}".format(ex.form.data, errors.as_text()))
 
         end_time = time.time()
-        print 'Function took %0.3f s' % (end_time - start_time)
+        print('Function took %0.3f s' % (end_time - start_time))

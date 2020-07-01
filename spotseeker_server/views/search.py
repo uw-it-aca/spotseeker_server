@@ -382,7 +382,7 @@ class SearchView(RESTDispatch):
                     has_valid_search_param = True
                 except Exception as e:
                     if not request_meta['SERVER_NAME'] == 'testserver':
-                        print >> sys.stderr, "E: ", e
+                        print("E: ", e, file=sys.stderr)
 
         for or_q in or_qs:
             or_q_obj |= or_q
@@ -430,7 +430,7 @@ class SearchView(RESTDispatch):
                     limit = 10
             except Exception as e:
                 if not request_meta['SERVER_NAME'] == 'testserver':
-                    print >> sys.stderr, "E: ", e
+                    print("E: ", e, file=sys.stderr)
                 # query = Spot.objects.all()
         elif ('distance' in get_request or
                 'center_longitude' in get_request or

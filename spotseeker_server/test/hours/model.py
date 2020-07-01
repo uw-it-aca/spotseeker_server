@@ -30,16 +30,16 @@ class SpotHoursModelTest(TestCase):
         with self.settings(
                 SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             spot = Spot.objects.create(name='testing hours')
-            with self.assertRaises(
-                (Exception, Exception),
-                msg=(
-                    "Invalid time range - start time must be before end time",
-                    "Got an error trying to save a time range with no time in it",
-                )
-            ):
+            with self.assertRaises(Exception,
+                msg="Got an error trying to save a time range with no time in it",
+            ) as ex:
                 SpotAvailableHours.objects.create(
                     day="m", spot=spot,  start_time="01:30", end_time="01:30"
                 )
+            self.assertEqual(
+                ex.exception.args[0],
+                "Invalid time range - start time must be before end time"
+            )
 
     def test_startAfterEnd(self):
         """ Tests that a Spot's AvailableHours cannot end before they begin.
@@ -47,16 +47,16 @@ class SpotHoursModelTest(TestCase):
         with self.settings(
                 SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'):
             spot = Spot.objects.create(name='testing hours')
-            with self.assertRaises(
-                (Exception, Exception),
-                msg=(
-                    "Invalid time range - start time must be before end time",
-                    "Got an error trying to save a time range with no time in it",
-                )
-            ):
+            with self.assertRaises(Exception,
+                msg="Got an error trying to save a time range with no time in it",
+            ) as ex:
                 SpotAvailableHours.objects.create(
-                    day="m", spot=spot,  start_time="01:40", end_time="01:30"
+                    day="m", spot=spot,  start_time="01:30", end_time="01:30"
                 )
+            self.assertEqual(
+                ex.exception.args[0],
+                "Invalid time range - start time must be before end time"
+            )
 
     def test_properRange(self):
         """ Tests that having AvailableHours with a start time before the

@@ -62,6 +62,9 @@ class SpotType(models.Model):
     def __unicode__(self):
         return self.name
 
+    def __str__(self):
+        return self.__unicode__()
+
 
 class Spot(models.Model):
     """ Represents a place for students to study.
@@ -89,6 +92,9 @@ class Spot(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def __str__(self):
+        return self.__unicode__()
 
     def json_cache_key(self):
         return "Spot:" + str(self.id) + ":json"
@@ -257,6 +263,9 @@ class SpotAvailableHours(models.Model):
                                   self.start_time,
                                   self.end_time)
 
+    def __str__(self):
+        return self.__unicode__()
+
     def json_data_structure(self):
         return [self.start_time.strftime("%H:%M"),
                 self.end_time.strftime("%H:%M")]
@@ -296,6 +305,9 @@ class SpotExtendedInfo(models.Model):
 
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
+    
+    def __str__(self):
+        return self.__unicode__()
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -332,6 +344,9 @@ class SpotImage(models.Model):
             return "%s" % self.description
         else:
             return "%s" % self.image.name
+
+    def __str__(self):
+        return self.__unicode__()
 
     def json_data_structure(self):
         return {
@@ -394,6 +409,9 @@ class TrustedOAuthClient(models.Model):
 
     def __unicode__(self):
         return self.consumer.name
+
+    def __str__(self):
+        return self.__unicode__()
 
 
 class SpaceReview(models.Model):
@@ -470,6 +488,9 @@ class Item(models.Model):
     def __unicode__(self):
         return self.name
 
+    def __str__(self):
+        return self.__unicode__()
+
     def json_data_structure(self):
         extended = {}
 
@@ -507,6 +528,9 @@ class ItemExtendedInfo(models.Model):
                                                        self.key,
                                                        self.value)
 
+    def __str__(self):
+        return self.__unicode__()
+
 
 class ItemImage(models.Model):
     """ An image of a Item. Multiple images can be associated with a Item,
@@ -537,6 +561,9 @@ class ItemImage(models.Model):
             return "%s" % self.description
         else:
             return "%s" % self.image.name
+
+    def __str__(self):
+        return self.__unicode__()
 
     def json_data_structure(self):
         return {

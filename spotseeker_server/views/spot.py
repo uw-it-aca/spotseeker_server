@@ -37,6 +37,7 @@ from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
 import spotseeker_server.views.spot_item
 
+from past.builtins import basestring
 
 @django.dispatch.receiver(
     spot_pre_save,

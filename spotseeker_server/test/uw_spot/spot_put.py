@@ -24,6 +24,7 @@ from mock import patch
 from spotseeker_server import models
 from spotseeker_server.test import utils_test
 
+from past.builtins import basestring
 
 ALL_OK = 'spotseeker_server.auth.all_ok'
 UW_SPOT_FORM = 'spotseeker_server.org_forms.uw_spot.UWSpotForm'

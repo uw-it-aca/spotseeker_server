@@ -84,12 +84,12 @@ def admin_auth_required(func):
         bad_response.status_code = 401
 
         if not hasattr(settings, "SPOTSEEKER_AUTH_ADMINS"):
-            print "Set SPOTSEEKER_AUTH_ADMINS in your settings.py"
+            print("Set SPOTSEEKER_AUTH_ADMINS in your settings.py")
             return bad_response
 
         admins = settings.SPOTSEEKER_AUTH_ADMINS
         if not isinstance(admins, (list, tuple)):
-            print "SPOTSEEKER_AUTH_ADMINS must be a list or tuple"
+            print("SPOTSEEKER_AUTH_ADMINS must be a list or tuple")
             return bad_response
 
         request = args[1]

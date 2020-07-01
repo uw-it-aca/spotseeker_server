@@ -13,9 +13,9 @@
 import shutil
 import tempfile
 try:
-    from cStringIO import StringIO
+    from cStringIO import StringIO as IOStream
 except ModuleNotFoundError:
-    from io import StringIO
+    from io import BytesIO as IOStream
 
 from django.test import TestCase
 from django.conf import settings
@@ -85,7 +85,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -109,7 +109,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -133,7 +133,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -159,7 +159,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -183,7 +183,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -284,7 +284,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -308,7 +308,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -332,7 +332,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -356,7 +356,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -379,7 +379,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -478,7 +478,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 100)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -502,7 +502,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 100)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -524,7 +524,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 100, 1)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -546,7 +546,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 1, 1)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -568,7 +568,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/{1}x{2}".format(new_base_location, 200, 200)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -695,7 +695,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/constrain/width:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -723,7 +723,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/hei"
                 "ght:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -752,7 +752,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/width:{1},hei"
                 "ght:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -779,7 +779,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/height:{1},wid"
                 "th:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -793,7 +793,7 @@ class ItemImageThumbTest(TestCase):
             orig_ratio = orig_im.size[1] / orig_im.size[0]
             ratio = im.size[1] / im.size[0]
             self.assertEquals(
-                ratio, orig_ratio,
+                int(ratio), int(orig_ratio),
                 "Ratio on constrained jpg thumbnail is the same"
             )
             self.assertEquals(
@@ -826,7 +826,7 @@ class ItemImageThumbTest(TestCase):
             response = c.get(
                 "{0}/thumb/constrain/width:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -854,7 +854,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/hei"
                 "ght:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -882,7 +882,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/width:{1},hei"
                 "ght:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"], "image/png",
@@ -909,7 +909,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/height:{1},wid"
                 "th:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -923,8 +923,8 @@ class ItemImageThumbTest(TestCase):
             orig_ratio = orig_im.size[1] / orig_im.size[0]
             ratio = im.size[1] / im.size[0]
             self.assertEquals(
-                ratio,
-                orig_ratio,
+                int(ratio),
+                int(orig_ratio),
                 "Ratio on constrained png thumbnail is the same"
             )
             self.assertEquals(
@@ -955,10 +955,9 @@ class ItemImageThumbTest(TestCase):
 
             # constrain width to 50
             response = c.get(
-                "{0}/thumb/constrain/wid"
-                "th:{1}".format(new_base_location, 50)
+                "{0}/thumb/constrain/width:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -987,7 +986,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/hei"
                 "ght:{1}".format(new_base_location, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -1016,7 +1015,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/width:{1},hei"
                 "ght:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -1044,7 +1043,7 @@ class ItemImageThumbTest(TestCase):
                 "{0}/thumb/constrain/height:{1},wid"
                 "th:{2}".format(new_base_location, 75, 50)
             )
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(
                 response["Content-type"],
@@ -1058,8 +1057,8 @@ class ItemImageThumbTest(TestCase):
             orig_ratio = orig_im.size[1] / orig_im.size[0]
             ratio = im.size[1] / im.size[0]
             self.assertEquals(
-                ratio,
-                orig_ratio,
+                int(ratio),
+                int(orig_ratio),
                 "Ratio on constrained gif thumbnail is the same"
             )
             self.assertEquals(

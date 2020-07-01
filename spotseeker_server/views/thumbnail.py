@@ -20,9 +20,9 @@
         framework.
 """
 try:
-    from cStringIO import StringIO
+    from cStringIO import StringIO as IOStream
 except ModuleNotFoundError:
-    from io import StringIO
+    from io import BytesIO as IOStream
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import SpotImage, Spot
@@ -88,12 +88,12 @@ class ThumbnailView(RESTDispatch):
         im = Image.open(image.path)
 
         if constrain:
-            im.thumbnail((thumb_width, thumb_height, Image.ANTIALIAS))
+            im.thumbnail((thumb_width, thumb_height), resample=Image.LANCZOS)
             thumb = im
         else:
-            thumb = im.resize((thumb_width, thumb_height), Image.ANTIALIAS)
+            thumb = im.resize((thumb_width, thumb_height), resample=Image.LANCZOS)
 
-        tmp = StringIO()
+        tmp = IOStream()
         thumb.save(tmp, im.format, quality=95)
         tmp.seek(0)
 

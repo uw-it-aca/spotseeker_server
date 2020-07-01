@@ -15,9 +15,9 @@
 import shutil
 import tempfile
 try:
-    from cStringIO import StringIO
+    from cStringIO import StringIO as IOStream
 except ModuleNotFoundError:
-    from io import StringIO
+    from io import BytesIO as IOStream
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -104,7 +104,7 @@ class SpotImageGETTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/jpeg")
 
@@ -118,7 +118,7 @@ class SpotImageGETTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.gif.pk))
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/gif")
 
@@ -132,7 +132,7 @@ class SpotImageGETTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.png.pk))
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/png")
 

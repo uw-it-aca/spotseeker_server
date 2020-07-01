@@ -12,6 +12,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+from builtins import range
 
 from django.test import TestCase
 from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
@@ -43,13 +44,13 @@ class SpotGETTest(TestCase):
         self.items = []
         self.extended_data = []
         # create some items for testing
-        for i in xrange(0, 10):
+        for i in range(0, 10):
             new_item = Item.objects.create(name="Item%s" % i,
                                            spot=spot_with_items,
                                            item_category="Laptops",
                                            item_subcategory="Macbooks")
 
-            for dictdata in xrange(1, 3):
+            for dictdata in range(1, 3):
                 new_iei = ItemExtendedInfo.objects.create(
                     item=new_item,
                     key='key %s' % dictdata,

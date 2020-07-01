@@ -15,9 +15,9 @@
 import shutil
 import tempfile
 try:
-    from cStringIO import StringIO
+    from cStringIO import StringIO as IOStream
 except ModuleNotFoundError:
-    from io import StringIO
+    from io import BytesIO as IOStream
 
 from spotseeker_server.test.images import ImageTestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -106,7 +106,7 @@ class ImageThumbTest(ImageTestCase):
                         'Expected 200 for %sx%s (%s)'
                         % (width, height, img_format))
                     self.assertContentType(response, content_type)
-                    data = StringIO(response.content)
+                    data = IOStream(response.content)
                     im = Image.open(data)
                     self.assertEquals(
                         im.format, img_format,
@@ -201,7 +201,7 @@ class ImageThumbTest(ImageTestCase):
             # 50 width test
             response = get_thumb_constrained(width=50)
             self.assertContentType(response, content_type)
-            im = Image.open(StringIO(response.content))
+            im = Image.open(IOStream(response.content))
             self.assertEquals(im.size[0], 50, '%s Should have been 50 width')
             self.assertImageRatio(im, orig_ratio)
             self.assertEquals(
@@ -211,7 +211,7 @@ class ImageThumbTest(ImageTestCase):
             # 50 height test
             response = get_thumb_constrained(height=50)
             self.assertContentType(response, content_type)
-            im = Image.open(StringIO(response.content))
+            im = Image.open(IOStream(response.content))
             self.assertEquals(im.size[1], 50, 'Should have been 50 height')
             self.assertImageRatio(im, orig_ratio)
             self.assertEquals(im.format, img_format, 'Format was not the same')
@@ -220,7 +220,7 @@ class ImageThumbTest(ImageTestCase):
             # Should result in 50 height
             response = get_thumb_constrained(width=75, height=50)
             self.assertContentType(response, content_type)
-            im = Image.open(StringIO(response.content))
+            im = Image.open(IOStream(response.content))
             self.assertEquals(im.size[1], 50, 'Should have been 50 height')
             self.assertImageRatio(im, orig_ratio)
             self.assertEquals(im.format, img_format, 'Format was not the same')
@@ -229,7 +229,7 @@ class ImageThumbTest(ImageTestCase):
             # Should result in 50 height
             response = get_thumb_constrained(width=50, height=75)
             self.assertContentType(response, content_type)
-            im = Image.open(StringIO(response.content))
+            im = Image.open(IOStream(response.content))
             self.assertEquals(im.size[1], 75, 'Should have been 75 height')
             self.assertImageRatio(im, orig_ratio)
             self.assertEquals(im.format, img_format, 'Format was not the same')

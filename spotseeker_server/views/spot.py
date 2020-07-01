@@ -63,7 +63,7 @@ def _build_extended_info(sender, **kwargs):
     if new_extended_info is not None:
         for key in new_extended_info.keys():
             value = new_extended_info[key]
-            if value is None or unicode(value) == '':
+            if value is None or value == '':
                 del new_extended_info[key]
 
     old_extended_info = {}

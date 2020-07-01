@@ -10,12 +10,13 @@ from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.temp import NamedTemporaryFile
 import base64
-import oauth2
 import json
 import StringIO
 from tempfile import SpooledTemporaryFile
 import uuid
 import time
+
+from requests_oauthlib import OAuth1Session
 
 
 class Command(BaseCommand):
@@ -64,10 +65,11 @@ class Command(BaseCommand):
 
         if not (response == "y" or response == "Y"):
             return
-        consumer = oauth2.Consumer(key=options["key"],
-                                   secret=options["secret"])
+        client = OAuth1Session(
+            options["key"],
+            secret=options["secret"]
+        )
 
-        client = oauth2.Client(consumer)
         url = options["url"]
         base_url = options["url"].split("api")[0][:-1]
 
@@ -91,7 +93,7 @@ class Command(BaseCommand):
 
         start_time = time.time()
         # make request to URLmodels.Model
-        resp, content = client.request(url, method="GET")
+        resp, content = client.get(url)
 
         if resp.status != 200:
             print "Request failed with status code: " + str(resp.status)

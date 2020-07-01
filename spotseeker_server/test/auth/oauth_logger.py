@@ -28,10 +28,11 @@ import random
 from contextlib import nested
 
 from oauth_provider.models import Consumer
-import oauth2
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
+
+from oauthlib import oauth1
 
 
 @override_settings(
@@ -91,21 +92,12 @@ class SpotAuthOAuthLogger(TestCase):
                                                       key=key,
                                                       secret=secret)
 
-            consumer = oauth2.Consumer(key=key, secret=secret)
+            client = oauth1.Client(key, client_secret=secret)
+            _, headers, _ = client.sign("http://testserver/api/v1/spot/%s" % self.spot.pk)
 
-            req = oauth2.Request.from_consumer_and_token(
-                consumer,
-                None,
-                http_method='GET',
-                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-            )
-
-            oauth_header = req.to_header()
-
-            c = Client()
-            response = c.get(
+            response = Client().get(
                 self.url,
-                HTTP_AUTHORIZATION=oauth_header['Authorization']
+                HTTP_AUTHORIZATION=headers['Authorization']
             )
 
         with self.settings(
@@ -162,21 +154,13 @@ class SpotAuthOAuthLogger(TestCase):
                 bypasses_user_authorization=False
             )
 
-            consumer = oauth2.Consumer(key=key, secret=secret)
+            client = oauth1.Client(key, client_secret=secret)
+            _, headers, _ = client.sign("http://testserver/api/v1/spot/%s" % self.spot.pk)
 
-            req = oauth2.Request.from_consumer_and_token(
-                consumer,
-                None,
-                http_method='GET',
-                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-            )
-
-            oauth_header = req.to_header()
             c = Client()
-
             response = c.get(
                 self.url,
-                HTTP_AUTHORIZATION=oauth_header['Authorization']
+                HTTP_AUTHORIZATION=headers['Authorization']
             )
             etag = response["ETag"]
 
@@ -189,7 +173,7 @@ class SpotAuthOAuthLogger(TestCase):
                 json.dumps(spot_dict),
                 content_type="application/json",
                 If_Match=etag,
-                HTTP_AUTHORIZATION=oauth_header['Authorization'],
+                HTTP_AUTHORIZATION=headers['Authorization'],
                 HTTP_X_OAUTH_USER="pmichaud"
             )
             self.assertEquals(

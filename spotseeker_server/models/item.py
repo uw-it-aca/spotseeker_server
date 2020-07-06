@@ -1,8 +1,9 @@
+from PIL import Image
+
 from django.core.files.uploadedfile import UploadedFile
 from django.core.exceptions import ValidationError
 from django.db import models
-
-from PIL import Image
+from django.urls import reverse
 
 from .spot import Spot
 from .utility import update_etag

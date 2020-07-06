@@ -1,3 +1,5 @@
+from PIL import Image
+
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.uploadedfile import UploadedFile
@@ -6,8 +8,6 @@ from django.core.validators import validate_slug
 from django.db import models
 from django.db.models import Sum, Count
 from django.urls import reverse
-
-from PIL import Image
 
 from .utility import update_etag
 

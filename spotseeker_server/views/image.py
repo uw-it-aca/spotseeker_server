@@ -17,6 +17,7 @@
 
     sbutler1@illinois.edu: adapt to the new RESTDispatch framework.
 """
+import time
 
 from spotseeker_server.views.rest_dispatch import \
     RESTDispatch, RESTException, JSONResponse

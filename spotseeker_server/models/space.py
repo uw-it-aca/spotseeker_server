@@ -4,6 +4,7 @@ from django.db import models
 
 from .spot import Spot
 
+
 class SpaceReview(models.Model):
     space = models.ForeignKey(Spot)
     reviewer = models.ForeignKey(User, related_name='reviewer')

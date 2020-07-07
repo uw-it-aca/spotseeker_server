@@ -3,6 +3,7 @@ import hashlib
 import random
 import time
 
+
 def update_etag(func):
     """Any model with an ETag can decorate an instance method with
     this to have a new ETag automatically generated. It's up to the

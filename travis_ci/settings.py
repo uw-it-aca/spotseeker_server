@@ -122,5 +122,5 @@ LOGGING = {
 
 JSON_PRETTY_PRINT = False
 
-OAUTH_AUTHORIZE_VIEW = 'spotseeker_server.views.oauth.authorize'
-OAUTH_CALLBACK_VIEW = 'spotseeker_server.views.oauth.callback'
+# OAUTH_AUTHORIZE_VIEW = 'spotseeker_server.views.oauth.authorize'
+# OAUTH_CALLBACK_VIEW = 'spotseeker_server.views.oauth.callback'

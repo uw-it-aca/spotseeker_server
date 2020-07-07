@@ -8,6 +8,7 @@ from django.urls import reverse
 from .spot import Spot
 from .utility import update_etag
 
+
 class Item(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField(max_length=50, blank=True)

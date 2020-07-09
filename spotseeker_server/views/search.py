@@ -45,11 +45,11 @@ class SearchView(RESTDispatch):
     """
     @user_auth_required
     @admin_auth_required
-    def POST(self, request):
-        return SpotView().run(request)
+    def post(self, request, *args, **kwargs):
+        return SpotView.as_view()(request)
 
     @app_auth_required
-    def GET(self, request):
+    def get(self, request, *args, **kwargs):
         chain = SearchFilterChain(request)
         spots = self.filter_on_request(
             request.GET, chain, request.META, 'spot')

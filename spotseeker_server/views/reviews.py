@@ -28,7 +28,7 @@ import json
 
 class ReviewsView(RESTDispatch):
     @user_auth_required
-    def POST(self, request, spot_id):
+    def post(self, request, spot_id, *args, **kwargs):
         user = self._get_user(request)
         space = Spot.objects.get(pk=spot_id)
 
@@ -54,7 +54,7 @@ class ReviewsView(RESTDispatch):
         return response
 
     @app_auth_required
-    def GET(self, request, spot_id, include_unpublished=False):
+    def get(self, request, spot_id, include_unpublished=False, *args, **kwargs):
         space = Spot.objects.get(pk=spot_id)
         # Use the param after validating the user should see unpublished
         # reviews
@@ -71,7 +71,7 @@ class ReviewsView(RESTDispatch):
 class UnpublishedReviewsView(RESTDispatch):
     @user_auth_required
     @admin_auth_required
-    def GET(self, request):
+    def get(self, request, *args, **kwargs):
         objects = SpaceReview.objects.filter(is_published=False,
                                              is_deleted=False)
         reviews = [review.full_json_data_structure() for review in objects]
@@ -80,7 +80,7 @@ class UnpublishedReviewsView(RESTDispatch):
 
     @user_auth_required
     @admin_auth_required
-    def POST(self, request):
+    def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         user = self._get_user(request)
 

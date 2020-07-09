@@ -31,7 +31,7 @@ class AddImageView(RESTDispatch):
     """
     @user_auth_required
     @admin_auth_required
-    def POST(self, request, spot_id):
+    def post(self, request, spot_id, *args, **kwargs):
         spot = Spot.objects.get(pk=spot_id)
 
         if "image" not in request.FILES:

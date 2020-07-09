@@ -22,7 +22,7 @@ from django.conf import settings
 class PersonView(RESTDispatch):
     """ Information (username, email) about a person """
     @user_auth_required
-    def GET(self, request):
+    def get(self, request, *args, **kwargs):
         user = self._get_user(request)
 
         data = {

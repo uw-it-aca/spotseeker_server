@@ -31,7 +31,7 @@ class AddItemImageView(RESTDispatch):
     """
     @user_auth_required
     @admin_auth_required
-    def POST(self, request, item_id):
+    def post(self, request, item_id, *args, **kwargs):
         item = Item.objects.get(pk=item_id)
 
         if "image" not in request.FILES:

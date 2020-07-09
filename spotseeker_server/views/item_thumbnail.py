@@ -42,8 +42,8 @@ class ItemThumbnailView(RESTDispatch):
     """ Returns 200 with a thumbnail of a ItemImage.
     """
     @app_auth_required
-    def GET(self, request, item_id, image_id,
-            thumb_dimensions=None, constrain=False):
+    def get(self, request, item_id, image_id,
+            thumb_dimensions=None, constrain=False, *args, **kwargs):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 

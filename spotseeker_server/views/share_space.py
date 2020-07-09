@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class ShareSpaceView(RESTDispatch):
     """ Share a space, url at /api/v1/spot/<spot_id>/share."""
     @user_auth_required
-    def PUT(self, request, spot_id):
+    def put(self, request, spot_id, *args, **kwargs):
         user = self._get_user(request)
         spot = Spot.objects.get(pk=spot_id)
 
@@ -188,7 +188,7 @@ class ShareSpaceView(RESTDispatch):
 class SharedSpaceReferenceView(RESTDispatch):
     """ Record shared space reference"""
     @app_auth_required
-    def PUT(self, request, spot_id):
+    def put(self, request, spot_id, *args, **kwargs):
         user = None
         try:
             authenticate_user(self, request)

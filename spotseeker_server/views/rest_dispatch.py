@@ -25,7 +25,8 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views import View
 import simplejson as json
 import traceback
 
@@ -68,26 +69,16 @@ class RESTFormInvalidError(RESTException):
         self.form = form
 
 
-class RESTDispatch:
+class RESTDispatch(View):
     """ Handles passing on the request to the correct view
         method based on the request type.
     """
 
-    def run(self, *args, **named_args):
-        request = args[0]
-        method = request.META['REQUEST_METHOD']
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'trace']
 
+    def dispatch(self, request, *args, **kwargs):
         try:
-            if "GET" == method and hasattr(self, "GET"):
-                response = self.GET(*args, **named_args)
-            elif "POST" == method and hasattr(self, "POST"):
-                response = self.POST(*args, **named_args)
-            elif "PUT" == method and hasattr(self, "PUT"):
-                response = self.PUT(*args, **named_args)
-            elif "DELETE" == method and hasattr(self, "DELETE"):
-                response = self.DELETE(*args, **named_args)
-            else:
-                raise RESTException("Method not allowed", 405)
+            return super(RESTDispatch, self).dispatch(request, *args, **kwargs)
 
         except ObjectDoesNotExist as odne:
             json_values = self.json_error(odne)

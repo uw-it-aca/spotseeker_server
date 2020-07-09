@@ -37,7 +37,7 @@ class ItemImageView(RESTDispatch):
     DELETE returns 200 and deletes the image.
     """
     @app_auth_required
-    def GET(self, request, item_id, image_id):
+    def get(self, request, item_id, image_id, *args, **kwargs):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 
@@ -56,7 +56,7 @@ class ItemImageView(RESTDispatch):
 
     @user_auth_required
     @admin_auth_required
-    def PUT(self, request, item_id, image_id):
+    def put(self, request, item_id, image_id, *args, **kwargs):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 
@@ -79,11 +79,11 @@ class ItemImageView(RESTDispatch):
         img.save()
         item.spot.save()
 
-        return self.GET(request, item_id, image_id)
+        return self.get(request, item_id, image_id)
 
     @user_auth_required
     @admin_auth_required
-    def DELETE(self, request, item_id, image_id):
+    def delete(self, request, item_id, image_id, *args, **kwargs):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 

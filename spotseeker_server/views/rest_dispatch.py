@@ -27,6 +27,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.views import View
+from oauth2_provider.views.generic import ScopedProtectedResourceView
 import simplejson as json
 import traceback
 
@@ -69,17 +70,27 @@ class RESTFormInvalidError(RESTException):
         self.form = form
 
 
-class RESTDispatch(View):
+class RESTDispatch(ScopedProtectedResourceView):
     """ Handles passing on the request to the correct view
         method based on the request type.
     """
-
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'trace']
+
+    def verify_request(self, request):
+        if hasattr(settings, 'OAUTH2_MOCK'):
+            return True, request
+        else:
+            return super(RESTDispatch, self).verify_request(request)
+
+    def get_scopes(self):
+        if hasattr(settings, 'OAUTH2_MOCK'):
+            return getattr(settings.OAUTH2_MOCK, 'SCOPES', [])
+        else:
+            return super(RESTDispatch, self).get_scopes()
 
     def dispatch(self, request, *args, **kwargs):
         try:
             return super(RESTDispatch, self).dispatch(request, *args, **kwargs)
-
         except ObjectDoesNotExist as odne:
             json_values = self.json_error(odne)
             response = JSONResponse(json_values, status=404)

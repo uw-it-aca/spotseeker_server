@@ -15,16 +15,22 @@
 
 from spotseeker_server.test import SpotServerTestCase
 from django.conf import settings
-from django.test.utils import override_settings
+from django.test import override_settings
 import simplejson as json
+from oauth2_provider.models import Application
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(OAUTH2_MOCK={'SCOPES': []})
 class BuildingSearchTest(SpotServerTestCase):
     """ Tests the /api/v1/buildings interface.
     """
 
     def setUp(self):
+        self.application = Application.objects.create(
+            client_type="confidential",
+            authorization_grant_type="authorization-code",
+        )
+
         self.spot1 = self.new_spot('Spot on campus A.',
                                    building_name='Building 1')
 

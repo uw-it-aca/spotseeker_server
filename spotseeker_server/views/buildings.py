@@ -32,7 +32,8 @@ class BuildingListView(RESTDispatch):
     """ Performs actions on the list of buildings, at /api/v1/buildings.
     GET returns 200 with a list of buildings.
     """
-    @app_auth_required
+    required_scopes = ['read']
+
     def get(self, request, *args, **kwargs):
         chain = SearchFilterChain(request)
         search_view = SearchView()

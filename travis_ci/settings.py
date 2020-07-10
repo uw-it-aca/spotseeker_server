@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'spotseeker_server',
     'oauth_provider',
+    'oauth2_provider',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -124,3 +125,12 @@ JSON_PRETTY_PRINT = False
 
 # OAUTH_AUTHORIZE_VIEW = 'spotseeker_server.views.oauth.authorize'
 # OAUTH_CALLBACK_VIEW = 'spotseeker_server.views.oauth.callback'
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        'is_trusted': 'Trusted scope',
+        'bypasses_user_authorization': 'Bypass User Auth-z scope',
+    },
+}

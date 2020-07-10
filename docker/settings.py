@@ -9,7 +9,7 @@ else:
     DEBUG = False
 
 INSTALLED_APPS += [
-    'oauth_provider',
+    'oauth2_provider',
     'spotseeker_server',
 ]
 
@@ -36,3 +36,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SPOTSEEKER_AUTH_MODULE = "spotseeker_server.auth.{}".format(os.getenv('AUTH_MODULE', 'all_ok'))
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        'is_trusted': 'Trusted scope',
+        'bypasses_user_authorization': 'Bypass User Auth-z scope',
+    },
+}
+
+OAUTH2_MODE = {
+    'MOCK': True,
+    'SCOPES': [],
+}

@@ -36,3 +36,23 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SPOTSEEKER_AUTH_MODULE = "spotseeker_server.auth.{}".format(os.getenv('AUTH_MODULE', 'all_ok'))
+
+# debug logging
+if DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'null': {
+                'level': 'DEBUG',
+                'class': 'logging.NullHandler',
+            }
+        },
+        'loggers': {
+            'spotseeker_server.views.share_space': {
+                'handlers': ['null'],
+                'level': 'DEBUG',
+                'propagate': True,
+            }
+        }
+    }

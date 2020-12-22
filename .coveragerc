@@ -1,0 +1,8 @@
+[run]
+source = spotseeker_server
+parallel = True
+
+[paths]
+source =
+  spotseeker_server/
+  /app/spotseeker_server/

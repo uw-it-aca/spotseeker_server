@@ -1,4 +1,4 @@
-FROM acait/django-container:1.0.31
+FROM acait/django-container:1.0.31 as app-container
 
 USER acait
 

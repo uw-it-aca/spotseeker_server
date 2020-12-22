@@ -3,18 +3,51 @@ language: python
 python:
     - "2.7"
     - "3.6"
+env:
+    global:
+        - RELEASE_NAME="spotseeker_server"
+        - DJANGO_APP="spotseeker_server"
+        - COMMIT_HASH="$(git rev-parse --short=7 HEAD)"
+        - IMAGE_TAG="${RELEASE_NAME}:${COMMIT_HASH}"
+        # - DEPLOY_SCRIPT_BASE=https://raw.githubusercontent.com/uw-it-aca/gcp-app-deploy/master
 # command to install dependencies
 install:
-    - pip install .
-    - pip install pycodestyle
+    - docker build --target app-container -t "${IMAGE_TAG}" .
+    - docker build -t "${IMAGE_TAG}-test" .
+    
+before_script:
     - pip install coverage
     - pip install coveralls
-before_script:
-    - cp travis_ci/manage.py manage.py
-    - python manage.py migrate
 # command to run tests
 script:
-    - pycodestyle spotseeker_server/ --exclude=migrations
-    - coverage run --source=spotseeker_server/ --omit=spotseeker_server/migrations/*,spotseeker_server/admin.py,spotseeker_server/management/commands/* manage.py test spotseeker_server
+    - docker run -u root -it -v /tmp:/coverage -e DJANGO_APP="${DJANGO_APP}" -e "ENV=localdev" "${IMAGE_TAG}-test" bash -c ". ./travis/test.sh"
+    # - pycodestyle spotseeker_server/ --exclude=migrations
+    # - coverage run --source=spotseeker_server/ --omit=spotseeker_server/migrations/*,spotseeker_server/admin.py,spotseeker_server/management/commands/* manage.py test spotseeker_server
 after_script:
+    - cp /tmp/.coverage.* .
+    - coverage combine
     - coveralls
+  # - |
+  #   if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  #     case "$TRAVIS_BRANCH" in
+  #       "master")
+  #         export APP_INSTANCE="prod";
+  #         ;;
+  #       "qa")
+  #         export APP_INSTANCE="test";
+  #         ;;
+  #       "develop")
+  #         export APP_INSTANCE="dev";
+  #         ;;
+  #       *)
+  #         unset APP_INSTANCE
+  #         ;;
+  #     esac
+  #     if [[ "$APP_INSTANCE" ]]; then
+  #       curl -Ls ${DEPLOY_SCRIPT_BASE}/travis-ci/deploy.sh | bash;
+  #     fi
+  #   fi
+  # cache:
+  #   directories:
+  #   - "$HOME/helm"
+  #   - "$HOME/kubeval"

@@ -13,6 +13,8 @@ source bin/activate
 
 # install test tooling
 pip install pycodestyle coverage
+# run migrations
+python manage.py migrate
 
 function run_test {
     echo "##########################"
@@ -27,7 +29,7 @@ function catch {
 
 run_test "pycodestyle ${DJANGO_APP}/ --exclude=migrations,static"
 
-run_test "coverage run --source=${DJANGO_APP} '--omit=*/migrations/*' manage.py test ${DJANGO_APP}"
+run_test "coverage run --source=${DJANGO_APP} --omit=*/migrations/*,${DJANGO_APP}/admin.py,${DJANGO_APP}/management/commands/* manage.py test ${DJANGO_APP}"
 
 # put generaged coverage result where it will get processed
 cp .coverage* /coverage

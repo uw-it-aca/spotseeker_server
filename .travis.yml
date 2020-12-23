@@ -3,6 +3,8 @@ language: python
 python:
     - "2.7"
     - "3.6"
+services:
+    - docker
 env:
     global:
         - RELEASE_NAME="spotseeker_server"
@@ -13,10 +15,8 @@ env:
 # command to install dependencies
 install:
     - docker build --target app-container -t "${IMAGE_TAG}" .
-    - docker build -t "${IMAGE_TAG}-test" .
-    
+    - docker build -t "${IMAGE_TAG}-test" .  
 before_script:
-    - pip install coverage
     - pip install coveralls
 # command to run tests
 script:

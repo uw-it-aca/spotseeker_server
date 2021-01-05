@@ -54,8 +54,8 @@ class SpotAuthOAuthLogger(TestCase):
     def setUp(self):
         new_middleware = []
         has_logger = False
-        self.original_middleware = settings.MIDDLEWARE_CLASSES
-        for middleware in settings.MIDDLEWARE_CLASSES:
+        self.original_middleware = settings.MIDDLEWARE
+        for middleware in settings.MIDDLEWARE:
             new_middleware.append(middleware)
             if middleware == 'spotseeker_server.logger.oauth.LogMiddleware':
                 has_logger = True
@@ -64,7 +64,7 @@ class SpotAuthOAuthLogger(TestCase):
             new_middleware.append(
                 'spotseeker_server.logger.oauth.LogMiddleware'
             )
-        settings.MIDDLEWARE_CLASSES = new_middleware
+        settings.MIDDLEWARE = new_middleware
 
         self.stream = StringIO()
         self.handler = logging.StreamHandler(self.stream)
@@ -258,4 +258,4 @@ class SpotAuthOAuthLogger(TestCase):
         self.log.removeHandler(self.handler)
         self.handler.close()
 
-        settings.MIDDLEWARE_CLASSES = self.original_middleware
+        settings.MIDDLEWARE = self.original_middleware

@@ -13,8 +13,6 @@ source bin/activate
 
 # install test tooling
 pip install pycodestyle coverage
-# run migrations
-python manage.py migrate
 
 function run_test {
     echo "##########################"

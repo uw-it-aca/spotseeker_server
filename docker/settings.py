@@ -15,6 +15,7 @@ INSTALLED_APPS += [
 
 MIDDLEWARE += [
     'django.contrib.auth.middleware.RemoteUserMiddleware',
+    'spotseeker_server.logger.oauth.LogMiddleware',
 ]
 
 # Password validation
@@ -37,22 +38,46 @@ AUTH_PASSWORD_VALIDATORS = [
 
 SPOTSEEKER_AUTH_MODULE = "spotseeker_server.auth.{}".format(os.getenv('AUTH_MODULE', 'all_ok'))
 
-# debug logging
-if DEBUG:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'null': {
-                'level': 'DEBUG',
-                'class': 'logging.NullHandler',
-            }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'stdout_stream': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: record.levelno < logging.WARN
         },
-        'loggers': {
-            'spotseeker_server.views.share_space': {
-                'handlers': ['null'],
-                'level': 'DEBUG',
-                'propagate': True,
-            }
+        'stderr_stream': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: record.levelno > logging.INFO
+        }
+    },
+    'formatters': {
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'stdout': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'filters': ['stdout_stream']
+        },
+        'stderr': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stderr,
+            'filters': ['stderr_stream']
+        },
+    },
+    'loggers': {
+        'spotseeker_server.views.share_space': {
+            'handlers': ['null'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        '': {
+            'handlers': ['stdout', 'stderr'],
+            'level': 'INFO' if os.getenv('ENV', 'dev') == 'prod' else 'DEBUG'
         }
     }
+}

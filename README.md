@@ -10,66 +10,34 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* Django == 1.4 (older versions untested)
-* A Python installation (2.6 or 2.7)
-* pip or easy_install
+* Docker
+* Docker-compose
 * git
 * JPEG libraries from [http://www.ijg.org/](http://www.ijg.org/) (Optional, but PIL will not support JPEG images without it.)
 
 
-### Installing
+### Steps to run
 
-Use pip to install the app as editable from GitHub:
+First, clone the app:
 
-```
-pip install -e git+https://github.com/uw-it-aca/spotseeker_server.git#egg=spacescout-server
-```
+    $ git clone https://github.com/uw-it-aca/spotseeker_server.git
 
-Enable the RemoteUserBackend:
+Navigate to the develop branch and copy the sample environment variables into your own `.env` file:
 
-```
-MIDDLEWARE_CLASSES = (
-    ...
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.RemoteUserMiddleware',
-    ...
-)
+    $ cd spotseeker_server
+    $ git checkout develop
+    $ cp sample.env .env
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.RemoteUserBackend',
-)
-```
+Then, run the following command to build your docker container:
 
-Add spotseeker_server and oauth_provider to your INSTALLED_APPS in settings.py:
+    $ docker-compose up --build
 
-```
-INSTALLED_APPS = (
-    ...
-    'oauth_provider',
-    'spotseeker_server',
-    'south',
-    ...
-)
-```
 
-Add the app to your project's urls.py:
+#### Additional settings:
 
-```
-urlpatterns = patterns('',
-    ...
-    url(r'^auth/', include('oauth_provider.urls')),
-    url(r'^api/', include('spotseeker_server.urls')),
-    ...
-)
-```
+SPOTSEEKER_AUTH_MODULE setting can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair. The 'all_ok' module is not suitable for production. This setting can be changed in your `.env` file:
 
-Additional settings:
-
-MODULE can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair. The 'all_ok' module is not suitable for production.
-
-```
-SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.MODULE'
-```
+    $ AUTH_MODULE = 'oauth'
 
 A list or tuple of usernames allowed to use methods that modify server data (PUT, POST, DELETE.)
 
@@ -87,14 +55,6 @@ SPOTSEEKER_SEARCH_FILTERS = ('spotseeker_server.org_filters.MODULE', )
 
 For additional settings, see [some page that doesn't exist.]
 
-Create your database, and you can run the server.
-
-```
-python manage.py syncdb
-python manage.py migrate
-python manage.py runserver
-```
-
 You can also optionally create some sample spot data:
 
 ```
@@ -103,9 +63,7 @@ python manage.py create_sample_spots
 
 ## Running the tests
 
-```
-python manage.py test spotseeker_server
-```
+    $ docker-compose run --rm app bin/python manage.py test
 
 ## Deployment
 

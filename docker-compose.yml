@@ -12,6 +12,6 @@ services:
     environment:
       ENV: localdev
       PORT: 8000
-      AUTH_MODULE: all_ok
+      AUTH_MODULE: ${AUTH_MODULE:-all_ok}
     stdin_open: true
     tty: true

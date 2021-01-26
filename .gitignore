@@ -17,6 +17,9 @@ media/
 spotseeker/
 spotseeker.db
 
+# Docker envvars
+.env
+
 # test project files
 project
 db.sqlite3

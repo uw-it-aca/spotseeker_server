@@ -35,15 +35,9 @@ Then, run the following command to build your docker container:
 
 #### Additional settings:
 
-SPOTSEEKER_AUTH_MODULE setting can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair. The 'all_ok' module is not suitable for production. This setting can be changed in your `.env` file:
+SPOTSEEKER_AUTH_MODULE setting can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair. The 'all_ok' module is not suitable for production.
 
-    $ AUTH_MODULE = 'oauth'
-
-A list or tuple of usernames allowed to use methods that modify server data (PUT, POST, DELETE.)
-
-```
-SPOTSEEKER_AUTH_ADMINS = []
-```
+To find more information on how to set up the 'all_ok' Auth Module, check [here](https://github.com/uw-it-aca/spotseeker_server/wiki/Using-'all_ok'-oauth-module)
 
 Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here. (For example, SPOTSEEKER_SPOT_FORM could be default.DefaultSpotForm or org_forms.UWSpotForm , SPOTSEEKER_SPOTEXTENDEDINFO_FORM could be org_forms.UWSpotExtendedInfoForm or default.DefaultSpotExtendedInfoForm, and SPOTSEEKER_SEARCH_FILTERS could contain or  org_filters.uw_search.Filter or org_filters.sample_search.Filter)
 

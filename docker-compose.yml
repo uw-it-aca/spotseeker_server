@@ -13,5 +13,6 @@ services:
       ENV: localdev
       PORT: 8000
       AUTH_MODULE: ${AUTH_MODULE:-all_ok}
+      SPOTSEEKER_AUTH_ADMINS: ${SPOTSEEKER_AUTH_ADMINS}
     stdin_open: true
     tty: true

@@ -37,6 +37,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SPOTSEEKER_AUTH_MODULE = "spotseeker_server.auth.{}".format(os.getenv('AUTH_MODULE', 'all_ok'))
+# turn string of auth admins into list
+SPOTSEEKER_AUTH_ADMINS = os.getenv("SPOTSEEKER_AUTH_ADMINS", "").replace(" ", "").split(",")
 
 LOGGING = {
     'version': 1,

@@ -22,7 +22,7 @@ First, clone the app:
 
     $ git clone https://github.com/uw-it-aca/spotseeker_server.git
 
-Navigate to the develop branch and copy the sample environment variables into your own `.env` file:
+If you wish to change the default settings, navigate to the develop branch and copy the sample environment variables into your own `.env` file:
 
     $ cd spotseeker_server
     $ git checkout develop

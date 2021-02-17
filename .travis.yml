@@ -21,8 +21,7 @@ before_script:
 # command to run tests
 script:
     - docker run -u root -it -v /tmp:/coverage -e DJANGO_APP="${DJANGO_APP}" -e "ENV=localdev" "${IMAGE_TAG}-test" bash -c ". ./travis/test.sh"
-    # - pycodestyle spotseeker_server/ --exclude=migrations
-    # - coverage run --source=spotseeker_server/ --omit=spotseeker_server/migrations/*,spotseeker_server/admin.py,spotseeker_server/management/commands/* manage.py test spotseeker_server
+    - pycodestyle spotseeker_server/ --exclude=migrations
 after_script:
     - cp /tmp/.coverage.* .
     - coverage combine

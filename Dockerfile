@@ -11,7 +11,7 @@ RUN . /app/bin/activate && pip install -r requirements.txt
 ADD --chown=acait:acait . /app/
 ADD --chown=acait:acait docker/ project/
 
-FROM gcr.io/uwit-mci-axdd/django-test-container:1.2.27 as app-test-container
+FROM gcr.io/uwit-mci-axdd/django-test-container:1.2.7 as app-test-container
 
 COPY --from=0 /app/ /app/
 COPY --from=0 /static/ /static/

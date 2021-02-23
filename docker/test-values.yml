@@ -51,12 +51,12 @@ certs:
   keyPath: /certs/test.spotseeker.uw.edu-uwca.key
   secretName: test.spotseeker.uw.edu-uwca-certs
 environmentVariables:
+  - name: AUTH_MODULE
+    value: oauth
   - name: CLUSTER_CNAME
     value: test.spotseeker.uw.edu
   - name: ENV
     value: test
-  - name: AUTH_MODULE
-    value: oauth
   - name: WEBSERVER
     value: nginx
 externalSecrets:

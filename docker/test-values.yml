@@ -43,6 +43,9 @@ image:
   tag: IMAGE_TAG
 memcached:
   enabled: false
+gcsCredentials:
+  mounted: true
+  secretName: test.spotseeker.uw.edu-gc-service-credentials
 cronjob:
   enabled: false
 certs:
@@ -69,6 +72,10 @@ externalSecrets:
           property: django-secret
         - name: spotseeker-auth-admins
           property: spotseeker-auth-admins
+        - name: storage-bucket-name
+          property: storage-bucket-name
+        - name: storage-project-id
+          property: storage-project-id
     - name: test.spotseeker.uw.edu-sql-secrets
       externalKey: axdd/kv/data/spotseeker/test/sql-secrets
       data:
@@ -88,6 +95,11 @@ externalSecrets:
       data:
         - name: test.spotseeker.uw.edu-ic.cert
           property: test.spotseeker.uw.edu-ic.cert
+    - name: test.spotseeker.uw.edu-gc-service-credentials
+      externalKey: axdd/kv/data/spotseeker/test/gc-service-credentials
+      data:
+        - name: credentials.json
+          property: credentials.json
 environmentVariablesSecrets:
   djangoSecret:
     name: DJANGO_SECRET
@@ -97,3 +109,11 @@ environmentVariablesSecrets:
     name: SPOTSEEKER_AUTH_ADMINS
     secretName: test.spotseeker.uw.edu-secrets
     secretKey: spotseeker-auth-admins
+  storageBucketName:
+    name: STORAGE_BUCKET_NAME
+    secretName: test.spotseeker.uw.edu-secrets
+    secretKey: storage-bucket-name
+  storageProjectId:
+    name: STORAGE_PROJECT_ID
+    secretName: test.spotseeker.uw.edu-secrets
+    secretKey: storage-project-id

@@ -16,6 +16,7 @@ setup(name='SpaceScout-Server',
             'pytz',
             'simplejson>=2.1',
             'django-oauth-plus@git+https://github.com/edx-unsupported/django-oauth-plus#egg=2.2.9.edx-4',
+            'django-storages[google]',
             'six',
             'phonenumbers'
       ],

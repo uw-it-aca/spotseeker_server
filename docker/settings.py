@@ -1,5 +1,7 @@
-from .base_settings.common import *
 import os
+from .base_settings.common import *
+from google.oauth2 import service_account
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -35,6 +37,16 @@ MIDDLEWARE += [
 #        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
 #    },
 #]
+
+# django storages settings
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = os.getenv('STORAGE_BUCKET_NAME', '')
+    GS_PROJECT_ID = os.getenv('STORAGE_PROJECT_ID')
+    GS_LOCATION = os.path.join(os.getenv('ENV'), 'media')
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+        '/gcs/credentials.json'
+    )
 
 SPOTSEEKER_AUTH_MODULE = "spotseeker_server.auth.{}".format(os.getenv('AUTH_MODULE', 'all_ok'))
 # turn string of auth admins into list

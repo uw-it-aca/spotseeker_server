@@ -1,6 +1,6 @@
 import os
-from .base_settings.common import *
 from google.oauth2 import service_account
+from .base_settings.common import *
 
 
 ALLOWED_HOSTS = ['*']

@@ -14,12 +14,12 @@ ingress:
   enabled: true
   tls:
     spotseeker:
-      secretName: prod.spotseeker.uw.edu-ingress-cert
+      secretName: prod.api.scout.uw.edu-ingress-cert
       hosts:
-        - prod.spotseeker.uw.edu
+        - prod.api.scout.uw.edu
   hosts:
     spotseeker:
-      host: prod.spotseeker.uw.edu
+      host: prod.api.scout.uw.edu
       paths:
         - "/"
   annotations:
@@ -44,7 +44,7 @@ database:
   engine: mysql
   name: spotseeker_prod
   hostname: spotseeker-db-service
-  secretName: prod.spotseeker.uw.edu-sql-secrets
+  secretName: prod.api.scout.uw.edu-sql-secrets
 repo: spotseeker
 instance: prod
 image:
@@ -54,19 +54,19 @@ memcached:
   enabled: false
 gcsCredentials:
   mounted: true
-  secretName: prod.spotseeker.uw.edu-gc-service-credentials
+  secretName: prod.api.scout.uw.edu-gc-service-credentials
 cronjob:
   enabled: false
 certs:
   mounted: true
-  certPath: /certs/prod.spotseeker.uw.edu-uwca.cert
-  keyPath: /certs/prod.spotseeker.uw.edu-uwca.key
-  secretName: prod.spotseeker.uw.edu-uwca-certs
+  certPath: /certs/prod.api.scout.uw.edu-uwca.cert
+  keyPath: /certs/prod.api.scout.uw.edu-uwca.key
+  secretName: prod.api.scout.uw.edu-uwca-certs
 environmentVariables:
   - name: AUTH_MODULE
     value: oauth
   - name: CLUSTER_CNAME
-    value: prod.spotseeker.uw.edu
+    value: prod.api.scout.uw.edu
   - name: ENV
     value: prod
   - name: WEBSERVER
@@ -74,7 +74,7 @@ environmentVariables:
 externalSecrets:
   enabled: true
   secrets:
-    - name: prod.spotseeker.uw.edu-secrets
+    - name: prod.api.scout.uw.edu-secrets
       externalKey: axdd/kv/data/spotseeker/prod/secrets
       data:
         - name: django-secret
@@ -85,26 +85,26 @@ externalSecrets:
           property: storage-bucket-name
         - name: storage-project-id
           property: storage-project-id
-    - name: prod.spotseeker.uw.edu-sql-secrets
+    - name: prod.api.scout.uw.edu-sql-secrets
       externalKey: axdd/kv/data/spotseeker/prod/sql-secrets
       data:
         - name: username
           property: username
         - name: password
           property: password
-    - name: prod.spotseeker.uw.edu-uwca-certs
+    - name: prod.api.scout.uw.edu-uwca-certs
       externalKey: axdd/kv/data/spotseeker/prod/uwca-certs
       data:
-        - name: prod.spotseeker.uw.edu-uwca.cert
-          property: prod.spotseeker.uw.edu-uwca.cert
-        - name: prod.spotseeker.uw.edu-uwca.key
-          property: prod.spotseeker.uw.edu-uwca.key
-    - name: prod.spotseeker.uw.edu-ic-cert
+        - name: prod.api.scout.uw.edu-uwca.cert
+          property: prod.api.scout.uw.edu-uwca.cert
+        - name: prod.api.scout.uw.edu-uwca.key
+          property: prod.api.scout.uw.edu-uwca.key
+    - name: prod.api.scout.uw.edu-ic-cert
       externalKey: axdd/kv/data/spotseeker/prod/ic-certs
       data:
-        - name: prod.spotseeker.uw.edu-ic.cert
-          property: prod.spotseeker.uw.edu-ic.cert
-    - name: prod.spotseeker.uw.edu-gc-service-credentials
+        - name: prod.api.scout.uw.edu-ic.cert
+          property: prod.api.scout.uw.edu-ic.cert
+    - name: prod.api.scout.uw.edu-gc-service-credentials
       externalKey: axdd/kv/data/spotseeker/prod/gc-service-credentials
       data:
         - name: credentials.json
@@ -112,17 +112,17 @@ externalSecrets:
 environmentVariablesSecrets:
   djangoSecret:
     name: DJANGO_SECRET
-    secretName: prod.spotseeker.uw.edu-secrets
+    secretName: prod.api.scout.uw.edu-secrets
     secretKey: django-secret
   spotseekerAuthAdmins:
     name: SPOTSEEKER_AUTH_ADMINS
-    secretName: prod.spotseeker.uw.edu-secrets
+    secretName: prod.api.scout.uw.edu-secrets
     secretKey: spotseeker-auth-admins
   storageBucketName:
     name: STORAGE_BUCKET_NAME
-    secretName: prod.spotseeker.uw.edu-secrets
+    secretName: prod.api.scout.uw.edu-secrets
     secretKey: storage-bucket-name
   storageProjectId:
     name: STORAGE_PROJECT_ID
-    secretName: prod.spotseeker.uw.edu-secrets
+    secretName: prod.api.scout.uw.edu-secrets
     secretKey: storage-project-id

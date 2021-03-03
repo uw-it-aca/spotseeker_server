@@ -66,7 +66,7 @@ externalSecrets:
   enabled: true
   secrets:
     - name: test.api.scout.uw.edu-secrets
-      externalKey: axdd/kv/data/spotseeker/test/secrets
+      externalKey: axdd/kv/data/scout/test-api/secrets
       data:
         - name: django-secret
           property: django-secret
@@ -77,26 +77,26 @@ externalSecrets:
         - name: storage-project-id
           property: storage-project-id
     - name: test.api.scout.uw.edu-sql-secrets
-      externalKey: axdd/kv/data/spotseeker/test/sql-secrets
+      externalKey: axdd/kv/data/scout/test-api/sql-secrets
       data:
         - name: username
           property: username
         - name: password
           property: password
     - name: test.api.scout.uw.edu-uwca-certs
-      externalKey: axdd/kv/data/spotseeker/test/uwca-certs
+      externalKey: axdd/kv/data/scout/test-api/uwca-certs
       data:
         - name: test.api.scout.uw.edu-uwca.cert
           property: test.api.scout.uw.edu-uwca.cert
         - name: test.api.scout.uw.edu-uwca.key
           property: test.api.scout.uw.edu-uwca.key
     - name: test.api.scout.uw.edu-ic-certs
-      externalKey: axdd/kv/data/spotseeker/test/ic-certs
+      externalKey: axdd/kv/data/scout/test-api/ic-certs
       data:
         - name: test.api.scout.uw.edu-ic.cert
           property: test.api.scout.uw.edu-ic.cert
     - name: test.api.scout.uw.edu-gc-service-credentials
-      externalKey: axdd/kv/data/spotseeker/test/gc-service-credentials
+      externalKey: axdd/kv/data/scout/test-api/gc-service-credentials
       data:
         - name: credentials.json
           property: credentials.json

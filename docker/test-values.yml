@@ -2,19 +2,19 @@ ingress:
   enabled: true
   tls:
     spotseeker:
-      secretName: test.spotseeker.uw.edu-ingress-cert
+      secretName: test.api.scout.uw.edu-ingress-cert
       hosts:
-        - test.spotseeker.uw.edu
+        - test.api.scout.uw.edu
   hosts:
     spotseeker:
-      host: test.spotseeker.uw.edu
+      host: test.api.scout.uw.edu
       paths:
         - "/"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256"
     nginx.ingress.kubernetes.io/client-body-buffer-size: "16K"
-    nginx.ingress.kubernetes.io/permanent-redirect: https://test.spotseeker.uw.edu
+    nginx.ingress.kubernetes.io/permanent-redirect: https://test.api.scout.uw.edu
 lifecycle:
   enabled: true
   preStop:
@@ -35,7 +35,7 @@ database:
   engine: mysql
   name: spotseeker_test
   hostname: spotseeker-db-service
-  secretName: test.spotseeker.uw.edu-sql-secrets
+  secretName: test.api.scout.uw.edu-sql-secrets
 repo: spotseeker
 instance: test
 image:
@@ -45,19 +45,19 @@ memcached:
   enabled: false
 gcsCredentials:
   mounted: true
-  secretName: test.spotseeker.uw.edu-gc-service-credentials
+  secretName: test.api.scout.uw.edu-gc-service-credentials
 cronjob:
   enabled: false
 certs:
   mounted: true
-  certPath: /certs/test.spotseeker.uw.edu-uwca.cert
-  keyPath: /certs/test.spotseeker.uw.edu-uwca.key
-  secretName: test.spotseeker.uw.edu-uwca-certs
+  certPath: /certs/test.api.scout.uw.edu-uwca.cert
+  keyPath: /certs/test.api.scout.uw.edu-uwca.key
+  secretName: test.api.scout.uw.edu-uwca-certs
 environmentVariables:
   - name: AUTH_MODULE
     value: oauth
   - name: CLUSTER_CNAME
-    value: test.spotseeker.uw.edu
+    value: test.api.scout.uw.edu
   - name: ENV
     value: test
   - name: WEBSERVER
@@ -65,7 +65,7 @@ environmentVariables:
 externalSecrets:
   enabled: true
   secrets:
-    - name: test.spotseeker.uw.edu-secrets
+    - name: test.api.scout.uw.edu-secrets
       externalKey: axdd/kv/data/spotseeker/test/secrets
       data:
         - name: django-secret
@@ -76,26 +76,26 @@ externalSecrets:
           property: storage-bucket-name
         - name: storage-project-id
           property: storage-project-id
-    - name: test.spotseeker.uw.edu-sql-secrets
+    - name: test.api.scout.uw.edu-sql-secrets
       externalKey: axdd/kv/data/spotseeker/test/sql-secrets
       data:
         - name: username
           property: username
         - name: password
           property: password
-    - name: test.spotseeker.uw.edu-uwca-certs
+    - name: test.api.scout.uw.edu-uwca-certs
       externalKey: axdd/kv/data/spotseeker/test/uwca-certs
       data:
-        - name: test.spotseeker.uw.edu-uwca.cert
-          property: test.spotseeker.uw.edu-uwca.cert
-        - name: test.spotseeker.uw.edu-uwca.key
-          property: test.spotseeker.uw.edu-uwca.key
-    - name: test.spotseeker.uw.edu-ic-certs
+        - name: test.api.scout.uw.edu-uwca.cert
+          property: test.api.scout.uw.edu-uwca.cert
+        - name: test.api.scout.uw.edu-uwca.key
+          property: test.api.scout.uw.edu-uwca.key
+    - name: test.api.scout.uw.edu-ic-certs
       externalKey: axdd/kv/data/spotseeker/test/ic-certs
       data:
-        - name: test.spotseeker.uw.edu-ic.cert
-          property: test.spotseeker.uw.edu-ic.cert
-    - name: test.spotseeker.uw.edu-gc-service-credentials
+        - name: test.api.scout.uw.edu-ic.cert
+          property: test.api.scout.uw.edu-ic.cert
+    - name: test.api.scout.uw.edu-gc-service-credentials
       externalKey: axdd/kv/data/spotseeker/test/gc-service-credentials
       data:
         - name: credentials.json
@@ -103,17 +103,17 @@ externalSecrets:
 environmentVariablesSecrets:
   djangoSecret:
     name: DJANGO_SECRET
-    secretName: test.spotseeker.uw.edu-secrets
+    secretName: test.api.scout.uw.edu-secrets
     secretKey: django-secret
   spotseekerAuthAdmins:
     name: SPOTSEEKER_AUTH_ADMINS
-    secretName: test.spotseeker.uw.edu-secrets
+    secretName: test.api.scout.uw.edu-secrets
     secretKey: spotseeker-auth-admins
   storageBucketName:
     name: STORAGE_BUCKET_NAME
-    secretName: test.spotseeker.uw.edu-secrets
+    secretName: test.api.scout.uw.edu-secrets
     secretKey: storage-bucket-name
   storageProjectId:
     name: STORAGE_PROJECT_ID
-    secretName: test.spotseeker.uw.edu-secrets
+    secretName: test.api.scout.uw.edu-secrets
     secretKey: storage-project-id

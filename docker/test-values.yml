@@ -48,11 +48,6 @@ gcsCredentials:
   secretName: test.api.scout.uw.edu-gc-service-credentials
 cronjob:
   enabled: false
-certs:
-  mounted: true
-  certPath: /certs/test.api.scout.uw.edu-uwca.cert
-  keyPath: /certs/test.api.scout.uw.edu-uwca.key
-  secretName: test.api.scout.uw.edu-uwca-certs
 environmentVariables:
   - name: AUTH_MODULE
     value: oauth
@@ -83,18 +78,6 @@ externalSecrets:
           property: username
         - name: password
           property: password
-    - name: test.api.scout.uw.edu-uwca-certs
-      externalKey: axdd/kv/data/scout/test-api/uwca-certs
-      data:
-        - name: test.api.scout.uw.edu-uwca.cert
-          property: test.api.scout.uw.edu-uwca.cert
-        - name: test.api.scout.uw.edu-uwca.key
-          property: test.api.scout.uw.edu-uwca.key
-    - name: test.api.scout.uw.edu-ic-certs
-      externalKey: axdd/kv/data/scout/test-api/ic-certs
-      data:
-        - name: test.api.scout.uw.edu-ic.cert
-          property: test.api.scout.uw.edu-ic.cert
     - name: test.api.scout.uw.edu-gc-service-credentials
       externalKey: axdd/kv/data/scout/test-api/gc-service-credentials
       data:

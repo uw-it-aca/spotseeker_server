@@ -57,11 +57,6 @@ gcsCredentials:
   secretName: prod.api.scout.uw.edu-gc-service-credentials
 cronjob:
   enabled: false
-certs:
-  mounted: true
-  certPath: /certs/prod.api.scout.uw.edu-uwca.cert
-  keyPath: /certs/prod.api.scout.uw.edu-uwca.key
-  secretName: prod.api.scout.uw.edu-uwca-certs
 environmentVariables:
   - name: AUTH_MODULE
     value: oauth
@@ -92,18 +87,6 @@ externalSecrets:
           property: username
         - name: password
           property: password
-    - name: prod.api.scout.uw.edu-uwca-certs
-      externalKey: axdd/kv/data/scout/prod-api/uwca-certs
-      data:
-        - name: prod.api.scout.uw.edu-uwca.cert
-          property: prod.api.scout.uw.edu-uwca.cert
-        - name: prod.api.scout.uw.edu-uwca.key
-          property: prod.api.scout.uw.edu-uwca.key
-    - name: prod.api.scout.uw.edu-ic-cert
-      externalKey: axdd/kv/data/scout/prod-api/ic-certs
-      data:
-        - name: prod.api.scout.uw.edu-ic.cert
-          property: prod.api.scout.uw.edu-ic.cert
     - name: prod.api.scout.uw.edu-gc-service-credentials
       externalKey: axdd/kv/data/scout/prod-api/gc-service-credentials
       data:

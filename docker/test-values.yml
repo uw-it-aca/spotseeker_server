@@ -71,14 +71,14 @@ externalSecrets:
         - name: storage-project-id
           property: storage-project-id
     - name: test.api.scout.uw.edu-sql-secrets
-      externalKey: axdd/kv/data/scout/test-api/sql-secrets
+      externalKey: axdd/kv/data/scout/common/sql-secrets
       data:
         - name: username
           property: username
         - name: password
           property: password
     - name: test.api.scout.uw.edu-gc-service-credentials
-      externalKey: axdd/kv/data/scout/test-api/gc-service-credentials
+      externalKey: axdd/kv/data/scout/common/gc-service-credentials
       data:
         - name: credentials.json
           property: credentials.json

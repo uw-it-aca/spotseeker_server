@@ -43,7 +43,7 @@ if not DEBUG:
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = os.getenv('STORAGE_BUCKET_NAME', '')
     GS_PROJECT_ID = os.getenv('STORAGE_PROJECT_ID')
-    GS_LOCATION = os.path.join(os.getenv('ENV'), 'media')
+    GS_LOCATION = os.path.join(os.getenv('ENV'), 'api')
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
         '/gcs/credentials.json'
     )

@@ -34,7 +34,7 @@ name: Build, Test and Deploy
 env:
   # Release name must match "repo" value in docker/*-values.yml
   RELEASE_NAME: spotseeker
-  DJANGO_APP: spotseeker
+  DJANGO_APP: spotseeker_server
 
 # Be sure that branches defined here have corresponding steps
 # defined in the "deploy" job

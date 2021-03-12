@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/uw-it-aca/spotseeker_server.svg?branch=develop)](https://travis-ci.org/uw-it-aca/spotseeker_server)  [![Coverage Status](https://coveralls.io/repos/uw-it-aca/spotseeker_server/badge.svg?branch=master&service=github)](https://coveralls.io/github/uw-it-aca/spotseeker_server?branch=master)
+[![Build Status](https://github.com/uw-it-aca/spotseeker_server/workflows/Build%2C%20Test%20and%20Deploy/badge.svg?branch=master)](https://github.com/uw-it-aca/spotseeker_server/actions)
+[![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/spotseeker_server/badge.svg?branch=master)](https://coveralls.io/github/uw-it-aca/spotseeker_server?branch=master)
 
 # SpaceScout Server
 

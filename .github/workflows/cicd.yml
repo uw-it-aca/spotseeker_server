@@ -1,0 +1,159 @@
+#
+# Example GitHub Actions config that drives UW-IT AXD2 integration and deployment
+#
+# Preconditions:
+#
+#  1) Application docker build is based on django-container
+#
+#  2) Application test suite is kicked off in docker/test.sh
+#
+#  3) Application repo has access to the two secrets
+#     at https://github.com/organizations/uw-it-aca/settings/secrets:
+#
+#     GH_AUTH_TOKEN: Grants access to private flux deployment repo
+#     GCP_JSON_KEY: Grants access to Google Cloud Registry
+#
+# To adapt this config file to a specific django project:
+#
+#  1) Set RELEASE_NAME suitable for deployment to k8s. RELEASE_NAME must
+#     match the "repo" value in docker/*-values.yml.
+#
+#  2) Set DJANGO_APP to the name of the django project name/directory.
+#
+#  3) Verify that the lists of branches for push/pull_request is appropriate,
+#     and add other branch names if needed.  Additional branch names must
+#     also have steps defined in the deploy job
+#
+#  4) Confirm that the build steps are suitable.  Likely they are, but
+#     some projects have an intermediate build step that could benefit
+#     from caching, so it may be useful to augment the build steps.
+#
+---
+name: Build, Test and Deploy
+
+env:
+  # Release name must match "repo" value in docker/*-values.yml
+  RELEASE_NAME: spotseeker
+  DJANGO_APP: spotseeker
+
+# Be sure that branches defined here have corresponding steps
+# defined in the "deploy" job
+on:
+  push:
+    branches: [main, master, qa, develop, feature/eval-me]
+  pull_request:
+    branches: [main, master, qa, develop, feature/eval-me]
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Set up Context
+        id: cicd
+        uses: uw-it-aca/actions/cicd-context@main
+        with:
+          release_name: ${{ env.RELEASE_NAME }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-$(echo ${{ hashFiles('Dockerfile') }} | head -c 16)
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build App Image
+        uses: docker/build-push-action@v2
+        with:
+          target: app-container
+          tags: ${{ steps.cicd.outputs.image_tag }}
+          push: false
+          load: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Build Test Image
+        uses: docker/build-push-action@v2
+        with:
+          target: app-test-container
+          tags: app-test-container
+          push: false
+          load: true
+
+      - name: Run Tests in Image
+        id: tests
+        shell: bash
+        run: >-
+          docker run -u root -t
+          -v ${PWD}:/coverage
+          -e DJANGO_APP="$DJANGO_APP"
+          -e "ENV=localdev"
+          app-test-container
+          bash -c ". ./docker/test.sh"
+
+      - name: Set up Python Test Dependency
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Record Test Results
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip coverage coveralls==2.2.0
+          coverage combine
+          coveralls
+
+      - name: Push Image to Repository
+        if: github.event_name == 'push'
+        uses: uw-it-aca/actions/gcr-push@main
+        with:
+          image_tag: ${{ steps.cicd.outputs.image_tag }}
+          gcp_json_key: ${{ secrets.GCP_JSON_KEY }}
+
+  deploy:
+    if: github.event_name == 'push'
+
+    needs: build
+
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Set up Context
+        id: cicd
+        uses: uw-it-aca/actions/cicd-context@main
+        with:
+          release_name: ${{ env.RELEASE_NAME }}
+
+      - name: Deployment Pipeline
+        if: >-
+          contains(fromJSON('["main", "master", "qa"]'),
+            steps.cicd.outputs.git_repo_branch)
+        uses: uw-it-aca/actions/cicd-deploy@main
+        with:
+          release_name: ${{ env.RELEASE_NAME }}
+          commit_hash: ${{ steps.cicd.outputs.commit_hash }}
+          git_repo_branch: ${{ steps.cicd.outputs.git_repo_branch }}
+          gh_auth_token: ${{ secrets.GH_AUTH_TOKEN }}
+
+      - name: Deploy Evaluation Branch
+        if: steps.cicd.outputs.git_repo_branch == 'feature/eval-me'
+        uses: uw-it-aca/actions/cicd-deploy@main
+        with:
+          release_name: ${{ env.RELEASE_NAME }}
+          commit_hash: ${{ steps.cicd.outputs.commit_hash }}
+          git_repo_branch: ${{ steps.cicd.outputs.git_repo_branch }}
+          gh_auth_token: ${{ secrets.GH_AUTH_TOKEN }}
+          app_instance: eval

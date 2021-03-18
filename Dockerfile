@@ -1,5 +1,7 @@
 FROM gcr.io/uwit-mci-axdd/django-container:1.2.7 as app-container
 
+USER root
+RUN apt-get update && apt-get install mysql-client libmysqlclient-dev -y
 USER acait
 
 ADD --chown=acait:acait setup.py /app/

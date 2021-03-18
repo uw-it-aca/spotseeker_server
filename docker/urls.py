@@ -28,6 +28,7 @@ if settings.DEBUG:
     urlpatterns += [
         url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
         url(r'^admin/', include(admin.site.urls)),
+        url(r'^', include(django_prometheus.urls)), # add here for django 1.11 compatibility
     ]
 
     urlpatterns += staticfiles_urlpatterns()

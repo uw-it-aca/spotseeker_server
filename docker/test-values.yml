@@ -49,7 +49,7 @@ cronjob:
   enabled: false
 environmentVariables:
   - name: AUTH_MODULE
-    value: oauth
+    value: all_ok
   - name: CLUSTER_CNAME
     value: test.api.scout.uw.edu
   - name: ENV

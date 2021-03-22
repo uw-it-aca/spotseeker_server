@@ -19,6 +19,7 @@ from django.conf.urls import url, include
 urlpatterns = [
     url(r'^auth/', include('oauth_provider.urls')),
     url(r'^api/', include('spotseeker_server.urls')),
+    url(r'^', include('django_prometheus.urls')), # add here for django 1.11 compatibility
 ]
 
 if settings.DEBUG:
@@ -28,7 +29,6 @@ if settings.DEBUG:
     urlpatterns += [
         url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
         url(r'^admin/', include(admin.site.urls)),
-        url(r'^', include(django_prometheus.urls)), # add here for django 1.11 compatibility
     ]
 
     urlpatterns += staticfiles_urlpatterns()

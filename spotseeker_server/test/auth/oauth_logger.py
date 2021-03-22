@@ -12,6 +12,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+try:
+    from StringIO import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 
 from django.test import TestCase
 from django.conf import settings
@@ -19,19 +23,18 @@ from spotseeker_server.models import Spot, TrustedOAuthClient
 from django.test.client import Client
 import re
 import simplejson as json
-import StringIO
 import logging
 
 import hashlib
 import time
 import random
-from contextlib import nested
 
 from oauth_provider.models import Consumer
-import oauth2
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
+
+from oauthlib import oauth1
 
 
 @override_settings(
@@ -51,8 +54,8 @@ class SpotAuthOAuthLogger(TestCase):
     def setUp(self):
         new_middleware = []
         has_logger = False
-        self.original_middleware = settings.MIDDLEWARE_CLASSES
-        for middleware in settings.MIDDLEWARE_CLASSES:
+        self.original_middleware = settings.MIDDLEWARE
+        for middleware in settings.MIDDLEWARE:
             new_middleware.append(middleware)
             if middleware == 'spotseeker_server.logger.oauth.LogMiddleware':
                 has_logger = True
@@ -61,9 +64,9 @@ class SpotAuthOAuthLogger(TestCase):
             new_middleware.append(
                 'spotseeker_server.logger.oauth.LogMiddleware'
             )
-        settings.MIDDLEWARE_CLASSES = new_middleware
+        settings.MIDDLEWARE = new_middleware
 
-        self.stream = StringIO.StringIO()
+        self.stream = StringIO()
         self.handler = logging.StreamHandler(self.stream)
         self.log = logging.getLogger('spotseeker_server.logger.oauth')
         self.log.setLevel(logging.INFO)
@@ -80,32 +83,25 @@ class SpotAuthOAuthLogger(TestCase):
 
             key = hashlib.sha1("{0} - {1}".format(random.random(),
                                                   time.time()
-                                                  )
+                                                  ).encode('utf-8')
                                ).hexdigest()
             secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                      time.time()
-                                                     )
+                                                     ).encode('utf-8')
                                   ).hexdigest()
 
             create_consumer = Consumer.objects.create(name=consumer_name,
                                                       key=key,
                                                       secret=secret)
 
-            consumer = oauth2.Consumer(key=key, secret=secret)
-
-            req = oauth2.Request.from_consumer_and_token(
-                consumer,
-                None,
-                http_method='GET',
-                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            client = oauth1.Client(key, client_secret=secret)
+            _, headers, _ = client.sign(
+                "http://testserver/api/v1/spot/%s" % self.spot.pk
             )
 
-            oauth_header = req.to_header()
-
-            c = Client()
-            response = c.get(
+            response = Client().get(
                 self.url,
-                HTTP_AUTHORIZATION=oauth_header['Authorization']
+                HTTP_AUTHORIZATION=headers['Authorization']
             )
 
         with self.settings(
@@ -133,7 +129,7 @@ class SpotAuthOAuthLogger(TestCase):
                               "Logging correct uri")
             self.assertEquals(status_code, response.status_code,
                               "Logging correct status_code")
-            self.assertEquals(response_size, len(response.content),
+            self.assertEquals(response_size, len(response.content.decode()),
                               "Logging correct content size")
 
     def test_log_trusted_3_legged(self):
@@ -144,11 +140,11 @@ class SpotAuthOAuthLogger(TestCase):
 
             key = hashlib.sha1("{0} - {1}".format(random.random(),
                                                   time.time()
-                                                  )
+                                                  ).encode('utf-8')
                                ).hexdigest()
             secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                      time.time()
-                                                     )
+                                                     ).encode('utf-8')
                                   ).hexdigest()
 
             create_consumer = Consumer.objects.create(
@@ -162,21 +158,15 @@ class SpotAuthOAuthLogger(TestCase):
                 bypasses_user_authorization=False
             )
 
-            consumer = oauth2.Consumer(key=key, secret=secret)
-
-            req = oauth2.Request.from_consumer_and_token(
-                consumer,
-                None,
-                http_method='GET',
-                http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
+            client = oauth1.Client(key, client_secret=secret)
+            _, headers, _ = client.sign(
+                "http://testserver/api/v1/spot/%s" % self.spot.pk
             )
 
-            oauth_header = req.to_header()
             c = Client()
-
             response = c.get(
                 self.url,
-                HTTP_AUTHORIZATION=oauth_header['Authorization']
+                HTTP_AUTHORIZATION=headers['Authorization']
             )
             etag = response["ETag"]
 
@@ -189,7 +179,7 @@ class SpotAuthOAuthLogger(TestCase):
                 json.dumps(spot_dict),
                 content_type="application/json",
                 If_Match=etag,
-                HTTP_AUTHORIZATION=oauth_header['Authorization'],
+                HTTP_AUTHORIZATION=headers['Authorization'],
                 HTTP_X_OAUTH_USER="pmichaud"
             )
             self.assertEquals(
@@ -229,7 +219,7 @@ class SpotAuthOAuthLogger(TestCase):
                               "Logging correct uri")
             self.assertEquals(status_code, response.status_code,
                               "Logging correct status_code")
-            self.assertEquals(response_size, len(response.content),
+            self.assertEquals(response_size, len(response.content.decode()),
                               "Logging correct content size")
 
     def test_invalid(self):
@@ -268,4 +258,4 @@ class SpotAuthOAuthLogger(TestCase):
         self.log.removeHandler(self.handler)
         self.handler.close()
 
-        settings.MIDDLEWARE_CLASSES = self.original_middleware
+        settings.MIDDLEWARE = self.original_middleware

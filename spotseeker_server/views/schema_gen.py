@@ -19,8 +19,8 @@
         adapt to the new form style.
 """
 
+from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
-from django.db import models
 from django.http import HttpResponse
 
 from spotseeker_server.forms.spot import SpotForm
@@ -91,7 +91,7 @@ class SchemaGenView(RESTDispatch):
 
         # To grab regular spot info
         spot_field_array = \
-            models.get_model('spotseeker_server', 'Spot')._meta.fields
+            apps.get_model('spotseeker_server', 'Spot')._meta.fields
         for field in spot_field_array:
             if is_auto_field(field):
                 schema[field.name] = 'auto'
@@ -106,8 +106,10 @@ class SchemaGenView(RESTDispatch):
                     schema[field.name] = field_itype
 
         # To grab spot image info
-        spot_image_field_array = models.get_model('spotseeker_server',
-                                                  'SpotImage')._meta.fields
+        spot_image_field_array = apps.get_model(
+            'spotseeker_server',
+            'SpotImage'
+        )._meta.fields
         schema_image = {}
         for field in spot_image_field_array:
             if is_auto_field(field):

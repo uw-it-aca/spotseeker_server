@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  app:
+    restart: always
+    build: .
+    container_name: spotseeker-server
+    volumes:
+      - ./spotseeker_server:/app/spotseeker_server
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      ENV: localdev
+      AUTH_MODULE: ${AUTH_MODULE:-all_ok}
+      SPOTSEEKER_AUTH_ADMINS: ${SPOTSEEKER_AUTH_ADMINS}
+    stdin_open: true
+    tty: true

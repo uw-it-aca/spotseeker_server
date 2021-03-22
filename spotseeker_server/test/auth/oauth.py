@@ -22,7 +22,7 @@ import hashlib
 import time
 import random
 from oauth_provider.models import Consumer
-import oauth2
+from oauthlib import oauth1
 from django.test.utils import override_settings
 from mock import patch
 from spotseeker_server import models
@@ -50,11 +50,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(
@@ -63,21 +63,13 @@ class SpotAuthOAuth(TestCase):
             secret=secret
         )
 
-        consumer = oauth2.Consumer(key=key, secret=secret)
-
-        req = oauth2.Request.from_consumer_and_token(
-            consumer,
-            None,
-            http_method='GET',
-            http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-        )
-
-        oauth_header = req.to_header()
+        client = oauth1.Client(key, client_secret=secret)
+        _, headers, _ = client.sign("http://testserver" + self.url)
 
         c = self.client
         response = c.get(
             self.url,
-            HTTP_AUTHORIZATION=oauth_header['Authorization']
+            HTTP_AUTHORIZATION=headers['Authorization']
         )
 
         self.assertEquals(
@@ -95,23 +87,14 @@ class SpotAuthOAuth(TestCase):
         )
 
     def test_invalid_oauth(self):
-        consumer = oauth2.Consumer(
-            key="This is a fake key",
-            secret="This is a fake secret"
+        client = oauth1.Client(
+            "This is a fake key", client_secret="This is a fake secret"
         )
-
-        req = oauth2.Request.from_consumer_and_token(
-            consumer,
-            None,
-            http_method='GET',
-            http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-        )
-
-        oauth_header = req.to_header()
+        _, headers, _ = client.sign("http://testserver" + self.url)
 
         c = self.client
         response = c.get(self.url,
-                         HTTP_AUTHORIZATION=oauth_header['Authorization'])
+                         HTTP_AUTHORIZATION=headers['Authorization'])
 
         self.assertEquals(
             response.status_code,
@@ -155,11 +138,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(
@@ -168,21 +151,13 @@ class SpotAuthOAuth(TestCase):
             secret=secret
         )
 
-        consumer = oauth2.Consumer(key=key, secret=secret)
+        client = oauth1.Client(key, client_secret=secret)
+        _, headers, _ = client.sign("http://testserver" + self.url)
 
-        req = oauth2.Request.from_consumer_and_token(
-            consumer,
-            None,
-            http_method='GET',
-            http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-        )
-
-        oauth_header = req.to_header()
         c = self.client
-
         response = c.get(
             self.url,
-            HTTP_AUTHORIZATION=oauth_header['Authorization']
+            HTTP_AUTHORIZATION=headers['Authorization']
         )
         etag = response["ETag"]
 
@@ -195,7 +170,7 @@ class SpotAuthOAuth(TestCase):
             json.dumps(spot_dict),
             content_type="application/json",
             If_Match=etag,
-            HTTP_AUTHORIZATION=oauth_header['Authorization']
+            HTTP_AUTHORIZATION=headers['Authorization']
         )
         self.assertEquals(
             response.status_code,
@@ -216,11 +191,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(
@@ -229,21 +204,13 @@ class SpotAuthOAuth(TestCase):
             secret=secret
         )
 
-        consumer = oauth2.Consumer(key=key, secret=secret)
+        client = oauth1.Client(key, client_secret=secret)
+        _, headers, _ = client.sign("http://testserver" + self.url)
 
-        req = oauth2.Request.from_consumer_and_token(
-            consumer,
-            None,
-            http_method='GET',
-            http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-        )
-
-        oauth_header = req.to_header()
         c = self.client
-
         response = c.get(
             self.url,
-            HTTP_AUTHORIZATION=oauth_header['Authorization']
+            HTTP_AUTHORIZATION=headers['Authorization']
         )
         etag = response["ETag"]
 
@@ -255,7 +222,7 @@ class SpotAuthOAuth(TestCase):
             json.dumps(spot_dict),
             content_type="application/json",
             If_Match=etag,
-            HTTP_AUTHORIZATION=oauth_header['Authorization'],
+            HTTP_AUTHORIZATION=headers['Authorization'],
             HTTP_X_OAUTH_USER="pmichaud"
         )
         self.assertEquals(
@@ -278,11 +245,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name,
@@ -294,20 +261,12 @@ class SpotAuthOAuth(TestCase):
             bypasses_user_authorization=False
         )
 
-        consumer = oauth2.Consumer(key=key, secret=secret)
+        client = oauth1.Client(key, client_secret=secret)
+        _, headers, _ = client.sign("http://testserver" + self.url)
 
-        req = oauth2.Request.from_consumer_and_token(
-            consumer,
-            None,
-            http_method='GET',
-            http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-        )
-
-        oauth_header = req.to_header()
         c = self.client
-
         response = c.get(self.url,
-                         HTTP_AUTHORIZATION=oauth_header['Authorization'])
+                         HTTP_AUTHORIZATION=headers['Authorization'])
         etag = response["ETag"]
 
         spot_dict = json.loads(response.content)
@@ -319,7 +278,7 @@ class SpotAuthOAuth(TestCase):
             json.dumps(spot_dict),
             content_type="application/json",
             If_Match=etag,
-            HTTP_AUTHORIZATION=oauth_header['Authorization'],
+            HTTP_AUTHORIZATION=headers['Authorization'],
             HTTP_X_OAUTH_USER="pmichaud"
         )
         self.assertEquals(
@@ -341,11 +300,11 @@ class SpotAuthOAuth(TestCase):
 
         key = hashlib.sha1("{0} - {1}".format(random.random(),
                                               time.time()
-                                              )
+                                              ).encode('utf-8')
                            ).hexdigest()
         secret = hashlib.sha1("{0} - {1}".format(random.random(),
                                                  time.time()
-                                                 )
+                                                 ).encode('utf-8')
                               ).hexdigest()
 
         create_consumer = Consumer.objects.create(name=consumer_name,
@@ -357,21 +316,13 @@ class SpotAuthOAuth(TestCase):
             bypasses_user_authorization=False
         )
 
-        consumer = oauth2.Consumer(key=key, secret=secret)
+        client = oauth1.Client(key, client_secret=secret)
+        _, headers, _ = client.sign("http://testserver" + self.url)
 
-        req = oauth2.Request.from_consumer_and_token(
-            consumer,
-            None,
-            http_method='GET',
-            http_url="http://testserver/api/v1/spot/%s" % self.spot.pk
-        )
-
-        oauth_header = req.to_header()
         c = self.client
-
         response = c.get(
             self.url,
-            HTTP_AUTHORIZATION=oauth_header['Authorization']
+            HTTP_AUTHORIZATION=headers['Authorization']
         )
         etag = response["ETag"]
 
@@ -383,7 +334,7 @@ class SpotAuthOAuth(TestCase):
             json.dumps(spot_dict),
             content_type="application/json",
             If_Match=etag,
-            HTTP_AUTHORIZATION=oauth_header['Authorization']
+            HTTP_AUTHORIZATION=headers['Authorization']
         )
         self.assertEquals(
             response.status_code,

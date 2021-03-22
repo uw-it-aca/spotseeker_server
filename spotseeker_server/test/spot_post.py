@@ -19,7 +19,9 @@ import simplejson as json
 import random
 from django.test.utils import override_settings
 import copy
-import utils_test
+from spotseeker_server.test import utils_test
+
+from past.builtins import basestring
 
 try:
     from unittest import skip
@@ -70,8 +72,7 @@ class SpotPOSTTest(TestCase):
 
         self.spot = Spot.objects.get(name=new_name)
 
-        self.assertEqual(response["Location"],
-                         'http://testserver' + self.spot.rest_url())
+        self.assertEqual(response["Location"], self.spot.rest_url())
 
         get_response = c.get(response["Location"])
         self.assertEqual(get_response.status_code, 200)

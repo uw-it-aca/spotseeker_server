@@ -53,7 +53,7 @@ class ShareSpaceTest(TestCase):
                          TESTING_OAUTH_USER="share_test0")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, "true", "yup, sent")
+        self.assertEqual(response.content.decode(), "true", "yup, sent")
 
         self.assertEqual(mail.outbox[0].to[0],
                          'vegitron@gmail.com',

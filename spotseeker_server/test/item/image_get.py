@@ -10,10 +10,16 @@
     limitations under the License.
 """
 
-from cStringIO import StringIO
+import shutil
+import tempfile
+try:
+    from cStringIO import StringIO as IOStream
+except ModuleNotFoundError:
+    from io import BytesIO as IOStream
+
 from django.conf import settings
 from django.core import cache
-from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
@@ -30,57 +36,80 @@ TEST_ROOT = abspath(dirname(__file__))
 @override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
 class ItemImageGETTest(TestCase):
 
+    dummy_cache_setting = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+
     def setUp(self):
-        item = Item.objects.create(name="This is to test getting images")
-        item.save()
-        self.item = item
+        self.TEMP_DIR = tempfile.mkdtemp()
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            item = Item.objects.create(name="This is to test getting images")
+            item.save()
+            self.item = item
 
-        f = open("%s/../resources/test_gif.gif" % TEST_ROOT)
-        gif = ItemImage.objects.create(
-            description="This is the GIF test",
-            item=item, image=File(f))
-        f.close()
+            gif = ItemImage.objects.create(
+                description="This is the GIF test",
+                item=item, image=SimpleUploadedFile(
+                    "test_gif.gif",
+                    open(
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
+                    ).read(),
+                    'image/gif'
+                )
+            )
+            self.gif = gif
 
-        self.gif = gif
+            jpeg = ItemImage.objects.create(
+                description="This is the JPEG test",
+                item=item, image=SimpleUploadedFile(
+                    "test_jpeg.jpg",
+                    open(
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb'
+                    ).read(),
+                    'image/jpeg'
+                )
+            )
+            self.jpeg = jpeg
 
-        f = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT)
-        jpeg = ItemImage.objects.create(
-            description="This is the JPEG test",
-            item=item, image=File(f))
-        f.close()
+            png = ItemImage.objects.create(
+                description="This is the PNG test",
+                item=item,
+                image=SimpleUploadedFile(
+                    "test_png.png",
+                    open(
+                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                    ).read(),
+                    'image/png'
+                )
+            )
+            self.png = png
 
-        self.jpeg = jpeg
+            self.url = '/api/v1/item/{0}/image'.format(self.item.pk)
+            self.url = self.url
 
-        f = open("%s/../resources/test_png.png" % TEST_ROOT)
-        png = ItemImage.objects.create(
-            description="This is the PNG test",
-            item=item,
-            image=File(f))
-        f.close()
+    def tearDown(self):
+        shutil.rmtree(self.TEMP_DIR)
 
-        self.png = png
-
-        self.url = '/api/v1/item/{0}/image'.format(self.item.pk)
-        self.url = self.url
-
+    @override_settings(CACHES=dummy_cache_setting)
     def test_bad_url(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             item = Item.objects.create(name="This is the wrong item")
 
-            response = c.get("/api/v1/item/{0}/image/{1}".
-                             format(item.pk, self.jpeg.pk))
+            response = c.get(
+                "/api/v1/item/{0}/image/{1}".
+                format(item.pk, self.jpeg.pk)
+            )
             self.assertEquals(response.status_code, 404)
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_jpeg(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.jpeg.pk))
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/jpeg")
 
@@ -90,13 +119,12 @@ class ItemImageGETTest(TestCase):
             self.assertEquals(im.size[1], orig.size[1])
             self.assertEquals(im.format, 'JPEG')
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_gif(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.gif.pk))
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/gif")
 
@@ -106,13 +134,12 @@ class ItemImageGETTest(TestCase):
             self.assertEquals(im.size[1], orig.size[1])
             self.assertEquals(im.format, 'GIF')
 
+    @override_settings(CACHES=dummy_cache_setting)
     def test_png(self):
-        dummy_cache = cache.get_cache(
-            'django.core.cache.backends.dummy.DummyCache')
-        with patch.object(models, 'cache', dummy_cache):
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.get("{0}/{1}".format(self.url, self.png.pk))
-            data = StringIO(response.content)
+            data = IOStream(response.content)
             im = Image.open(data)
             self.assertEquals(response["Content-type"], "image/png")
 

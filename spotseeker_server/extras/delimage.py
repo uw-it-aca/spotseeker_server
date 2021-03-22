@@ -60,8 +60,8 @@ def main():
         ]
         options, args = getopt.getopt(sys.argv[1:], 'h', long_args)
     except getopt.error, msg:
-        print msg
-        print "for help use -h or --help"
+        print(msg)
+        print("for help use -h or --help")
         sys.exit(2)
 
     delimage(options)
@@ -84,7 +84,7 @@ def delimage(options):
     # Process the rest of the arguments.
     for o, a in options:
         if o in ("-h", "--help", "help"):
-            print __doc__
+            print(__doc__)
             sys.exit(0)
         if o == "--path":
             path = a
@@ -92,8 +92,8 @@ def delimage(options):
             name = a
         elif o == "--name-prefix":
             if not min or not max:
-                print "--name-prefix requires a range"
-                print __doc__
+                print("--name-prefix requires a range")
+                print(__doc__)
                 sys.exit(0)
             else:
                 prefix = a

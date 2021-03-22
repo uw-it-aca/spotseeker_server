@@ -23,35 +23,18 @@
         proper exception is thrown on an invalid image type.
 """
 
+from PIL import Image
+
+from django.contrib.auth.models import User
+from django.core.cache import cache
+from django.core.files.uploadedfile import UploadedFile
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_slug
 from django.db import models
 from django.db.models import Sum, Count
-from django.core.cache import cache
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.core.validators import validate_slug
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.files.uploadedfile import UploadedFile
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-import hashlib
-import datetime
-import time
-from wsgiref.handlers import format_date_time
-import random
-from PIL import Image
-import oauth_provider.models
-import re
-from functools import wraps
+from django.urls import reverse
 
-
-def update_etag(func):
-    """Any model with an ETag can decorate an instance method with
-    this to have a new ETag automatically generated. It's up to the
-    wrapped function, however, to call save()."""
-    def _newETag(self, *args, **kwargs):
-        self.etag = hashlib.sha1("{0} - {1}".format(random.random(),
-                                 time.time())).hexdigest()
-        return func(self, *args, **kwargs)
-    return wraps(func)(_newETag)
+from .utility import update_etag
 
 
 class SpotType(models.Model):
@@ -61,6 +44,9 @@ class SpotType(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def __str__(self):
+        return self.__unicode__()
 
 
 class Spot(models.Model):
@@ -89,6 +75,9 @@ class Spot(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def __str__(self):
+        return self.__unicode__()
 
     def json_cache_key(self):
         return "Spot:" + str(self.id) + ":json"
@@ -257,6 +246,9 @@ class SpotAvailableHours(models.Model):
                                   self.start_time,
                                   self.end_time)
 
+    def __str__(self):
+        return self.__unicode__()
+
     def json_data_structure(self):
         return [self.start_time.strftime("%H:%M"),
                 self.end_time.strftime("%H:%M")]
@@ -297,6 +289,9 @@ class SpotExtendedInfo(models.Model):
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
 
+    def __str__(self):
+        return self.__unicode__()
+
     def save(self, *args, **kwargs):
         self.full_clean()
         self.spot.save()  # Update the last_modified on the spot
@@ -332,6 +327,9 @@ class SpotImage(models.Model):
             return "%s" % self.description
         else:
             return "%s" % self.image.name
+
+    def __str__(self):
+        return self.__unicode__()
 
     def json_data_structure(self):
         return {
@@ -381,206 +379,4 @@ class SpotImage(models.Model):
     def rest_url(self):
         return reverse('spot-image',
                        kwargs={'spot_id': self.spot.pk,
-                               'image_id': self.pk})
-
-
-class TrustedOAuthClient(models.Model):
-    consumer = models.ForeignKey(oauth_provider.models.Consumer)
-    is_trusted = models.BooleanField(default=False)
-    bypasses_user_authorization = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name_plural = "Trusted OAuth clients"
-
-    def __unicode__(self):
-        return self.consumer.name
-
-
-class SpaceReview(models.Model):
-    space = models.ForeignKey(Spot)
-    reviewer = models.ForeignKey(User, related_name='reviewer')
-    published_by = models.ForeignKey(User,
-                                     related_name='published_by',
-                                     null=True)
-    review = models.CharField(max_length=1000, default="")
-    original_review = models.CharField(max_length=1000, default="")
-    rating = models.IntegerField(validators=[MaxValueValidator(5),
-                                             MinValueValidator(1)]
-                                 )
-    date_submitted = models.DateTimeField(auto_now_add=True)
-    date_published = models.DateTimeField(null=True)
-    is_published = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
-
-    def json_data_structure(self):
-        submitted = self.date_submitted.replace(microsecond=0)
-
-        return {
-            'reviewer': self.reviewer.username,
-            'review': self.review,
-            'rating': self.rating,
-            'date_submitted': submitted.isoformat(),
-        }
-
-    def full_json_data_structure(self):
-        data = {
-            'id': self.pk,
-            'space_name': self.space.name,
-            'space_id': self.space.pk,
-            'reviewer': self.reviewer.username,
-            'review': self.review,
-            'rating': self.rating,
-            'original_review': self.original_review,
-            'date_submitted': self.date_submitted.isoformat(),
-            'is_published': self.is_published,
-            'is_deleted': self.is_deleted,
-        }
-
-        if self.is_published:
-            data['date_published'] = self.date_published.isoformat()
-
-        return data
-
-
-class SharedSpace(models.Model):
-    space = models.ForeignKey(Spot)
-    user = models.CharField(max_length=16)
-    sender = models.CharField(max_length=256)
-
-
-class SharedSpaceRecipient(models.Model):
-    shared_space = models.ForeignKey(SharedSpace)
-    hash_key = models.CharField(max_length=32)
-    recipient = models.CharField(max_length=256)
-    user = models.CharField(max_length=16, null=True, blank=True, default=None)
-    date_shared = models.DateTimeField(auto_now_add=True)
-    shared_count = models.IntegerField()
-    date_first_viewed = models.DateTimeField(null=True)
-    viewed_count = models.IntegerField()
-
-
-class Item(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50, blank=True)
-    spot = models.ForeignKey(Spot, blank=True, null=True)
-    # These need to be item_ cat/subcat due to DB issues
-    item_category = models.CharField(max_length=50, null=True)
-    item_subcategory = models.CharField(max_length=50, null=True)
-
-    def __unicode__(self):
-        return self.name
-
-    def json_data_structure(self):
-        extended = {}
-
-        for i in self.itemextendedinfo_set.all():
-            extended[i.key] = i.value
-
-        images = []
-
-        for image in self.itemimage_set.all():
-            images.append(image.json_data_structure())
-
-        data = {
-            'id': self.pk,
-            'name': self.name,
-            'category': self.item_category,
-            'subcategory': self.item_subcategory,
-            'extended_info': extended,
-            'images': images
-        }
-
-        return data
-
-
-class ItemExtendedInfo(models.Model):
-    item = models.ForeignKey(Item, blank=True, null=True)
-    key = models.CharField(max_length=50)
-    value = models.CharField(max_length=350)
-
-    class Meta:
-        verbose_name_plural = "Item extended info"
-        unique_together = ('item', 'key')
-
-    def __unicode__(self):
-        return "ItemExtendedInfo ({}) - {}: {}".format(self.item,
-                                                       self.key,
-                                                       self.value)
-
-
-class ItemImage(models.Model):
-    """ An image of a Item. Multiple images can be associated with a Item,
-    and Item objects have a 'Item.itemimage_set' method that will return
-    all ItemImage objects for the Item.
-    """
-    CONTENT_TYPES = {
-        "JPEG": "image/jpeg",
-        "GIF": "image/gif",
-        "PNG": "image/png",
-    }
-
-    description = models.CharField(max_length=200, blank=True)
-    display_index = models.PositiveIntegerField(null=True, blank=True)
-    image = models.ImageField(upload_to="item_images")
-    item = models.ForeignKey(Item)
-    content_type = models.CharField(max_length=40)
-    width = models.IntegerField()
-    height = models.IntegerField()
-    creation_date = models.DateTimeField(auto_now_add=True)
-    modification_date = models.DateTimeField(auto_now=True)
-    etag = models.CharField(max_length=40)
-    upload_user = models.CharField(max_length=40)
-    upload_application = models.CharField(max_length=100)
-
-    def __unicode__(self):
-        if self.description:
-            return "%s" % self.description
-        else:
-            return "%s" % self.image.name
-
-    def json_data_structure(self):
-        return {
-            "id": self.pk,
-            "url": self.rest_url(),
-            "content-type": self.content_type,
-            "creation_date": self.creation_date.isoformat(),
-            "upload_user": self.upload_user,
-            "upload_application": self.upload_application,
-            "thumbnail_root": reverse('item-image-thumb',
-                                      kwargs={'item_id': self.item.pk,
-                                              'image_id': self.pk}
-                                      ).rstrip('/'),
-            "description": self.description,
-            "display_index": self.display_index,
-            "width": self.width,
-            "height": self.height
-        }
-
-    @update_etag
-    def save(self, *args, **kwargs):
-        try:
-            if (isinstance(self.image, UploadedFile) and
-                    self.image.file.multiple_chunks()):
-                img = Image.open(self.image.file.temporary_file_path())
-            else:
-                img = Image.open(self.image)
-        except IOError:
-            raise ValidationError('Not a valid image format')
-
-        if img.format not in ItemImage.CONTENT_TYPES:
-            raise ValidationError('Not an accepted image format')
-
-        self.content_type = ItemImage.CONTENT_TYPES[img.format]
-        self.width, self.height = img.size
-
-        super(ItemImage, self).save(*args, **kwargs)
-
-    @update_etag
-    def delete(self, *args, **kwargs):
-        self.image.delete(save=False)
-        super(ItemImage, self).delete(*args, **kwargs)
-
-    def rest_url(self):
-        return reverse('item-image',
-                       kwargs={'item_id': self.item.pk,
                                'image_id': self.pk})

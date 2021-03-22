@@ -31,23 +31,25 @@ import os
 class Command(BaseCommand):
     help = 'Deletes all existing spots, and creates new ones for testing.'
 
-    option_list = BaseCommand.option_list + (
-        make_option(
+    def add_arguments(self, parser):
+        parser.add_argument(
             '--force-delete',
             dest='delete_spots',
             default=False,
             help='Set to yes to force deletion of spots '
-                 'without typing delete my spots',),
-    )
+                 'without typing delete my spots',
+        )
 
     def handle(self, *args, **options):
-        print ("This will delete all of your existing spots - if you "
-               "really want to do that, type 'delete my spots':")
+        print(
+            "This will delete all of your existing spots - if you "
+            "really want to do that, type 'delete my spots':"
+        )
 
         if options['delete_spots'] == 'yes':
             confirmation = "delete my spots"
         else:
-            confirmation = raw_input("Type it please: ")
+            confirmation = input("Type it please: ")
 
         if confirmation != "delete my spots":
             raise CommandError("I'm only going to run if you're sure "
@@ -169,26 +171,38 @@ class Command(BaseCommand):
                                                   spot=art2)
 
             base_dir = os.path.dirname(os.path.realpath(__file__))
-            f = open(os.path.join(base_dir, 'resources', "building3.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building3.jpg"), 'rb'
+            )
             art_img1 = SpotImage.objects.create(description="This is one "
                                                             "building",
                                                 spot=art,
+                                                display_index=0,
                                                 image=File(f))
-            f = open(os.path.join(base_dir, 'resources', "building4.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building4.jpg"), 'rb'
+            )
             art_img2 = SpotImage.objects.create(description="This is another "
                                                             "building",
                                                 spot=art,
+                                                display_index=1,
                                                 image=File(f))
-            f = open(os.path.join(base_dir, 'resources', "building5.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building5.jpg"), 'rb'
+            )
             art_img3 = SpotImage.objects.create(description="This is a third "
                                                             "art building",
                                                 spot=art,
+                                                display_index=2,
                                                 image=File(f))
 
-            f = open(os.path.join(base_dir, 'resources', "building6.jpg"))
+            f = open(
+                os.path.join(base_dir, 'resources', "building6.jpg"), 'rb'
+            )
             art_img4 = SpotImage.objects.create(description="This is a third "
                                                             "art building",
                                                 spot=art,
+                                                display_index=3,
                                                 image=File(f))
 
             reviewer1, created = \

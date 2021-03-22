@@ -21,12 +21,14 @@
     response_status response_size
 """
 
+from django.utils.deprecation import MiddlewareMixin
 from datetime import datetime
 import logging
 
 
-class LogMiddleware:
-    def __init__(self):
+class LogMiddleware(MiddlewareMixin):
+    def __init__(self, get_response):
+        self.get_response = get_response
         self.logger = logging.getLogger(__name__)
 
     def process_response(self, request, response):

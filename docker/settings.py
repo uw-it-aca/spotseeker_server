@@ -19,6 +19,7 @@ MIDDLEWARE += [
 # django storages settings
 if not DEBUG:
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_FILE_OVERWRITE = False
     GS_BUCKET_NAME = os.getenv('STORAGE_BUCKET_NAME', '')
     GS_PROJECT_ID = os.getenv('STORAGE_PROJECT_ID')
     GS_LOCATION = os.path.join(os.getenv('ENV'), 'api')

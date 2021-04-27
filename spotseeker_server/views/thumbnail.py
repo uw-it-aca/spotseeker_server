@@ -85,7 +85,7 @@ class ThumbnailView(RESTDispatch):
             raise RESTException("Bad image constraints", 400)
 
         image = img.image
-        im = Image.open(image.path)
+        im = Image.open(image.file)
 
         if constrain:
             im.thumbnail((thumb_width, thumb_height), resample=Image.LANCZOS)

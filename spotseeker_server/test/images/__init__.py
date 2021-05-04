@@ -6,7 +6,7 @@ class ImageTestCase(SpotServerTestCase):
     def upload_image(self, image_file_name, url, extra_args=None):
 
         c = self.client
-        with open(image_file_name) as f:
+        with open(image_file_name, 'rb') as f:
             res_args = {'image': f}
             if extra_args:
                 res_args.update(extra_args)

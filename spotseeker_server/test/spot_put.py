@@ -22,8 +22,10 @@ from mock import patch
 from spotseeker_server import models
 import simplejson as json
 import random
-import utils_test
+from spotseeker_server.test import utils_test
 import copy
+
+from past.builtins import basestring
 
 try:
     from unittest import skip
@@ -63,7 +65,7 @@ class SpotPUTTest(TestCase):
         response = self.client.get(url)
 
         if 'ETag' not in response:
-            print "ETag not found for URL " + url
+            print("ETag not found for URL " + url)
 
         return response['ETag']
 
@@ -500,7 +502,7 @@ class SpotPUTTest(TestCase):
 
         spot_json['items'].append(utils_test.get_item())
 
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             spot_json['items'][0]['extended_info'][key] = value
 
         response = self.put_spot(self.url, spot_json)
@@ -517,7 +519,7 @@ class SpotPUTTest(TestCase):
                       "No extended_info in the item!")
 
         # assert that values were correct
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             self.assertTrue(key in spot_json["items"][0]["extended_info"],
                             key + " not in item extended info!")
 
@@ -542,7 +544,7 @@ class SpotPUTTest(TestCase):
                       "No extended_info in the item!")
 
         # assert that values were correct
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             self.assertTrue(key in spot_json["items"][0]["extended_info"],
                             key + " not in item extended info!")
 
@@ -589,7 +591,7 @@ class SpotPUTTest(TestCase):
 
         spot_json['items'].append(utils_test.get_item())
 
-        for key, value in ei.iteritems():
+        for key, value in ei.items():
             spot_json['items'][0]['extended_info'][key] = value
 
         response = self.put_spot(self.url, spot_json)

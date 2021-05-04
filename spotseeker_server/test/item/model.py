@@ -12,6 +12,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+from builtins import range
 
 from django.conf import settings
 from django.test import TestCase
@@ -46,7 +47,7 @@ class ItemModelTest(TestCase):
             item_subcategory=self.subcategory)
 
         # create 4 items extended info
-        for i in xrange(1, 5):
+        for i in range(1, 5):
             ItemExtendedInfo.objects.create(
                 item=self.checkout_item,
                 key='key %s' % i,

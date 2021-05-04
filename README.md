@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/uw-it-aca/spotseeker_server.svg?branch=develop)](https://travis-ci.org/uw-it-aca/spotseeker_server)  [![Coverage Status](https://coveralls.io/repos/uw-it-aca/spotseeker_server/badge.svg?branch=master&service=github)](https://coveralls.io/github/uw-it-aca/spotseeker_server?branch=master)
+[![Build Status](https://github.com/uw-it-aca/spotseeker_server/workflows/Build%2C%20Test%20and%20Deploy/badge.svg?branch=master)](https://github.com/uw-it-aca/spotseeker_server/actions)
+[![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/spotseeker_server/badge.svg?branch=master)](https://coveralls.io/github/uw-it-aca/spotseeker_server?branch=master)
 
 # SpaceScout Server
 
@@ -10,72 +11,34 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* Django == 1.4 (older versions untested)
-* A Python installation (2.6 or 2.7)
-* pip or easy_install
+* Docker
+* Docker-compose
 * git
 * JPEG libraries from [http://www.ijg.org/](http://www.ijg.org/) (Optional, but PIL will not support JPEG images without it.)
 
 
-### Installing
+### Steps to run
 
-Use pip to install the app as editable from GitHub:
+First, clone the app:
 
-```
-pip install -e git+https://github.com/uw-it-aca/spotseeker_server.git#egg=spacescout-server
-```
+    $ git clone https://github.com/uw-it-aca/spotseeker_server.git
 
-Enable the RemoteUserBackend:
+If you wish to change the default settings, navigate to the develop branch and copy the sample environment variables into your own `.env` file:
 
-```
-MIDDLEWARE_CLASSES = (
-    ...
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.RemoteUserMiddleware',
-    ...
-)
+    $ cd spotseeker_server
+    $ git checkout develop
+    $ cp sample.env .env
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.RemoteUserBackend',
-)
-```
+Then, run the following command to build your docker container:
 
-Add spotseeker_server and oauth_provider to your INSTALLED_APPS in settings.py:
+    $ docker-compose up --build
 
-```
-INSTALLED_APPS = (
-    ...
-    'oauth_provider',
-    'spotseeker_server',
-    'south',
-    ...
-)
-```
 
-Add the app to your project's urls.py:
+#### Additional settings:
 
-```
-urlpatterns = patterns('',
-    ...
-    url(r'^auth/', include('oauth_provider.urls')),
-    url(r'^api/', include('spotseeker_server.urls')),
-    ...
-)
-```
+SPOTSEEKER_AUTH_MODULE setting can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair. The 'all_ok' module is not suitable for production.
 
-Additional settings:
-
-MODULE can be one of 'all_ok' or 'oauth'. If using 'oauth', client applications will need an oauth key/secret pair. The 'all_ok' module is not suitable for production.
-
-```
-SPOTSEEKER_AUTH_MODULE = 'spotseeker_server.auth.MODULE'
-```
-
-A list or tuple of usernames allowed to use methods that modify server data (PUT, POST, DELETE.)
-
-```
-SPOTSEEKER_AUTH_ADMINS = []
-```
+To find more information on how to set up the 'all_ok' Auth Module, check [here](https://github.com/uw-it-aca/spotseeker_server/wiki/Using-'all_ok'-oauth-module)
 
 Custom validation can be added by adding SpotForm and ExtendedInfoForm to org_forms and setting them here. (For example, SPOTSEEKER_SPOT_FORM could be default.DefaultSpotForm or org_forms.UWSpotForm , SPOTSEEKER_SPOTEXTENDEDINFO_FORM could be org_forms.UWSpotExtendedInfoForm or default.DefaultSpotExtendedInfoForm, and SPOTSEEKER_SEARCH_FILTERS could contain or  org_filters.uw_search.Filter or org_filters.sample_search.Filter)
 
@@ -87,14 +50,6 @@ SPOTSEEKER_SEARCH_FILTERS = ('spotseeker_server.org_filters.MODULE', )
 
 For additional settings, see [some page that doesn't exist.]
 
-Create your database, and you can run the server.
-
-```
-python manage.py syncdb
-python manage.py migrate
-python manage.py runserver
-```
-
 You can also optionally create some sample spot data:
 
 ```
@@ -103,9 +58,7 @@ python manage.py create_sample_spots
 
 ## Running the tests
 
-```
-python manage.py test spotseeker_server
-```
+    $ docker-compose run --rm app bin/python manage.py test
 
 ## Deployment
 

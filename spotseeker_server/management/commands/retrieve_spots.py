@@ -10,12 +10,12 @@ from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.temp import NamedTemporaryFile
 import base64
-import oauth2
 import json
-import StringIO
 from tempfile import SpooledTemporaryFile
 import uuid
 import time
+
+from requests_oauthlib import OAuth1Session
 
 
 class Command(BaseCommand):
@@ -53,27 +53,32 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["url"] == "":
-            print "Please pass an URL!"
+            print("Please pass an URL!")
             return
 
-        print ("This command should not be used as a production data " +
-               "migration technique! It is only intended for development. Do" +
-               " you wish to proceed? (Y/N)")
+        print(
+            "This command should not be used as a production data " +
+            "migration technique! It is only intended for development. Do" +
+            " you wish to proceed? (Y/N)"
+        )
 
         response = raw_input()
 
         if not (response == "y" or response == "Y"):
             return
-        consumer = oauth2.Consumer(key=options["key"],
-                                   secret=options["secret"])
+        client = OAuth1Session(
+            options["key"],
+            secret=options["secret"]
+        )
 
-        client = oauth2.Client(consumer)
         url = options["url"]
         base_url = options["url"].split("api")[0][:-1]
 
         if options["wipe"]:
-            print ("If you proceed here, all Spot/Space related data will be" +
-                   " deleted! Do you wish to proceed? (Y/N)")
+            print(
+                "If you proceed here, all Spot/Space related data will be" +
+                " deleted! Do you wish to proceed? (Y/N)"
+            )
 
             response = raw_input()
 
@@ -91,10 +96,10 @@ class Command(BaseCommand):
 
         start_time = time.time()
         # make request to URLmodels.Model
-        resp, content = client.request(url, method="GET")
+        resp, content = client.get(url)
 
         if resp.status != 200:
-            print "Request failed with status code: " + str(resp.status)
+            print("Request failed with status code: " + str(resp.status))
             return
 
         # load spot JSON, create spots
@@ -122,7 +127,7 @@ class Command(BaseCommand):
                 view.build_and_save_from_input(fake_req, None)
                 spot_model = Spot.objects.latest('pk')
                 content_types = {v: k for k, v in
-                                 SpotImage.CONTENT_TYPES.iteritems()}
+                                 SpotImage.CONTENT_TYPES.items()}
 
                 if options["no_images"]:
                     continue
@@ -146,9 +151,9 @@ class Command(BaseCommand):
                                   content, resp["content-type"]))
                     im.save()
             except Exception as ex:
-                print "Spot ID # " + str(spot["id"]) + " failed to save!"
+                print("Spot ID # " + str(spot["id"]) + " failed to save!")
                 for field, errors in ex.form.errors.items():
-                    print "{}: {}".format(ex.form.data, errors.as_text())
+                    print("{}: {}".format(ex.form.data, errors.as_text()))
 
         end_time = time.time()
-        print 'Function took %0.3f s' % (end_time - start_time)
+        print('Function took %0.3f s' % (end_time - start_time))

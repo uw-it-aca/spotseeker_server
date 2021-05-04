@@ -17,8 +17,19 @@ media/
 spotseeker/
 spotseeker.db
 
+# Docker envvars
+.env
+
+# test project files
+project
+db.sqlite3
+
 # django project files added in production
 spotseeker_web
 
 # IDE files
 .idea/
+
+# pipenv
+Pipfile
+Pipfile.lock

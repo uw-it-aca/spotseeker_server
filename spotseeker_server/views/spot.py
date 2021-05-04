@@ -35,7 +35,9 @@ import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import \
     spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
-import spot_item
+import spotseeker_server.views.spot_item
+
+from past.builtins import basestring
 
 
 @django.dispatch.receiver(
@@ -62,7 +64,7 @@ def _build_extended_info(sender, **kwargs):
     if new_extended_info is not None:
         for key in new_extended_info.keys():
             value = new_extended_info[key]
-            if value is None or unicode(value) == '':
+            if value is None or value == '':
                 del new_extended_info[key]
 
     old_extended_info = {}

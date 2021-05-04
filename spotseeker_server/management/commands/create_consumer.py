@@ -19,8 +19,8 @@ that will generate a oauth key and secret based on the consumer name.
 """
 from optparse import make_option
 import hashlib
-import os
 import random
+import string
 import time
 
 from django.core.management.base import BaseCommand, CommandError
@@ -33,41 +33,46 @@ class Command(BaseCommand):
     help = 'Creates a unique key and secret for clients ' \
         'connecting to the server'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--name',
-                    dest='consumer_name',
-                    default=False,
-                    help='A name for the consumer'),
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--name',
+            dest='consumer_name',
+            default=False,
+            help='A name for the consumer',
+        )
 
-        make_option('--trusted',
-                    dest='trusted',
-                    action='store_true',
-                    default=False,
-                    help="Makes this consumer trusted "
-                    "(Adds a TrustedOAuthClient for it)"),
+        parser.add_argument(
+            '--trusted',
+            dest='trusted',
+            action='store_true',
+            default=False,
+            help="Makes this consumer trusted "
+            "(Adds a TrustedOAuthClient for it)",
+        )
 
-        make_option('--silent',
-                    dest='silent',
-                    action='store_true',
-                    default=False,
-                    help="With silent set, the command will "
-                         "generate no output"),
-    )
+        parser.add_argument(
+            '--silent',
+            dest='silent',
+            action='store_true',
+            default=False,
+            help="With silent set, the command will generate no output",
+        )
 
     def handle(self, *args, **options):
         if options['consumer_name']:
             consumer_name = options['consumer_name']
         else:
-            consumer_name = raw_input('Enter consumer name: ')
+            consumer_name = input('Enter consumer name: ')
 
-        key = hashlib.sha1("{0} - {1}".format(random.random(),
-                                              time.time())).hexdigest()
+        key = hashlib.sha1("{0} - {1}".format(
+            random.random(),
+            time.time()).encode('utf-8')
+        ).hexdigest()
 
         # django-oauth-plus now wants secrets to be 16 chars
-        charset = "abcdefghijklmnopqrstuvwxyz1234567890"
-        random_bytes = os.urandom(16)
-        indices = [ord(byte) % len(charset) for byte in random_bytes]
-        secret = "".join([charset[index] for index in indices])
+        secret = ''.join(random.choice(
+            string.ascii_letters + string.digits) for _ in range(16)
+        )
 
         consumer = Consumer.objects.create(name=consumer_name,
                                            key=key,

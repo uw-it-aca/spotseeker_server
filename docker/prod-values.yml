@@ -14,12 +14,12 @@ ingress:
   enabled: true
   tls:
     spotseeker:
-      secretName: prod.api.scout.uw.edu-ingress-cert
+      secretName: api.scout.uw.edu-ingress-cert
       hosts:
-        - prod.api.scout.uw.edu
+        - api.scout.uw.edu
   hosts:
     spotseeker:
-      host: prod.api.scout.uw.edu
+      host: api.scout.uw.edu
       paths:
         - "/"
   annotations:
@@ -36,15 +36,15 @@ readiness:
   enabled: true
 externalService:
   enabled: true
-  name: scout-db-service
+  name: spotseeker-db-service
   type: ClusterIP
   serviceAddress: 172.18.0.196
   servicePort: 3306
 database:
   engine: mysql
-  name: api_prod
-  hostname: scout-db-service
-  secretName: prod.api.scout.uw.edu-sql-secrets
+  name: api
+  hostname: spotseeker-db-service
+  secretName: api.scout.uw.edu-sql-secrets
 repo: spotseeker
 instance: prod
 image:
@@ -54,14 +54,14 @@ memcached:
   enabled: false
 gcsCredentials:
   mounted: true
-  secretName: prod.api.scout.uw.edu-gc-service-credentials
+  secretName: api.scout.uw.edu-gc-service-credentials
 cronjob:
   enabled: false
 environmentVariables:
   - name: AUTH_MODULE
-    value: oauth
+    value: all_ok
   - name: CLUSTER_CNAME
-    value: prod.api.scout.uw.edu
+    value: api.scout.uw.edu
   - name: ENV
     value: prod
   - name: WEBSERVER
@@ -69,7 +69,7 @@ environmentVariables:
 externalSecrets:
   enabled: true
   secrets:
-    - name: prod.api.scout.uw.edu-secrets
+    - name: api.scout.uw.edu-secrets
       externalKey: axdd/kv/data/scout/prod-api/secrets
       data:
         - name: django-secret
@@ -80,14 +80,14 @@ externalSecrets:
           property: storage-bucket-name
         - name: storage-project-id
           property: storage-project-id
-    - name: prod.api.scout.uw.edu-sql-secrets
+    - name: api.scout.uw.edu-sql-secrets
       externalKey: axdd/kv/data/scout/common/sql-secrets
       data:
         - name: username
           property: username
         - name: password
           property: password
-    - name: prod.api.scout.uw.edu-gc-service-credentials
+    - name: api.scout.uw.edu-gc-service-credentials
       externalKey: axdd/kv/data/scout/common/gc-service-credentials
       data:
         - name: credentials.json
@@ -95,17 +95,17 @@ externalSecrets:
 environmentVariablesSecrets:
   djangoSecret:
     name: DJANGO_SECRET
-    secretName: prod.api.scout.uw.edu-secrets
+    secretName: api.scout.uw.edu-secrets
     secretKey: django-secret
   spotseekerAuthAdmins:
     name: SPOTSEEKER_AUTH_ADMINS
-    secretName: prod.api.scout.uw.edu-secrets
+    secretName: api.scout.uw.edu-secrets
     secretKey: spotseeker-auth-admins
   storageBucketName:
     name: STORAGE_BUCKET_NAME
-    secretName: prod.api.scout.uw.edu-secrets
+    secretName: api.scout.uw.edu-secrets
     secretKey: storage-bucket-name
   storageProjectId:
     name: STORAGE_PROJECT_ID
-    secretName: prod.api.scout.uw.edu-secrets
+    secretName: api.scout.uw.edu-secrets
     secretKey: storage-project-id

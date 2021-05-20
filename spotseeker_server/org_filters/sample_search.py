@@ -26,10 +26,12 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Filter(SearchFilter):
-    keys = set((
-        'sample1',
-        'extended_info:sample2',
-        ))
+    keys = set(
+        (
+            "sample1",
+            "extended_info:sample2",
+        )
+    )
 
     def filter_query(self, query):
         """
@@ -39,18 +41,18 @@ class Filter(SearchFilter):
         - bar: includes baz
         """
 
-        if 'extended_info:sample2' in self.request.GET:
+        if "extended_info:sample2" in self.request.GET:
             sample = self.request.GET["extended_info:sample2"]
             if sample:
                 values = [sample]
-                if sample == 'foo':
-                    values.append('bar')
-                    values.append('baz')
-                elif sample == 'bar':
-                    values.append('baz')
+                if sample == "foo":
+                    values.append("bar")
+                    values.append("baz")
+                elif sample == "bar":
+                    values.append("baz")
                 query = query.filter(
                     spotextendedinfo__key="sample2",
-                    spotextendedinfo__value__in=values
+                    spotextendedinfo__value__in=values,
                 )
 
                 self.has_valid_search_param = True
@@ -63,7 +65,7 @@ class Filter(SearchFilter):
         and the ID is even.
         """
 
-        sample = self.request.GET.get('sample1', '')
+        sample = self.request.GET.get("sample1", "")
         if not sample:
             result = spots
         else:

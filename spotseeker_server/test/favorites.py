@@ -1,21 +1,6 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2014 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
-
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
@@ -28,9 +13,10 @@ import json
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.fake_oauth',
-    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.'
-                         'spot.DefaultSpotForm')
+    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.fake_oauth",
+    SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms."
+    "spot.DefaultSpotForm",
+)
 class FavoritesTest(TestCase):
     def test_no_favorites(self):
         user, created = User.objects.get_or_create(username="fav_test0")
@@ -61,7 +47,7 @@ class FavoritesTest(TestCase):
 
         self.assertEquals(len(favorites), 1)
 
-        self.assertEquals(favorites[0]['name'], "This is for testing Fav 1")
+        self.assertEquals(favorites[0]["name"], "This is for testing Fav 1")
         spot.delete()
 
     def test_multi_favorite(self):
@@ -103,10 +89,12 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 0, "No initial favorites")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url,
-                         "True",
-                         content_type="application/json",
-                         TESTING_OAUTH_USER="fav_test3")
+        response = c.put(
+            url,
+            "True",
+            content_type="application/json",
+            TESTING_OAUTH_USER="fav_test3",
+        )
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test3")
@@ -114,10 +102,12 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 1, "One favorite added")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url,
-                         "True",
-                         content_type="application/json",
-                         TESTING_OAUTH_USER="fav_test3")
+        response = c.put(
+            url,
+            "True",
+            content_type="application/json",
+            TESTING_OAUTH_USER="fav_test3",
+        )
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test3")
@@ -125,10 +115,12 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 1, "No double dipping")
 
         url = "/api/v1/user/me/favorite/%s" % spot2.pk
-        response = c.put(url,
-                         "True",
-                         content_type="application/json",
-                         TESTING_OAUTH_USER="fav_test3")
+        response = c.put(
+            url,
+            "True",
+            content_type="application/json",
+            TESTING_OAUTH_USER="fav_test3",
+        )
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test3")
@@ -147,16 +139,20 @@ class FavoritesTest(TestCase):
 
         c = Client()
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url,
-                         "True",
-                         content_type="application/json",
-                         TESTING_OAUTH_USER="fav_test4")
+        response = c.put(
+            url,
+            "True",
+            content_type="application/json",
+            TESTING_OAUTH_USER="fav_test4",
+        )
 
         url = "/api/v1/user/me/favorite/%s" % spot2.pk
-        response = c.put(url,
-                         "True",
-                         content_type="application/json",
-                         TESTING_OAUTH_USER="fav_test4")
+        response = c.put(
+            url,
+            "True",
+            content_type="application/json",
+            TESTING_OAUTH_USER="fav_test4",
+        )
 
         url = "/api/v1/user/me/favorites"
         response = c.get(url, TESTING_OAUTH_USER="fav_test4")
@@ -198,10 +194,12 @@ class FavoritesTest(TestCase):
         self.assertEquals(len(favorites), 0, "No initial favorites")
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
-        response = c.put(url,
-                         "True",
-                         content_type="application/json",
-                         TESTING_OAUTH_USER="fav_test5")
+        response = c.put(
+            url,
+            "True",
+            content_type="application/json",
+            TESTING_OAUTH_USER="fav_test5",
+        )
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
         response = c.get(url, TESTING_OAUTH_USER="fav_test5")
@@ -214,10 +212,12 @@ class FavoritesTest(TestCase):
         self.assertEquals(favorite, False, "Not a fav")
 
         url = "/api/v1/user/me/favorite/%s" % spot3.pk
-        response = c.put(url,
-                         "True",
-                         content_type="application/json",
-                         TESTING_OAUTH_USER="fav_test5")
+        response = c.put(
+            url,
+            "True",
+            content_type="application/json",
+            TESTING_OAUTH_USER="fav_test5",
+        )
 
         url = "/api/v1/user/me/favorite/%s" % spot1.pk
         response = c.get(url, TESTING_OAUTH_USER="fav_test5")

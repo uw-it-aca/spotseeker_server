@@ -1,22 +1,6 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2014 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-"""
-
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
 from spotseeker_server.require_auth import user_auth_required
 from spotseeker_server.models import Spot, FavoriteSpot
@@ -27,9 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class FavoritesView(RESTDispatch):
-    """ Performs actions on the user's favorites, at /api/v1/user/me/favorites.
+    """Performs actions on the user's favorites, at /api/v1/user/me/favorites.
     GET returns 200 with a list of spots.
     """
+
     @user_auth_required
     def GET(self, request, spot_id=None):
         if spot_id is None:
@@ -42,8 +27,10 @@ class FavoritesView(RESTDispatch):
         user = self._get_user(request)
         spot = Spot.objects.get(pk=spot_id)
 
-        log_message = ("user: %s; spot_id: %s; favorite added" %
-                       (user.username, spot.pk))
+        log_message = "user: %s; spot_id: %s; favorite added" % (
+            user.username,
+            spot.pk,
+        )
         logger.info(log_message)
         fav, created = FavoriteSpot.objects.get_or_create(user=user, spot=spot)
         return JSONResponse(True)
@@ -57,8 +44,10 @@ class FavoritesView(RESTDispatch):
         for obj in fav:
             fav.delete()
 
-        log_message = ("user: %s; spot_id: %s; favorite removed" %
-                       (user.username, spot.pk))
+        log_message = "user: %s; spot_id: %s; favorite removed" % (
+            user.username,
+            spot.pk,
+        )
         logger.info(log_message)
         return JSONResponse("")
 
@@ -69,7 +58,7 @@ class FavoritesView(RESTDispatch):
         objects = FavoriteSpot.objects.filter(user=user)
 
         for fav in objects:
-            if hasattr(fav, 'spot'):
+            if hasattr(fav, "spot"):
                 json = fav.spot.json_data_structure()
                 favorites.append(json)
 

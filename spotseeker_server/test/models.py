@@ -1,20 +1,6 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
 import shutil
 import tempfile
 
@@ -36,14 +22,13 @@ class SpotModelToStringTests(TestCase):
     def test_available_hours(self):
         spot = Spot.objects.create(name="This is the test name")
         hours = SpotAvailableHours.objects.create(
-            spot=spot,
-            day="m",
-            start_time="11:00",
-            end_time="14:00")
+            spot=spot, day="m", start_time="11:00", end_time="14:00"
+        )
 
         test_str = "{0}".format(hours)
-        self.assertEqual(test_str,
-                         "This is the test name: m, 11:00:00-14:00:00")
+        self.assertEqual(
+            test_str, "This is the test name: m, 11:00:00-14:00:00"
+        )
 
     def test_extended_info(self):
         spot = Spot.objects.create(name="This is the test name")
@@ -62,11 +47,9 @@ class SpotModelToStringTests(TestCase):
                 spot=spot,
                 image=SimpleUploadedFile(
                     "test_gif.gif",
-                    open(
-                        "%s/resources/test_gif.gif" % TEST_ROOT, 'rb'
-                    ).read(),
-                    'image/gif'
-                )
+                    open("%s/resources/test_gif.gif" % TEST_ROOT, "rb").read(),
+                    "image/gif",
+                ),
             )
 
             test_str = "{0}".format(gif)

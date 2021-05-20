@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 # -*- coding: utf-8 -*-
 """ Copyright 2012, 2013 UW Information Technology, University of Washington
 

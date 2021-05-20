@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 """ Copyright 2013 UW Information Technology, University of Washington
 
     Licensed under the Apache License, Version 2.0 (the "License");

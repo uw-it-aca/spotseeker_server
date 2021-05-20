@@ -84,7 +84,7 @@ See also the list of [contributors](https://github.com/uw-it-aca/spotseeker_serv
 
 ## License
 
-Copyright 2012-2016 UW Information Technology, University of Washington
+Copyright 2012-2021 UW Information Technology, University of Washington
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

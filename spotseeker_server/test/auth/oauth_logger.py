@@ -1,20 +1,6 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
 try:
     from StringIO import StringIO
 except ModuleNotFoundError:
@@ -41,16 +27,18 @@ from oauthlib import oauth1
 
 
 @override_settings(
-    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.'
-    'spot.DefaultSpotForm',
-    SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.'
-    'spot.DefaultSpotExtendedInfoForm',
-    SPOTSEEKER_AUTH_ADMINS=('pmichaud',))
+    SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms."
+    "spot.DefaultSpotForm",
+    SPOTSEEKER_SPOTEXTENDEDINFO_FORM="spotseeker_server.default_forms."
+    "spot.DefaultSpotExtendedInfoForm",
+    SPOTSEEKER_AUTH_ADMINS=("pmichaud",),
+)
 class SpotAuthOAuthLogger(TestCase):
     @classmethod
     def setUpTestData(self):
-        spot = Spot.objects.create(name="This is for testing the oauth module",
-                                   capacity=10)
+        spot = Spot.objects.create(
+            name="This is for testing the oauth module", capacity=10
+        )
         self.spot = spot
         self.url = "/api/v1/spot/%s" % self.spot.pk
 
@@ -60,18 +48,18 @@ class SpotAuthOAuthLogger(TestCase):
         self.original_middleware = settings.MIDDLEWARE
         for middleware in settings.MIDDLEWARE:
             new_middleware.append(middleware)
-            if middleware == 'spotseeker_server.logger.oauth.LogMiddleware':
+            if middleware == "spotseeker_server.logger.oauth.LogMiddleware":
                 has_logger = True
 
         if not has_logger:
             new_middleware.append(
-                'spotseeker_server.logger.oauth.LogMiddleware'
+                "spotseeker_server.logger.oauth.LogMiddleware"
             )
         settings.MIDDLEWARE = new_middleware
 
         self.stream = StringIO()
         self.handler = logging.StreamHandler(self.stream)
-        self.log = logging.getLogger('spotseeker_server.logger.oauth')
+        self.log = logging.getLogger("spotseeker_server.logger.oauth")
         self.log.setLevel(logging.INFO)
         for handler in self.log.handlers:
             self.log.removeHandler(handler)
@@ -79,23 +67,25 @@ class SpotAuthOAuthLogger(TestCase):
 
     def test_log_value_2_legged(self):
         with self.settings(
-            SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth'
+            SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.oauth"
         ):
 
             consumer_name = "Test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(),
-                                                  time.time()
-                                                  ).encode('utf-8')
-                               ).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(),
-                                                     time.time()
-                                                     ).encode('utf-8')
-                                  ).hexdigest()
+            key = hashlib.sha1(
+                "{0} - {1}".format(random.random(), time.time()).encode(
+                    "utf-8"
+                )
+            ).hexdigest()
+            secret = hashlib.sha1(
+                "{0} - {1}".format(random.random(), time.time()).encode(
+                    "utf-8"
+                )
+            ).hexdigest()
 
-            create_consumer = Consumer.objects.create(name=consumer_name,
-                                                      key=key,
-                                                      secret=secret)
+            create_consumer = Consumer.objects.create(
+                name=consumer_name, key=key, secret=secret
+            )
 
             client = oauth1.Client(key, client_secret=secret)
             _, headers, _ = client.sign(
@@ -103,20 +93,21 @@ class SpotAuthOAuthLogger(TestCase):
             )
 
             response = Client().get(
-                self.url,
-                HTTP_AUTHORIZATION=headers['Authorization']
+                self.url, HTTP_AUTHORIZATION=headers["Authorization"]
             )
 
         with self.settings(
-            SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'
+            SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok"
         ):
 
             self.handler.flush()
             log_message = self.stream.getvalue()
 
-            matches = re.search(r'\[.*?\] ([\d]+)\t"(.*?)"\t-\t"GET /api'
-                                r'/v1/spot/([\d]+)" ([\d]+) ([\d]+)',
-                                log_message)
+            matches = re.search(
+                r'\[.*?\] ([\d]+)\t"(.*?)"\t-\t"GET /api'
+                r'/v1/spot/([\d]+)" ([\d]+) ([\d]+)',
+                log_message,
+            )
 
             consumer_id = int(matches.group(1))
             consumer_name = matches.group(2)
@@ -124,41 +115,50 @@ class SpotAuthOAuthLogger(TestCase):
             status_code = int(matches.group(4))
             response_size = int(matches.group(5))
 
-            self.assertEquals(consumer_id, create_consumer.pk,
-                              "Logging correct consumer PK")
-            self.assertEquals(consumer_name, create_consumer.name,
-                              "Logging correct consumer name")
-            self.assertEquals(spot_id, self.spot.pk,
-                              "Logging correct uri")
-            self.assertEquals(status_code, response.status_code,
-                              "Logging correct status_code")
-            self.assertEquals(response_size, len(response.content.decode()),
-                              "Logging correct content size")
+            self.assertEquals(
+                consumer_id, create_consumer.pk, "Logging correct consumer PK"
+            )
+            self.assertEquals(
+                consumer_name,
+                create_consumer.name,
+                "Logging correct consumer name",
+            )
+            self.assertEquals(spot_id, self.spot.pk, "Logging correct uri")
+            self.assertEquals(
+                status_code,
+                response.status_code,
+                "Logging correct status_code",
+            )
+            self.assertEquals(
+                response_size,
+                len(response.content.decode()),
+                "Logging correct content size",
+            )
 
     def test_log_trusted_3_legged(self):
         with self.settings(
-            SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth'
+            SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.oauth"
         ):
             consumer_name = "Trusted test consumer"
 
-            key = hashlib.sha1("{0} - {1}".format(random.random(),
-                                                  time.time()
-                                                  ).encode('utf-8')
-                               ).hexdigest()
-            secret = hashlib.sha1("{0} - {1}".format(random.random(),
-                                                     time.time()
-                                                     ).encode('utf-8')
-                                  ).hexdigest()
+            key = hashlib.sha1(
+                "{0} - {1}".format(random.random(), time.time()).encode(
+                    "utf-8"
+                )
+            ).hexdigest()
+            secret = hashlib.sha1(
+                "{0} - {1}".format(random.random(), time.time()).encode(
+                    "utf-8"
+                )
+            ).hexdigest()
 
             create_consumer = Consumer.objects.create(
-                name=consumer_name,
-                key=key,
-                secret=secret
+                name=consumer_name, key=key, secret=secret
             )
             trusted_consumer = TrustedOAuthClient.objects.create(
                 consumer=create_consumer,
                 is_trusted=True,
-                bypasses_user_authorization=False
+                bypasses_user_authorization=False,
             )
 
             client = oauth1.Client(key, client_secret=secret)
@@ -168,31 +168,30 @@ class SpotAuthOAuthLogger(TestCase):
 
             c = Client()
             response = c.get(
-                self.url,
-                HTTP_AUTHORIZATION=headers['Authorization']
+                self.url, HTTP_AUTHORIZATION=headers["Authorization"]
             )
             etag = response["ETag"]
 
             spot_dict = json.loads(response.content)
-            spot_dict['name'] = "Failing to modify oauth"
-            spot_dict['location'] = {"latitude": 55, "longitude": -30}
+            spot_dict["name"] = "Failing to modify oauth"
+            spot_dict["location"] = {"latitude": 55, "longitude": -30}
 
             response = c.put(
                 self.url,
                 json.dumps(spot_dict),
                 content_type="application/json",
                 If_Match=etag,
-                HTTP_AUTHORIZATION=headers['Authorization'],
-                HTTP_X_OAUTH_USER="pmichaud"
+                HTTP_AUTHORIZATION=headers["Authorization"],
+                HTTP_X_OAUTH_USER="pmichaud",
             )
             self.assertEquals(
                 response.status_code,
                 200,
-                "Accespts a PUT from a trusted oauth client"
+                "Accespts a PUT from a trusted oauth client",
             )
 
         with self.settings(
-            SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'
+            SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok"
         ):
 
             self.handler.flush()
@@ -202,7 +201,7 @@ class SpotAuthOAuthLogger(TestCase):
                 r'\n\[.*?\] ([\d]+)\t"(.*?)"\t(.*?)\t"PUT /api/v1/spo'
                 r't/([\d]+)" ([\d]+) ([\d]+)',
                 log_message,
-                re.MULTILINE
+                re.MULTILINE,
             )
 
             consumer_id = int(matches.group(1))
@@ -212,29 +211,39 @@ class SpotAuthOAuthLogger(TestCase):
             status_code = int(matches.group(5))
             response_size = int(matches.group(6))
 
-            self.assertEquals(consumer_id, create_consumer.pk,
-                              "Logging correct consumer PK")
-            self.assertEquals(consumer_name, create_consumer.name,
-                              "Logging correct consumer name")
-            self.assertEquals(user_name, "pmichaud",
-                              "Logging correct oauth username")
-            self.assertEquals(spot_id, self.spot.pk,
-                              "Logging correct uri")
-            self.assertEquals(status_code, response.status_code,
-                              "Logging correct status_code")
-            self.assertEquals(response_size, len(response.content.decode()),
-                              "Logging correct content size")
+            self.assertEquals(
+                consumer_id, create_consumer.pk, "Logging correct consumer PK"
+            )
+            self.assertEquals(
+                consumer_name,
+                create_consumer.name,
+                "Logging correct consumer name",
+            )
+            self.assertEquals(
+                user_name, "pmichaud", "Logging correct oauth username"
+            )
+            self.assertEquals(spot_id, self.spot.pk, "Logging correct uri")
+            self.assertEquals(
+                status_code,
+                response.status_code,
+                "Logging correct status_code",
+            )
+            self.assertEquals(
+                response_size,
+                len(response.content.decode()),
+                "Logging correct content size",
+            )
 
     def test_invalid(self):
         with self.settings(
-            SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.oauth'
+            SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.oauth"
         ):
 
             c = Client()
             response = c.get(self.url)
 
         with self.settings(
-            SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok'
+            SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok"
         ):
 
             self.handler.flush()
@@ -243,19 +252,24 @@ class SpotAuthOAuthLogger(TestCase):
             matches = re.search(
                 r'\[.*?\] -\t"-"\t-\t"GET /api/v1/spot'
                 r'/([\d]+)" ([\d]+) ([\d]+)',
-                log_message)
+                log_message,
+            )
 
             spot_id = int(matches.group(1))
             status_code = int(matches.group(2))
             response_size = int(matches.group(3))
 
             self.assertEquals(spot_id, self.spot.pk, "Logging correct uri")
-            self.assertEquals(status_code,
-                              response.status_code,
-                              "Logging correct status_code")
-            self.assertEquals(response_size,
-                              len(response.content),
-                              "Logging correct content size")
+            self.assertEquals(
+                status_code,
+                response.status_code,
+                "Logging correct status_code",
+            )
+            self.assertEquals(
+                response_size,
+                len(response.content),
+                "Logging correct content size",
+            )
 
     def tearDown(self):
         self.log.removeHandler(self.handler)

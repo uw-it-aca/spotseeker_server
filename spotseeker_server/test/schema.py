@@ -1,21 +1,6 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
-
 from spotseeker_server.models import *
 from django.test.client import Client
 from django.test import TestCase
@@ -25,14 +10,15 @@ from spotseeker_server import models
 from django.test.utils import override_settings
 
 
+@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+    SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms.spot."
+    "DefaultSpotForm"
+)
 @override_settings(
-    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
-                         'DefaultSpotForm')
-@override_settings(
-    SPOTSEEKER_SPOTEXTENDEDINFO_FORM='spotseeker_server.default_forms.spot.'
-                                     'DefaultSpotExtendedInfoForm')
+    SPOTSEEKER_SPOTEXTENDEDINFO_FORM="spotseeker_server.default_forms.spot."
+    "DefaultSpotExtendedInfoForm"
+)
 class SpotSchemaTest(TestCase):
     def test_content_type(self):
         c = Client()
@@ -91,22 +77,20 @@ class SpotSchemaTest(TestCase):
     def test_extended_info(self):
         test_spot = Spot.objects.create(id=1, name="Test")
 
-        SpotExtendedInfo.objects.create(spot=test_spot,
-                                        key="noise_level",
-                                        value=["silent",
-                                               "quiet",
-                                               "moderate",
-                                               "loud",
-                                               "variable"])
-        SpotExtendedInfo.objects.create(spot=test_spot,
-                                        key="has_computers",
-                                        value=["true"])
-        SpotExtendedInfo.objects.create(spot=test_spot,
-                                        key="orientation",
-                                        value="unicode")
-        SpotExtendedInfo.objects.create(spot=test_spot,
-                                        key="num_computers",
-                                        value="int")
+        SpotExtendedInfo.objects.create(
+            spot=test_spot,
+            key="noise_level",
+            value=["silent", "quiet", "moderate", "loud", "variable"],
+        )
+        SpotExtendedInfo.objects.create(
+            spot=test_spot, key="has_computers", value=["true"]
+        )
+        SpotExtendedInfo.objects.create(
+            spot=test_spot, key="orientation", value="unicode"
+        )
+        SpotExtendedInfo.objects.create(
+            spot=test_spot, key="num_computers", value="int"
+        )
 
         c = Client()
         response = c.get("/api/v1/schema")

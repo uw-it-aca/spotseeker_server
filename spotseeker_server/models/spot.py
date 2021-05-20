@@ -1,21 +1,7 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-    Changes
+""" Changes
     =================================================================
 
     sbutler1@illinois.edu: add external_id support; create decorator
@@ -41,8 +27,8 @@ from .utility import update_etag
 
 
 class SpotType(models.Model):
-    """ The type of Spot.
-    """
+    """The type of Spot."""
+
     name = models.SlugField(max_length=50)
 
     def __unicode__(self):
@@ -53,16 +39,17 @@ class SpotType(models.Model):
 
 
 class Spot(models.Model):
-    """ Represents a place for students to study.
-    """
+    """Represents a place for students to study."""
+
     name = models.CharField(max_length=100, blank=True)
-    spottypes = models.ManyToManyField(SpotType, max_length=50,
-                                       related_name='spots', blank=True)
+    spottypes = models.ManyToManyField(
+        SpotType, max_length=50, related_name="spots", blank=True
+    )
     latitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
     longitude = models.DecimalField(max_digits=11, decimal_places=8, null=True)
-    height_from_sea_level = models.DecimalField(max_digits=11,
-                                                decimal_places=8, null=True,
-                                                blank=True)
+    height_from_sea_level = models.DecimalField(
+        max_digits=11, decimal_places=8, null=True, blank=True
+    )
     building_name = models.CharField(max_length=100, blank=True)
     floor = models.CharField(max_length=50, blank=True)
     room_number = models.CharField(max_length=25, blank=True)
@@ -72,9 +59,14 @@ class Spot(models.Model):
     manager = models.CharField(max_length=50, blank=True)
     etag = models.CharField(max_length=40)
     last_modified = models.DateTimeField(auto_now=True)
-    external_id = models.CharField(max_length=100, null=True, blank=True,
-                                   default=None, unique=True,
-                                   validators=[validate_slug])
+    external_id = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        default=None,
+        unique=True,
+        validators=[validate_slug],
+    )
 
     def __unicode__(self):
         return self.name
@@ -95,7 +87,7 @@ class Spot(models.Model):
         super(Spot, self).save(*args, **kwargs)
 
     def rest_url(self):
-        return reverse('spot', kwargs={'spot_id': self.pk})
+        return reverse("spot", kwargs={"spot_id": self.pk})
 
     def json_data_structure(self):
         """
@@ -104,7 +96,7 @@ class Spot(models.Model):
         # If this data is cached, and the etags match, return the cached
         # version.
         cached_entry = cache.get(self.json_cache_key())
-        if cached_entry and cached_entry['etag'] == self.etag:
+        if cached_entry and cached_entry["etag"] == self.etag:
             return cached_entry
 
         extended_info = {}
@@ -113,27 +105,29 @@ class Spot(models.Model):
             extended_info[attr.key] = attr.value
 
         available_hours = {
-            'monday': [],
-            'tuesday': [],
-            'wednesday': [],
-            'thursday': [],
-            'friday': [],
-            'saturday': [],
-            'sunday': [],
+            "monday": [],
+            "tuesday": [],
+            "wednesday": [],
+            "thursday": [],
+            "friday": [],
+            "saturday": [],
+            "sunday": [],
         }
 
-        hours = self.spotavailablehours_set.order_by('start_time')
+        hours = self.spotavailablehours_set.order_by("start_time")
         for window in hours:
             available_hours[window.get_day_display()].append(
-                window.json_data_structure())
+                window.json_data_structure()
+            )
 
-        images_set = self.spotimage_set.order_by('display_index')
+        images_set = self.spotimage_set.order_by("display_index")
         images = [img.json_data_structure() for img in images_set]
 
         types = [t.name for t in self.spottypes.all()]
 
-        checkout_items = [item.json_data_structure() for item in
-                          self.item_set.all()]
+        checkout_items = [
+            item.json_data_structure() for item in self.item_set.all()
+        ]
 
         spot_json = {
             "id": self.pk,
@@ -153,8 +147,7 @@ class Spot(models.Model):
                 "room_number": self.room_number,
             },
             "capacity": self.capacity,
-            "display_access_restrictions":
-            self.display_access_restrictions,
+            "display_access_restrictions": self.display_access_restrictions,
             "images": images,
             "available_hours": available_hours,
             "organization": self.organization,
@@ -162,7 +155,7 @@ class Spot(models.Model):
             "extended_info": extended_info,
             "items": checkout_items,
             "last_modified": self.last_modified.isoformat(),
-            "external_id": self.external_id
+            "external_id": self.external_id,
         }
         # Add this spot's data to the cache
         cache.set(self.json_cache_key(), spot_json)
@@ -171,24 +164,26 @@ class Spot(models.Model):
     def update_rating(self):
         data = self.spacereview_set.filter(
             is_published=True, is_deleted=False
-        ).aggregate(total=Sum('rating'), count=Count('rating'))
-        if not data['total']:
+        ).aggregate(total=Sum("rating"), count=Count("rating"))
+        if not data["total"]:
             return
 
         # Round down to .5 stars:
-        new_rating = int(2 * data['total'] / data['count']) / 2.0
+        new_rating = int(2 * data["total"] / data["count"]) / 2.0
 
         # update_or_create isn't in this django version, unfortunately
         ei, created = self.spotextendedinfo_set.get_or_create(
-            key='rating', defaults={'value': new_rating})
+            key="rating", defaults={"value": new_rating}
+        )
         if not created:
             ei.value = new_rating
             ei.save()
 
         ei, created = self.spotextendedinfo_set.get_or_create(
-            key='review_count', defaults={'value': data['count']})
+            key="review_count", defaults={"value": data["count"]}
+        )
         if not created:
-            ei.value = data['count']
+            ei.value = data["count"]
             ei.save()
 
     def delete(self, *args, **kwargs):
@@ -197,21 +192,20 @@ class Spot(models.Model):
 
     @classmethod
     def get_with_external(cls, spot_id):
-        if spot_id and str(spot_id).startswith('external:'):
+        if spot_id and str(spot_id).startswith("external:"):
             return cls.objects.get(external_id=spot_id[9:])
         else:
             return cls.objects.get(pk=spot_id)
 
 
 class FavoriteSpot(models.Model):
-    """ A FavoriteSpot associates a User and Spot.
-    """
+    """A FavoriteSpot associates a User and Spot."""
+
     user = models.ForeignKey(User)
     spot = models.ForeignKey(Spot)
 
     def json_data_structure(self):
-        """ Returns the JSON for the Spot that is a Favorite.
-        """
+        """Returns the JSON for the Spot that is a Favorite."""
         return self.spot.json_data_structure()
 
     def clean(self):
@@ -221,17 +215,18 @@ class FavoriteSpot(models.Model):
 
 
 class SpotAvailableHours(models.Model):
-    """ The hours a Spot is available, i.e. the open or closed hours for
+    """The hours a Spot is available, i.e. the open or closed hours for
     the building the spot is located in.
     """
+
     DAY_CHOICES = (
-        ('m', 'monday'),
-        ('t', 'tuesday'),
-        ('w', 'wednesday'),
-        ('th', 'thursday'),
-        ('f', 'friday'),
-        ('sa', 'saturday'),
-        ('su', 'sunday'),
+        ("m", "monday"),
+        ("t", "tuesday"),
+        ("w", "wednesday"),
+        ("th", "thursday"),
+        ("f", "friday"),
+        ("sa", "saturday"),
+        ("su", "sunday"),
     )
 
     spot = models.ForeignKey(Spot)
@@ -244,31 +239,37 @@ class SpotAvailableHours(models.Model):
         verbose_name_plural = "Spot available hours"
 
     def __unicode__(self):
-        return "%s: %s, %s-%s" % (self.spot.name,
-                                  self.day,
-                                  self.start_time,
-                                  self.end_time)
+        return "%s: %s, %s-%s" % (
+            self.spot.name,
+            self.day,
+            self.start_time,
+            self.end_time,
+        )
 
     def __str__(self):
         return self.__unicode__()
 
     def json_data_structure(self):
-        return [self.start_time.strftime("%H:%M"),
-                self.end_time.strftime("%H:%M")]
+        return [
+            self.start_time.strftime("%H:%M"),
+            self.end_time.strftime("%H:%M"),
+        ]
 
     def save(self, *args, **kwargs):
         self.full_clean()
 
         if self.start_time >= self.end_time:
-            raise Exception("Invalid time range - start time "
-                            "must be before end time")
+            raise Exception(
+                "Invalid time range - start time " "must be before end time"
+            )
         other_hours = SpotAvailableHours.objects.filter(
-            spot=self.spot,
-            day=self.day
+            spot=self.spot, day=self.day
         ).exclude(id=self.id)
         for h in other_hours:
-            if (h.start_time <= self.start_time <= h.end_time or
-                    self.start_time <= h.start_time <= self.end_time):
+            if (
+                h.start_time <= self.start_time <= h.end_time
+                or self.start_time <= h.start_time <= self.end_time
+            ):
                 self.start_time = min(h.start_time, self.start_time)
                 self.end_time = max(h.end_time, self.end_time)
                 h.delete()
@@ -277,17 +278,18 @@ class SpotAvailableHours(models.Model):
 
 
 class SpotExtendedInfo(models.Model):
-    """ Additional institution-provided metadata about a spot.
+    """Additional institution-provided metadata about a spot.
     If providing custom metadata, you should provide a validator for
     that data, as well.
     """
+
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
     spot = models.ForeignKey(Spot)
 
     class Meta:
         verbose_name_plural = "Spot extended info"
-        unique_together = ('spot', 'key')
+        unique_together = ("spot", "key")
 
     def __unicode__(self):
         return "%s[%s: %s]" % (self.spot.name, self.key, self.value)
@@ -302,10 +304,11 @@ class SpotExtendedInfo(models.Model):
 
 
 class SpotImage(models.Model):
-    """ An image of a Spot. Multiple images can be associated with a Spot,
+    """An image of a Spot. Multiple images can be associated with a Spot,
     and Spot objects have a 'Spot.spotimage_set' method that will return
     all SpotImage objects for the Spot.
     """
+
     CONTENT_TYPES = {
         "JPEG": "image/jpeg",
         "GIF": "image/gif",
@@ -345,27 +348,29 @@ class SpotImage(models.Model):
             "modification_date": self.modification_date.isoformat(),
             "upload_user": self.upload_user,
             "upload_application": self.upload_application,
-            "thumbnail_root": reverse('spot-image-thumb',
-                                      kwargs={'spot_id': self.spot.pk,
-                                              'image_id': self.pk}
-                                      ).rstrip('/'),
+            "thumbnail_root": reverse(
+                "spot-image-thumb",
+                kwargs={"spot_id": self.spot.pk, "image_id": self.pk},
+            ).rstrip("/"),
             "description": self.description,
-            "display_index": self.display_index
+            "display_index": self.display_index,
         }
 
     @update_etag
     def save(self, *args, **kwargs):
         try:
-            if (isinstance(self.image, UploadedFile) and
-                    self.image.file.multiple_chunks()):
+            if (
+                isinstance(self.image, UploadedFile)
+                and self.image.file.multiple_chunks()
+            ):
                 img = Image.open(self.image.file.temporary_file_path())
             else:
                 img = Image.open(self.image)
         except IOError:
-            raise ValidationError('Not a valid image format')
+            raise ValidationError("Not a valid image format")
 
         if img.format not in SpotImage.CONTENT_TYPES:
-            raise ValidationError('Not an accepted image format')
+            raise ValidationError("Not an accepted image format")
 
         self.content_type = SpotImage.CONTENT_TYPES[img.format]
         self.width, self.height = img.size
@@ -380,6 +385,6 @@ class SpotImage(models.Model):
         super(SpotImage, self).delete(*args, **kwargs)
 
     def rest_url(self):
-        return reverse('spot-image',
-                       kwargs={'spot_id': self.spot.pk,
-                               'image_id': self.pk})
+        return reverse(
+            "spot-image", kwargs={"spot_id": self.spot.pk, "image_id": self.pk}
+        )

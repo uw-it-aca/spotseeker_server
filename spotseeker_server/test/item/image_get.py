@@ -1,20 +1,9 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
-
 import shutil
 import tempfile
+
 try:
     from cStringIO import StringIO as IOStream
 except ModuleNotFoundError:
@@ -36,12 +25,12 @@ import random
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
 class ItemImageGETTest(TestCase):
 
     dummy_cache_setting = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
         }
     }
 
@@ -54,25 +43,27 @@ class ItemImageGETTest(TestCase):
 
             gif = ItemImage.objects.create(
                 description="This is the GIF test",
-                item=item, image=SimpleUploadedFile(
+                item=item,
+                image=SimpleUploadedFile(
                     "test_gif.gif",
                     open(
-                        "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/gif'
-                )
+                    "image/gif",
+                ),
             )
             self.gif = gif
 
             jpeg = ItemImage.objects.create(
                 description="This is the JPEG test",
-                item=item, image=SimpleUploadedFile(
+                item=item,
+                image=SimpleUploadedFile(
                     "test_jpeg.jpg",
                     open(
-                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/jpeg'
-                )
+                    "image/jpeg",
+                ),
             )
             self.jpeg = jpeg
 
@@ -82,14 +73,14 @@ class ItemImageGETTest(TestCase):
                 image=SimpleUploadedFile(
                     "test_png.png",
                     open(
-                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_png.png" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/png'
-                )
+                    "image/png",
+                ),
             )
             self.png = png
 
-            self.url = '/api/v1/item/{0}/image'.format(self.item.pk)
+            self.url = "/api/v1/item/{0}/image".format(self.item.pk)
             self.url = self.url
 
     def tearDown(self):
@@ -102,8 +93,7 @@ class ItemImageGETTest(TestCase):
             item = Item.objects.create(name="This is the wrong item")
 
             response = c.get(
-                "/api/v1/item/{0}/image/{1}".
-                format(item.pk, self.jpeg.pk)
+                "/api/v1/item/{0}/image/{1}".format(item.pk, self.jpeg.pk)
             )
             self.assertEquals(response.status_code, 404)
 
@@ -120,7 +110,7 @@ class ItemImageGETTest(TestCase):
 
             self.assertEquals(im.size[0], orig.size[0])
             self.assertEquals(im.size[1], orig.size[1])
-            self.assertEquals(im.format, 'JPEG')
+            self.assertEquals(im.format, "JPEG")
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_gif(self):
@@ -135,7 +125,7 @@ class ItemImageGETTest(TestCase):
 
             self.assertEquals(im.size[0], orig.size[0])
             self.assertEquals(im.size[1], orig.size[1])
-            self.assertEquals(im.format, 'GIF')
+            self.assertEquals(im.format, "GIF")
 
     @override_settings(CACHES=dummy_cache_setting)
     def test_png(self):
@@ -150,4 +140,4 @@ class ItemImageGETTest(TestCase):
 
             self.assertEquals(im.size[0], orig.size[0])
             self.assertEquals(im.size[1], orig.size[1])
-            self.assertEquals(im.format, 'PNG')
+            self.assertEquals(im.format, "PNG")

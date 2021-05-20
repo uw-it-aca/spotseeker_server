@@ -1,36 +1,29 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-"""
-
-from spotseeker_server.views.rest_dispatch import \
-    RESTDispatch, RESTException, RESTFormInvalidError, JSONResponse
+from spotseeker_server.views.rest_dispatch import (
+    RESTDispatch,
+    RESTException,
+    RESTFormInvalidError,
+    JSONResponse,
+)
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.default_forms.item import DefaultItemForm as ItemForm
-from spotseeker_server.default_forms.item import DefaultItemExtendedInfoForm \
-    as ItemExtendedInfoForm
+from spotseeker_server.default_forms.item import (
+    DefaultItemExtendedInfoForm as ItemExtendedInfoForm,
+)
 from spotseeker_server.models import *
 from django.http import HttpResponse
 from spotseeker_server.require_auth import *
 from django.db import transaction
 import simplejson as json
 import django.dispatch
-from spotseeker_server.dispatch import \
-    spot_pre_build, spot_pre_save, spot_post_save, spot_post_build
+from spotseeker_server.dispatch import (
+    spot_pre_build,
+    spot_pre_save,
+    spot_post_save,
+    spot_post_build,
+)
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -42,25 +35,22 @@ class ItemStash(object):
     def __init__(self, item):
 
         self.json = item
-        item['item_category'] = item.pop('category', None)
-        item['item_subcategory'] = item.pop('subcategory', None)
+        item["item_category"] = item.pop("category", None)
+        item["item_subcategory"] = item.pop("subcategory", None)
         self.form = ItemForm(item)
 
         if not self.form.is_valid():
             raise RESTFormInvalidError(self.form)
 
-        if 'extended_info' not in item:
-            raise ValidationError('extended_info required for item!')
+        if "extended_info" not in item:
+            raise ValidationError("extended_info required for item!")
 
-        ei_json = self.json['extended_info']
+        ei_json = self.json["extended_info"]
 
         self.ei_forms = []
 
         for key, value in ei_json.items():
-            ei = {
-                "key": key,
-                "value": value
-            }
+            ei = {"key": key, "value": value}
 
             ei_form = ItemExtendedInfoForm(ei)
             self.ei_forms.append(ei_form)
@@ -93,47 +83,48 @@ class ItemStash(object):
 
 
 @django.dispatch.receiver(
-    spot_pre_build,
-    dispatch_uid='spotseeker_server.views.spot.stash_items')
+    spot_pre_build, dispatch_uid="spotseeker_server.views.spot.stash_items"
+)
 def _stash_items(sender, **kwargs):
     """Save the available hours for later"""
-    json_values = kwargs['json_values']
-    stash = kwargs['stash']
+    json_values = kwargs["json_values"]
+    stash = kwargs["stash"]
 
-    if 'items' not in json_values:
+    if "items" not in json_values:
         return
 
-    json_items = json_values['items']
+    json_items = json_values["items"]
 
-    stash['updated_items'] = []
-    stash['new_items'] = []
+    stash["updated_items"] = []
+    stash["new_items"] = []
 
     # create the items
     for item in json_items:
         # put the item in either new or updated items
-        if 'id' in item:
-            stash['updated_items'].append(ItemStash(item))
+        if "id" in item:
+            stash["updated_items"].append(ItemStash(item))
         else:
-            stash['new_items'].append(ItemStash(item))
+            stash["new_items"].append(ItemStash(item))
 
 
 @django.dispatch.receiver(
     spot_pre_save,
-    dispatch_uid='spotseeker_server.views.spot.clean_updated_items')
+    dispatch_uid="spotseeker_server.views.spot.clean_updated_items",
+)
 def _clean_updated_items(sender, **kwargs):
     """Removes unchanged items/item EI and sets items to delete"""
-    json_values = kwargs['json_values']
-    stash = kwargs['stash']
-    spot = kwargs['spot']
+    json_values = kwargs["json_values"]
+    stash = kwargs["stash"]
+    spot = kwargs["spot"]
 
-    stash['items_to_delete'] = []
-    stash['item_ei_to_delete'] = []
+    stash["items_to_delete"] = []
+    stash["item_ei_to_delete"] = []
 
     # if we don't have any json items, then return
-    if spot is None or 'updated_items' not in stash:
+    if spot is None or "updated_items" not in stash:
         return
 
-    updated_items = stash['updated_items']
+    updated_items = stash["updated_items"]
 
     updated_item_models = []
     updated_item_models_to_stash = {}
@@ -148,11 +139,13 @@ def _clean_updated_items(sender, **kwargs):
     # create item models so we can use a hashmap for matching
     for item in updated_items:
         item_json = item.get_json()
-        item_model = Item(name=item_json['name'],
-                          item_category=item_json['item_category'],
-                          item_subcategory=item_json['item_subcategory'],
-                          id=item_json['id'],
-                          spot=spot)
+        item_model = Item(
+            name=item_json["name"],
+            item_category=item_json["item_category"],
+            item_subcategory=item_json["item_subcategory"],
+            id=item_json["id"],
+            spot=spot,
+        )
         updated_item_models.append(item_model)
         updated_item_models_to_stash[item_model] = item
 
@@ -173,7 +166,10 @@ def _clean_updated_items(sender, **kwargs):
         items_to_delete.append(item_to_delete)
 
     # find items that haven't been updated and remove them
-    for updated_item_model, old_item, in equality_hashmap.items():
+    for (
+        updated_item_model,
+        old_item,
+    ) in equality_hashmap.items():
 
         updated_item = updated_item_models_to_stash[updated_item_model]
         updated_item_form = updated_item.get_form()
@@ -186,15 +182,17 @@ def _clean_updated_items(sender, **kwargs):
         item_ei_to_delete += ei_to_remove
 
         # get rid of items that are all the same without EI
-        if (updated_item_model.name == old_item.name and
-            updated_item_model.item_category == old_item.item_category and
-            updated_item_model.item_subcategory ==
-            old_item.item_subcategory and
-                len(updated_item_ei) == 0):
+        if (
+            updated_item_model.name == old_item.name
+            and updated_item_model.item_category == old_item.item_category
+            and updated_item_model.item_subcategory
+            == old_item.item_subcategory
+            and len(updated_item_ei) == 0
+        ):
             updated_items.remove(updated_item)
 
-    stash['items_to_delete'] = items_to_delete
-    stash['item_ei_to_delete'] = item_ei_to_delete
+    stash["items_to_delete"] = items_to_delete
+    stash["item_ei_to_delete"] = item_ei_to_delete
 
 
 def clean_ei(old_ei_list, new_ei_forms):
@@ -204,7 +202,7 @@ def clean_ei(old_ei_list, new_ei_forms):
     new_ei_form_keys = []
 
     for ei_form in new_ei_forms:
-        new_ei_form_keys.append(ei_form.cleaned_data['key'])
+        new_ei_form_keys.append(ei_form.cleaned_data["key"])
 
     for old_ei in old_ei_list:
         if old_ei.key not in new_ei_form_keys:
@@ -214,20 +212,23 @@ def clean_ei(old_ei_list, new_ei_forms):
 
 
 @django.dispatch.receiver(
-    spot_post_save,
-    dispatch_uid='spotseeker_server.views.spot.save_items')
+    spot_post_save, dispatch_uid="spotseeker_server.views.spot.save_items"
+)
 def _save_items(sender, **kwargs):
     """Save updated and new items, and then delete items not included in PUT"""
-    spot = kwargs['spot']
-    stash = kwargs['stash']
+    spot = kwargs["spot"]
+    stash = kwargs["stash"]
 
-    if ('new_items' not in stash or 'updated_items' not in stash or
-            'items_to_delete' not in stash or
-            'item_ei_to_delete' not in stash):
+    if (
+        "new_items" not in stash
+        or "updated_items" not in stash
+        or "items_to_delete" not in stash
+        or "item_ei_to_delete" not in stash
+    ):
         return
 
-    new_items = stash['new_items']
-    updated_items = stash['updated_items']
+    new_items = stash["new_items"]
+    updated_items = stash["updated_items"]
 
     # combine new_items and updated_items now that the middleware has handled
     # them
@@ -249,7 +250,8 @@ def _save_items(sender, **kwargs):
             item_ei_model = item_ei.save(commit=False)
             try:
                 actual_item_ei = item_model.itemextendedinfo_set.get(
-                    key=item_ei_model.key)
+                    key=item_ei_model.key
+                )
                 if actual_item_ei.value != item_ei_model.value:
                     actual_item_ei.value = item_ei_model.value
                     actual_item_ei.save()
@@ -258,13 +260,13 @@ def _save_items(sender, **kwargs):
                 item_ei_model.save()
 
     # delete items not included
-    items_to_delete = stash['items_to_delete']
+    items_to_delete = stash["items_to_delete"]
 
     for item in items_to_delete:
         item.delete()
 
-    if 'item_ei_to_delete' in stash:
-        item_ei_to_delete = stash['item_ei_to_delete']
+    if "item_ei_to_delete" in stash:
+        item_ei_to_delete = stash["item_ei_to_delete"]
 
         for ei in item_ei_to_delete:
             ei.delete()

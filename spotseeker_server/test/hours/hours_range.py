@@ -1,20 +1,6 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012 - 2015 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
 from datetime import datetime, timedelta
 from django.test import TestCase
 from django.test.client import Client
@@ -25,14 +11,14 @@ import json
 import time
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
 class HoursRangeTest(TestCase):
-    """ Tests searches for spots that are open anywhere
-        within a range of hours.
+    """Tests searches for spots that are open anywhere
+    within a range of hours.
     """
 
     def setUp(self):
-        """ Creates a spot that is open between 10:00:00 and
+        """Creates a spot that is open between 10:00:00 and
         13:00:00 on Wednesday.
         """
         self.now = datetime(16, 2, 3, 9, 0, 0)
@@ -44,7 +30,9 @@ class HoursRangeTest(TestCase):
                 spot_open.hour,
                 spot_open.minute,
                 spot_close.hour,
-                spot_close.minute))
+                spot_close.minute,
+            )
+        )
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
         self.today = day_lookup[3]
 
@@ -53,7 +41,8 @@ class HoursRangeTest(TestCase):
                 spot=self.spot1,
                 day=day_lookup[i],
                 start_time=spot_open,
-                end_time=spot_close)
+                end_time=spot_close,
+            )
 
         spot_open = datetime.time(self.now + timedelta(hours=3))
         spot_close = datetime.time(self.now + timedelta(hours=8))
@@ -63,7 +52,7 @@ class HoursRangeTest(TestCase):
                 spot_open.hour,
                 spot_open.minute,
                 spot_close.hour,
-                spot_close.minute
+                spot_close.minute,
             )
         )
 
@@ -72,7 +61,7 @@ class HoursRangeTest(TestCase):
                 spot=self.spot2,
                 day=day_lookup[i],
                 start_time=spot_open,
-                end_time=spot_close
+                end_time=spot_close,
             )
 
         spot_open = datetime.time(self.now + timedelta(hours=10))
@@ -83,7 +72,7 @@ class HoursRangeTest(TestCase):
                 spot_open.hour,
                 spot_open.minute,
                 spot_close.hour,
-                spot_close.minute
+                spot_close.minute,
             )
         )
 
@@ -92,12 +81,13 @@ class HoursRangeTest(TestCase):
                 spot=self.spot3,
                 day=day_lookup[i],
                 start_time=spot_open,
-                end_time=spot_close
+                end_time=spot_close,
             )
 
         spot_open_today = datetime.time(self.now + timedelta(hours=10))
         spot_close_today = datetime.time(
-            self.now + timedelta(hours=14, minutes=59))
+            self.now + timedelta(hours=14, minutes=59)
+        )
         spot_open_tomorrow = datetime.time(self.now - timedelta(hours=9))
         spot_close_tomorrow = datetime.time(self.now - timedelta(hours=2))
 
@@ -111,7 +101,9 @@ class HoursRangeTest(TestCase):
                 spot_close_tomorrow.hour,
                 spot_close_tomorrow.minute,
                 self.today,
-                self.tomorrow))
+                self.tomorrow,
+            )
+        )
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
 
         for i in [1, 2, 3, 4, 5]:
@@ -119,14 +111,14 @@ class HoursRangeTest(TestCase):
                 spot=self.spot4,
                 day=day_lookup[i],
                 start_time=spot_open_today,
-                end_time=spot_close_today
+                end_time=spot_close_today,
             )
 
             models.SpotAvailableHours.objects.create(
                 spot=self.spot4,
-                day=day_lookup[i+1],
+                day=day_lookup[i + 1],
                 start_time=spot_open_tomorrow,
-                end_time=spot_close_tomorrow
+                end_time=spot_close_tomorrow,
             )
 
         spot_open = datetime.time(self.now - timedelta(hours=9))
@@ -137,7 +129,7 @@ class HoursRangeTest(TestCase):
                 spot_open.hour,
                 spot_open.minute,
                 spot_close.hour,
-                spot_close.minute
+                spot_close.minute,
             )
         )
 
@@ -146,7 +138,7 @@ class HoursRangeTest(TestCase):
                 spot=self.spot5,
                 day=day_lookup[i],
                 start_time=spot_open,
-                end_time=spot_close
+                end_time=spot_close,
             )
 
         spot_open = datetime.time(self.now + timedelta(hours=2))
@@ -162,7 +154,7 @@ class HoursRangeTest(TestCase):
                 spot_close.hour,
                 spot_close.minute,
                 self.today,
-                self.tomorrow
+                self.tomorrow,
             )
         )
 
@@ -171,7 +163,7 @@ class HoursRangeTest(TestCase):
                 spot=self.spot6,
                 day=day_lookup[i],
                 start_time=spot_open,
-                end_time=spot_close
+                end_time=spot_close,
             )
 
         spot_open = datetime.time(self.now + timedelta(hours=3))
@@ -180,7 +172,7 @@ class HoursRangeTest(TestCase):
             spot=self.spot6,
             day=day_lookup[0],
             start_time=spot_open,
-            end_time=spot_close
+            end_time=spot_close,
         )
         spot_open = datetime.time(self.now + timedelta(hours=2))
         spot_close = datetime.time(self.now + timedelta(hours=14))
@@ -188,7 +180,7 @@ class HoursRangeTest(TestCase):
             spot=self.spot6,
             day=day_lookup[5],
             start_time=spot_open,
-            end_time=spot_close
+            end_time=spot_close,
         )
         spot_open = datetime.time(self.now + timedelta(hours=3))
         spot_close = datetime.time(self.now + timedelta(hours=14))
@@ -196,7 +188,7 @@ class HoursRangeTest(TestCase):
             spot=self.spot6,
             day=day_lookup[6],
             start_time=spot_open,
-            end_time=spot_close
+            end_time=spot_close,
         )
 
         spot_open = datetime.time(self.now + timedelta(hours=1, minutes=30))
@@ -212,7 +204,7 @@ class HoursRangeTest(TestCase):
                 spot_close.hour,
                 spot_close.minute,
                 self.today,
-                self.tomorrow
+                self.tomorrow,
             )
         )
 
@@ -221,23 +213,25 @@ class HoursRangeTest(TestCase):
                 spot=self.spot7,
                 day=day_lookup[i],
                 start_time=spot_open,
-                end_time=spot_close
+                end_time=spot_close,
             )
 
-        at = models.SpotExtendedInfo.objects.create(key='app_type',
-                                                    value='food',
-                                                    spot=self.spot7)
+        at = models.SpotExtendedInfo.objects.create(
+            key="app_type", value="food", spot=self.spot7
+        )
 
-        self.day_dict = {"su": "Sunday",
-                         "m": "Monday",
-                         "t": "Tuesday",
-                         "w": "Wednesday",
-                         "th": "Thursday",
-                         "f": "Friday",
-                         "sa": "Saturday", }
+        self.day_dict = {
+            "su": "Sunday",
+            "m": "Monday",
+            "t": "Tuesday",
+            "w": "Wednesday",
+            "th": "Thursday",
+            "f": "Friday",
+            "sa": "Saturday",
+        }
 
     def test_spot_opening_within_range(self):
-        """ Tests search for a spot that opens during the search range.
+        """Tests search for a spot that opens during the search range.
         This should return spot 1. Search range: today 7:00 - 11:00
         """
         start_query_time = datetime.time(self.now - timedelta(hours=2))
@@ -253,8 +247,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -266,7 +260,7 @@ class HoursRangeTest(TestCase):
         self.assertFalse(self.spot6.json_data_structure() in spots)
 
     def test_spot_closing_within_range(self):
-        """ Tests search for a spot that closes during the search range.
+        """Tests search for a spot that closes during the search range.
         Search range: today 11:00 - 14:00
         This should return spot 1 and 2, we don't test for 2 or 6 because it's
         returned for a valid reason that is outside the scope of this test.
@@ -284,8 +278,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -297,7 +291,7 @@ class HoursRangeTest(TestCase):
         # Don't assert on spot6, see above.
 
     def test_spot_open_hours_span_entire_range(self):
-        """ Tests search for a spot that opens before the search start time and
+        """Tests search for a spot that opens before the search start time and
         closes after the search end time on the same day.
         Search range: 13:00 15:00 . This should return spot 2.
         """
@@ -314,8 +308,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -327,10 +321,10 @@ class HoursRangeTest(TestCase):
         self.assertTrue(self.spot6.json_data_structure() in spots)
 
     def test_open_close_in_range(self):
-        """ Tests search for a spot that opens and closes within the
-            search range. Search range: today 8:00 - 14:00
-            This should return spot 1 and 2, but don't assert spot2 or 6 as it
-            is returned for a valid reason outside of the scope of this test.
+        """Tests search for a spot that opens and closes within the
+        search range. Search range: today 8:00 - 14:00
+        This should return spot 1 and 2, but don't assert spot2 or 6 as it
+        is returned for a valid reason outside of the scope of this test.
         """
         start_query_time = datetime.time(self.now - timedelta(hours=1))
         start_query_time = start_query_time.strftime("%H:%M")
@@ -345,8 +339,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -358,11 +352,11 @@ class HoursRangeTest(TestCase):
         # Don't assert spot6, see reason above.
 
     def test_open_within_range_and_close_within_range_next_day(self):
-        """ Tests search for a spot that opens within the search range
-            and closes within the search range the next day.
-            Search range: today 18:00 - tomorrow 9:00
-            This should return spot 3, 4, and 5, but don't assert spot3 as it
-            is returned for a valid reason outside of the scope of this test.
+        """Tests search for a spot that opens within the search range
+        and closes within the search range the next day.
+        Search range: today 18:00 - tomorrow 9:00
+        This should return spot 3, 4, and 5, but don't assert spot3 as it
+        is returned for a valid reason outside of the scope of this test.
         """
         start_query_time = datetime.time(self.now + timedelta(hours=9))
         start_query_time = start_query_time.strftime("%H:%M")
@@ -377,8 +371,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -390,7 +384,7 @@ class HoursRangeTest(TestCase):
         # Don't assert spot6
 
     def test_open_and_close_before_range(self):
-        """ Tests search for a spot that opens and closes before the
+        """Tests search for a spot that opens and closes before the
         search range. Search range: 14:00 - 17:00
         This should NOT return any spots, except spot6 which is returned for a
         valid reason outside the scope of this test.
@@ -408,8 +402,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -421,10 +415,10 @@ class HoursRangeTest(TestCase):
         # Don't assert spot6, see the docstring above.
 
     def test_open_and_close_after_range(self):
-        """ Tests search for a spot that opens and closes after the search
-       range. Search range: 10:00 - 11:00
-        This should return spot 1, but don't assert as it satisfies a valid
-        case outside the scope of this test.
+        """Tests search for a spot that opens and closes after the search
+        range. Search range: 10:00 - 11:00
+         This should return spot 1, but don't assert as it satisfies a valid
+         case outside the scope of this test.
         """
         start_query_time = datetime.time(self.now + timedelta(hours=1))
         start_query_time = start_query_time.strftime("%H:%M")
@@ -439,8 +433,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -452,7 +446,7 @@ class HoursRangeTest(TestCase):
         self.assertFalse(self.spot6.json_data_structure() in spots)
 
     def test_invalid_end_only(self):
-        """ Tests search for a spot without passing a start time for the range.
+        """Tests search for a spot without passing a start time for the range.
         This should return a 400 bad request.
         """
         end_query_time = datetime.time(self.now + timedelta(hours=7))
@@ -461,14 +455,13 @@ class HoursRangeTest(TestCase):
         end_query = "%s,%s" % (end_query_day, end_query_time)
 
         client = Client()
-        response = client.get(
-            "/api/v1/spot", {'fuzzy_hours_end': end_query})
+        response = client.get("/api/v1/spot", {"fuzzy_hours_end": end_query})
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_start_only(self):
-        """ Tests search for a spot without passing an end time for the range.
+        """Tests search for a spot without passing an end time for the range.
         This should return a 400 bad request.
         """
         start_query_time = datetime.time(self.now + timedelta(hours=2))
@@ -478,13 +471,14 @@ class HoursRangeTest(TestCase):
 
         client = Client()
         response = client.get(
-            "/api/v1/spot", {'fuzzy_hours_start': start_query})
+            "/api/v1/spot", {"fuzzy_hours_start": start_query}
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 400)
 
     def test_closes_at_start(self):
-        """ Tests search for a spot that closes at exactly the time the
+        """Tests search for a spot that closes at exactly the time the
         search range begins. Search range: 13:00 - 14:00
         This should return spot 2 and 6, but don't assert as it matches a valid
         search outside the scope of this test.
@@ -502,8 +496,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -515,7 +509,7 @@ class HoursRangeTest(TestCase):
         # don't assert spot6
 
     def test_opens_at_end(self):
-        """ Tests search for a spot that opens at exactly the time
+        """Tests search for a spot that opens at exactly the time
         the search range ends. Search range: 4:00 - 10:00
         This should NOT return the spot.
         Returns spot5 but don't assert against spot5 as it is returned as a
@@ -534,8 +528,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -546,10 +540,10 @@ class HoursRangeTest(TestCase):
         # don't assert spot6
 
     def test_open_within_range_and_close_outside_range_next_day(self):
-        """ Tests a search range that spans midnight. This should return
-            spot 3, 4, and 5. Search range: today 18:00 - tomorrow 2:00
-            Don't assert against spot3 as it is returned as a
-            valid result but for reasons out of scope of this test.
+        """Tests a search range that spans midnight. This should return
+        spot 3, 4, and 5. Search range: today 18:00 - tomorrow 2:00
+        Don't assert against spot3 as it is returned as a
+        valid result but for reasons out of scope of this test.
         """
         start_query_time = datetime.time(self.now + timedelta(hours=9))
         start_query_time = start_query_time.strftime("%H:%M")
@@ -564,8 +558,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -577,10 +571,10 @@ class HoursRangeTest(TestCase):
         # Don't assert spot6
 
     def test_open_outside_range_and_close_within_range_next_day(self):
-        """ Tests a search range that spans midnight. This should return
-            spot 3, 4, and 5. Search range: today 20:00 - tomorrow 9:00
-            Don't assert against spot3 and spot5 as it is returned as a
-            valid result but for reasons out of scope of this test.
+        """Tests a search range that spans midnight. This should return
+        spot 3, 4, and 5. Search range: today 20:00 - tomorrow 9:00
+        Don't assert against spot3 and spot5 as it is returned as a
+        valid result but for reasons out of scope of this test.
         """
         start_query_time = datetime.time(self.now + timedelta(hours=11))
         start_query_time = start_query_time.strftime("%H:%M")
@@ -595,8 +589,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -608,9 +602,9 @@ class HoursRangeTest(TestCase):
         # Don't assert spot6
 
     def test_span_late_night(self):
-        """ Tests a search range where the spot's open time is before the
-            start on one day, and the close time is beyond the end of
-            range on the next day. Search range: today 20:00 - tomorrow 2:00
+        """Tests a search range where the spot's open time is before the
+        start on one day, and the close time is beyond the end of
+        range on the next day. Search range: today 20:00 - tomorrow 2:00
         """
         start_query_time = datetime.time(self.now + timedelta(hours=11))
         start_query_time = start_query_time.strftime("%H:%M")
@@ -625,8 +619,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -638,8 +632,8 @@ class HoursRangeTest(TestCase):
         # Don't assert spot6
 
     def test_close_within_late_night_search(self):
-        """ Tests a search range that crosses midnight, with a spot that closes
-            during the first half of that range. (SPOT-2228)
+        """Tests a search range that crosses midnight, with a spot that closes
+        during the first half of that range. (SPOT-2228)
         """
         start_query_time = datetime.time(self.now + timedelta(hours=13))
         start_query_time = start_query_time.strftime("%H:%M")
@@ -654,8 +648,8 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query})
+            {"fuzzy_hours_start": start_query, "fuzzy_hours_end": end_query},
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -680,9 +674,12 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': start_query,
-             'fuzzy_hours_end': end_query,
-             'extended_info:app_type': 'food'})
+            {
+                "fuzzy_hours_start": start_query,
+                "fuzzy_hours_end": end_query,
+                "extended_info:app_type": "food",
+            },
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -712,8 +709,11 @@ class HoursRangeTest(TestCase):
         client = Client()
         response = client.get(
             "/api/v1/spot",
-            {'fuzzy_hours_start': [start_query, start_query2],
-             'fuzzy_hours_end': [end_query, end_query2]})
+            {
+                "fuzzy_hours_start": [start_query, start_query2],
+                "fuzzy_hours_end": [end_query, end_query2],
+            },
+        )
         spots = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)

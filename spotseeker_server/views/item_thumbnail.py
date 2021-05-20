@@ -1,21 +1,7 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-    Changes
+""" Changes
     =================================================================
 
     sbutler1@illinois.edu: move some of the URL parameter parsing into
@@ -36,23 +22,30 @@ from PIL import Image
 import time
 import re
 
-RE_WIDTH = re.compile(r'width:(\d+)')
-RE_HEIGHT = re.compile(r'height:(\d+)')
-RE_WIDTHxHEIGHT = re.compile(r'^(\d+)x(\d+)$')
+RE_WIDTH = re.compile(r"width:(\d+)")
+RE_HEIGHT = re.compile(r"height:(\d+)")
+RE_WIDTHxHEIGHT = re.compile(r"^(\d+)x(\d+)$")
 
 
 class ItemThumbnailView(RESTDispatch):
-    """ Returns 200 with a thumbnail of a ItemImage.
-    """
+    """Returns 200 with a thumbnail of a ItemImage."""
+
     @app_auth_required
-    def GET(self, request, item_id, image_id,
-            thumb_dimensions=None, constrain=False):
+    def GET(
+        self,
+        request,
+        item_id,
+        image_id,
+        thumb_dimensions=None,
+        constrain=False,
+    ):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 
         if int(item.pk) != int(item_id):
-            raise RESTException("Image Item ID doesn't match item id in url",
-                                404)
+            raise RESTException(
+                "Image Item ID doesn't match item id in url", 404
+            )
 
         if thumb_dimensions is None:
             raise RESTException("Image constraints required", 400)
@@ -95,8 +88,7 @@ class ItemThumbnailView(RESTDispatch):
             thumb = im
         else:
             thumb = im.resize(
-                (thumb_width, thumb_height),
-                resample=Image.LANCZOS
+                (thumb_width, thumb_height), resample=Image.LANCZOS
             )
 
         tmp = IOStream()
@@ -105,5 +97,5 @@ class ItemThumbnailView(RESTDispatch):
 
         response = HttpResponse(tmp.getvalue(), content_type=img.content_type)
         # 7 day timeout?
-        response['Expires'] = http_date(time.time() + 60 * 60 * 24 * 7)
+        response["Expires"] = http_date(time.time() + 60 * 60 * 24 * 7)
         return response

@@ -1,21 +1,7 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012-2014 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-    Changes
+""" Changes
     =================================================================
 
     sbutler1@illinois.edu: add JSONResponse subclass of HttpResponse;
@@ -39,17 +25,17 @@ class JSONResponse(HttpResponse):
     and set the content-type to 'application/json'
     """
 
-    def __init__(self, content='', *args, **kwargs):
-        debug = getattr(settings, 'DEBUG', False)
-        pretty_print = getattr(settings, 'JSON_PRETTY_PRINT', False)
-        if content != '':
+    def __init__(self, content="", *args, **kwargs):
+        debug = getattr(settings, "DEBUG", False)
+        pretty_print = getattr(settings, "JSON_PRETTY_PRINT", False)
+        if content != "":
             if debug and pretty_print:
-                content = json.dumps(content, sort_keys=True, indent=4 * ' ')
+                content = json.dumps(content, sort_keys=True, indent=4 * " ")
             else:
                 content = json.dumps(content)
 
-        if not kwargs.get('content_type', None):
-            kwargs['content_type'] = 'application/json'
+        if not kwargs.get("content_type", None):
+            kwargs["content_type"] = "application/json"
 
         super(JSONResponse, self).__init__(content, *args, **kwargs)
 
@@ -59,6 +45,7 @@ class RESTException(Exception):
     Can be thrown inside RESTful methods. Accepts a specific
     status code to use, or 500 by default.
     """
+
     def __init__(self, message, status_code):
         super(RESTException, self).__init__(message)
         self.status_code = status_code
@@ -66,19 +53,20 @@ class RESTException(Exception):
 
 class RESTFormInvalidError(RESTException):
     """Thrown when a form is invalid, and holds all the errors."""
+
     def __init__(self, form):
         super(RESTFormInvalidError, self).__init__("Form is invalid", 400)
         self.form = form
 
 
 class RESTDispatch:
-    """ Handles passing on the request to the correct view
-        method based on the request type.
+    """Handles passing on the request to the correct view
+    method based on the request type.
     """
 
     def run(self, *args, **named_args):
         request = args[0]
-        method = request.META['REQUEST_METHOD']
+        method = request.META["REQUEST_METHOD"]
 
         try:
             if "GET" == method and hasattr(self, "GET"):
@@ -118,8 +106,8 @@ class RESTDispatch:
     def json_error(self, ex):
         json_values = {"error": str(ex)}
 
-        if getattr(settings, 'DEBUG', False):
-            json_values['stack'] = traceback.format_exc().splitlines()
+        if getattr(settings, "DEBUG", False):
+            json_values["stack"] = traceback.format_exc().splitlines()
 
         return json_values
 
@@ -134,11 +122,12 @@ class RESTDispatch:
             raise RESTException("Invalid ETag", 409)
 
     def _get_user(self, request):
-        if 'SS_OAUTH_USER' not in request.META:
+        if "SS_OAUTH_USER" not in request.META:
             print(request.META)
-            raise RESTException("missing oauth user - improper auth backend?",
-                                400)
-        username = request.META['SS_OAUTH_USER']
+            raise RESTException(
+                "missing oauth user - improper auth backend?", 400
+            )
+        username = request.META["SS_OAUTH_USER"]
 
         user = User.objects.get(username=username)
 

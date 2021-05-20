@@ -1,20 +1,6 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
 import shutil
 import tempfile
 
@@ -31,11 +17,12 @@ from spotseeker_server import models
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
 class SpotImageDELETETest(TestCase):
-    """ Tests DELETE of a SpotImage at /api/v1/spot/<spot id>/image/<image id>.
+    """Tests DELETE of a SpotImage at /api/v1/spot/<spot id>/image/<image id>.
     """
+
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
@@ -43,7 +30,7 @@ class SpotImageDELETETest(TestCase):
             spot.save()
             self.spot = spot
 
-            self.url = '/api/v1/spot/{0}'.format(self.spot.pk)
+            self.url = "/api/v1/spot/{0}".format(self.spot.pk)
             self.url = self.url
 
             # GIF
@@ -52,10 +39,10 @@ class SpotImageDELETETest(TestCase):
                 image=SimpleUploadedFile(
                     "test_gif.gif",
                     open(
-                        "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/gif'
-                )
+                    "image/gif",
+                ),
             )
             self.gif = gif
             self.gif_url = "%s/image/%s" % (self.url, self.gif.pk)
@@ -66,10 +53,10 @@ class SpotImageDELETETest(TestCase):
                 image=SimpleUploadedFile(
                     "test_jpeg.jpg",
                     open(
-                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/jpeg'
-                )
+                    "image/jpeg",
+                ),
             )
             self.jpeg = jpeg
             self.jpeg_url = "%s/image/%s" % (self.url, self.jpeg.pk)
@@ -80,10 +67,10 @@ class SpotImageDELETETest(TestCase):
                 image=SimpleUploadedFile(
                     "test_png.png",
                     open(
-                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_png.png" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/png'
-                )
+                    "image/png",
+                ),
             )
             self.png = png
             self.png_url = "%s/image/%s" % (self.url, self.png.pk)
@@ -108,14 +95,15 @@ class SpotImageDELETETest(TestCase):
                 image=SimpleUploadedFile(
                     "test_png.png",
                     open(
-                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_png.png" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/png'
-                )
+                    "image/png",
+                ),
             )
 
-            response = \
-                c.delete("/api/v1/spot/{0}/image/{1}".format(spot.pk, png.pk))
+            response = c.delete(
+                "/api/v1/spot/{0}/image/{1}".format(spot.pk, png.pk)
+            )
             self.assertEquals(response.status_code, 404)
 
     def test_invalid_id_too_high(self):

@@ -85,7 +85,7 @@ class SearchFilterChain(object):
     @classmethod
     def _load_filters(cls):
         """Loads the filters and their modules"""
-        if hasattr(settings, 'SPOTSEEKER_SEARCH_FILTERS'):
+        if hasattr(settings, "SPOTSEEKER_SEARCH_FILTERS"):
             for filtername in settings.SPOTSEEKER_SEARCH_FILTERS:
                 filt = load_object_by_name(filtername)
                 cls.filters.append(filt)

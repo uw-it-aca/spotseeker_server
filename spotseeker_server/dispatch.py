@@ -16,41 +16,49 @@
 import django.dispatch
 
 # Called in REST after deserializing the JSON but before spot_pre_save.
-spot_pre_build = django.dispatch.Signal(providing_args=[
-    'request',          # HttpRequest
-    'json_values',      # Deserialized JSON body
-    'spot',             # Spot being operated on
-    'stash',            # General stash
-    'partial_update'    # If this is a partial update of the spot or not
-])
+spot_pre_build = django.dispatch.Signal(
+    providing_args=[
+        "request",  # HttpRequest
+        "json_values",  # Deserialized JSON body
+        "spot",  # Spot being operated on
+        "stash",  # General stash
+        "partial_update",  # If this is a partial update of the spot or not
+    ]
+)
 
 # Called in REST immediately before saving, after building.
 # Extended info and available hours are removed from the body in one of
 # these hooks.
-spot_pre_save = django.dispatch.Signal(providing_args=[
-    'request',          # HttpRequest
-    'json_values',      # Deserialized JSON body
-    'spot',             # Spot being operated on
-    'stash',            # General stash
-    'partial_update'    # If this is a partial update of the spot or not
-])
+spot_pre_save = django.dispatch.Signal(
+    providing_args=[
+        "request",  # HttpRequest
+        "json_values",  # Deserialized JSON body
+        "spot",  # Spot being operated on
+        "stash",  # General stash
+        "partial_update",  # If this is a partial update of the spot or not
+    ]
+)
 
 # Called in REST after saving, after building the response, but before
 # returning it.
-spot_post_build = django.dispatch.Signal(providing_args=[
-    'request',          # HttpRequest
-    'response',         # HttpResponse
-    'spot',             # Spot being operated on
-    'stash',            # General stash
-    'partial_update'    # If this is a partial update of the spot or not
-])
+spot_post_build = django.dispatch.Signal(
+    providing_args=[
+        "request",  # HttpRequest
+        "response",  # HttpResponse
+        "spot",  # Spot being operated on
+        "stash",  # General stash
+        "partial_update",  # If this is a partial update of the spot or not
+    ]
+)
 
 # Called in REST immediately after saving, but before building the response.
 # Extended info and available hours are processed here and saved to the
 # database.
-spot_post_save = django.dispatch.Signal(providing_args=[
-    'request',          # HttpRequest
-    'spot',             # Spot being operated on
-    'stash',            # General stash
-    'partial_update'    # If this is a partial update of the spot or not
-])
+spot_post_save = django.dispatch.Signal(
+    providing_args=[
+        "request",  # HttpRequest
+        "spot",  # Spot being operated on
+        "stash",  # General stash
+        "partial_update",  # If this is a partial update of the spot or not
+    ]
+)

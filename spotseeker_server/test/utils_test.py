@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 """Provide useful methods for testing
 
 This module contains useful methods that can be reused by various tests.

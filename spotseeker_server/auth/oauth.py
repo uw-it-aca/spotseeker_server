@@ -60,8 +60,12 @@ def authenticate_user(*args, **kwargs):
         verify_oauth_request(request, oauth_request, consumer)
 
         logging.info("oauth request: {}".format(oauth_request))
-        logging.info("consumer key, consumer name: {}".format(consumer.key, consumer.name))
-        logging.info("consumer trusted oauth client set: {}".format(consumer.trustedoauthclient_set.all()))
+        logging.info(
+            "consumer key, consumer name: {}"
+            .format(consumer.key, consumer.name))
+        logging.info(
+            "consumer trusted oauth client set: {}"
+            .format(consumer.trustedoauthclient_set.all()))
 
         # Allow a trusted client to either give us a user via header, or do the
         # 3-legged oauth

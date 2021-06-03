@@ -1,26 +1,18 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-    Changes
+""" Changes
     =================================================================
 
     sbutler1@illinois.edu: adapt to the new RESTDispatch framework.
 """
 import time
 
-from spotseeker_server.views.rest_dispatch import \
-    RESTDispatch, RESTException, JSONResponse
+from spotseeker_server.views.rest_dispatch import (
+    RESTDispatch,
+    RESTException,
+    JSONResponse,
+)
 from django.http import HttpResponse
 from django.utils.http import http_date
 from wsgiref.util import FileWrapper
@@ -31,25 +23,27 @@ from spotseeker_server.models import *
 
 
 class ImageView(RESTDispatch):
-    """ Handles actions at /api/v1/spot/<spot id>/image/<image id>.
+    """Handles actions at /api/v1/spot/<spot id>/image/<image id>.
     GET returns 200 with the image.
     PUT returns 200 and updates the image.
     DELETE returns 200 and deletes the image.
     """
+
     @app_auth_required
     def GET(self, request, spot_id, image_id):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise RESTException("Image Spot ID doesn't match spot id in url",
-                                404)
+            raise RESTException(
+                "Image Spot ID doesn't match spot id in url", 404
+            )
 
         response = HttpResponse(FileWrapper(img.image))
         response["ETag"] = img.etag
 
         # 7 day timeout?
-        response['Expires'] = http_date(time.time() + 60 * 60 * 24 * 7)
+        response["Expires"] = http_date(time.time() + 60 * 60 * 24 * 7)
         response["Content-length"] = img.image.size
         response["Content-type"] = img.content_type
         return response
@@ -61,8 +55,9 @@ class ImageView(RESTDispatch):
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise RESTException("Image Spot ID doesn't match spot id in url",
-                                404)
+            raise RESTException(
+                "Image Spot ID doesn't match spot id in url", 404
+            )
 
         self.validate_etag(request, img)
 
@@ -70,12 +65,12 @@ class ImageView(RESTDispatch):
         request._load_post_and_files()
         request.method = "PUT"
 
-        if "image" in request.META['files']:
-            img.image = ImageFile(request.META['files']["image"])
-        if "description" in request.META['files']:
-            img.description = request.META['files']["description"]
-        if "display_index" in request.META['files']:
-            img.display_index = request.META['files']["display_index"]
+        if "image" in request.META["files"]:
+            img.image = ImageFile(request.META["files"]["image"])
+        if "description" in request.META["files"]:
+            img.description = request.META["files"]["description"]
+        if "display_index" in request.META["files"]:
+            img.display_index = request.META["files"]["display_index"]
         img.save()
 
         return self.GET(request, spot_id, image_id)
@@ -87,8 +82,9 @@ class ImageView(RESTDispatch):
         spot = img.spot
 
         if int(spot.pk) != int(spot_id):
-            raise RESTException("Image Spot ID doesn't match spot id in url",
-                                404)
+            raise RESTException(
+                "Image Spot ID doesn't match spot id in url", 404
+            )
 
         self.validate_etag(request, img)
 

@@ -1,17 +1,5 @@
-""" Copyright 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
 from django.conf import settings
@@ -24,12 +12,12 @@ import simplejson as json
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.'
-                         'spot.DefaultSpotForm')
+    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok",
+    SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms."
+    "spot.DefaultSpotForm",
+)
 class BuildingTest(TestCase):
-    """ Tests getting building information
-    """
+    """Tests getting building information"""
 
     def setUp(self):
         # creating testing spots
@@ -38,17 +26,19 @@ class BuildingTest(TestCase):
         self.spots_counts = 100
         for x in range(1, self.spots_counts + 1):
             new_name = "Test Spot " + str(x)
-            new_building_name = \
+            new_building_name = (
                 "Test Building No." + str(x) + "(TB" + str(x) + ")"
-            spot = Spot.objects.create(name=new_name,
-                                       building_name=new_building_name)
+            )
+            spot = Spot.objects.create(
+                name=new_name, building_name=new_building_name
+            )
             spot.save()
             self.building_list.append(new_building_name)
 
     def test_json(self):
         # use the test client to get the building information
         c = Client()
-        url = '/api/v1/buildings'
+        url = "/api/v1/buildings"
         response = c.get(url)
         self.assertEqual(response["Content-Type"], "application/json")
         # compare the submitted building json against the json got

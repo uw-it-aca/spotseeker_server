@@ -1,17 +1,5 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
 from django.conf import settings
@@ -23,20 +11,20 @@ from spotseeker_server import models
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
-    SPOTSEEKER_SPOT_FORM='spotseeker_server.default_forms.spot.'
-                         'DefaultSpotForm')
-@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok",
+    SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms.spot."
+    "DefaultSpotForm",
+)
+@override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
 class SpotDELETETest(TestCase):
-    """ Tests deleting a Spot.
-    """
+    """Tests deleting a Spot."""
 
     def setUp(self):
         spot = Spot.objects.create(name="This is for testing DELETE")
         spot.save()
         self.spot = spot
 
-        url = '/api/v1/spot/{0}'.format(self.spot.pk)
+        url = "/api/v1/spot/{0}".format(self.spot.pk)
         self.url = url
 
     def test_bad_url(self):
@@ -47,7 +35,7 @@ class SpotDELETETest(TestCase):
     def test_invalid_id_too_high(self):
         c = Client()
         test_id = self.spot.pk + 10000
-        test_url = '/api/v1/spot/{0}'.format(test_id)
+        test_url = "/api/v1/spot/{0}".format(test_id)
         response = c.delete(test_url)
         self.assertEqual(response.status_code, 404)
 

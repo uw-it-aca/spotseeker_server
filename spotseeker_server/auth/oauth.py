@@ -52,7 +52,7 @@ def authenticate_application(*args, **kwargs):
 
 def authenticate_user(*args, **kwargs):
     request = args[1]
-    logging.info("authenticate user request: {}".format(request))
+    logging.info("authenticate user request META: {}".format(request.META))
     try:
         oauth_request = get_oauth_request(request)
         consumer = store.get_consumer(request, oauth_request,
@@ -60,7 +60,8 @@ def authenticate_user(*args, **kwargs):
         verify_oauth_request(request, oauth_request, consumer)
 
         logging.info("oauth request: {}".format(oauth_request))
-        logging.info("consumer: {}".format(consumer))
+        logging.info("consumer key, consumer name: {}".format(consumer.key, consumer.name))
+        logging.info("consumer trusted oauth client set: {}".format(consumer.trustedoauthclient_set.all()))
 
         # Allow a trusted client to either give us a user via header, or do the
         # 3-legged oauth

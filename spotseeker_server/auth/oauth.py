@@ -29,6 +29,8 @@ from oauth_provider.utils import get_oauth_request, verify_oauth_request
 from oauth_provider.store import store, InvalidConsumerError, InvalidTokenError
 from spotseeker_server.models import TrustedOAuthClient
 
+import logging
+
 
 def authenticate_application(*args, **kwargs):
     request = args[1]
@@ -50,11 +52,20 @@ def authenticate_application(*args, **kwargs):
 
 def authenticate_user(*args, **kwargs):
     request = args[1]
+    logging.info("authenticate user request META: {}".format(request.META))
     try:
         oauth_request = get_oauth_request(request)
         consumer = store.get_consumer(request, oauth_request,
                                       oauth_request['oauth_consumer_key'])
         verify_oauth_request(request, oauth_request, consumer)
+
+        logging.info("oauth request: {}".format(oauth_request))
+        logging.info(
+            "consumer key, consumer name: {}"
+            .format(consumer.key, consumer.name))
+        logging.info(
+            "consumer trusted oauth client set: {}"
+            .format(consumer.trustedoauthclient_set.all()))
 
         # Allow a trusted client to either give us a user via header, or do the
         # 3-legged oauth
@@ -63,6 +74,9 @@ def authenticate_user(*args, **kwargs):
             trusted_client = TrustedOAuthClient.objects.get(consumer=consumer)
             if trusted_client and trusted_client.is_trusted:
                 user = request.META["HTTP_X_OAUTH_USER"]
+                logging.info(
+                    "user is a trusted client and was set to {}".format(user))
+
         except Exception as e:
             pass
 
@@ -75,10 +89,14 @@ def authenticate_user(*args, **kwargs):
             user = store.get_user_for_access_token(request,
                                                    oauth_request,
                                                    access_token).username
+            logging.info(
+                "user was not a trusted client and was set to {}".format(user))
 
         request.META['SS_OAUTH_CONSUMER_NAME'] = consumer.name
         request.META['SS_OAUTH_CONSUMER_PK'] = consumer.pk
         request.META['SS_OAUTH_USER'] = user
+
+        logging.info("request META: {}".format(request.META))
 
         return
     except Exception as e:

@@ -1,14 +1,5 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
 from django.conf import settings
@@ -27,27 +18,27 @@ from spotseeker_server import models
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
-@override_settings(SPOTSEEKER_AUTH_ADMINS=('demo_user',))
+@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
 class ItemImagePUTTest(TestCase):
-    """ Tests updating a ItemImage by PUTting to
-        /api/v1/Item/<Item id>/image/<image_id>.
+    """Tests updating a ItemImage by PUTting to
+    /api/v1/Item/<Item id>/image/<image_id>.
     """
 
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             spot = Spot.objects.create(
-                name="This is a spot fot testing PUTting images")
+                name="This is a spot fot testing PUTting images"
+            )
             spot.save()
             item = Item.objects.create(
-                name="This is to test PUTtingimages",
-                spot=spot
+                name="This is to test PUTtingimages", spot=spot
             )
             item.save()
             self.item = item
 
-            self.url = '/api/v1/item/{0}'.format(self.item.pk)
+            self.url = "/api/v1/item/{0}".format(self.item.pk)
             self.url = self.url
 
             # GIF
@@ -56,10 +47,10 @@ class ItemImagePUTTest(TestCase):
                 image=SimpleUploadedFile(
                     "test_gif.gif",
                     open(
-                        "%s/../resources/test_gif.gif" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/gif'
-                )
+                    "image/gif",
+                ),
             )
 
             self.gif = gif
@@ -71,10 +62,10 @@ class ItemImagePUTTest(TestCase):
                 image=SimpleUploadedFile(
                     "test_jpeg.jpg",
                     open(
-                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/jpeg'
-                )
+                    "image/jpeg",
+                ),
             )
 
             self.jpeg = jpeg
@@ -86,10 +77,10 @@ class ItemImagePUTTest(TestCase):
                 image=SimpleUploadedFile(
                     "test_png.png",
                     open(
-                        "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                        "%s/../resources/test_png.png" % TEST_ROOT, "rb"
                     ).read(),
-                    'image/png'
-                )
+                    "image/png",
+                ),
             )
 
             self.png = png
@@ -100,19 +91,15 @@ class ItemImagePUTTest(TestCase):
             c = Client()
             item = Item.objects.create(name="This is the wrong Item")
 
-            url = "/api/v1/item/{0}/image/{1}".format(
-                item.pk,
-                self.jpeg.pk)
-            response = c.put(url, '{}', content_type="application/json")
+            url = "/api/v1/item/{0}/image/{1}".format(item.pk, self.jpeg.pk)
+            response = c.put(url, "{}", content_type="application/json")
             self.assertEquals(response.status_code, 404)
 
     def test_invalid_url(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             bad_url = "%s/image/aa" % self.url
-            response = c.put(bad_url,
-                             '{}',
-                             content_type="application/json")
+            response = c.put(bad_url, "{}", content_type="application/json")
             self.assertEquals(response.status_code, 404)
 
     def test_invalid_id_too_high(self):
@@ -120,9 +107,7 @@ class ItemImagePUTTest(TestCase):
             c = Client()
             test_id = self.gif.pk + 10000
             test_url = "%s/image/%s" % (self.url, test_id)
-            response = c.put(test_url,
-                             '{}',
-                             content_type="application/json")
+            response = c.put(test_url, "{}", content_type="application/json")
             self.assertEquals(response.status_code, 404)
 
     def test_valid_same_type_with_etag(self):
@@ -130,9 +115,9 @@ class ItemImagePUTTest(TestCase):
             c = Client()
             response = c.get(self.jpeg_url)
             try:
-                etag = unicode(response['etag'])
+                etag = unicode(response["etag"])
             except NameError:
-                etag = response['etag']
+                etag = response["etag"]
             new_jpeg_name = "testing PUT name: {0}".format(random.random())
 
             response = c.put(
@@ -142,20 +127,20 @@ class ItemImagePUTTest(TestCase):
                     "image": SimpleUploadedFile(
                         new_jpeg_name,
                         open(
-                            "%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb'
+                            "%s/../resources/test_jpeg2.jpg" % TEST_ROOT, "rb"
                         ).read(),
-                        'image/jpeg'
-                    )
+                        "image/jpeg",
+                    ),
                 },
-                If_Match=etag
+                If_Match=etag,
             )
-            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb')
-            f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, 'rb')
+            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, "rb")
+            f2 = open("%s/../resources/test_jpeg.jpg" % TEST_ROOT, "rb")
             self.assertEquals(response.status_code, 200)
-            self.assertEquals(int(response["content-length"]),
-                              len(f.read()))
-            self.assertNotEqual(int(response["content-length"]),
-                                len(f2.read()))
+            self.assertEquals(int(response["content-length"]), len(f.read()))
+            self.assertNotEqual(
+                int(response["content-length"]), len(f2.read())
+            )
             self.assertEquals(response["content-type"], "image/jpeg")
 
     def test_valid_different_image_type_valid_etag(self):
@@ -163,9 +148,9 @@ class ItemImagePUTTest(TestCase):
             c = Client()
             response = c.get(self.gif_url)
             try:
-                etag = unicode(response['etag'])
+                etag = unicode(response["etag"])
             except NameError:
-                etag = response['etag']
+                etag = response["etag"]
             new_name = "testing PUT name: {0}".format(random.random())
 
             response = c.put(
@@ -175,25 +160,25 @@ class ItemImagePUTTest(TestCase):
                     "image": SimpleUploadedFile(
                         new_name,
                         open(
-                            "%s/../resources/test_png.png" % TEST_ROOT, 'rb'
+                            "%s/../resources/test_png.png" % TEST_ROOT, "rb"
                         ).read(),
-                        'image/png'
-                    )
+                        "image/png",
+                    ),
                 },
                 content_type="multipart/form-data; boundary=--aklsjf--",
-                If_Match=etag
+                If_Match=etag,
             )
             self.assertEquals(response.status_code, 200)
-            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
-            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, "rb")
+            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, "rb")
 
             # Just to be sure
             response = c.get(self.gif_url)
             self.assertEquals(response["content-type"], "image/png")
-            self.assertEquals(int(response["content-length"]),
-                              len(f.read()))
-            self.assertNotEqual(int(response["content-length"]),
-                                len(f2.read()))
+            self.assertEquals(int(response["content-length"]), len(f.read()))
+            self.assertNotEqual(
+                int(response["content-length"]), len(f2.read())
+            )
 
     def test_invalid_image_type_valid_etag(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
@@ -201,17 +186,17 @@ class ItemImagePUTTest(TestCase):
             response = c.get(self.gif_url)
             etag = response["ETag"]
 
-            f = open("%s/../resources/test_png.png" % TEST_ROOT, 'rb')
-            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
+            f = open("%s/../resources/test_png.png" % TEST_ROOT, "rb")
+            f2 = open("%s/../resources/test_gif.gif" % TEST_ROOT, "rb")
 
             new_name = "testing PUT name: {0}".format(random.random())
 
             c = Client()
-            f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT, 'rb')
+            f = open("%s/../resources/fake_jpeg.jpg" % TEST_ROOT, "rb")
             response = c.put(
                 self.gif_url,
                 files={"description": "This is a text file", "image": f},
-                If_Match=etag
+                If_Match=etag,
             )
             f.close()
             self.assertEquals(response.status_code, 400)
@@ -221,51 +206,54 @@ class ItemImagePUTTest(TestCase):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             # GIF
-            f = open("%s/../resources/test_gif2.gif" % TEST_ROOT, 'rb')
+            f = open("%s/../resources/test_gif2.gif" % TEST_ROOT, "rb")
             new_gif_name = "testing PUT name: {0}".format(random.random())
-            response = c.put(self.gif_url,
-                             files={"description": new_gif_name,
-                                    "image": f},
-                             content_type="image/gif")
+            response = c.put(
+                self.gif_url,
+                files={"description": new_gif_name, "image": f},
+                content_type="image/gif",
+            )
             self.assertEquals(response.status_code, 400)
 
             updated_img = ItemImage.objects.get(pk=self.gif.pk)
             self.assertEquals(updated_img.image, self.gif.image)
 
             # JPEG
-            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, 'rb')
+            f = open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT, "rb")
             new_jpeg_name = "testing PUT name: {0}".format(random.random())
-            response = c.put(self.gif_url,
-                             files={"description": new_jpeg_name,
-                                    "image": f},
-                             content_type="image/jpeg")
+            response = c.put(
+                self.gif_url,
+                files={"description": new_jpeg_name, "image": f},
+                content_type="image/jpeg",
+            )
             self.assertEquals(response.status_code, 400)
 
             updated_img = ItemImage.objects.get(pk=self.jpeg.pk)
-            self.assertEquals(updated_img.description,
-                              self.jpeg.description)
+            self.assertEquals(updated_img.description, self.jpeg.description)
 
             # PNG
-            f = open("%s/../resources/test_png2.png" % TEST_ROOT, 'rb')
+            f = open("%s/../resources/test_png2.png" % TEST_ROOT, "rb")
             new_png_name = "testing PUT name: {0}".format(random.random())
-            response = c.put(self.gif_url,
-                             files={"description": new_png_name,
-                                    "image": f},
-                             content_type="image/png")
+            response = c.put(
+                self.gif_url,
+                files={"description": new_png_name, "image": f},
+                content_type="image/png",
+            )
             self.assertEquals(response.status_code, 400)
 
             updated_img = ItemImage.objects.get(pk=self.png.pk)
-            self.assertEquals(updated_img.description,
-                              self.png.description)
+            self.assertEquals(updated_img.description, self.png.description)
 
             response = c.get(self.gif_url)
             content_length = response["content-length"]
-            self.assertNotEqual(os.fstat(f.fileno()).st_size,
-                                int(content_length))
+            self.assertNotEqual(
+                os.fstat(f.fileno()).st_size, int(content_length)
+            )
 
-            f = open("%s/../resources/test_gif.gif" % TEST_ROOT, 'rb')
-            self.assertEquals(os.fstat(f.fileno()).st_size,
-                              int(content_length))
+            f = open("%s/../resources/test_gif.gif" % TEST_ROOT, "rb")
+            self.assertEquals(
+                os.fstat(f.fileno()).st_size, int(content_length)
+            )
 
     def tearDown(self):
         shutil.rmtree(self.TEMP_DIR)

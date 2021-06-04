@@ -1,24 +1,16 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
 from django.conf import settings
 from django.test.client import Client
 from django.test.utils import override_settings
-from spotseeker_server.models import Spot, SpotExtendedInfo, Item,\
-                                     ItemExtendedInfo
+from spotseeker_server.models import (
+    Spot,
+    SpotExtendedInfo,
+    Item,
+    ItemExtendedInfo,
+)
 import simplejson as json
 from mock import patch
 from spotseeker_server import models
@@ -26,13 +18,15 @@ from spotseeker_server import models
 try:
     from unittest import skip
 except ImportError:
+
     def skip(*args, **kwargs):
         def inner(self):
             pass
+
         return inner
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
 class SpotSearchItemTest(TestCase):
     """
     Tests on the implemented item filters. Checks whether the new filters work
@@ -53,21 +47,21 @@ class SpotSearchItemTest(TestCase):
             spot=self.spot1,
             name="itemone",
             item_category="laptop",
-            item_subcategory="dell")
+            item_subcategory="dell",
+        )
         self.extended1 = ItemExtendedInfo(
-            item=self.item1,
-            key="capacity",
-            value="10")
+            item=self.item1, key="capacity", value="10"
+        )
         self.extended1.save()
         self.item2 = Item.objects.create(
             spot=self.spot1,
             name="itemtwo",
             item_category="laptop",
-            item_subcategory="mac")
+            item_subcategory="mac",
+        )
         self.extended1 = ItemExtendedInfo(
-            item=self.item2,
-            key="customer",
-            value="UW")
+            item=self.item2, key="customer", value="UW"
+        )
         self.extended1.save()
         self.spot1.save()
 
@@ -76,21 +70,21 @@ class SpotSearchItemTest(TestCase):
             spot=self.spot2,
             name="itemone",
             item_category="car",
-            item_subcategory="toyota")
+            item_subcategory="toyota",
+        )
         self.extended1 = ItemExtendedInfo(
-            item=self.item1,
-            key="customer",
-            value="UW")
+            item=self.item1, key="customer", value="UW"
+        )
         self.extended1.save()
         self.item2 = Item.objects.create(
             spot=self.spot2,
             name="itemtwo",
             item_category="laptop",
-            item_subcategory="dell")
+            item_subcategory="dell",
+        )
         self.extended1 = ItemExtendedInfo(
-            item=self.item2,
-            key="capacity",
-            value="10")
+            item=self.item2, key="capacity", value="10"
+        )
         self.extended1.save()
         self.spot2.save()
 
@@ -99,21 +93,21 @@ class SpotSearchItemTest(TestCase):
             spot=self.spot3,
             name="itemthree",
             item_category="laptop",
-            item_subcategory="mac")
+            item_subcategory="mac",
+        )
         self.extended1 = ItemExtendedInfo(
-            item=self.item1,
-            key="customer",
-            value="UW")
+            item=self.item1, key="customer", value="UW"
+        )
         self.extended1.save()
         self.item2 = Item.objects.create(
             spot=self.spot3,
             name="itemtwo",
             item_category="car",
-            item_subcategory="toyota")
+            item_subcategory="toyota",
+        )
         self.extended1 = ItemExtendedInfo(
-            item=self.item2,
-            key="customer",
-            value="UW")
+            item=self.item2, key="customer", value="UW"
+        )
         self.extended1.save()
         self.spot3.save()
 
@@ -122,16 +116,15 @@ class SpotSearchItemTest(TestCase):
             spot=self.spot4,
             name="itemthree",
             item_category="car",
-            item_subcategory="chevy")
+            item_subcategory="chevy",
+        )
         self.extended1 = ItemExtendedInfo(
-            item=self.item1,
-            key="customer",
-            value="UW")
+            item=self.item1, key="customer", value="UW"
+        )
         self.extended1.save()
         self.extended2 = ItemExtendedInfo(
-            item=self.item1,
-            key="capacity",
-            value="10")
+            item=self.item1, key="capacity", value="10"
+        )
         self.extended2.save()
         self.spot4.save()
 
@@ -151,29 +144,26 @@ class SpotSearchItemTest(TestCase):
     def item_common(self, field, cases):
         for case in cases:
             response = self.client.get(
-                "/api/v1/spot",
-                {"item:%s" % field: "%s" % case}
+                "/api/v1/spot", {"item:%s" % field: "%s" % case}
             )
             self.assertEquals(
                 response["Content-Type"],
                 "application/json",
-                "Expected a valid JSON."
+                "Expected a valid JSON.",
             )
             spots = json.loads(response.content)
             self.assertEquals(
                 len(spots),
                 int(cases[case]),
-                "Expected %s spots in the JSON for %s" % (cases[case], case)
+                "Expected %s spots in the JSON for %s" % (cases[case], case),
             )
             for spot in spots:
                 validity = False
-                for item in spot['items']:
-                    if(item["%s" % field] == case):
+                for item in spot["items"]:
+                    if item["%s" % field] == case:
                         validity = True
                 self.assertEquals(
-                    validity,
-                    True,
-                    "Invalid spot returned for %s" % field
+                    validity, True, "Invalid spot returned for %s" % field
                 )
 
     def test_item_name(self):
@@ -206,31 +196,28 @@ class SpotSearchItemTest(TestCase):
     def item_ei_common(self, field, cases):
         for case in cases:
             response = self.client.get(
-                "/api/v1/spot",
-                {"item:extended_info:%s" % field: "%s" % case}
+                "/api/v1/spot", {"item:extended_info:%s" % field: "%s" % case}
             )
             self.assertEquals(
                 response["Content-Type"],
                 "application/json",
-                "Expected a valid JSON."
+                "Expected a valid JSON.",
             )
             spots = json.loads(response.content)
             self.assertEquals(
                 len(spots),
                 int(cases[case]),
-                "Expected %s spots in the JSON for %s" % (cases[case], case)
+                "Expected %s spots in the JSON for %s" % (cases[case], case),
             )
             for spot in spots:
                 validity = False
-                for item in spot['items']:
-                    for ei in item['extended_info']:
-                        if(ei == field):
-                            if(item['extended_info']["%s" % ei] == case):
+                for item in spot["items"]:
+                    for ei in item["extended_info"]:
+                        if ei == field:
+                            if item["extended_info"]["%s" % ei] == case:
                                 validity = True
                 self.assertEquals(
-                    validity,
-                    True,
-                    "Invalid spot returned for %s" % field
+                    validity, True, "Invalid spot returned for %s" % field
                 )
 
     def test_item_ei(self):
@@ -253,19 +240,16 @@ class SpotSearchItemTest(TestCase):
         Tests filtering on multiple subcategories.
         """
         response = self.client.get(
-            "/api/v1/spot",
-            {"item:subcategory": ["dell", "toyota"]}
+            "/api/v1/spot", {"item:subcategory": ["dell", "toyota"]}
         )
         self.assertEquals(
             response["Content-Type"],
             "application/json",
-            "Expected a valid JSON."
+            "Expected a valid JSON.",
         )
         spots = json.loads(response.content)
         self.assertEquals(
-            len(spots),
-            3,
-            "Expected 3 spot in the JSON for dell and toyota"
+            len(spots), 3, "Expected 3 spot in the JSON for dell and toyota"
         )
 
     def test_multi_item_extended_info(self):
@@ -274,19 +258,21 @@ class SpotSearchItemTest(TestCase):
         """
         response = self.client.get(
             "/api/v1/spot",
-            {"item:extended_info:capacity": "10",
-             "item:extended_info:customer": "UW"}
+            {
+                "item:extended_info:capacity": "10",
+                "item:extended_info:customer": "UW",
+            },
         )
         self.assertEquals(
             response["Content-Type"],
             "application/json",
-            "Expected a valid JSON."
+            "Expected a valid JSON.",
         )
         spots = json.loads(response.content)
         self.assertEquals(
             len(spots),
             4,
-            "Expected 4 spots in the JSON for ei:capacity and ei:customer"
+            "Expected 4 spots in the JSON for ei:capacity and ei:customer",
         )
 
     def test_item_category_and_extended_info(self):
@@ -295,18 +281,18 @@ class SpotSearchItemTest(TestCase):
         """
         response = self.client.get(
             "/api/v1/spot",
-            {"item:category": "laptop", "item:extended_info:capacity": "10"}
+            {"item:category": "laptop", "item:extended_info:capacity": "10"},
         )
         self.assertEquals(
             response["Content-Type"],
             "application/json",
-            "Expected a valid JSON."
+            "Expected a valid JSON.",
         )
         spots = json.loads(response.content)
         self.assertEquals(
             len(spots),
             4,
-            "Expected 4 spots in the JSON for laptop and ei:capacity"
+            "Expected 4 spots in the JSON for laptop and ei:capacity",
         )
 
     def test_invalid_item_key(self):
@@ -315,20 +301,20 @@ class SpotSearchItemTest(TestCase):
         """
         response = self.client.get(
             "/api/v1/spot",
-            {"item:category": "laptop",
-             "item:extended_info:capacity": "10",
-             "invalid": "23"}
+            {
+                "item:category": "laptop",
+                "item:extended_info:capacity": "10",
+                "invalid": "23",
+            },
         )
         self.assertEquals(
             response["Content-Type"],
             "application/json",
-            "Expected a valid JSON."
+            "Expected a valid JSON.",
         )
         spots = json.loads(response.content)
         self.assertEquals(
-            len(spots),
-            4,
-            "Expected 4 spots in the JSON. Ignores invalid key."
+            len(spots), 4, "Expected 4 spots in the JSON. Ignores invalid key."
         )
 
     def test_nonexisting_item_value(self):
@@ -337,17 +323,16 @@ class SpotSearchItemTest(TestCase):
         """
         response = self.client.get(
             "/api/v1/spot",
-            {"item:category": "laptop",
-             "item:extended_info:capacity": "100"}
+            {"item:category": "laptop", "item:extended_info:capacity": "100"},
         )
         self.assertEquals(
             response["Content-Type"],
             "application/json",
-            "Expected a valid JSON."
+            "Expected a valid JSON.",
         )
         spots = json.loads(response.content)
         self.assertEquals(
             len(spots),
             3,
-            "Expected 3 spots in the JSON. Doesn't ignore invalid value."
+            "Expected 3 spots in the JSON. Doesn't ignore invalid value.",
         )

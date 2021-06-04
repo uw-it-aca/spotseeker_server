@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 # This file contains UW specific values on the server side to be localized.
 # It's really just here to make creation of the messages file easier.
 

@@ -1,4 +1,4 @@
-FROM gcr.io/uwit-mci-axdd/django-container:1.3.0 as app-container
+FROM gcr.io/uwit-mci-axdd/django-container:1.3.1 as app-container
 
 USER root
 RUN apt-get update && apt-get install mysql-client libmysqlclient-dev -y
@@ -13,8 +13,9 @@ RUN . /app/bin/activate && pip install mysqlclient django-prometheus==2.0.0
 
 ADD --chown=acait:acait . /app/
 ADD --chown=acait:acait docker/ project/
+COPY --chown=acait:acait docker/test_settings.py project/test_settings.py
 
-FROM gcr.io/uwit-mci-axdd/django-test-container:1.3.0 as app-test-container
+FROM gcr.io/uwit-mci-axdd/django-test-container:1.3.1 as app-test-container
 
 COPY --from=0 /app/ /app/
 COPY --from=0 /static/ /static/

@@ -1,17 +1,5 @@
-""" Copyright 2012-2014 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
 # Use full test failure messages
 import spotseeker_server.test.long_message
@@ -33,8 +21,9 @@ from spotseeker_server.test.images.put import SpotImagePUTTest
 from spotseeker_server.test.images.delete import SpotImageDELETETest
 from spotseeker_server.test.images.thumb import ImageThumbTest
 from spotseeker_server.test.images.spot_info import SpotResourceImageTest
-from spotseeker_server.test.images.oauth_spot_info import \
-    SpotResourceOAuthImageTest
+from spotseeker_server.test.images.oauth_spot_info import (
+    SpotResourceOAuthImageTest,
+)
 from spotseeker_server.test.item.model import ItemModelTest
 from spotseeker_server.test.search.item import SpotSearchItemTest
 from spotseeker_server.test.search.buildings import BuildingSearchTest
@@ -43,10 +32,12 @@ from spotseeker_server.test.search.capacity import SpotSearchCapacityTest
 from spotseeker_server.test.search.limit import SpotSearchLimitTest
 from spotseeker_server.test.search.distance import SpotSearchDistanceTest
 from spotseeker_server.test.search.fields import SpotSearchFieldTest
-from spotseeker_server.test.search.distance_fields import \
-    SpotSearchDistanceFieldTest
-from spotseeker_server.test.search.view_methods import \
-    SpotSearchViewMethodsTest
+from spotseeker_server.test.search.distance_fields import (
+    SpotSearchDistanceFieldTest,
+)
+from spotseeker_server.test.search.view_methods import (
+    SpotSearchViewMethodsTest,
+)
 from spotseeker_server.test.search.noise_level import NoiseLevelTestCase
 from spotseeker_server.test.search.uw_noise_level import UWNoiseLevelTestCase
 from spotseeker_server.test.search.time import SpotSearchTimeTest
@@ -58,10 +49,12 @@ from spotseeker_server.test.hours.open_now import SpotHoursOpenNowTest
 from spotseeker_server.test.hours.open_at import SpotHoursOpenAtTest
 from spotseeker_server.test.hours.open_until import SpotHoursOpenUntilTest
 from spotseeker_server.test.hours.hours_range import HoursRangeTest
-from spotseeker_server.test.hours.open_now_location import \
-    SpotHoursOpenNowLocationTest
-from spotseeker_server.test.hours.open_now_location_attributes import \
-    SpotHoursOpenNowLocationAttributesTest
+from spotseeker_server.test.hours.open_now_location import (
+    SpotHoursOpenNowLocationTest,
+)
+from spotseeker_server.test.hours.open_now_location_attributes import (
+    SpotHoursOpenNowLocationAttributesTest,
+)
 from spotseeker_server.test.hours.overlap import SpotHoursOverlapTest
 from spotseeker_server.test.hours.modify import SpotHoursModifyTest
 from spotseeker_server.test.auth.all_ok import SpotAuthAllOK

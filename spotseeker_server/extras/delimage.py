@@ -1,17 +1,5 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-"""
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
 import getopt
 import os
@@ -51,14 +39,14 @@ def main():
     # Get arguments
     try:
         long_args = [
-            'help',
-            'path=',
-            'range=',
-            'name=',
-            'name-prefix=',
-            'ext=',
+            "help",
+            "path=",
+            "range=",
+            "name=",
+            "name-prefix=",
+            "ext=",
         ]
-        options, args = getopt.getopt(sys.argv[1:], 'h', long_args)
+        options, args = getopt.getopt(sys.argv[1:], "h", long_args)
     except getopt.error, msg:
         print(msg)
         print("for help use -h or --help")
@@ -108,7 +96,7 @@ def delimage(options):
 
         # Check delete by range parameters.
         if min and max and prefix:
-            numsearch = re.search(r'(\d+)', file_name)
+            numsearch = re.search(r"(\d+)", file_name)
             if numsearch:
                 image_id = int(numsearch.group(0))
         elif min and max:

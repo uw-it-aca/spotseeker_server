@@ -1,18 +1,7 @@
-""" Copyright 2012, 2013 UW Information Technology, University of Washington
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-    Changes
+""" Changes
     =================================================================
 
     sbutler1@illinois.edu: only load the auth modules once on app
@@ -46,8 +35,10 @@ def get_auth_method(method_name):
     try:
         return getattr(mod, method_name)
     except (AttributeError, NameError):
-        raise ImproperlyConfigured('Module "%s" does not define a "%s" '
-                                   'method.' % (module, method_name))
+        raise ImproperlyConfigured(
+            'Module "%s" does not define a "%s" '
+            "method." % (module, method_name)
+        )
 
 
 def check_auth(method_name, func, *args, **kwargs):
@@ -62,19 +53,20 @@ def check_auth(method_name, func, *args, **kwargs):
 def app_auth_required(func):
     @wraps(func)
     def _checkAuth(*args, **kwargs):
-        return check_auth('authenticate_application', func, *args, **kwargs)
+        return check_auth("authenticate_application", func, *args, **kwargs)
+
     return _checkAuth
 
 
 def user_auth_required(func):
     @wraps(func)
     def _checkAuth(*args, **kwargs):
-        return check_auth('authenticate_user', func, *args, **kwargs)
+        return check_auth("authenticate_user", func, *args, **kwargs)
+
     return _checkAuth
 
 
 def admin_auth_required(func):
-
     @wraps(func)
     def _checkAuth(*args, **kwargs):
         ###
@@ -93,9 +85,10 @@ def admin_auth_required(func):
             return bad_response
 
         request = args[1]
-        username = request.META['SS_OAUTH_USER']
+        username = request.META["SS_OAUTH_USER"]
         if username not in admins:
             return bad_response
 
         return func(*args, **kwargs)
+
     return _checkAuth

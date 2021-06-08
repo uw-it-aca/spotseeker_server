@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 # from http://stackoverflow.com/questions/15896217/django-loading-a-page-that-
 # has-external-authentication-changes-the-session-key
 

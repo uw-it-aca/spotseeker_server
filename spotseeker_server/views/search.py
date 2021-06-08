@@ -530,8 +530,8 @@ class SearchView(RESTDispatch):
         """Returns the datetime and the day of the week."""
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
         day_num = int(strftime("%w", localtime()))
-        now = datetime.now(
-            pytz.timezone(getattr(settings, 'TIME_ZONE', 'America/Los_Angeles'))
-        )
+        now = datetime.now(pytz.timezone(
+                getattr(settings, 'TIME_ZONE', 'America/Los_Angeles')
+            ))
         today = day_lookup[day_num]
         return today, now

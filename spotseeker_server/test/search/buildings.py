@@ -1,6 +1,7 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+from unittest import skipIf
 from spotseeker_server.test import SpotServerTestCase
 from django.conf import settings
 from django.test.utils import override_settings
@@ -78,6 +79,11 @@ class BuildingSearchTest(SpotServerTestCase):
         buildings = json.loads(response.content)
         self.assertEquals(len(buildings), 8)
 
+    @skipIf(
+        "spotseeker_server.org_filters.uw_search.Filter"
+        in settings.SPOTSEEKER_SEARCH_FILTERS,
+        "will not pass under custom search filter",
+    )
     def test_buildings_for_campus(self):
         """Tests that the correct buildings are returned from the
         corresponding campus when campus extended info is passed.
@@ -153,6 +159,11 @@ class BuildingSearchTest(SpotServerTestCase):
         self.assertEqual(buildings[0], self.spot5.building_name)
         self.assertEqual(buildings[1], self.spot7.building_name)
 
+    @skipIf(
+        "spotseeker_server.org_filters.uw_search.Filter"
+        in settings.SPOTSEEKER_SEARCH_FILTERS,
+        "will not pass under custom search filter",
+    )
     def test_extended_info_campus(self):
         """Tests that the correct buildings are returned from the
         corresponding campus when campus extended info is passed.

@@ -27,7 +27,7 @@ function catch {
 
 run_test "pycodestyle ${DJANGO_APP}/ --exclude=migrations,static"
 
-run_test "coverage run --source=${DJANGO_APP} --omit=*/migrations/*,${DJANGO_APP}/admin.py,${DJANGO_APP}/management/commands/* manage.py test ${DJANGO_APP}"
+run_test "coverage run --source=${DJANGO_APP} --omit=*/migrations/*,${DJANGO_APP}/admin.py,${DJANGO_APP}/management/commands/* manage.py test ${DJANGO_APP} --settings=project.test_settings"
 
 # put generaged coverage result where it will get processed
 cp .coverage* /coverage

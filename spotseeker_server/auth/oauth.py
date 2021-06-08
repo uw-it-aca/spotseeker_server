@@ -16,6 +16,8 @@ from oauth_provider.utils import get_oauth_request, verify_oauth_request
 from oauth_provider.store import store, InvalidConsumerError, InvalidTokenError
 from spotseeker_server.models import TrustedOAuthClient
 
+import logging
+
 
 def authenticate_application(*args, **kwargs):
     request = args[1]
@@ -52,6 +54,10 @@ def authenticate_user(*args, **kwargs):
             trusted_client = TrustedOAuthClient.objects.get(consumer=consumer)
             if trusted_client and trusted_client.is_trusted:
                 user = request.META["HTTP_X_OAUTH_USER"]
+                logging.info(
+                    "user is a trusted client and was set to {}".format(user)
+                )
+
         except Exception as e:
             pass
 
@@ -62,6 +68,9 @@ def authenticate_user(*args, **kwargs):
             user = store.get_user_for_access_token(
                 request, oauth_request, access_token
             ).username
+            logging.info(
+                "user was not a trusted client and was set to {}".format(user)
+            )
 
         request.META["SS_OAUTH_CONSUMER_NAME"] = consumer.name
         request.META["SS_OAUTH_CONSUMER_PK"] = consumer.pk

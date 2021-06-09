@@ -19,6 +19,7 @@ from spotseeker_server.views.rest_dispatch import (
 from spotseeker_server.forms.spot_search import SpotSearchForm
 from spotseeker_server.views.spot import SpotView
 from spotseeker_server.org_filters import SearchFilterChain
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
@@ -28,6 +29,7 @@ from pyproj import Geod
 from decimal import *
 from time import *
 from datetime import datetime
+import pytz
 import sys
 
 
@@ -528,6 +530,8 @@ class SearchView(RESTDispatch):
         """Returns the datetime and the day of the week."""
         day_lookup = ["su", "m", "t", "w", "th", "f", "sa"]
         day_num = int(strftime("%w", localtime()))
-        now = datetime.time(datetime.now())
+        now = datetime.now(pytz.timezone(
+                getattr(settings, 'TIME_ZONE', 'America/Los_Angeles')
+            ))
         today = day_lookup[day_num]
         return today, now

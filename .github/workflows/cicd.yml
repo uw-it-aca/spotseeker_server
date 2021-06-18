@@ -102,7 +102,7 @@ jobs:
         run: |
           DISPATCH_LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -path "*/dispatch.py" -name "*.py" -exec grep -PzL "# Copyright 2013 Board of Trustees, University of Illinois\n# SPDX-License-Identifier: Apache-2.0" {} \;)
           FILTERS_LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -path "*/org_filters/*" -name "*.py" -exec grep -PzL "# Copyright 2013 Board of Trustees, University of Illinois\n# SPDX-License-Identifier: Apache-2.0" {} \;)
-          LICENSE_ERR = $DISPATCH_LICENSE_ERR$FILTERS_LICENSE_ERR
+          LICENSE_ERR=$DISPATCH_LICENSE_ERR$FILTERS_LICENSE_ERR
           if [[ ! -z $LICENSE_ERR ]]; then
             echo "Missing License or Copyright information:"
             echo "$LICENSE_ERR"

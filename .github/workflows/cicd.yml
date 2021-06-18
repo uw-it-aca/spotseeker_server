@@ -83,7 +83,7 @@ jobs:
       #    exclude_paths: 'migrations, org_filters, dispatch.py'
       - name: Run Pycodestyle
         shell: bash
-        run: >-
+        run: |
           pip install pycodestyle
           pycodestyle ${DJANGO_APP}/ --exclude=migrations
 

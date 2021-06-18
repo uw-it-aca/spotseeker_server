@@ -75,27 +75,13 @@ jobs:
         with:
           python-version: 3.6
 
-      # Can't lint the license until we can support multiple copyright holders
-      #- name: Run Python Linters
-      #  uses: uw-it-aca/actions/python-linters@main
-      #  with:
-      #    app_name: ${DJANGO_APP}
-      #    exclude_paths: 'migrations, org_filters, dispatch.py'
+      # This repo can't use the standard pycodestyle / license checker because
+      # of code contributed from other institutions
       - name: Run Pycodestyle
         shell: bash
         run: |
           pip install pycodestyle
           pycodestyle ${DJANGO_APP}/ --exclude=migrations
-
-      - name: Check for UW License Headers
-        shell: bash
-        run: |
-          LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -not -path "*/migrations/*" -not -path "*/org_filters/*" -not -path "*/dispatch.py" -name "*.py" -exec grep -PzL "# Copyright $(date +'%Y') UW-IT, University of Washington\n# SPDX-License-Identifier: Apache-2.0" {} \;)
-          if [[ ! -z $LICENSE_ERR ]]; then
-            echo "Missing License or Copyright information:"
-            echo "$LICENSE_ERR"
-            exit 1
-          fi
 
       - name: Check for UIUC License Headers
         shell: bash
@@ -109,6 +95,15 @@ jobs:
             exit 1
           fi
 
+      - name: Check for UW License Headers
+        shell: bash
+        run: |
+          LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -not -path "*/migrations/*" -not -path "*/org_filters/*" -not -path "*/dispatch.py" -name "*.py" -exec grep -PzL "# Copyright $(date +'%Y') UW-IT, University of Washington\n# SPDX-License-Identifier: Apache-2.0" {} \;)
+          if [[ ! -z $LICENSE_ERR ]]; then
+            echo "Missing License or Copyright information:"
+            echo "$LICENSE_ERR"
+            exit 1
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1

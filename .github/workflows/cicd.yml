@@ -97,6 +97,17 @@ jobs:
             exit 1
           fi
 
+      - name: Check for UIUC License Headers
+        shell: bash
+        run: |
+          LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -path "*/org_filters/*" -name "*.py" -exec grep -PzL "# Copyright $(date +'%Y') UW-IT, University of Washington\n# SPDX-License-Identifier: Apache-2.0" {} \;)
+          if [[ ! -z $LICENSE_ERR ]]; then
+            echo "Missing License or Copyright information:"
+            echo "$LICENSE_ERR"
+            exit 1
+          fi
+
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 

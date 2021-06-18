@@ -100,7 +100,7 @@ jobs:
       - name: Check for UIUC License Headers
         shell: bash
         run: |
-          LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -path "*/org_filters/*" -name "*.py" -exec grep -PzL "# Copyright $(date +'%Y') UW-IT, University of Washington\n# SPDX-License-Identifier: Apache-2.0" {} \;)
+          LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -path "*/org_filters/*" -name "*.py" -exec grep -PzL "# Copyright 2013 Board of Trustees, University of Illinois\n# SPDX-License-Identifier: Apache-2.0" {} \;)
           if [[ ! -z $LICENSE_ERR ]]; then
             echo "Missing License or Copyright information:"
             echo "$LICENSE_ERR"

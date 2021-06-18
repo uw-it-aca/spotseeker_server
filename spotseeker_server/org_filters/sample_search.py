@@ -1,3 +1,6 @@
+# Copyright 2013 Board of Trustees, University of Illinois
+# SPDX-License-Identifier: Apache-2.0
+
 """ Copyright 2013 Board of Trustees, University of Illinois
 
     Licensed under the Apache License, Version 2.0 (the "License");

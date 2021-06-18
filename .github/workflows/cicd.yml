@@ -81,6 +81,11 @@ jobs:
       #  with:
       #    app_name: ${DJANGO_APP}
       #    exclude_paths: 'migrations, org_filters, dispatch.py'
+      - name: Run Pycodestyle
+        shell: bash
+        run: >-
+          pip install pycodestyle
+          pycodestyle ${DJANGO_APP}/ --exclude=migrations
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1

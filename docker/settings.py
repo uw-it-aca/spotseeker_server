@@ -85,3 +85,10 @@ LOGGING = {
         },
     },
 }
+
+SPOTSEEKER_TECHLOAN_UPDATER = {
+    'server_host': os.getenv('SPOTSEEKER_WEB_SERVER_HOST'),
+    'oauth_key': os.getenv('SPOTSEEKER_WEB_OAUTH_KEY'),
+    'oauth_secret': os.getenv('SPOTSEEKER_WEB_OAUTH_SECRET'),
+    'oauth_user': os.getenv('SPOTSEEKER_WEB_USER'),
+}

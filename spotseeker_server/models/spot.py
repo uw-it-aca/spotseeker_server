@@ -298,6 +298,9 @@ class SpotExtendedInfo(models.Model):
         return self.__unicode__()
 
     def save(self, *args, **kwargs):
+        # if is study spot and location_description not in SpotExtendedInfo:
+        if self.spot.json_data_structure().type == "study":
+            raise ValidationError("A location description is required.")
         self.full_clean()
         self.spot.save()  # Update the last_modified on the spot
         super(SpotExtendedInfo, self).save(*args, **kwargs)

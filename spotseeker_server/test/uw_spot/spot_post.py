@@ -347,6 +347,32 @@ class UWSpotPOSTTest(TransactionTestCase):
             desc, spot_desc, "The spot description matches what was POSTed."
         )
 
+    def test_uw_field_invalid_location_description(self):
+        c = Client()
+        new_name = "Testing POST Name: {0}".format(random.random())
+        new_capacity = 10
+
+        desc = "       "
+        json_string = (
+            '{"name":"%s","capacity":"%s",\
+            "location": {"latitude": 55, "longitude":-30},\
+            "extended_info":{"has_outlets":"true",\
+            "location_description":"%s","manager":"Patty",\
+            "organization":"UW"}}'
+            % (new_name, new_capacity, desc)
+        )
+        response = c.post(
+            "/api/v1/spot/",
+            json_string,
+            content_type="application/json",
+            follow=False,
+        )
+        self.assertEquals(
+            response.status_code,
+            400,
+            "Location description cannot be left blank",
+        )
+
     def test_valid_json_but_invalid_extended_info(self):
         c = Client()
         new_name = "Testing POST Name: {0}".format(random.random())

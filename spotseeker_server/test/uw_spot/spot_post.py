@@ -32,6 +32,7 @@ class UWSpotPOSTTest(TransactionTestCase):
             '{"name":"%s","capacity":"%s",\
             "location":{"latitude": 55, "longitude": -30},\
             "extended_info":{"has_whiteboards":"true",\
+            "location_description": "This is a description",\
             "has_outlets":"true","manager":"Bob",\
             "organization":"UW"}}'
             % (new_name, new_capacity)
@@ -112,6 +113,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                 '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
                 "extended_info":{"%s":"%s","has_outlets":"true",\
+                "location_description": "This is a description",\
                 "manager":"John","organization":"UW"}}'
                 % (new_name, new_capacity, field, invalid)
             )
@@ -135,6 +137,7 @@ class UWSpotPOSTTest(TransactionTestCase):
                 '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
                 "extended_info":{"%s":"%s","has_outlets":"true",\
+                "location_description": "This is a description",\
                 "manager":"John","organization":"UW"}}'
                 % (new_name, new_capacity, field, valid)
             )
@@ -347,12 +350,13 @@ class UWSpotPOSTTest(TransactionTestCase):
             desc, spot_desc, "The spot description matches what was POSTed."
         )
 
-    def test_uw_field_invalid_location_description(self):
+    @override_settings(DEBUG=True)
+    def test_uw_field_missing_location_description(self):
         c = Client()
         new_name = "Testing POST Name: {0}".format(random.random())
         new_capacity = 10
 
-        desc = "       "
+        desc = ""
         json_string = (
             '{"name":"%s","capacity":"%s",\
             "location": {"latitude": 55, "longitude":-30},\
@@ -361,12 +365,14 @@ class UWSpotPOSTTest(TransactionTestCase):
             "organization":"UW"}}'
             % (new_name, new_capacity, desc)
         )
+        print('hello')
         response = c.post(
             "/api/v1/spot/",
             json_string,
             content_type="application/json",
             follow=False,
         )
+        print(response.status_code)
         self.assertEquals(
             response.status_code,
             400,
@@ -378,12 +384,15 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_name = "Testing POST Name: {0}".format(random.random())
         new_capacity = 10
 
+        desc = "This is a location description"
+
         json_string = (
             '{"name":"%s","capacity":\
             "%s","location": {"latitude": 55, "longitude":-30},\
             "extended_info":{"has_outlets":"true","manager":"Patty",\
+            "location_description":"%s",\
             "organization":"UW"}}'
-            % (new_name, new_capacity)
+            % (new_name, new_capacity, desc)
         )
         response = c.post(
             "/api/v1/spot/",

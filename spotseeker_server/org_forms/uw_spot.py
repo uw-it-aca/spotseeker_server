@@ -37,7 +37,7 @@ validated_ei = {
     "has_whiteboards": ["true"],
     "is_hidden": ["true"],
     "labstats_id": "int",
-    "location_description": "string",
+    "location_description": "str",
     "noise_level": ["silent", "quiet", "moderate", "variable"],
     "num_computers": "int",
     "rating": "int",
@@ -92,9 +92,9 @@ def uw_validate(value, key, choices):
             "Value for %s was %s, must be one of: %s"
             % (key, repr(value), "; ".join((repr(c) for c in choices)))
         )
-    if choices == "string":
+    if choices == "str":
         try:
-            string(value)
+            str(value)
         except ValueError:
             raise forms.ValidationError("Location description must be a string")
     elif not str.strip(value):

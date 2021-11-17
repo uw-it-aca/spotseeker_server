@@ -37,13 +37,13 @@ class UWSpotPOSTTest(TransactionTestCase):
             "organization":"UW"}}'
             % (new_name, new_capacity)
         )
+        # import pdb;pdb.set_trace()
         response = c.post(
             "/api/v1/spot/",
             json_string,
             content_type="application/json",
             follow=False,
         )
-
         self.assertEquals(
             response.status_code,
             201,
@@ -78,6 +78,7 @@ class UWSpotPOSTTest(TransactionTestCase):
             new_capacity,
             "The right capacity was stored",
         )
+
 
     def test_non_json(self):
         c = Client()
@@ -356,14 +357,13 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_name = "Testing POST Name: {0}".format(random.random())
         new_capacity = 10
 
-        desc = ""
         json_string = (
             '{"name":"%s","capacity":"%s",\
             "location": {"latitude": 55, "longitude":-30},\
             "extended_info":{"has_outlets":"true",\
-            "location_description":"%s","manager":"Patty",\
+            "location_description":"","manager":"Patty",\
             "organization":"UW"}}'
-            % (new_name, new_capacity, desc)
+            % (new_name, new_capacity)
         )
         print('hello')
         response = c.post(
@@ -372,11 +372,36 @@ class UWSpotPOSTTest(TransactionTestCase):
             content_type="application/json",
             follow=False,
         )
-        print(response.status_code)
         self.assertEquals(
             response.status_code,
             400,
             "Location description cannot be left blank",
+        )
+
+    @override_settings(DEBUG=True)
+    def test_uw_field_whitespace_location_description(self):
+        c = Client()
+        new_name = "Testing POST Name: {0}".format(random.random())
+        new_capacity = 10
+
+        json_string = (
+                '{"name":"%s","capacity":"%s",\
+                "location": {"latitude": 55, "longitude":-30},\
+                "extended_info":{"has_outlets":"true",\
+                "location_description":"           ","manager":"Patty",\
+                "organization":"UW"}}'
+                % (new_name, new_capacity)
+        )
+        response = c.post(
+            "/api/v1/spot/",
+            json_string,
+            content_type="application/json",
+            follow=False,
+        )
+        self.assertEquals(
+            response.status_code,
+            400,
+            "Location description cannot be all whitespace",
         )
 
     def test_valid_json_but_invalid_extended_info(self):
@@ -384,15 +409,12 @@ class UWSpotPOSTTest(TransactionTestCase):
         new_name = "Testing POST Name: {0}".format(random.random())
         new_capacity = 10
 
-        desc = "This is a location description"
-
         json_string = (
             '{"name":"%s","capacity":\
             "%s","location": {"latitude": 55, "longitude":-30},\
             "extended_info":{"has_outlets":"true","manager":"Patty",\
-            "location_description":"%s",\
             "organization":"UW"}}'
-            % (new_name, new_capacity, desc)
+            % (new_name, new_capacity)
         )
         response = c.post(
             "/api/v1/spot/",

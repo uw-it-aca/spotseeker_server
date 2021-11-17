@@ -1,6 +1,7 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+from django import forms
 from spotseeker_server.views.rest_dispatch import (
     RESTDispatch,
     RESTException,
@@ -43,7 +44,7 @@ class ItemStash(object):
             raise RESTFormInvalidError(self.form)
 
         if "extended_info" not in item:
-            raise ValidationError("extended_info required for item!")
+            raise forms.ValidationError("extended_info required for item!")
 
         ei_json = self.json["extended_info"]
 

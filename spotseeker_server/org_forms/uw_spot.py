@@ -79,29 +79,29 @@ validated_ei = {
 
 
 def uw_validate(value, key, choices):
-    """Check to see if the value is one of the choices or if it is an int,
+    """Check to see if the value is one of the choices or if it is an int or str,
     else it throws a validation error
     """
+    import pdb; pdb.set_trace()
     if choices == "int":
         try:
             int(value)
         except ValueError:
             raise forms.ValidationError("Value must be an int")
-    elif value not in choices:
-        raise forms.ValidationError(
-            "Value for %s was %s, must be one of: %s"
-            % (key, repr(value), "; ".join((repr(c) for c in choices)))
-        )
     if choices == "str":
         try:
             str(value)
         except ValueError:
             raise forms.ValidationError("Location description must be a string")
-    elif not str.strip(value):
+        if not str.strip(value):
+            raise forms.ValidationError(
+                "Location description cannot be left blank"
+            )
+    elif value not in choices:
         raise forms.ValidationError(
-            "Location description cannot be left blank"
+            "Value for %s was %s, must be one of: %s"
+            % (key, repr(value), "; ".join((repr(c) for c in choices)))
         )
-
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
     def clean(self):

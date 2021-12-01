@@ -37,7 +37,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             "organization":"UW"}}'
             % (new_name, new_capacity)
         )
-        # import pdb;pdb.set_trace()
         response = c.post(
             "/api/v1/spot/",
             json_string,
@@ -228,6 +227,7 @@ class UWSpotPOSTTest(TransactionTestCase):
             '{"name":"%s","capacity":"%s",\
             "location": {"latitude": 55, "longitude": -30},\
             "extended_info":{"has_whiteboards":"false","has_outlets":"%s",\
+            "location_description": "This is a description",\
             "manager":"Harry","organization":"UW"}}'
             % (new_name, new_capacity, has_outlets)
         )
@@ -413,6 +413,7 @@ class UWSpotPOSTTest(TransactionTestCase):
             '{"name":"%s","capacity":\
             "%s","location": {"latitude": 55, "longitude":-30},\
             "extended_info":{"has_outlets":"true","manager":"Patty",\
+            "location_description": "This is a description",\
             "organization":"UW"}}'
             % (new_name, new_capacity)
         )

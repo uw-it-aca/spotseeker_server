@@ -57,7 +57,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         self.assertEquals(
             response["Location"],
             self.spot.rest_url(),
-            "The uri for the new spot is correct",
+            "The url for the new spot is correct",
         )
 
         get_response = c.get(response["Location"])
@@ -113,7 +113,6 @@ class UWSpotPOSTTest(TransactionTestCase):
                 '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
                 "extended_info":{"%s":"%s","has_outlets":"true",\
-                "location_description": "This is a description",\
                 "manager":"John","organization":"UW"}}'
                 % (new_name, new_capacity, field, invalid)
             )
@@ -137,7 +136,6 @@ class UWSpotPOSTTest(TransactionTestCase):
                 '{"name":"%s","capacity":"%s","location":\
                 {"latitude": 55, "longitude": -30},\
                 "extended_info":{"%s":"%s","has_outlets":"true",\
-                "location_description": "This is a description",\
                 "manager":"John","organization":"UW"}}'
                 % (new_name, new_capacity, field, valid)
             )
@@ -319,6 +317,12 @@ class UWSpotPOSTTest(TransactionTestCase):
         valid_cases = ["true", "reservations"]
         self.uw_ei_field_common(field, invalid_cases, valid_cases)
 
+    def test_uw_field_has_location_description(self):
+        field = "location_description"
+        invalid_cases = ["", "     ", "2"]
+        valid_cases = ["This is a description"]
+        self.uw_ei_field_common(field, invalid_cases, valid_cases)
+
     def test_uw_field_location_description(self):
         c = Client()
         new_name = "Testing POST Name: {0}".format(random.random())
@@ -365,7 +369,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             "organization":"UW"}}'
             % (new_name, new_capacity)
         )
-        print('hello')
         response = c.post(
             "/api/v1/spot/",
             json_string,
@@ -375,7 +378,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         self.assertEquals(
             response.status_code,
             400,
-            "Location description cannot be left blank",
+            "Location description cannot be empty string",
         )
 
     @override_settings(DEBUG=True)

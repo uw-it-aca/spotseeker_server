@@ -82,6 +82,7 @@ def uw_validate(value, key, choices):
     """Check to see if the value is one of the choices or if it is an int or str,
     else it throws a validation error
     """
+    # import pdb; pdb.set_trace()
     if choices == "int":
         try:
             int(value)
@@ -92,7 +93,7 @@ def uw_validate(value, key, choices):
             str(value)
         except ValueError:
             raise forms.ValidationError("Location description must be a string")
-        if str.isspace(value):
+        if not str.strip(value):
             raise forms.ValidationError(
                 "Location description cannot be left blank"
             )

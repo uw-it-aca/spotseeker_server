@@ -202,12 +202,15 @@ class UWSpotPUTTest(TransactionTestCase):
             json_string = (
                 '{"name":"%s","capacity":"%s",\
                 "location":{"latitude": 55, "longitude": -30},\
-                "extended_info":{"has_whiteboards":"true",\
+                "extended_info":{"location_description": "This is a description",\
+                "has_whiteboards":"true",\
+                "num_computers": 10,\
                 "has_outlets":"true","has_computers":"true",\
-                "num_computers":"10","manager":"Sam","organization":"UW",\
+                "manager":"Sam","organization":"UW",\
                 "app_type":"%s"}}'
                 % (new_name, new_capacity, app_type)
             )
+
             response = c.put(
                 self.url,
                 json_string,
@@ -225,6 +228,7 @@ class UWSpotPUTTest(TransactionTestCase):
                 '{"name":"%s","capacity":"%s",\
                 "location": {"latitude": 55, "longitude": -30},\
                 "extended_info":{"has_whiteboards":"true",\
+                "location_description": "    ",\
                 "has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB", \
                 "has_computers":"true", "num_computers":"10","manager":"Sam",\
                 "organization":"UW"}}'

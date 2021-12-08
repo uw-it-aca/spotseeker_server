@@ -1,1 +1,3 @@
+mysqlclient~=1.3
+django-prometheus~=2.0
 -e .

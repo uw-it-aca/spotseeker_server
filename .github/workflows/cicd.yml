@@ -1,5 +1,5 @@
 #
-# Example GitHub Actions config that drives UW-IT AXD2 integration and deployment
+# GitHub Actions config that drives UW-IT AXD2 integration and deployment
 #
 # Preconditions:
 #
@@ -75,12 +75,35 @@ jobs:
         with:
           python-version: 3.6
 
-      # Can't lint the license until we can support multiple copyright holders
-      #- name: Run Python Linters
-      #  uses: uw-it-aca/actions/python-linters@main
-      #  with:
-      #    app_name: ${DJANGO_APP}
-      #    exclude_paths: 'migrations, org_filters, dispatch.py'
+      # This repo can't use the standard pycodestyle / license checker because
+      # of code contributed from other institutions
+      - name: Run Pycodestyle
+        shell: bash
+        run: |
+          pip install pycodestyle
+          pycodestyle ${DJANGO_APP}/ --exclude=migrations
+
+      - name: Check for UIUC License Headers
+        shell: bash
+        run: |
+          DISPATCH_LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -path "*/dispatch.py" -name "*.py" -exec grep -PzL "# Copyright 2013 Board of Trustees, University of Illinois\n# SPDX-License-Identifier: Apache-2.0" {} \;)
+          FILTERS_LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -not -path "*/org_filters/uw_search.py" -path "*/org_filters/*" -name "*.py" -exec grep -PzL "# Copyright 2013 Board of Trustees, University of Illinois\n# SPDX-License-Identifier: Apache-2.0" {} \;)
+          LICENSE_ERR=$DISPATCH_LICENSE_ERR$FILTERS_LICENSE_ERR
+          if [[ ! -z $LICENSE_ERR ]]; then
+            echo "Missing License or Copyright information:"
+            echo "$LICENSE_ERR"
+            exit 1
+          fi
+
+      - name: Check for UW License Headers
+        shell: bash
+        run: |
+          LICENSE_ERR=$(find ${DJANGO_APP} -type f -size +0 -not -path "*/migrations/*" -not -path "*/org_filters/*" -not -path "*/dispatch.py" -name "*.py" -exec grep -PzL "# Copyright $(date +'%Y') UW-IT, University of Washington\n# SPDX-License-Identifier: Apache-2.0" {} \;)
+          if [[ ! -z $LICENSE_ERR ]]; then
+            echo "Missing License or Copyright information:"
+            echo "$LICENSE_ERR"
+            exit 1
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -154,7 +177,7 @@ jobs:
 
       - name: Deployment Pipeline
         if: >-
-          contains(fromJSON('["main", "master", "qa"]'),
+          contains(fromJSON('["main", "master", "develop", "qa"]'),
             needs.context.outputs.git_repo_branch)
         uses: uw-it-aca/actions/cicd-deploy@main
         with:
@@ -187,9 +210,6 @@ jobs:
 
     steps:
       - name: House Keeping
-        if: >-
-          contains(fromJSON('["main", "master", "qa"]'),
-            needs.context.outputs.git_repo_branch)
         uses: uw-it-aca/actions/cicd-housekeeping@main
         with:
           release_name: ${{ env.RELEASE_NAME }}

@@ -177,7 +177,7 @@ jobs:
 
       - name: Deployment Pipeline
         if: >-
-          contains(fromJSON('["main", "master", "qa"]'),
+          contains(fromJSON('["main", "master", "develop", "qa"]'),
             needs.context.outputs.git_repo_branch)
         uses: uw-it-aca/actions/cicd-deploy@main
         with:
@@ -210,9 +210,6 @@ jobs:
 
     steps:
       - name: House Keeping
-        if: >-
-          contains(fromJSON('["main", "master", "qa"]'),
-            needs.context.outputs.git_repo_branch)
         uses: uw-it-aca/actions/cicd-housekeeping@main
         with:
           release_name: ${{ env.RELEASE_NAME }}

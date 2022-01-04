@@ -317,13 +317,13 @@ class UWSpotPOSTTest(TransactionTestCase):
         valid_cases = ["true", "reservations"]
         self.uw_ei_field_common(field, invalid_cases, valid_cases)
 
-    def test_uw_field_has_location_description(self):
+    def test_uw_field_location_description(self):
         field = "location_description"
-        invalid_cases = ["", "     ", "2"]
-        valid_cases = ["This is a description"]
+        invalid_cases = ["     ", "2"]
+        valid_cases = ["This is a valid description"]
         self.uw_ei_field_common(field, invalid_cases, valid_cases)
 
-    def test_uw_field_location_description(self):
+    def test_uw_field_matches_location_description(self):
         c = Client()
         new_name = "Testing POST Name: {0}".format(random.random())
         new_capacity = 10
@@ -353,58 +353,6 @@ class UWSpotPOSTTest(TransactionTestCase):
 
         self.assertEquals(
             desc, spot_desc, "The spot description matches what was POSTed."
-        )
-
-    @override_settings(DEBUG=True)
-    def test_uw_field_missing_location_description(self):
-        c = Client()
-        new_name = "Testing POST Name: {0}".format(random.random())
-        new_capacity = 10
-
-        json_string = (
-            '{"name":"%s","capacity":"%s",\
-            "location": {"latitude": 55, "longitude":-30},\
-            "extended_info":{"has_outlets":"true",\
-            "location_description":"","manager":"Patty",\
-            "organization":"UW"}}'
-            % (new_name, new_capacity)
-        )
-        response = c.post(
-            "/api/v1/spot/",
-            json_string,
-            content_type="application/json",
-            follow=False,
-        )
-        self.assertEquals(
-            response.status_code,
-            400,
-            "Location description cannot be empty string",
-        )
-
-    @override_settings(DEBUG=True)
-    def test_uw_field_whitespace_location_description(self):
-        c = Client()
-        new_name = "Testing POST Name: {0}".format(random.random())
-        new_capacity = 10
-
-        json_string = (
-                '{"name":"%s","capacity":"%s",\
-                "location": {"latitude": 55, "longitude":-30},\
-                "extended_info":{"has_outlets":"true",\
-                "location_description":"           ","manager":"Patty",\
-                "organization":"UW"}}'
-                % (new_name, new_capacity)
-        )
-        response = c.post(
-            "/api/v1/spot/",
-            json_string,
-            content_type="application/json",
-            follow=False,
-        )
-        self.assertEquals(
-            response.status_code,
-            400,
-            "Location description cannot be all whitespace",
         )
 
     def test_valid_json_but_invalid_extended_info(self):

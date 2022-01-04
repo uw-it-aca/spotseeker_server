@@ -82,21 +82,17 @@ def uw_validate(value, key, choices):
     """Check to see if the value is one of the choices or if it is an int or str,
     else it throws a validation error
     """
-    # import pdb; pdb.set_trace()
+    # import pdb;pdb.set_trace()
     if choices == "int":
         try:
             int(value)
         except ValueError:
             raise forms.ValidationError("Value must be an int")
     elif choices == "str":
-        try:
-            str(value)
-        except ValueError:
+        if value is None:
+            raise forms.ValidationError("Location description cannot be all whitespace")
+        elif value.isdecimal():
             raise forms.ValidationError("Location description must be a string")
-        if not str.strip(value):
-            raise forms.ValidationError(
-                "Location description cannot be left blank"
-            )
     elif value not in choices:
         raise forms.ValidationError(
             "Value for %s was %s, must be one of: %s"
@@ -105,11 +101,16 @@ def uw_validate(value, key, choices):
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
     def clean(self):
+        # import pdb;pdb.set_trace()
         cleaned_data = super(UWSpotExtendedInfoForm, self).clean()
         # Have to check value here since we look at multiple items
         key = self.cleaned_data["key"]
-        value = self.cleaned_data["value"]
+        try:
+            value = self.cleaned_data["value"]
+        except KeyError as e:
+            value = self.cleaned_data.get("value")
 
+        print(key in validated_ei)
         if key == "s_phone":
             p = re.compile("[A-Za-z]")
             if p.search(value):

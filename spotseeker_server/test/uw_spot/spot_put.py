@@ -204,7 +204,7 @@ class UWSpotPUTTest(TransactionTestCase):
                 "location":{"latitude": 55, "longitude": -30},\
                 "extended_info":{"location_description": "This is a description",\
                 "has_whiteboards":"true",\
-                "num_computers": 10,\
+                "num_computers": "10",\
                 "has_outlets":"true","has_computers":"true",\
                 "manager":"Sam","organization":"UW",\
                 "app_type":"%s"}}'
@@ -228,7 +228,7 @@ class UWSpotPUTTest(TransactionTestCase):
                 '{"name":"%s","capacity":"%s",\
                 "location": {"latitude": 55, "longitude": -30},\
                 "extended_info":{"has_whiteboards":"true",\
-                "location_description": "    ",\
+                "location_description": "   ",\
                 "has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB", \
                 "has_computers":"true", "num_computers":"10","manager":"Sam",\
                 "organization":"UW"}}'
@@ -260,6 +260,7 @@ class UWSpotPUTTest(TransactionTestCase):
                 '{"name":"%s","capacity":"%s",\
                 "location": {"latitude": 55, "longitude": -30},\
                 "extended_info":{"has_whiteboards":"true",\
+                "location_description": "This is a description",\
                 "has_outlets":"true", "has_computers":"true", \
                 "num_computers":"%s","manager":"Sam","organization":"UW"}}'
                 % (new_name, new_capacity, invalid_int)

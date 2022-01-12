@@ -79,8 +79,8 @@ validated_ei = {
 
 
 def uw_validate(value, key, choices):
-    """Check to see if the value is one of the choices or if it is an int or str,
-    else it throws a validation error
+    """Check to see if the value is one of the choices or if it is an
+    int or str, else it throws a validation error
     """
     if choices == "int":
         try:
@@ -90,14 +90,19 @@ def uw_validate(value, key, choices):
     elif choices == "str":
         # if whitespace, django cleans data to None
         if value is None:
-            raise forms.ValidationError("Location description cannot be all whitespace")
+            raise forms.ValidationError(
+                "Location description cannot be all whitespace"
+            )
         elif value.isdecimal():
-            raise forms.ValidationError("Location description must be a string")
+            raise forms.ValidationError(
+                "Location description must be a string"
+            )
     elif value not in choices:
         raise forms.ValidationError(
             "Value for %s was %s, must be one of: %s"
             % (key, repr(value), "; ".join((repr(c) for c in choices)))
         )
+
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
     def clean(self):

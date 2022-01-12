@@ -228,7 +228,7 @@ class Command(BaseCommand):
                 date_published=timezone.now(),
                 is_published=True,
             )
-            
+
             review2 = SpaceReview.objects.create(
                 space=art,
                 reviewer=reviewer2,

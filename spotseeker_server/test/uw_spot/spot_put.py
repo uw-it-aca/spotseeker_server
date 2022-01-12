@@ -202,7 +202,8 @@ class UWSpotPUTTest(TransactionTestCase):
             json_string = (
                 '{"name":"%s","capacity":"%s",\
                 "location":{"latitude": 55, "longitude": -30},\
-                "extended_info":{"location_description": "This is a description",\
+                "extended_info":{"location_description":\
+                "This is a description",\
                 "has_whiteboards":"true",\
                 "num_computers": "10",\
                 "has_outlets":"true","has_computers":"true",\

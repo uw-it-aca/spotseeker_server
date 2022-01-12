@@ -82,13 +82,13 @@ def uw_validate(value, key, choices):
     """Check to see if the value is one of the choices or if it is an int or str,
     else it throws a validation error
     """
-    # import pdb;pdb.set_trace()
     if choices == "int":
         try:
             int(value)
         except ValueError:
             raise forms.ValidationError("Value must be an int")
     elif choices == "str":
+        # if whitespace, django cleans data to None
         if value is None:
             raise forms.ValidationError("Location description cannot be all whitespace")
         elif value.isdecimal():

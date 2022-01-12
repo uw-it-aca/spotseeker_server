@@ -319,7 +319,7 @@ class UWSpotPOSTTest(TransactionTestCase):
 
     def test_uw_field_location_description(self):
         field = "location_description"
-        invalid_cases = ["     ", "2"]
+        invalid_cases = ["     ", "1232"]
         valid_cases = ["This is a valid description"]
         self.uw_ei_field_common(field, invalid_cases, valid_cases)
 

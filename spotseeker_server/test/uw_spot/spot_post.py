@@ -78,7 +78,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             "The right capacity was stored",
         )
 
-
     def test_non_json(self):
         c = Client()
         response = c.post(

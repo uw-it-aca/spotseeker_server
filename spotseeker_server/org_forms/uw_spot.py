@@ -101,7 +101,6 @@ def uw_validate(value, key, choices):
 
 class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
     def clean(self):
-        # import pdb;pdb.set_trace()
         cleaned_data = super(UWSpotExtendedInfoForm, self).clean()
         # Have to check value here since we look at multiple items
         key = self.cleaned_data["key"]

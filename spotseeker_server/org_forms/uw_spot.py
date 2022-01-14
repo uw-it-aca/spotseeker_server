@@ -88,12 +88,7 @@ def uw_validate(value, key, choices):
         except ValueError:
             raise forms.ValidationError("Value must be an int")
     elif choices == "str":
-        # if whitespace, django cleans data to None
-        if value is None:
-            raise forms.ValidationError(
-                "Location description cannot be all whitespace"
-            )
-        elif value.isdecimal():
+        if value.isdecimal():
             raise forms.ValidationError(
                 "Location description must be a string"
             )
@@ -109,10 +104,20 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
         cleaned_data = super(UWSpotExtendedInfoForm, self).clean()
         # Have to check value here since we look at multiple items
         key = self.cleaned_data["key"]
-        try:
-            value = self.cleaned_data["value"]
-        except KeyError as e:
-            value = self.cleaned_data.get("value")
+
+        # if location description all whitespace, django cleans value to None
+        if key == "location_description":
+            try:
+                value = self.cleaned_data["value"]
+            except KeyError as e:
+                value = self.cleaned_data.get("value")
+                if value is None:
+                    raise forms.ValidationError(
+                        "Location description cannot be all whitespace"
+                    )
+
+        value = self.cleaned_data["value"]
+
         if key == "s_phone":
             p = re.compile("[A-Za-z]")
             if p.search(value):

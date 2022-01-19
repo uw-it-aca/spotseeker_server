@@ -1,15 +1,8 @@
 autoscaling:
   enabled: true
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 4
 targetAverageUtilization: 100
-resources:
-  limits:
-    cpu: 1.0
-    memory: 1280Mi
-  requests:
-    cpu: 256m
-    memory: 1024Mi
 ingress:
   enabled: true
   tls:

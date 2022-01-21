@@ -64,6 +64,15 @@ python manage.py create_sample_spots
 
 (To be completed.)
 
+### Running `sync_techloan`
+
+    $ docker exec -it spotseeker-server bash
+
+Create a test consumer and set the [required env variables](#sync_techloan-settings)
+
+    $ . bin/activate
+    (app) $ /scripts/management_daemon.sh --delay 30 sync_techloan
+
 ## Built With
 
 * [Django](http://djangoproject.com/)
@@ -107,3 +116,10 @@ SPOTSEEKER_AUTH_ADMINS
 SPOTSEEKER_AUTH_MODULE
 SPOTSEEKER_SEARCH_FILTERS
 USER_EMAIL_DOMAIN
+
+### `sync_techloan` settings
+
+* SPOTSEEKER_WEB_SERVER_HOST
+* SPOTSEEKER_WEB_OAUTH_KEY
+* SPOTSEEKER_WEB_OAUTH_SECRET
+* SPOTSEEKER_WEB_USER

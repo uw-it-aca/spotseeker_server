@@ -109,7 +109,7 @@ class ShareSpaceView(RESTDispatch):
                     share_url = "https://%s%s/%s" % (server, path, hash_val)
                     validator(share_url)
                 except ValidationError:
-                     share_url = "http://%s%s/%s" % (server, path, hash_val)
+                    share_url = "http://%s%s/%s" % (server, path, hash_val)
 
                 try:
                     recipient = SharedSpaceRecipient.objects.get(

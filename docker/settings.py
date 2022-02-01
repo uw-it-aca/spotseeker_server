@@ -92,3 +92,9 @@ SPOTSEEKER_TECHLOAN_UPDATER = {
     'oauth_secret': os.getenv('SPOTSEEKER_WEB_OAUTH_SECRET'),
     'oauth_user': os.getenv('SPOTSEEKER_WEB_OAUTH_USER'),
 }
+
+SPOTSEEKER_TECHLOAN_URL = os.getenv(
+    'SPOTSEEKER_TECHLOAN_URL',
+    ('https://asa-django-01.asa.uw.edu/techloan/api/v2/type/'
+    '?embed=availability&embed=class')
+)

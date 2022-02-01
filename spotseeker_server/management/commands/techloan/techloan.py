@@ -6,6 +6,7 @@ import logging
 from typing import Iterator
 
 import requests
+from django.conf import settings
 from schema import Schema, Or
 
 logger = logging.getLogger(__name__)
@@ -35,8 +36,7 @@ class Techloan:
         },
     }, ignore_extra_keys=True)
 
-    _url = ('https://www.cte.uw.edu/tools/techloan/api/v2/type/'
-            '?embed=availability&embed=class')
+    _url = str(settings.SPOTSEEKER_TECHLOAN_URL)
 
     def __init__(self, equipments):
         self.equipments = []

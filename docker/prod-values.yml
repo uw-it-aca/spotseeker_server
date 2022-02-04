@@ -3,9 +3,6 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 4
 targetAverageUtilization: 100
-resources:
-  requests:
-    cpu: 50m
 ingress:
   enabled: true
   tls:

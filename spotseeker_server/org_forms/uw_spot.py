@@ -90,7 +90,7 @@ def uw_validate(value, key, choices):
     elif choices == "str":
         if value.isdecimal():
             raise forms.ValidationError(
-                "Location description must be a string"
+                "Location description cannot contain all numbers"
             )
     elif value not in choices:
         raise forms.ValidationError(
@@ -113,7 +113,7 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
                 value = self.cleaned_data.get("value")
                 if value is None:
                     raise forms.ValidationError(
-                        "Location description cannot be all whitespace"
+                        "Location description cannot contain all spaces"
                     )
 
         value = self.cleaned_data["value"]

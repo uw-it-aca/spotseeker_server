@@ -27,6 +27,26 @@ def sync_equipment_to_item(equipment, item):
     item["extended_info"]["i_model"] = equipment["model"]
     if equipment["manual_url"]:
         item["extended_info"]["i_manual_url"] = equipment["manual_url"]
+    # add image url (untested)
+    item["images"] = []
+    if equipment["image_url"]:
+        # item["extended_info"]["i_image_url"] = equipment["image_url"]
+        item["images"].append({
+            "url": equipment["image_url"],
+            "id": 1,
+            "content_type": "image/jpeg",
+            # "description": equipment["description"],
+            "display_index": 0,
+            # "creation_date": "",
+            # "modification_date": equipment["last_modified"],
+            # "width": 200,
+            # "height": 100,
+            # "upload_user": "",
+            # "upload_application": "",
+            # "thumbnail_root": "",
+        })
+    # if item["images"][0]["url"]:
+    #     item["category"] = "Images Was Updated!"
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
         item["extended_info"]["i_is_stf"] = "true"

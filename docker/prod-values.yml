@@ -5,7 +5,7 @@ autoscaling:
 targetAverageUtilization: 100
 resources:
   requests:
-    cpu: 50m
+    cpu: 75m
 ingress:
   enabled: true
   tls:

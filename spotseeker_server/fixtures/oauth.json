@@ -14,8 +14,8 @@
     "fields": {
         "name": "javerage",
         "description": "",
-        "key": "b32864fe11a28545acf6c1fef84138682b2124e9",
-        "secret": "1lItcNWNHU47jdhu",
+        "key": "dummy",
+        "secret": "dummy",
         "status": 1,
         "user": null,
         "xauth_allowed": false

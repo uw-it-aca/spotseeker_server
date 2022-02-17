@@ -8,6 +8,8 @@ from spotseeker_server.views.rest_dispatch import (
 )
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 from spotseeker_server.require_auth import (
     user_auth_required,
     app_auth_required,
@@ -100,7 +102,14 @@ class ShareSpaceView(RESTDispatch):
                 hash_val = hashlib.md5(
                     ("%s|%s|%s" % (spot.pk, send_from, to)).encode("utf-8")
                 ).hexdigest()
-                share_url = "http://%s%s/%s" % (server, path, hash_val)
+
+                # check if an https version of the URL exists
+                validator = URLValidator()
+                try:
+                    share_url = "https://%s%s/%s" % (server, path, hash_val)
+                    validator(share_url)
+                except ValidationError:
+                    share_url = "http://%s%s/%s" % (server, path, hash_val)
 
                 try:
                     recipient = SharedSpaceRecipient.objects.get(

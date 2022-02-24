@@ -3,6 +3,9 @@
 
 import json
 import logging
+from urllib.request import urlretrieve
+import tempfile
+# from uw_spotseeker import Spotseeker
 import requests
 from requests_oauthlib import OAuth1
 from schema import Schema
@@ -14,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def sync_equipment_to_item(equipment, item):
+    item["id"] = equipment["id"]
     if equipment["name"]:
         item["name"] = equipment["name"][:50]
 
@@ -27,26 +31,34 @@ def sync_equipment_to_item(equipment, item):
     item["extended_info"]["i_model"] = equipment["model"]
     if equipment["manual_url"]:
         item["extended_info"]["i_manual_url"] = equipment["manual_url"]
-    # add image url (untested)
-    item["images"] = []
     if equipment["image_url"]:
-        # item["extended_info"]["i_image_url"] = equipment["image_url"]
-        item["images"].append({
-            "url": equipment["image_url"],
-            "id": 1,
-            "content_type": "image/jpeg",
-            # "description": equipment["description"],
-            "display_index": 0,
-            # "creation_date": "",
-            # "modification_date": equipment["last_modified"],
-            # "width": 200,
-            # "height": 100,
-            # "upload_user": "",
-            # "upload_application": "",
-            # "thumbnail_root": "",
-        })
-    # if item["images"][0]["url"]:
-    #     item["category"] = "Images Was Updated!"
+        # temp_file = tempfile.TemporaryFile()
+
+        name, img = urlretrieve(equipment["image_url"])
+        # name, img = urlretrieve(equipment["image_url"], "/app/image{}.jpg".format(item["id"]))
+        f = open(
+            name,
+            "rb"
+        )
+        # temp_file.write()
+
+        # POST to images with file f with multipart/form-data
+        # spot_client = Spotseeker()
+        # spot_client.post_item_image(item["id"], img)
+
+        headers = {"X-OAuth-User": "javerage"}
+        auth = OAuth1("dummy",
+                    "dummy")
+        full_url = "http://icecream.aca.uw.edu:8001/api/v1/item/{}/image/1".format(item["id"])
+        files = {'image': ('image.jpg', f)}
+
+        r = requests.post(full_url,
+                            files=files,
+                            auth=auth,
+                            headers=headers)
+        if r.status_code != 201:
+            raise Exception("Error uploading image: {}".format(r.status_code))
+
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
         item["extended_info"]["i_is_stf"] = "true"

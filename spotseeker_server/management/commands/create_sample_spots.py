@@ -58,7 +58,7 @@ class Command(BaseCommand):
             for img in imgs:
                 try:
                     os.remove(img)
-                except:
+                except OSError:
                     print("Could not delete image: " + img)
 
             lab_space = Spot.objects.create(

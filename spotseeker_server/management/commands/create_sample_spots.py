@@ -15,6 +15,7 @@ from decimal import *
 
 # from datetime import datetime
 import os
+import glob
 
 
 class Command(BaseCommand):
@@ -49,6 +50,16 @@ class Command(BaseCommand):
             Spot.objects.all().delete()
             SpotExtendedInfo.objects.all().delete()
             SpotAvailableHours.objects.all().delete()
+
+            # delete old default images
+            base_dir = os.path.dirname(os.path.realpath(__file__))
+            path = os.path.join(base_dir, "resources")
+            imgs = glob.glob(path + "/building*_*.jpg")
+            for img in imgs:
+                try:
+                    os.remove(img)
+                except:
+                    print("Could not delete image: " + img)
 
             lab_space = Spot.objects.create(
                 name="This is a computer lab",

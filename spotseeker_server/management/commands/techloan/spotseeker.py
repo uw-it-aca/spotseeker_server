@@ -1,11 +1,12 @@
 # Copyright 2022 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+from array import array
 import json
 import logging
 from urllib.request import urlretrieve
 import tempfile
-# from uw_spotseeker import Spotseeker
+import io
 import requests
 from requests_oauthlib import OAuth1
 from schema import Schema
@@ -17,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 
 def sync_equipment_to_item(equipment, item):
-    item["id"] = equipment["id"]
     if equipment["name"]:
         item["name"] = equipment["name"][:50]
 
@@ -34,30 +34,10 @@ def sync_equipment_to_item(equipment, item):
     if equipment["image_url"]:
         # temp_file = tempfile.TemporaryFile()
 
-        name, img = urlretrieve(equipment["image_url"])
-        # name, img = urlretrieve(equipment["image_url"], "/app/image{}.jpg".format(item["id"]))
-        f = open(
-            name,
-            "rb"
-        )
-        # temp_file.write()
+        name, _ = urlretrieve(equipment["image_url"])
+        # name, _ = urlretrieve(equipment["image_url"], "/app/image_{}.jpg".format(item["name"]))
 
-        # POST to images with file f with multipart/form-data
-        # spot_client = Spotseeker()
-        # spot_client.post_item_image(item["id"], img)
-
-        headers = {"X-OAuth-User": "javerage"}
-        auth = OAuth1("dummy",
-                    "dummy")
-        full_url = "http://icecream.aca.uw.edu:8001/api/v1/item/{}/image/1".format(item["id"])
-        files = {'image': ('image.jpg', f)}
-
-        r = requests.post(full_url,
-                            files=files,
-                            auth=auth,
-                            headers=headers)
-        if r.status_code != 201:
-            raise Exception("Error uploading image: {}".format(r.status_code))
+        item["images"] = name
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
@@ -160,6 +140,12 @@ class Spots:
 
                 item["extended_info"]["i_is_active"] = "true"
                 sync_equipment_to_item(equipment, item)
+    
+    def _get_item_id_by_item_name(self, items: array, item_name: str) -> int:
+        for spot_item in items:
+            if spot_item['name'] == item_name:
+                return spot_item['id']
+        return None
 
     def upload_data(self):
         url = self._url.format(self._config['server_host'])
@@ -180,6 +166,37 @@ class Spots:
                 json=spot.raw(),
                 headers=headers,
             )
+
+            # post item images
+            content = requests.get(
+                f"{url}/{spot['id']}", auth=self._oauth, headers=headers
+            ).json()
+            for item in spot.items:
+                if isinstance(item["images"], str):
+                    f = open(item["images"], "rb")
+                    buf = io.BytesIO(f.read())
+                    files = {'image': ('image.jpg', buf)}
+
+                    item_id = self._get_item_id_by_item_name(
+                        content['items'], item["name"]
+                    )
+                    if item_id is None:
+                        logger.error(f"Can't find item id for {item['name']}")
+                        continue
+
+                    full_url = f"{url[:-5]}/item/{item_id}/image"
+
+                    r = requests.post(
+                        full_url,
+                        files=files,
+                        auth=self._oauth,
+                        headers=headers,
+                    )
+                    if r.status_code != 201:
+                        raise Exception(
+                            "Error uploading image: {}".format(r.status_code)
+                        )
+
 
             if resp.status_code not in (
                 requests.codes.ok,

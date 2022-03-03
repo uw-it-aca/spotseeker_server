@@ -38,6 +38,7 @@ def sync_equipment_to_item(equipment, item):
         # name, _ = urlretrieve(equipment["image_url"], "/app/image_{}.jpg".format(item["name"]))
 
         item["images"] = name
+        item["extended_info"]["i_image_url"] = equipment["image_url"]
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
@@ -146,6 +147,27 @@ class Spots:
             if spot_item['name'] == item_name:
                 return spot_item['id']
         return None
+    
+    def _item_image_exists(self, item_id: int, items: array) -> bool:
+        for item in items:
+            if item['id'] == item_id:
+                return len(item['images']) > 0
+    
+    def _item_has_image(self, item_id: int, image_url, items: array) -> bool:
+        for item in items:
+            if item['id'] == item_id and \
+                item['extended_info']['i_image_url'] == image_url:
+                return True
+            elif item['id'] == item_id:
+                return False
+        return False
+    
+    def _get_image_id(self, image_url, items: array, item_id: int) -> int:
+        for item in items:
+            if item['id'] == item_id and \
+                item['extended_info']['i_image_url'] == image_url:
+                return item['images'][0]['id']
+        return None
 
     def upload_data(self):
         url = self._url.format(self._config['server_host'])
@@ -183,7 +205,43 @@ class Spots:
                     if item_id is None:
                         logger.error(f"Can't find item id for {item['name']}")
                         continue
+                    
+                    image_exists = self._item_image_exists(
+                        item_id, content['items']
+                    )
+                    has_image = False
+                    if image_exists:
+                        has_image = self._item_has_image(
+                            item_id, item['extended_info']['i_image_url'],
+                            content['items']
+                        )
+                    
+                    # if same image already exists, skip
+                    if has_image:
+                        continue
+                    
+                    # if different image exists, delete it
+                    if image_exists:
+                        # find image id
+                        image_id = self._get_image_id(
+                            item["extended_info"]["i_image_url"],
+                            content['items'],
+                            item_id
+                        )
+                        # delete old image
+                        r = requests.delete(
+                            f"{url[:-5]}/item/{item_id}/image/{image_id}",
+                            auth=self._oauth,
+                            headers=headers,
+                        )
+                        if r.status_code != 200:
+                            logger.error(
+                                f"Can't delete old image for {item['name']}: \
+                                    {r.status_code}"
+                            )
+                            continue
 
+                    # post new image
                     full_url = f"{url[:-5]}/item/{item_id}/image"
 
                     r = requests.post(

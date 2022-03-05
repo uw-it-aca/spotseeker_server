@@ -40,7 +40,7 @@ def sync_equipment_to_item(equipment, item):
             item["extended_info"]["i_image_url"] = equipment["image_url"]
         except Exception as ex:
             item["images"] = []
-            logger.warning(f"Failed to retrieve image for item {item['id']}: {str(ex)}")
+            logger.warning(f"Failed to retrieve image for item with CTE ID {equipment['id']}: {str(ex)}")
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
@@ -145,12 +145,20 @@ class Spots:
                 sync_equipment_to_item(equipment, item)
     
     def _get_item_id_by_item_info(self, items: list, item_name: str,
-                                    item_brand: str, item_model: str) -> int:
-        for item in items:
-            if item['name'] == item_name and \
-                item['extended_info']['i_brand'] == item_brand and \
-                    item['extended_info']['i_model'] == item_model:
-                return item['id']
+                                    item_brand: str, item_model: str,
+                                    cte_type_id: int) -> int:
+        if cte_type_id is not None:
+            for item in items:
+                if 'cte_type_id' in item["extended_info"] and \
+                    int(item["extended_info"]["cte_type_id"]) == cte_type_id:
+                    return item["id"]
+        else:
+            print('\n\n\n\n\nNo cte_type_id found\n\n\n\n')
+            for item in items:
+                if item["name"] == item_name and \
+                        item["extended_info"]["i_brand"] == item_brand and \
+                        item["extended_info"]["i_model"] == item_model:
+                    return item["id"]
         return None
     
     def _item_image_exists(self, item_id: int, items: list) -> bool:
@@ -198,17 +206,28 @@ class Spots:
             content = requests.get(
                 f"{url}/{spot['id']}", auth=self._oauth, headers=headers
             ).json()
+            
             for item in spot.items:
                 if isinstance(item["images"], str):
                     f = open(item["images"], "rb")
                     buf = io.BytesIO(f.read())
                     files = {'image': ('image.jpg', buf)}
 
-                    item_id = self._get_item_id_by_item_info(
-                        content['items'], item["name"],
-                        item["extended_info"]["i_brand"],
-                        item["extended_info"]["i_model"]
-                    )
+                    if 'cte_type_id' in item['extended_info']:
+                        item_id = self._get_item_id_by_item_info(
+                            content['items'], item['name'],
+                            item['extended_info']['i_brand'],
+                            item['extended_info']['i_model'],
+                            int(item['extended_info']['cte_type_id'])
+                        )
+                    else:
+                        item_id = self._get_item_id_by_item_info(
+                            content['items'], item['name'],
+                            item['extended_info']['i_brand'],
+                            item['extended_info']['i_model'],
+                            None
+                        )
+                    
                     if item_id is None:
                         logger.error(f"Can't find item id for {item['name']}")
                         continue

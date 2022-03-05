@@ -1,7 +1,6 @@
 # Copyright 2022 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from array import array
 import json
 import logging
 from urllib.request import urlretrieve
@@ -33,12 +32,15 @@ def sync_equipment_to_item(equipment, item):
         item["extended_info"]["i_manual_url"] = equipment["manual_url"]
     if equipment["image_url"]:
         # temp_file = tempfile.TemporaryFile()
+        try:
+            name, _ = urlretrieve(equipment["image_url"])
+            # name, _ = urlretrieve(equipment["image_url"], "/app/image_{}.jpg".format(item["name"]))
 
-        name, _ = urlretrieve(equipment["image_url"])
-        # name, _ = urlretrieve(equipment["image_url"], "/app/image_{}.jpg".format(item["name"]))
-
-        item["images"] = name
-        item["extended_info"]["i_image_url"] = equipment["image_url"]
+            item["images"] = name
+            item["extended_info"]["i_image_url"] = equipment["image_url"]
+        except Exception as ex:
+            item["images"] = []
+            logger.warning(f"Failed to retrieve image for item {item['id']}: {str(ex)}")
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
@@ -142,18 +144,21 @@ class Spots:
                 item["extended_info"]["i_is_active"] = "true"
                 sync_equipment_to_item(equipment, item)
     
-    def _get_item_id_by_item_name(self, items: array, item_name: str) -> int:
-        for spot_item in items:
-            if spot_item['name'] == item_name:
-                return spot_item['id']
+    def _get_item_id_by_item_info(self, items: list, item_name: str,
+                                    item_brand: str, item_model: str) -> int:
+        for item in items:
+            if item['name'] == item_name and \
+                item['extended_info']['i_brand'] == item_brand and \
+                    item['extended_info']['i_model'] == item_model:
+                return item['id']
         return None
     
-    def _item_image_exists(self, item_id: int, items: array) -> bool:
+    def _item_image_exists(self, item_id: int, items: list) -> bool:
         for item in items:
             if item['id'] == item_id:
                 return len(item['images']) > 0
     
-    def _item_has_image(self, item_id: int, image_url, items: array) -> bool:
+    def _item_has_image(self, item_id: int, image_url, items: list) -> bool:
         for item in items:
             if item['id'] == item_id and \
                 item['extended_info']['i_image_url'] == image_url:
@@ -162,7 +167,7 @@ class Spots:
                 return False
         return False
     
-    def _get_image_id(self, image_url, items: array, item_id: int) -> int:
+    def _get_image_id(self, image_url, items: list, item_id: int) -> int:
         for item in items:
             if item['id'] == item_id and \
                 item['extended_info']['i_image_url'] == image_url:
@@ -173,7 +178,7 @@ class Spots:
         url = self._url.format(self._config['server_host'])
         failures = []
 
-        for spot in self:
+        for spot in self.spots:
             if not spot.validate():
                 logger.error(f"Malformed space id : {spot['id']}")
                 continue
@@ -199,8 +204,10 @@ class Spots:
                     buf = io.BytesIO(f.read())
                     files = {'image': ('image.jpg', buf)}
 
-                    item_id = self._get_item_id_by_item_name(
-                        content['items'], item["name"]
+                    item_id = self._get_item_id_by_item_info(
+                        content['items'], item["name"],
+                        item["extended_info"]["i_brand"],
+                        item["extended_info"]["i_model"]
                     )
                     if item_id is None:
                         logger.error(f"Can't find item id for {item['name']}")

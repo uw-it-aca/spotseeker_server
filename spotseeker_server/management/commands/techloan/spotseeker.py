@@ -34,13 +34,15 @@ def sync_equipment_to_item(equipment, item):
         # temp_file = tempfile.TemporaryFile()
         try:
             name, _ = urlretrieve(equipment["image_url"])
-            # name, _ = urlretrieve(equipment["image_url"], "/app/image_{}.jpg".format(item["name"]))
 
             item["images"] = name
             item["extended_info"]["i_image_url"] = equipment["image_url"]
         except Exception as ex:
             item["images"] = []
-            logger.warning(f"Failed to retrieve image for item with CTE ID {equipment['id']}: {str(ex)}")
+            logger.warning(
+                f"Failed to retrieve image for item with CTE ID \
+                    {equipment['id']}: {str(ex)}"
+            )
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
@@ -206,7 +208,7 @@ class Spots:
             content = requests.get(
                 f"{url}/{spot['id']}", auth=self._oauth, headers=headers
             ).json()
-            
+
             for item in spot.items:
                 if isinstance(item["images"], str):
                     f = open(item["images"], "rb")

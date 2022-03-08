@@ -151,10 +151,8 @@ class Spots:
                                   cte_type_id: int) -> int:
         if cte_type_id is not None:
             for item in items:
-                if 'cte_type_id' in item["extended_info"] and \
-                        int(
-                            item["extended_info"]["cte_type_id"]
-                        ) == cte_type_id:
+                if 'cte_type_id' in item["extended_info"] and int(
+                        item["extended_info"]["cte_type_id"]) == cte_type_id:
                     return item["id"]
         else:
             for item in items:

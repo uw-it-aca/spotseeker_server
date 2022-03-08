@@ -155,7 +155,6 @@ class Spots:
                     int(item["extended_info"]["cte_type_id"]) == cte_type_id:
                     return item["id"]
         else:
-            print('\n\n\n\n\nNo cte_type_id found\n\n\n\n')
             for item in items:
                 if item["name"] == item_name and \
                         item["extended_info"]["i_brand"] == item_brand and \

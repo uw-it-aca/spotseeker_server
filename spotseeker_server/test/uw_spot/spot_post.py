@@ -32,7 +32,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             '{"name":"%s","capacity":"%s",\
             "location":{"latitude": 55, "longitude": -30},\
             "extended_info":{"has_whiteboards":"true",\
-            "location_description": "This is a description",\
             "has_outlets":"true","manager":"Bob",\
             "organization":"UW"}}'
             % (new_name, new_capacity)
@@ -224,7 +223,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             '{"name":"%s","capacity":"%s",\
             "location": {"latitude": 55, "longitude": -30},\
             "extended_info":{"has_whiteboards":"false","has_outlets":"%s",\
-            "location_description": "This is a description",\
             "manager":"Harry","organization":"UW"}}'
             % (new_name, new_capacity, has_outlets)
         )
@@ -237,7 +235,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         self.assertEquals(
             response.status_code,
             400,
-            ("Spot not created; has_outlets field did not pass " "validation"),
+            ("Spot not created; has_outlets field did not pass validation"),
         )
 
         has_outlets = "true"
@@ -363,7 +361,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             '{"name":"%s","capacity":\
             "%s","location": {"latitude": 55, "longitude":-30},\
             "extended_info":{"has_outlets":"true","manager":"Patty",\
-            "location_description": "This is a description",\
             "organization":"UW"}}'
             % (new_name, new_capacity)
         )

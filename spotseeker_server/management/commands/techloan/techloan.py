@@ -57,5 +57,7 @@ class Techloan:
 
     @classmethod
     def from_cte_api(cls) -> 'Techloan':
+        if cls._url is None:
+            raise ImproperlyConfigured("No techloan URL configured")
         equipments = requests.get(cls._url).json()
         return cls(equipments)

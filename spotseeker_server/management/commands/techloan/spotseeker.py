@@ -40,8 +40,8 @@ def sync_equipment_to_item(equipment, item):
         except Exception as ex:
             item["images"] = []
             logger.warning(
-                f"Failed to retrieve image for item with CTE ID \
-                    {equipment['id']}: {str(ex)}"
+                "Failed to retrieve image for item with CTE ID "
+                f"{equipment['id']}: {str(ex)}"
             )
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
@@ -119,6 +119,13 @@ class Spots:
     def __iter__(self) -> Iterator[Spot]:
         return self.spots.__iter__()
 
+    def clean_inactive_items(self):
+        for spot in self:
+            for item in reversed(spot['items']):
+                if 'i_is_active' not in item['extended_info'] or \
+                        item['extended_info']['i_is_active'] != 'true':
+                    spot['items'].remove(item)
+
     def sync_with_techloan(self, techloan: Techloan):
         for spot in self:
             spot.deactive_all_items()
@@ -145,6 +152,8 @@ class Spots:
 
                 item["extended_info"]["i_is_active"] = "true"
                 sync_equipment_to_item(equipment, item)
+
+        self.clean_inactive_items()
 
     def _get_item_id_by_item_info(self, items: list, item_name: str,
                                   item_brand: str, item_model: str,

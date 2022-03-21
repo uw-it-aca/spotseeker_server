@@ -204,82 +204,84 @@ class Spots:
                 headers=headers,
             )
 
-            # get spot content to confirm item IDs
-            content = requests.get(
+            # get spot items content to confirm item IDs
+            items_content = requests.get(
                 f"{url}/{spot['id']}", auth=self._oauth, headers=headers
-            ).json()
+            ).json()['items']
 
             # post item images
             for item in spot.items:
                 # if item has an image, try to post it
-                if isinstance(item["images"], str):
-                    f = open(item["images"], "rb")
-                    buf = io.BytesIO(f.read())
-                    files = {'image': ('image.jpg', buf)}
+                if not isinstance(item['images'], str):
+                    continue
 
-                    cte_type_id = int(item['extended_info']['cte_type_id']) \
-                        if 'cte_type_id' in item['extended_info'] else None
+                f = open(item["images"], "rb")
+                buf = io.BytesIO(f.read())
+                files = {'image': ('image.jpg', buf)}
 
-                    item_id = self._get_item_id_by_item_info(
-                        content['items'], item['name'],
-                        item['extended_info']['i_brand'],
-                        item['extended_info']['i_model'],
-                        cte_type_id
+                cte_type_id = int(item['extended_info']['cte_type_id']) \
+                    if 'cte_type_id' in item['extended_info'] else None
+
+                item_id = self._get_item_id_by_item_info(
+                    items_content, item['name'],
+                    item['extended_info']['i_brand'],
+                    item['extended_info']['i_model'],
+                    cte_type_id
+                )
+
+                if item_id is None:
+                    logger.error(f"Can't find item id for {item['name']}")
+                    continue
+
+                image_exists = self._item_image_exists(
+                    item_id, items_content
+                )
+                has_image = False
+                if image_exists:
+                    has_image = self._item_has_image(
+                        item_id, item['extended_info']['i_image_url'],
+                        items_content
                     )
 
-                    if item_id is None:
-                        logger.error(f"Can't find item id for {item['name']}")
-                        continue
+                # if same image already exists, skip
+                if has_image:
+                    continue
 
-                    image_exists = self._item_image_exists(
-                        item_id, content['items']
+                # if different image exists, delete it
+                if image_exists:
+                    # find image id
+                    image_id = self._get_image_id(
+                        item["extended_info"]["i_image_url"],
+                        items_content, item_id
                     )
-                    has_image = False
-                    if image_exists:
-                        has_image = self._item_has_image(
-                            item_id, item['extended_info']['i_image_url'],
-                            content['items']
-                        )
-
-                    # if same image already exists, skip
-                    if has_image:
-                        continue
-
-                    # if different image exists, delete it
-                    if image_exists:
-                        # find image id
-                        image_id = self._get_image_id(
-                            item["extended_info"]["i_image_url"],
-                            content['items'],
-                            item_id
-                        )
-                        # delete old image
-                        r = requests.delete(
-                            f"{url[:-5]}/item/{item_id}/image/{image_id}",
-                            auth=self._oauth,
-                            headers=headers,
-                        )
-                        if r.status_code != 200:
-                            logger.error(
-                                f"Can't delete old image for {item['name']}: \
-                                    {r.status_code}"
-                            )
-                            continue
-
-                    # make url by replacing the 'spot/' with 'item/...'
-                    full_url = f"{url[:url.rindex('/')]}/item/{item_id}/image"
-
-                    # post new image
-                    r = requests.post(
-                        full_url,
-                        files=files,
+                    # delete old image
+                    r = requests.delete(
+                        (f"{url[:url.rindex('/')]}/item/{item_id}"
+                            f"/image/{image_id}"),
                         auth=self._oauth,
                         headers=headers,
                     )
-                    if r.status_code != 201:
-                        raise Exception(
-                            "Error uploading image: {}".format(r.status_code)
+                    if r.status_code != 200:
+                        logger.error(
+                            f"Can't delete old image for {item['name']}: \
+                                {r.status_code}"
                         )
+                        continue
+
+                # make url by replacing the 'spot/' with 'item/...'
+                full_url = f"{url[:url.rindex('/')]}/item/{item_id}/image"
+
+                # post new image
+                r = requests.post(
+                    full_url,
+                    files=files,
+                    auth=self._oauth,
+                    headers=headers,
+                )
+                if r.status_code != 201:
+                    raise Exception(
+                        "Error uploading image: {}".format(r.status_code)
+                    )
 
             if resp.status_code not in (
                 requests.codes.ok,

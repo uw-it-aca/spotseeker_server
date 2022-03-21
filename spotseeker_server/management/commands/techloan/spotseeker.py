@@ -154,6 +154,7 @@ class Spots:
                 if 'cte_type_id' in item["extended_info"] and int(
                         item["extended_info"]["cte_type_id"]) == cte_type_id:
                     return item["id"]
+        # use item name, brand, and model to find the ID if CTE not provided
         else:
             for item in items:
                 if item["name"] == item_name and \
@@ -203,31 +204,28 @@ class Spots:
                 headers=headers,
             )
 
-            # post item images
+            # get spot content to confirm item IDs
             content = requests.get(
                 f"{url}/{spot['id']}", auth=self._oauth, headers=headers
             ).json()
 
+            # post item images
             for item in spot.items:
+                # if item has an image, try to post it
                 if isinstance(item["images"], str):
                     f = open(item["images"], "rb")
                     buf = io.BytesIO(f.read())
                     files = {'image': ('image.jpg', buf)}
 
-                    if 'cte_type_id' in item['extended_info']:
-                        item_id = self._get_item_id_by_item_info(
-                            content['items'], item['name'],
-                            item['extended_info']['i_brand'],
-                            item['extended_info']['i_model'],
-                            int(item['extended_info']['cte_type_id'])
-                        )
-                    else:
-                        item_id = self._get_item_id_by_item_info(
-                            content['items'], item['name'],
-                            item['extended_info']['i_brand'],
-                            item['extended_info']['i_model'],
-                            None
-                        )
+                    cte_type_id = int(item['extended_info']['cte_type_id']) \
+                        if 'cte_type_id' in item['extended_info'] else None
+
+                    item_id = self._get_item_id_by_item_info(
+                        content['items'], item['name'],
+                        item['extended_info']['i_brand'],
+                        item['extended_info']['i_model'],
+                        cte_type_id
+                    )
 
                     if item_id is None:
                         logger.error(f"Can't find item id for {item['name']}")
@@ -268,9 +266,10 @@ class Spots:
                             )
                             continue
 
-                    # post new image
-                    full_url = f"{url[:-5]}/item/{item_id}/image"
+                    # make url by replacing the 'spot/' with 'item/...'
+                    full_url = f"{url[:url.rindex('/')]}/item/{item_id}/image"
 
+                    # post new image
                     r = requests.post(
                         full_url,
                         files=files,

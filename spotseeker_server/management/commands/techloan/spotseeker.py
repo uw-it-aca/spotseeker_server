@@ -146,29 +146,27 @@ class Spots:
                 item["extended_info"]["i_is_active"] = "true"
                 sync_equipment_to_item(equipment, item)
 
-    def _get_item_id_by_item_info(self, items: list, item_name: str,
-                                  item_brand: str, item_model: str,
-                                  cte_type_id: int) -> int:
-        if cte_type_id is not None:
+    def _get_item_id_by_item_info(self, items: list, item_name, item_brand,
+                                  item_model, cte_type_id: str) -> int:
+        if cte_type_id:
             for item in items:
-                if 'cte_type_id' in item["extended_info"] and int(
-                        item["extended_info"]["cte_type_id"]) == cte_type_id:
-                    return item["id"]
+                if item['extended_info'].get('cte_type_id') == cte_type_id:
+                    return item['id']
         # use item name, brand, and model to find the ID if CTE not provided
         else:
             for item in items:
                 if item["name"] == item_name and \
                         item["extended_info"]["i_brand"] == item_brand and \
                         item["extended_info"]["i_model"] == item_model:
-                    return item["id"]
+                    return item['id']
         return None
 
-    def _item_image_exists(self, item_id: int, items: list) -> bool:
+    def _item_image_exists(self, item_id, items: list) -> bool:
         for item in items:
             if item['id'] == item_id:
                 return len(item['images']) > 0
 
-    def _item_has_image(self, item_id: int, image_url, items: list) -> bool:
+    def _item_has_image(self, item_id, image_url, items: list) -> bool:
         for item in items:
             if item['id'] == item_id and \
                     item['extended_info']['i_image_url'] == image_url:
@@ -177,7 +175,7 @@ class Spots:
                 return False
         return False
 
-    def _get_image_id(self, image_url, items: list, item_id: int) -> int:
+    def _get_image_id(self, image_url, items: list, item_id) -> int:
         for item in items:
             if item['id'] == item_id and \
                     item['extended_info']['i_image_url'] == image_url:
@@ -186,6 +184,7 @@ class Spots:
 
     def upload_data(self):
         url = self._url.format(self._config['server_host'])
+        item_url = url[:url.rindex('/')] + '/item'
         failures = []
 
         for spot in self.spots:
@@ -211,38 +210,27 @@ class Spots:
 
             # post item images
             for item in spot.items:
-                # if item has an image, try to post it
                 if not isinstance(item['images'], str):
                     continue
 
-                f = open(item["images"], "rb")
-                buf = io.BytesIO(f.read())
-                files = {'image': ('image.jpg', buf)}
-
-                cte_type_id = int(item['extended_info']['cte_type_id']) \
-                    if 'cte_type_id' in item['extended_info'] else None
+                item_name = item['name']
+                item_brand = item['extended_info']['i_brand']
+                item_model = item['extended_info']['i_model']
+                image_url = item['extended_info']['i_image_url']
+                cte_type_id = item['extended_info'].get('cte_type_id')
 
                 item_id = self._get_item_id_by_item_info(
-                    items_content, item['name'],
-                    item['extended_info']['i_brand'],
-                    item['extended_info']['i_model'],
-                    cte_type_id
+                    items_content, item_name, item_brand, item_model,
+                    str(cte_type_id)
                 )
-
                 if item_id is None:
-                    logger.error(f"Can't find item id for {item['name']}")
+                    logger.error(f"Can't find item id for {item_name}")
                     continue
 
-                image_exists = self._item_image_exists(
-                    item_id, items_content
+                image_exists = self._item_image_exists(item_id, items_content)
+                has_image = image_exists and self._item_has_image(
+                    item_id, image_url, items_content
                 )
-                has_image = False
-                if image_exists:
-                    has_image = self._item_has_image(
-                        item_id, item['extended_info']['i_image_url'],
-                        items_content
-                    )
-
                 # if same image already exists, skip
                 if has_image:
                     continue
@@ -251,25 +239,27 @@ class Spots:
                 if image_exists:
                     # find image id
                     image_id = self._get_image_id(
-                        item["extended_info"]["i_image_url"],
-                        items_content, item_id
+                        image_url, items_content, item_id
                     )
                     # delete old image
                     r = requests.delete(
-                        (f"{url[:url.rindex('/')]}/item/{item_id}"
-                            f"/image/{image_id}"),
+                        f"{item_url}/{item_id}/image/{image_id}",
                         auth=self._oauth,
                         headers=headers,
                     )
                     if r.status_code != 200:
                         logger.error(
-                            f"Can't delete old image for {item['name']}: \
+                            f"Can't delete old image for {item_name}: \
                                 {r.status_code}"
                         )
                         continue
 
                 # make url by replacing the 'spot/' with 'item/...'
-                full_url = f"{url[:url.rindex('/')]}/item/{item_id}/image"
+                full_url = f"{item_url}/{item_id}/image"
+                # read image
+                f = open(item["images"], "rb")
+                buf = io.BytesIO(f.read())
+                files = {'image': ('image.jpg', buf)}
 
                 # post new image
                 r = requests.post(

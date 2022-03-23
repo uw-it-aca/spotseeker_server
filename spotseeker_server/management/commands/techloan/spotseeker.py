@@ -12,6 +12,7 @@ from schema import Schema
 from typing import Iterator
 from .techloan import Techloan
 from .utils import clean_html
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +110,8 @@ class Spots:
         self._config = config
         self._oauth = oauth
         self.spots = []
+        self._clean_counter = 0
+        self._CLEAN_COUNTER_MAX = int(settings.SPOTSEEKER_SYNC_TECHLOAN_COUNT)
         for spot in spots_json_arr:
             try:
                 self.spots.append(Spot(spot))
@@ -153,7 +156,11 @@ class Spots:
                 item["extended_info"]["i_is_active"] = "true"
                 sync_equipment_to_item(equipment, item)
 
-        self.clean_inactive_items()
+        if self._clean_counter >= self._CLEAN_COUNTER_MAX:
+            self.clean_inactive_items()
+            self._clean_counter = 0
+        else:
+            self._clean_counter += 1
 
     def _get_item_id_by_item_info(self, items: list, item_name: str,
                                   item_brand: str, item_model: str,

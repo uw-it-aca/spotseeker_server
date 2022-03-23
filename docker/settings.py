@@ -35,6 +35,10 @@ SPOTSEEKER_AUTH_ADMINS = (
     os.getenv("SPOTSEEKER_AUTH_ADMINS", "").replace(" ", "").split(",")
 )
 
+SPOTSEEKER_SYNC_TECHLOAN_COUNT = os.getenv(
+    "SPOTSEEKER_SYNC_TECHLOAN_COUNT", 0
+)
+
 # Custom validation can be added by adding SpotForm and ExtendedInfoForm to
 # org_forms and setting them here.
 SPOTSEEKER_SEARCH_FILTERS = ["spotseeker_server.org_filters.uw_search.Filter"]

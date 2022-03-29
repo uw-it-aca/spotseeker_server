@@ -48,6 +48,14 @@ SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.MODULE'
 SPOTSEEKER_SEARCH_FILTERS = ('spotseeker_server.org_filters.MODULE', )
 ```
 
+To properly access spots while in oauth, you can call
+
+```
+./manage.py loaddata /app/spotseeker_server/fixtures/oauth.json
+```
+
+and use the oauth key/secret pair provided in the json file so you won't have to recreate a consumer each time.
+
 For additional settings, see [some page that doesn't exist.]
 
 You can also optionally create some sample spot data:

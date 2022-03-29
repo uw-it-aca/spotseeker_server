@@ -77,6 +77,8 @@ externalSecrets:
           property: storage-bucket-name
         - name: storage-project-id
           property: storage-project-id
+        - name: spotseeker-techloan-url
+          property: spotseeker-techloan-url
         - name: spotseeker-web-server-host
           property: spotseeker-web-server-host
         - name: spotseeker-web-oauth-key
@@ -114,7 +116,10 @@ environmentVariablesSecrets:
     name: STORAGE_PROJECT_ID
     secretName: test.api.scout.uw.edu-secrets
     secretKey: storage-project-id
-  # TODO: add sync_techloan secrets here
+  spotseekerTechloanUrl:
+    name: SPOTSEEKER_TECHLOAN_URL
+    secretName: test.api.scout.uw.edu-secrets
+    secretKey: spotseeker-techloan-url
   spotseekerWebServerHost:
     name: SPOTSEEKER_WEB_SERVER_HOST
     secretName: test.api.scout.uw.edu-secrets

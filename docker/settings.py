@@ -92,3 +92,5 @@ SPOTSEEKER_TECHLOAN_UPDATER = {
     'oauth_secret': os.getenv('SPOTSEEKER_WEB_OAUTH_SECRET'),
     'oauth_user': os.getenv('SPOTSEEKER_WEB_OAUTH_USER'),
 }
+
+SPOTSEEKER_TECHLOAN_URL = os.getenv('SPOTSEEKER_TECHLOAN_URL')

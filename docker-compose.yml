@@ -13,5 +13,6 @@ services:
       ENV: localdev
       AUTH_MODULE: ${AUTH_MODULE:-all_ok}
       SPOTSEEKER_AUTH_ADMINS: ${SPOTSEEKER_AUTH_ADMINS}
+      SPOTSEEKER_TECHLOAN_URL: ${SPOTSEEKER_TECHLOAN_URL}
     stdin_open: true
     tty: true

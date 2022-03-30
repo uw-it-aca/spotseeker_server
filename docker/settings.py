@@ -43,54 +43,11 @@ SPOTSEEKER_SPOTEXTENDEDINFO_FORM = (
     "spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm"
 )
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "filters": {
-        "stdout_stream": {
-            "()": "django.utils.log.CallbackFilter",
-            "callback": lambda record: record.levelno < logging.WARN,
-        },
-        "stderr_stream": {
-            "()": "django.utils.log.CallbackFilter",
-            "callback": lambda record: record.levelno > logging.INFO,
-        },
-    },
-    "formatters": {},
-    "handlers": {
-        "null": {
-            "level": "DEBUG",
-            "class": "logging.NullHandler",
-        },
-        "stdout": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-            "filters": ["stdout_stream"],
-        },
-        "stderr": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stderr,
-            "filters": ["stderr_stream"],
-        },
-    },
-    "loggers": {
-        "spotseeker_server.views.share_space": {
-            "handlers": ["null"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "": {
-            "handlers": ["stdout", "stderr"],
-            "level": "INFO" if os.getenv("ENV", "dev") == "prod" else "DEBUG",
-        },
-    },
-}
-
 SPOTSEEKER_TECHLOAN_UPDATER = {
-    'server_host': os.getenv('SPOTSEEKER_WEB_SERVER_HOST'),
-    'oauth_key': os.getenv('SPOTSEEKER_WEB_OAUTH_KEY'),
-    'oauth_secret': os.getenv('SPOTSEEKER_WEB_OAUTH_SECRET'),
-    'oauth_user': os.getenv('SPOTSEEKER_WEB_OAUTH_USER'),
+    "server_host": os.getenv("SPOTSEEKER_WEB_SERVER_HOST"),
+    "oauth_key": os.getenv("SPOTSEEKER_WEB_OAUTH_KEY"),
+    "oauth_secret": os.getenv("SPOTSEEKER_WEB_OAUTH_SECRET"),
+    "oauth_user": os.getenv("SPOTSEEKER_WEB_OAUTH_USER"),
 }
 
-SPOTSEEKER_TECHLOAN_URL = os.getenv('SPOTSEEKER_TECHLOAN_URL')
+SPOTSEEKER_TECHLOAN_URL = os.getenv("SPOTSEEKER_TECHLOAN_URL")

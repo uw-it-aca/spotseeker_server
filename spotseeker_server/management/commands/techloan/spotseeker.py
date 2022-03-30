@@ -40,8 +40,8 @@ def sync_equipment_to_item(equipment, item):
         except Exception as ex:
             item["images"] = []
             logger.warning(
-                f"Failed to retrieve image for item with CTE ID \
-                    {equipment['id']}: {str(ex)}"
+                "Failed to retrieve image for item with CTE ID "
+                f"{equipment['id']}: {str(ex)}"
             )
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]

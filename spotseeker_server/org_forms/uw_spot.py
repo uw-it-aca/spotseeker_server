@@ -37,6 +37,7 @@ validated_ei = {
     "has_whiteboards": ["true"],
     "is_hidden": ["true"],
     "labstats_id": "int",
+    "location_description": "str",
     "noise_level": ["silent", "quiet", "moderate", "variable"],
     "num_computers": "int",
     "rating": "int",
@@ -78,14 +79,19 @@ validated_ei = {
 
 
 def uw_validate(value, key, choices):
-    """Check to see if the value is one of the choices or if it is an int,
-    else it throws a validation error
+    """Check to see if the value is one of the choices or if it is an
+    int or str, else it throws a validation error
     """
     if choices == "int":
         try:
             int(value)
         except ValueError:
             raise forms.ValidationError("Value must be an int")
+    elif choices == "str":
+        if value.isdecimal():
+            raise forms.ValidationError(
+                "Location description cannot contain only numbers"
+            )
     elif value not in choices:
         raise forms.ValidationError(
             "Value for %s was %s, must be one of: %s"
@@ -98,6 +104,18 @@ class UWSpotExtendedInfoForm(DefaultSpotExtendedInfoForm):
         cleaned_data = super(UWSpotExtendedInfoForm, self).clean()
         # Have to check value here since we look at multiple items
         key = self.cleaned_data["key"]
+
+        # if location description all whitespace, django cleans value to None
+        if key == "location_description":
+            try:
+                value = self.cleaned_data["value"]
+            except KeyError as e:
+                value = self.cleaned_data.get("value")
+                if value is None:
+                    raise forms.ValidationError(
+                        "Location description cannot contain only spaces"
+                    )
+
         value = self.cleaned_data["value"]
 
         if key == "s_phone":

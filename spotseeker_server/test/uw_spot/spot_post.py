@@ -42,7 +42,6 @@ class UWSpotPOSTTest(TransactionTestCase):
             content_type="application/json",
             follow=False,
         )
-
         self.assertEquals(
             response.status_code,
             201,
@@ -57,7 +56,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         self.assertEquals(
             response["Location"],
             self.spot.rest_url(),
-            "The uri for the new spot is correct",
+            "The url for the new spot is correct",
         )
 
         get_response = c.get(response["Location"])
@@ -236,7 +235,7 @@ class UWSpotPOSTTest(TransactionTestCase):
         self.assertEquals(
             response.status_code,
             400,
-            ("Spot not created; has_outlets field did not pass " "validation"),
+            ("Spot not created; has_outlets field did not pass validation"),
         )
 
         has_outlets = "true"
@@ -316,6 +315,12 @@ class UWSpotPOSTTest(TransactionTestCase):
         self.uw_ei_field_common(field, invalid_cases, valid_cases)
 
     def test_uw_field_location_description(self):
+        field = "location_description"
+        invalid_cases = ["     ", "1232"]
+        valid_cases = ["This is a valid description"]
+        self.uw_ei_field_common(field, invalid_cases, valid_cases)
+
+    def test_uw_field_matches_location_description(self):
         c = Client()
         new_name = "Testing POST Name: {0}".format(random.random())
         new_capacity = 10

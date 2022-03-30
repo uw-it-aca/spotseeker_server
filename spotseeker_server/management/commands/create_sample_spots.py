@@ -24,6 +24,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--force-delete",
+            "-f",
+            action="store_true",
             dest="delete_spots",
             default=False,
             help="Set to yes to force deletion of spots "
@@ -31,14 +33,14 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        print(
-            "This will delete all of your existing spots - if you "
-            "really want to do that, type 'delete my spots':"
-        )
-
-        if options["delete_spots"] == "yes":
+        if options["delete_spots"]:
+            print("Deleting all existing spots...")
             confirmation = "delete my spots"
         else:
+            print(
+                "This will delete all of your existing spots - if you "
+                "really want to do that, type 'delete my spots':"
+            )
             confirmation = input("Type it please: ")
 
         if confirmation != "delete my spots":

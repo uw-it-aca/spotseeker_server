@@ -51,3 +51,14 @@ SPOTSEEKER_TECHLOAN_UPDATER = {
 }
 
 SPOTSEEKER_TECHLOAN_URL = os.getenv("SPOTSEEKER_TECHLOAN_URL")
+
+# Settings used for caching individual Spots in JSON (and maybe images soon, too).
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'OPTIONS': {
+            'MAX_ENTRIES': os.getenv("CACHE_MAX_ENTRIES", 300),
+            'TIMEOUT': os.getenv("CACHE_TIMEOUT", 300),
+        }
+    }
+}

@@ -62,6 +62,10 @@ environmentVariables:
     value: prod
   - name: WEBSERVER
     value: nginx
+  - name: CACHE_MAX_ENTRIES
+    value: "1000"
+  - name: CACHE_TIMEOUT
+    value: "86400"
 externalSecrets:
   enabled: true
   secrets:

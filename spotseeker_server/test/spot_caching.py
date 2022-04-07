@@ -1,13 +1,18 @@
 # Copyright 2022 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.cache import cache
 from spotseeker_server.models import Spot
 
 
 class SpotCacheTest(TestCase):
 
+    @override_settings(CACHES={
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    })
     def test_spot_caching(self):
 
         spot = Spot.objects.create(name='foo')

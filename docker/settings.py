@@ -86,13 +86,20 @@ LOGGING = {
     },
 }
 
-# Settings used for caching individual Spots in JSON (and maybe images soon, too).
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'OPTIONS': {
-            'MAX_ENTRIES': os.getenv("CACHE_MAX_ENTRIES", 300),
-            'TIMEOUT': os.getenv("CACHE_TIMEOUT", 300),
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
-}
+else:
+    # Settings used for caching individual Spots in JSON (and maybe images soon, too).
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'OPTIONS': {
+                'MAX_ENTRIES': os.getenv("CACHE_MAX_ENTRIES", 300),
+                'TIMEOUT': os.getenv("CACHE_TIMEOUT", 300),
+            }
+        }
+    }

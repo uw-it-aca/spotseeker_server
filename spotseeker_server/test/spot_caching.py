@@ -8,7 +8,7 @@ from spotseeker_server.models import Spot
 
 class SpotCacheTest(TestCase):
 
-    @override_settings(CACHES = {
+    @override_settings(CACHES={
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         }

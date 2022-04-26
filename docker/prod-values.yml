@@ -47,7 +47,10 @@ image:
   repository: gcr.io/uwit-mci-axdd/spotseeker
   tag: IMAGE_TAG
 memcached:
-  enabled: false
+  enabled: true
+  replicaCount: 1
+  updateStrategy:
+    type: RollingUpdate
 gcsCredentials:
   mounted: true
   secretName: api.scout.uw.edu-gc-service-credentials

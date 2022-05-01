@@ -49,10 +49,10 @@ def sync_equipment_to_item(equipment, item):
     item["extended_info"]["i_access_limit_role"] = "true"
     item["extended_info"]["i_access_role_students"] = "true"
 
-    item['extended_info']['recent_changes'] = \
-        item['extended_info'].get('last_modified') != \
+    item['extended_info']['i_recent_changes'] = \
+        item['extended_info'].get('i_last_modified') != \
         equipment['last_modified']
-    item['extended_info']['last_modified'] = equipment['last_modified']
+    item['extended_info']['i_last_modified'] = equipment['last_modified']
 
 
 class Spot(dict):
@@ -221,7 +221,7 @@ class Spots:
                 item_model = item['extended_info']['i_model']
                 image_url = item['extended_info'].get('i_image_url')
                 cte_type_id = item['extended_info'].get('cte_type_id')
-                recent_changes = item['extended_info'].get('recent_changes')
+                recent_changes = item['extended_info'].get('i_recent_changes')
 
                 image = self._download_image(image_url, cte_type_id) \
                     if image_url and recent_changes else None

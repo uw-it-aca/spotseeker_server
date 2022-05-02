@@ -47,7 +47,7 @@ image:
   repository: gcr.io/uwit-mci-axdd/spotseeker
   tag: IMAGE_TAG
 memcached:
-  enabled: true
+  enabled: false
   replicaCount: 1
   updateStrategy:
     type: RollingUpdate

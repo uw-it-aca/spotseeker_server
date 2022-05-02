@@ -15,6 +15,7 @@ from decimal import *
 
 # from datetime import datetime
 import os
+import glob
 
 
 class Command(BaseCommand):
@@ -23,6 +24,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--force-delete",
+            "-f",
+            action="store_true",
             dest="delete_spots",
             default=False,
             help="Set to yes to force deletion of spots "
@@ -30,14 +33,14 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        print(
-            "This will delete all of your existing spots - if you "
-            "really want to do that, type 'delete my spots':"
-        )
-
-        if options["delete_spots"] == "yes":
+        if options["delete_spots"]:
+            print("Deleting all existing spots...")
             confirmation = "delete my spots"
         else:
+            print(
+                "This will delete all of your existing spots - if you "
+                "really want to do that, type 'delete my spots':"
+            )
             confirmation = input("Type it please: ")
 
         if confirmation != "delete my spots":
@@ -49,6 +52,16 @@ class Command(BaseCommand):
             Spot.objects.all().delete()
             SpotExtendedInfo.objects.all().delete()
             SpotAvailableHours.objects.all().delete()
+
+            # delete old default images
+            base_dir = os.path.dirname(os.path.realpath(__file__))
+            path = os.path.join(base_dir, "resources")
+            imgs = glob.glob(path + "/building*_*.jpg")
+            for img in imgs:
+                try:
+                    os.remove(img)
+                except OSError:
+                    print("Could not delete image: " + img)
 
             lab_space = Spot.objects.create(
                 name="This is a computer lab",
@@ -571,7 +584,10 @@ class Command(BaseCommand):
                 0
             ]
             loan_office = Spot.objects.create(
-                name="Tech Loan Office", building_name="Kane Hall (KNE)"
+                name="Tech Loan Office",
+                building_name="Kane Hall (KNE)",
+                longitude=Decimal("-122.306382"),
+                latitude=Decimal("47.653477"),
             )
             loan_office.spottypes.add(item_place_type)
             loan_office.save()
@@ -584,12 +600,24 @@ class Command(BaseCommand):
             SpotExtendedInfo.objects.create(
                 key="cte_techloan_id", value="1", spot=loan_office
             )
+            SpotExtendedInfo.objects.create(
+                key="campus", value="seattle", spot=loan_office
+            )
 
             macbook = Item.objects.create(
                 name="Apple Macbook Pro",
                 spot=loan_office,
                 item_category="Placeholder Category",
                 item_subcategory="Laptop Computer",
+            )
+            f = open(
+                os.path.join(base_dir, "resources", "building5.jpg"), "rb"
+            )
+            ItemImage.objects.create(
+                item=macbook,
+                image=File(f),
+                display_index=0,
+                description="Macbook Pro",
             )
             ItemExtendedInfo.objects.create(
                 key="i_quantity", value="10", item=macbook
@@ -602,6 +630,9 @@ class Command(BaseCommand):
             )
             ItemExtendedInfo.objects.create(
                 key="i_check_out_period", value="7", item=macbook
+            )
+            ItemExtendedInfo.objects.create(
+                key="i_is_active", value="true", item=macbook
             )
 
             latitude = Item.objects.create(
@@ -622,6 +653,9 @@ class Command(BaseCommand):
             ItemExtendedInfo.objects.create(
                 key="i_check_out_period", value="14", item=latitude
             )
+            ItemExtendedInfo.objects.create(
+                key="i_is_active", value="true", item=latitude
+            )
 
             passport = Item.objects.create(
                 name="Fender Passport P-150",
@@ -640,4 +674,50 @@ class Command(BaseCommand):
             )
             ItemExtendedInfo.objects.create(
                 key="i_check_out_period", value="7", item=passport
+            )
+            ItemExtendedInfo.objects.create(
+                key="i_is_active", value="true", item=passport
+            )
+
+            other_office = Spot.objects.create(
+                name="Another Loan Office",
+                building_name="Kane Hall (KNE)",
+                longitude=Decimal("-122.306382"),
+                latitude=Decimal("47.653477"),
+            )
+            loan_office.spottypes.add(item_place_type)
+            loan_office.save()
+            SpotExtendedInfo.objects.create(
+                key="app_type", value="tech", spot=other_office
+            )
+            SpotExtendedInfo.objects.create(
+                key="has_cte_techloan", value="true", spot=other_office
+            )
+            SpotExtendedInfo.objects.create(
+                key="cte_techloan_id", value="2", spot=other_office
+            )
+            SpotExtendedInfo.objects.create(
+                key="campus", value="seattle", spot=other_office
+            )
+
+            thingy = Item.objects.create(
+                name="Thingy P-150",
+                spot=other_office,
+                item_category="Placeholder Category",
+                item_subcategory="Portable Audio System",
+            )
+            ItemExtendedInfo.objects.create(
+                key="i_quantity", value="5", item=thingy
+            )
+            ItemExtendedInfo.objects.create(
+                key="i_model", value="Passport P-150", item=thingy
+            )
+            ItemExtendedInfo.objects.create(
+                key="i_brand", value="Fender", item=thingy
+            )
+            ItemExtendedInfo.objects.create(
+                key="i_check_out_period", value="7", item=thingy
+            )
+            ItemExtendedInfo.objects.create(
+                key="i_is_active", value="true", item=thingy
             )

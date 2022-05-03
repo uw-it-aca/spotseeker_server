@@ -38,8 +38,7 @@ def sync_equipment_to_item(equipment, item):
         item["extended_info"]["i_is_stf"] = "true"
     else:
         item["extended_info"].pop("i_is_stf", None)
-    item["extended_info"]["i_quantity"] = equipment["num_active"]
-    item["extended_info"]["i_num_available"] = \
+    item["extended_info"]["i_quantity"] = \
         equipment["_embedded"]["availability"][0]["num_available"]
 
     if equipment["reservable"]:

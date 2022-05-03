@@ -7,6 +7,7 @@ from typing import Iterator
 
 import requests
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from schema import Schema, Or
 
 logger = logging.getLogger(__name__)

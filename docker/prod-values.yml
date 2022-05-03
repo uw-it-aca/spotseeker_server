@@ -48,6 +48,9 @@ image:
   tag: IMAGE_TAG
 memcached:
   enabled: false
+  replicaCount: 1
+  updateStrategy:
+    type: RollingUpdate
 gcsCredentials:
   mounted: true
   secretName: api.scout.uw.edu-gc-service-credentials

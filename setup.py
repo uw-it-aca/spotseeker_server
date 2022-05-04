@@ -13,6 +13,7 @@ setup(name='SpaceScout-Server',
             'requests==2.26.*',
             'requests-oauthlib==1.3.*',
             'Pillow',
+            'pylibmc',  # switch to what django-container uses upon upgrade
             'pyproj',
             'pytz',
             'simplejson>=2.1',

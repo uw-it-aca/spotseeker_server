@@ -48,6 +48,14 @@ SPOTSEEKER_SPOTEXTENDEDINFO_FORM = 'spotseeker_server.org_forms.MODULE'
 SPOTSEEKER_SEARCH_FILTERS = ('spotseeker_server.org_filters.MODULE', )
 ```
 
+To properly access spots while in oauth, you can call
+
+```
+./manage.py loaddata /app/spotseeker_server/fixtures/oauth.json
+```
+
+and use the oauth key/secret pair provided in the json file so you won't have to recreate a consumer each time.
+
 For additional settings, see [some page that doesn't exist.]
 
 You can also optionally create some sample spot data:
@@ -63,6 +71,15 @@ python manage.py create_sample_spots
 ## Deployment
 
 (To be completed.)
+
+### Running `sync_techloan`
+
+    $ docker exec -it spotseeker-server bash
+
+Create a test consumer and set the [required env variables](#sync_techloan-settings)
+
+    $ . bin/activate
+    (app) $ /scripts/management_daemon.sh --delay 30 sync_techloan
 
 ## Built With
 
@@ -102,8 +119,16 @@ limitations under the License.
 
 (To be moved to the wiki eventually.)
 
-JSON_PRETTY_PRINT
-SPOTSEEKER_AUTH_ADMINS
-SPOTSEEKER_AUTH_MODULE
-SPOTSEEKER_SEARCH_FILTERS
-USER_EMAIL_DOMAIN
+- JSON_PRETTY_PRINT
+- SPOTSEEKER_AUTH_ADMINS
+- SPOTSEEKER_AUTH_MODULE
+- SPOTSEEKER_SEARCH_FILTERS
+- USER_EMAIL_DOMAIN
+- SPOTSEEKER_TECHLOAN_URL
+
+### `sync_techloan` settings
+
+* SPOTSEEKER_WEB_SERVER_HOST
+* SPOTSEEKER_WEB_OAUTH_KEY
+* SPOTSEEKER_WEB_OAUTH_SECRET
+* SPOTSEEKER_WEB_USER

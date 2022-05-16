@@ -35,9 +35,17 @@ class Command(BaseCommand):
             logger.error("Settings misconfigured: ", ex)
             return
 
-        techloan = Techloan.from_cte_api()
-        spots = Spots.from_spotseeker_server(
+        techloan = self.get_techloan()
+        spots = self.get_spots()
+        self.sync_techloan_to_spots(techloan, spots)
+
+    def get_techloan(self):
+        return Techloan.from_cte_api()
+
+    def get_spots(self):
+        return Spots.from_spotseeker_server(
             settings.SPOTSEEKER_TECHLOAN_UPDATER)
 
+    def sync_techloan_to_spots(self, techloan, spots):
         spots.sync_with_techloan(techloan)
         spots.upload_data()

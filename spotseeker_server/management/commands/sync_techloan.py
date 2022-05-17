@@ -32,7 +32,7 @@ class Command(BaseCommand):
             self._settings_scheme.validate(
                 settings.SPOTSEEKER_TECHLOAN_UPDATER)
         except Exception as ex:
-            logger.error("Settings misconfigured: ", ex)
+            logger.error(f"Settings misconfigured: {str(ex)}")
             return
 
         techloan = self.get_techloan()

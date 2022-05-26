@@ -58,7 +58,7 @@ daemon:
     - name: sync-techloan
       replicaCount: 1
       command: ["/scripts/management_daemon.sh"]
-      args: ["--delay", "900", "sync_techloan"]
+      args: ["--delay", "1800", "sync_techloan"]
 environmentVariables:
   - name: AUTH_MODULE
     value: oauth

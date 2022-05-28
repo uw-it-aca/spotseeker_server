@@ -3,13 +3,15 @@
 
 from django.test import override_settings
 from django.conf import settings
-from spotseeker_server.spotseeker_server.management.commands.\
+from spotseeker_server.management.commands.\
     techloan.spotseeker import Spots
-from spotseeker_server.spotseeker_server.test.techloan import TechloanTestCase
+from spotseeker_server.management.commands.\
+    sync_techloan import Command
+from spotseeker_server.test.techloan import TechloanTestCase
 
 
 @override_settings(SPOTSEEKER_TECHLOAN_URL="")
-class SpotseekerServerTest(TechloanTestCase):
+class SpotseekerTest(TechloanTestCase):
 
     # mock SPOTSEEKER_TECHLOAN_UPDATER envvar
     techloan_updater = {
@@ -19,26 +21,26 @@ class SpotseekerServerTest(TechloanTestCase):
         'oauth_user': 'javerage',
     }
 
+    spot_json = {
+        'id': 6,
+        'name': 'Test Spot',
+        'etag': '12345',
+        'extended_info': {
+            'cte_techloan_id': '54321',
+        },
+    }
+
+    @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=techloan_updater)
     def test_from_spotseeker_server(self):
         """
         Test that from_spotseeker_server returns a correct Spots object
         """
-        spots = Spots.from_spotseeker_server(self.techloan_updater)
+        spots = Command.get_spots()
         self.assertIsInstance(spots, Spots)
 
         # TODO: check for the correct number of spots
 
         # TODO: check for correct spot data
-
-        pass
-
-    """
-    The following tests test functions used in sync_with_techloan
-    """
-    def test_deactivate_all_items(self):
-        """
-        Test that deactivate_all_items updates the items with the correct data
-        """
 
         pass
 

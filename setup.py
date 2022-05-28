@@ -2,7 +2,8 @@
 
 from distutils.core import setup
 
-setup(name='SpaceScout-Server',
+setup(
+      name='SpaceScout-Server',
       version='1.0',
       description='REST Backend for SpaceScout',
       install_requires=[
@@ -16,10 +17,12 @@ setup(name='SpaceScout-Server',
             'pyproj',
             'pytz',
             'simplejson>=2.1',
-            'django-oauth-plus@git+https://github.com/edx-unsupported/django-oauth-plus#egg=2.2.9.edx-4',
+            ('django-oauth-plus@git+https://github.com/'
+                  'edx-unsupported/django-oauth-plus#egg=2.2.9.edx-4'),
             'django-storages[google]',
             'schema',
             'six',
-            'phonenumbers'
+            'phonenumbers',
+            'responses',
       ],
 )

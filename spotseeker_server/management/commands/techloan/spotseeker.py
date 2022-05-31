@@ -41,7 +41,7 @@ def sync_equipment_to_item(equipment, item):
             item["images"] = []
             logger.warning(
                 "Failed to retrieve image for item with CTE ID "
-                f"{equipment['id']}: {str(ex)}"
+                f"{equipment['id']} from {equipment['image_url']}: {str(ex)}"
             )
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
@@ -148,7 +148,7 @@ class Spots:
 
     def _get_item_id_by_item_info(self, items: list, item_name, item_brand,
                                   item_model, cte_type_id: str) -> int:
-        if cte_type_id:
+        if cte_type_id != 'None':
             for item in items:
                 if item['extended_info'].get('cte_type_id') == cte_type_id:
                     return item['id']
@@ -241,16 +241,17 @@ class Spots:
                     image_id = self._get_image_id(
                         image_url, items_content, item_id
                     )
+                    old_image_url = f"{item_url}/{item_id}/image/{image_id}"
                     # delete old image
                     r = requests.delete(
-                        f"{item_url}/{item_id}/image/{image_id}",
+                        old_image_url,
                         auth=self._oauth,
                         headers=headers,
                     )
                     if r.status_code != 200:
                         logger.error(
-                            f"Can't delete old image for {item_name}: \
-                                {r.status_code}"
+                            f"Can't delete old image at {old_image_url} for "
+                            f"{item_name} with ID {item_id}: {r.status_code}"
                         )
                         continue
 
@@ -269,8 +270,9 @@ class Spots:
                     headers=headers,
                 )
                 if r.status_code != 201:
-                    raise Exception(
-                        "Error uploading image: {}".format(r.status_code)
+                    logger.error(
+                        "Error {} uploading image to {}".format(
+                            r.status_code, full_url)
                     )
 
             if resp.status_code not in (

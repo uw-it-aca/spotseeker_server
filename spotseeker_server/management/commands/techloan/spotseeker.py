@@ -120,6 +120,7 @@ class Spots:
         return self.spots.__iter__()
 
     def sync_with_techloan(self, techloan: Techloan):
+        logger.debug("sync with techloan")
         for spot in self:
             spot.deactive_all_items()
             equipments = techloan.equipments_for_spot(spot)
@@ -314,6 +315,7 @@ class Spots:
 
     @classmethod
     def from_spotseeker_server(cls, config) -> 'Spots':
+        logger.debug("get spots from spotseeker_server")
         oauth = OAuth1(config['oauth_key'], config['oauth_secret'])
         headers = {
             'X-OAuth-User': config['oauth_user'],

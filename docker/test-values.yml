@@ -53,9 +53,10 @@ gcsCredentials:
 cronjob:
   enabled: true
   jobs:
-    schedule: "0,15,30,45 * * * *"
-    command: ["/scripts/management_daemon.sh"]
-    args: ["sync_techloan"]
+    - name: sync-techloan
+      schedule: "0,15,30,45 * * * *"
+      command: ["/scripts/management_daemon.sh"]
+      args: ["sync_techloan"]
 daemon:
   enabled: false  # cronjob is probably more appropriate
   daemons:

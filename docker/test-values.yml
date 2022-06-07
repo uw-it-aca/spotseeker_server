@@ -55,7 +55,7 @@ cronjob:
   jobs:
     - name: sync-techloan
       schedule: "0,15,30,45 * * * *"
-      command: ["/scripts/management_daemon.sh"]
+      command: ["/scripts/management_command.sh"]
       args: ["sync_techloan"]
 daemon:
   enabled: false  # cronjob is probably more appropriate

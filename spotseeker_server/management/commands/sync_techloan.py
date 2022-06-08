@@ -24,9 +24,6 @@ class Command(BaseCommand):
         'oauth_user': str,
     })
 
-    def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
-
     def handle(self, *args, **options):
         try:
             self._settings_scheme.validate(

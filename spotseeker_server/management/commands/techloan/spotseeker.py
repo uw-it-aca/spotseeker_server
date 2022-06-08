@@ -146,18 +146,10 @@ class Spots:
                 item["extended_info"]["i_is_active"] = "true"
                 sync_equipment_to_item(equipment, item)
 
-    def _get_item_id_by_item_info(self, items: list, item_name, item_brand,
-                                  item_model, cte_type_id: str) -> int:
+    def _get_item_id_by_cte_id(self, items: list, cte_type_id: str) -> int:
         if cte_type_id:
             for item in items:
                 if item['extended_info'].get('cte_type_id') == cte_type_id:
-                    return item['id']
-        # use item name, brand, and model to find the ID if CTE not provided
-        else:
-            for item in items:
-                if item["name"] == item_name and \
-                        item["extended_info"]["i_brand"] == item_brand and \
-                        item["extended_info"]["i_model"] == item_model:
                     return item['id']
         return None
 
@@ -169,18 +161,16 @@ class Spots:
     def _item_has_image(self, item_id, image_url, items: list) -> bool:
         for item in items:
             if item['id'] == item_id and \
-                    item['extended_info']['i_image_url'] == image_url:
+                    item['extended_info'].get('i_image_url') == image_url:
                 return True
             elif item['id'] == item_id:
                 return False
         return False
 
-    def _get_image_id(self, image_url, items: list, item_id) -> int:
+    def _get_image_id(self, items: list, item_id) -> int:
         for item in items:
-            if item['id'] == item_id and \
-                    item['extended_info']['i_image_url'] == image_url:
+            if item['id'] == item_id:
                 return item['images'][0]['id']
-        return None
 
     def upload_data(self):
         url = self._url.format(self._config['server_host'])
@@ -210,18 +200,16 @@ class Spots:
 
             # post item images
             for item in spot.items:
+                # skip items without images
                 if not isinstance(item['images'], str):
                     continue
 
                 item_name = item['name']
-                item_brand = item['extended_info']['i_brand']
-                item_model = item['extended_info']['i_model']
                 image_url = item['extended_info']['i_image_url']
                 cte_type_id = item['extended_info'].get('cte_type_id')
 
-                item_id = self._get_item_id_by_item_info(
-                    items_content, item_name, item_brand, item_model,
-                    str(cte_type_id)
+                item_id = self._get_item_id_by_cte_id(
+                    items_content, str(cte_type_id)
                 )
                 if item_id is None:
                     logger.error(f"Can't find item id for {item_name}")
@@ -238,9 +226,8 @@ class Spots:
                 # if different image exists, delete it
                 if image_exists:
                     # find image id
-                    image_id = self._get_image_id(
-                        image_url, items_content, item_id
-                    )
+                    image_id = self._get_image_id(items_content, item_id)
+
                     # delete old image
                     r = requests.delete(
                         f"{item_url}/{item_id}/image/{image_id}",
@@ -269,7 +256,7 @@ class Spots:
                     headers=headers,
                 )
                 if r.status_code != 201:
-                    raise Exception(
+                    logger.error(
                         "Error uploading image: {}".format(r.status_code)
                     )
 

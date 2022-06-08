@@ -31,18 +31,7 @@ def sync_equipment_to_item(equipment, item):
     if equipment["manual_url"]:
         item["extended_info"]["i_manual_url"] = equipment["manual_url"]
     if equipment["image_url"]:
-        # temp_file = tempfile.TemporaryFile()
-        try:
-            name, _ = urlretrieve(equipment["image_url"])
-
-            item["images"] = name
-            item["extended_info"]["i_image_url"] = equipment["image_url"]
-        except Exception as ex:
-            item["images"] = []
-            logger.warning(
-                "Failed to retrieve image for item with CTE ID "
-                f"{equipment['id']}: {str(ex)}"
-            )
+        item["extended_info"]["i_image_url"] = equipment["image_url"]
 
     item["extended_info"]["i_checkout_period"] = equipment["check_out_days"]
     if equipment["stf_funded"]:
@@ -58,6 +47,11 @@ def sync_equipment_to_item(equipment, item):
         item["extended_info"].pop("i_reservation_required", None)
     item["extended_info"]["i_access_limit_role"] = "true"
     item["extended_info"]["i_access_role_students"] = "true"
+
+    item['extended_info']['i_recent_changes'] = \
+        item['extended_info'].get('i_last_modified') != \
+        equipment['last_modified']
+    item['extended_info']['i_last_modified'] = equipment['last_modified']
 
 
 class Spot(dict):
@@ -119,6 +113,7 @@ class Spots:
         return self.spots.__iter__()
 
     def sync_with_techloan(self, techloan: Techloan):
+        logger.debug("sync with techloan")
         for spot in self:
             spot.deactive_all_items()
             equipments = techloan.equipments_for_spot(spot)
@@ -147,7 +142,7 @@ class Spots:
 
     def _get_item_id_by_item_info(self, items: list, item_name, item_brand,
                                   item_model, cte_type_id: str) -> int:
-        if cte_type_id:
+        if cte_type_id != 'None':
             for item in items:
                 if item['extended_info'].get('cte_type_id') == cte_type_id:
                     return item['id']
@@ -164,11 +159,12 @@ class Spots:
         for item in items:
             if item['id'] == item_id:
                 return len(item['images']) > 0
+        return False
 
     def _item_has_image(self, item_id, image_url, items: list) -> bool:
         for item in items:
             if item['id'] == item_id and \
-                    item['extended_info']['i_image_url'] == image_url:
+                    item['extended_info'].get('i_image_url') == image_url:
                 return True
             elif item['id'] == item_id:
                 return False
@@ -177,9 +173,20 @@ class Spots:
     def _get_image_id(self, image_url, items: list, item_id) -> int:
         for item in items:
             if item['id'] == item_id and \
-                    item['extended_info']['i_image_url'] == image_url:
+                    item['extended_info'].get('i_image_url') == image_url:
                 return item['images'][0]['id']
         return None
+
+    def _download_image(self, image_url, cte_type_id):
+        try:
+            image, _ = urlretrieve(image_url)
+            return image
+        except Exception as ex:
+            logger.warning(
+                "Failed to retrieve image for item with CTE ID "
+                f"{cte_type_id}: {str(ex)}"
+            )
+            return None
 
     def upload_data(self):
         url = self._url.format(self._config['server_host'])
@@ -209,14 +216,17 @@ class Spots:
 
             # post item images
             for item in spot.items:
-                if not isinstance(item['images'], str):
-                    continue
-
                 item_name = item['name']
                 item_brand = item['extended_info']['i_brand']
                 item_model = item['extended_info']['i_model']
-                image_url = item['extended_info']['i_image_url']
+                image_url = item['extended_info'].get('i_image_url')
                 cte_type_id = item['extended_info'].get('cte_type_id')
+                recent_changes = item['extended_info'].get('i_recent_changes')
+
+                image = self._download_image(image_url, cte_type_id) \
+                    if image_url and recent_changes else None
+                if image is None:
+                    continue
 
                 item_id = self._get_item_id_by_item_info(
                     items_content, item_name, item_brand, item_model,
@@ -227,9 +237,10 @@ class Spots:
                     continue
 
                 image_exists = self._item_image_exists(item_id, items_content)
-                has_image = image_exists and self._item_has_image(
-                    item_id, image_url, items_content
-                )
+                # TODO: weird case where image_url is None as is what happens
+                # with manager-added images
+                has_image = image_exists and \
+                    self._item_has_image(item_id, image_url, items_content)
                 # if same image already exists, skip
                 if has_image:
                     continue
@@ -240,23 +251,24 @@ class Spots:
                     image_id = self._get_image_id(
                         image_url, items_content, item_id
                     )
+                    old_image_url = f"{item_url}/{item_id}/image/{image_id}"
                     # delete old image
                     r = requests.delete(
-                        f"{item_url}/{item_id}/image/{image_id}",
+                        old_image_url,
                         auth=self._oauth,
                         headers=headers,
                     )
                     if r.status_code != 200:
                         logger.error(
-                            f"Can't delete old image for {item_name}: \
-                                {r.status_code}"
+                            f"Can't delete old image at {old_image_url} for "
+                            f"{item_name} with ID {item_id}: {r.status_code}"
                         )
                         continue
 
                 # make url by replacing the 'spot/' with 'item/...'
                 full_url = f"{item_url}/{item_id}/image"
                 # read image
-                f = open(item["images"], "rb")
+                f = open(image, "rb")
                 buf = io.BytesIO(f.read())
                 files = {'image': ('image.jpg', buf)}
 
@@ -268,8 +280,9 @@ class Spots:
                     headers=headers,
                 )
                 if r.status_code != 201:
-                    raise Exception(
-                        "Error uploading image: {}".format(r.status_code)
+                    logger.error(
+                        "Error {} uploading image to {}".format(
+                            r.status_code, full_url)
                     )
 
             if resp.status_code not in (
@@ -311,6 +324,7 @@ class Spots:
 
     @classmethod
     def from_spotseeker_server(cls, config) -> 'Spots':
+        logger.debug("get spots from spotseeker_server")
         oauth = OAuth1(config['oauth_key'], config['oauth_secret'])
         headers = {
             'X-OAuth-User': config['oauth_user'],

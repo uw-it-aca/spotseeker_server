@@ -51,7 +51,7 @@ gcsCredentials:
   mounted: true
   secretName: test.api.scout.uw.edu-gc-service-credentials
 cronjob:
-  enabled: false
+  enabled: true
   jobs:
     - name: sync-techloan
       schedule: "0,15,30,45 * * * *"

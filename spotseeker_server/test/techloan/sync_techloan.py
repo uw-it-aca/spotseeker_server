@@ -3,7 +3,6 @@
 
 from io import StringIO
 from django.test import override_settings
-from django.conf import settings
 from django.core.management import call_command
 from spotseeker_server.management.commands.\
     sync_techloan import Command
@@ -16,7 +15,11 @@ from spotseeker_server.test.techloan import TechloanTestCase
 from mock import patch
 import copy
 import json
+import logging
 import responses
+from responses import matchers
+
+test_logger = logging.getLogger(__name__)
 
 bad_techloan_updater = {
     'server_host': 0,
@@ -25,8 +28,14 @@ bad_techloan_updater = {
     'oauth_user': 'javerage',
 }
 
+good_techloan_updater = {
+    'server_host': 'https://techloan.uw.edu',
+    'oauth_key': 'dummy',
+    'oauth_secret': 'dummy',
+    'oauth_user': 'javerage',
+}
+
 filter = Spots._filter
-spot_url = Spots._url
 
 equipments = [
     {
@@ -52,7 +61,34 @@ equipments = [
             }],
         },
     },
+    {
+        'id': 98765,
+        'name': 'Another Equip',
+        'description': 'Hi',
+        'equipment_location_id': 00000,
+        'make': 'Test Make',
+        'model': 'Test Model',
+        'manual_url': None,
+        'image_url': 'www.bing.com',
+        'check_out_days': 50,
+        'stf_funded': True,
+        'num_active': 40,
+        'reservable': False,
+        '_embedded': {
+            'class': {
+                'name': 'Test Class',
+                'category': 'Testing Category',
+            },
+            'availability': [{
+                'num_available': 19,
+            }],
+        },
+    },
 ]
+
+equip_with_img = copy.deepcopy(equipments)
+for equip in equip_with_img:
+    equip['image_url'] = 'http://placehold.jp/150x150.png'
 
 mock_spot = {
     "id": 28,
@@ -102,6 +138,7 @@ mock_spot = {
                 "i_brand": "Apple",
                 "i_check_out_period": "7",
                 "i_is_active": "true",
+                "i_image_url": "http://placehold.jp/250x250.png",
                 "cte_type_id": "54321",
             },
             "images": [
@@ -159,7 +196,7 @@ mock_spots = [
         'name': 'Test Spot',
         'etag': '12345',
         'extended_info': {
-            'cte_techloan_id': '12345',
+            'cte_techloan_id': '00000',
         },
         'items': [
             {
@@ -170,6 +207,7 @@ mock_spots = [
                 'extended_info': {
                     'i_quantity': '10',
                     'i_model': 'Test Model',
+                    'cte_type_id': '98765',
                 },
                 'images': [],
             }
@@ -179,6 +217,17 @@ mock_spots = [
 ]
 
 mock_spots2 = copy.deepcopy(mock_spots)
+
+
+def _remove_images(spots: list) -> list:
+    spots_copy = copy.deepcopy(spots)
+    for spot in spots_copy:
+        for item in spot['items']:
+            item['images'] = []
+    return spots_copy
+
+
+mock_spots_no_imgs = _remove_images(mock_spots)
 
 
 def call_sync(*args, **kwargs):
@@ -194,13 +243,14 @@ def call_sync(*args, **kwargs):
     return {'out': out.getvalue(), 'err': err.getvalue()}
 
 
-@override_settings(SPOTSEEKER_TECHLOAN_URL="")
 class SyncTechloanTest(TechloanTestCase):
 
     @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=bad_techloan_updater)
     def test_bad_techloan_updater(self):
         # assert a logger error is raised
         with self.assertLogs(level='ERROR') as cm:
+            # add test info log so test doesn't fail if no logs
+            test_logger.info('Starting full sync...')
             call_sync()
             self.assertIn('Settings misconfigured', cm.output[0])
 
@@ -229,14 +279,14 @@ class SyncTechloanTest(TechloanTestCase):
 
     @responses.activate
     def test_get_techloan_with_requests(self):
-        responses.add(**{
-            'method': responses.GET,
-            'url': 'http://techloan.test/api/v1/equipment',
-            'status': 200,
-            'content_type': 'application/json',
-            'body': json.dumps(equipments),
-        })
+        responses.add(
+            responses.GET,
+            'http://techloan.test/api/v1/equipment',
+            status=200,
+            body=json.dumps(equipments),
+        )
 
+        # cannot use override_settings for SPOTSEEKER_TECHLOAN_URL
         with patch('spotseeker_server.management.commands.techloan.techloan'
                    '.Techloan._url', 'http://techloan.test/api/v1/equipment'):
             techloan = Command().get_techloan()
@@ -245,40 +295,196 @@ class SyncTechloanTest(TechloanTestCase):
 
     @responses.activate
     @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=bad_techloan_updater)
+    # cannot use override_settings for SPOTSEEKER_TECHLOAN_URL
+    @patch('spotseeker_server.management.commands.techloan.spotseeker'
+           '.Spots._url', 'http://techloan.test/api/v1/spot')
     def test_get_spots_with_requests(self):
-        responses.add(**{
-            'method': responses.GET,
-            'url': 'http://techloan.test/api/v1/spot/?' + filter,
-            'status': 200,
-            'content_type': 'application/json',
-            'body': json.dumps(mock_spots),
-        })
+        responses.add(
+            responses.GET,
+            'http://techloan.test/api/v1/spot/?' + filter,
+            status=200,
+            body=json.dumps(mock_spots),
+        )
 
-        with patch('spotseeker_server.management.commands.techloan.spotseeker'
-                   '.Spots._url', 'http://techloan.test/api/v1/spot'):
-            spots = Command().get_spots()
+        spots = Command().get_spots()
         self.assertIsInstance(spots, Spots)
         self.assertEquals(spots.spots, mock_spots)
 
+    def get_spot_by_id(self, spot_id, spots):
+        return [spot for spot in spots if spot['id'] == spot_id][0]
+
+    def get_spot_ids(self, spots):
+        return [spot['id'] for spot in spots]
+
+    def get_item_ids(self, spots, spot_ids=None):
+        if spot_ids is None:
+            return [item['id'] for spot in spots for item in spot['items']]
+        else:
+            return [item['id'] for spot in spots for item in spot['items']
+                    if spot['id'] in spot_ids]
+
+    def get_image_ids(self, spots, item_id):
+        return [image['id'] for spot in spots for item in spot['items']
+                if item['id'] == item_id for image in item['images']]
+
     @responses.activate
-    @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=bad_techloan_updater)
+    @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=good_techloan_updater)
+    # cannot use override_settings for SPOTSEEKER_TECHLOAN_URL
     @patch('spotseeker_server.management.commands.techloan.techloan'
            '.Techloan._url', 'http://techloan.test/api/v1/equipment')
     @patch('spotseeker_server.management.commands.techloan.spotseeker'
            '.Spots._url', 'http://techloan.test/api/v1/spot')
-    def test_full_sync_techloan(self):
-        responses.add(**{
-            'method': responses.GET,
-            'url': 'http://techloan.test/api/v1/equipment',
-            'status': 200,
-            'content_type': 'application/json',
-            'body': json.dumps(equipments),
-        })
+    def test_full_sync_techloan_no_imgs(self):
+        responses.add(
+            responses.GET,
+            'http://techloan.test/api/v1/equipment',
+            status=200,
+            body=json.dumps(equipments),
+        )
 
-        responses.add(**{
-            'method': responses.GET,
-            'url': 'http://techloan.test/api/v1/spot/?' + filter,
-            'status': 200,
-            'content_type': 'application/json',
-            'body': json.dumps(mock_spots),
-        })
+        responses.add(
+            responses.GET,
+            f'http://techloan.test/api/v1/spot/?{filter}',
+            status=200,
+            body=json.dumps(mock_spots),
+        )
+
+        for id in self.get_spot_ids(mock_spots):
+            responses.add(
+                responses.PUT,
+                f'http://techloan.test/api/v1/spot/{id}',
+                status=200,
+                body=json.dumps('OK'),
+            )
+
+            responses.add(
+                responses.GET,
+                f'http://techloan.test/api/v1/spot/{id}',
+                status=200,
+                body=json.dumps(self.get_spot_by_id(id, mock_spots)),
+            )
+
+        # assert no errors logged
+        with self.assertLogs() as cm:
+            # add test info log so test doesn't fail if no logs
+            test_logger.info('Starting full sync...')
+            call_sync()
+            for out in cm.output:
+                self.assertNotIn('ERROR', out)
+
+    @responses.activate
+    @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=good_techloan_updater)
+    # cannot use override_settings for SPOTSEEKER_TECHLOAN_URL
+    @patch('spotseeker_server.management.commands.techloan.techloan'
+           '.Techloan._url', 'http://techloan.test/api/v1/equipment')
+    @patch('spotseeker_server.management.commands.techloan.spotseeker'
+           '.Spots._url', 'http://techloan.test/api/v1/spot')
+    def test_sync_add_imgs(self):
+        responses.add(
+            responses.GET,
+            'http://techloan.test/api/v1/equipment',
+            status=200,
+            body=json.dumps(equip_with_img),
+        )
+
+        responses.add(
+            responses.GET,
+            f'http://techloan.test/api/v1/spot/?{filter}',
+            status=200,
+            body=json.dumps(mock_spots_no_imgs),
+        )
+
+        for id in self.get_spot_ids(mock_spots_no_imgs):
+            responses.add(
+                responses.PUT,
+                f'http://techloan.test/api/v1/spot/{id}',
+                status=200,
+                body=json.dumps('OK'),
+            )
+
+            responses.add(
+                responses.GET,
+                f'http://techloan.test/api/v1/spot/{id}',
+                status=200,
+                body=json.dumps(self.get_spot_by_id(id, mock_spots_no_imgs)),
+            )
+
+            for item_id in self.get_item_ids(mock_spots_no_imgs,
+                                             spot_ids=[id]):
+                responses.add(
+                    responses.POST,
+                    f'http://techloan.test/api/v1/item/{item_id}/image',
+                    status=201,
+                    body=json.dumps('OK'),
+                )
+
+        # assert no errors logged
+        with self.assertLogs() as cm:
+            # add test info log so test doesn't fail if no logs
+            test_logger.info('Starting full sync...')
+            call_sync()
+            for out in cm.output:
+                self.assertNotIn('Failed to retrieve image', out)
+                self.assertNotIn('ERROR', out)
+
+    @responses.activate
+    @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=good_techloan_updater)
+    # cannot use override_settings for SPOTSEEKER_TECHLOAN_URL
+    @patch('spotseeker_server.management.commands.techloan.techloan'
+           '.Techloan._url', 'http://techloan.test/api/v1/equipment')
+    @patch('spotseeker_server.management.commands.techloan.spotseeker'
+           '.Spots._url', 'http://techloan.test/api/v1/spot')
+    def test_sync_replace_imgs(self):
+        responses.add(
+            responses.GET,
+            'http://techloan.test/api/v1/equipment',
+            status=200,
+            body=json.dumps(equip_with_img),
+        )
+
+        responses.add(
+            responses.GET,
+            f'http://techloan.test/api/v1/spot/?{filter}',
+            status=200,
+            body=json.dumps(mock_spots),
+        )
+
+        for id in self.get_spot_ids(mock_spots):
+            responses.add(
+                responses.PUT,
+                f'http://techloan.test/api/v1/spot/{id}',
+                status=200,
+                body=json.dumps('OK'),
+            )
+
+            responses.add(
+                responses.GET,
+                f'http://techloan.test/api/v1/spot/{id}',
+                status=200,
+                body=json.dumps(self.get_spot_by_id(id, mock_spots)),
+            )
+
+            for item_id in self.get_item_ids(mock_spots, spot_ids=[id]):
+                responses.add(
+                    responses.POST,
+                    f'http://techloan.test/api/v1/item/{item_id}/image',
+                    status=201,
+                    body=json.dumps('OK'),
+                )
+
+                for image_id in self.get_image_ids(mock_spots, item_id):
+                    responses.add(
+                        responses.DELETE,
+                        'http://techloan.test/api/v1/item/'
+                        f'{item_id}/image/{image_id}',
+                        status=200,
+                        body=json.dumps('OK'),
+                    )
+
+        # assert no errors logged
+        with self.assertLogs() as cm:
+            # add test info log so test doesn't fail if no logs
+            test_logger.info('Starting full sync...')
+            call_sync()
+            for out in cm.output:
+                self.assertNotIn('ERROR', out)

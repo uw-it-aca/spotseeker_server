@@ -12,8 +12,10 @@ ingress:
         - "/"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256"
     nginx.ingress.kubernetes.io/client-body-buffer-size: "16K"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "500"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256"
 lifecycle:
   enabled: true
   preStop:
@@ -50,13 +52,18 @@ gcsCredentials:
   secretName: test.api.scout.uw.edu-gc-service-credentials
 cronjob:
   enabled: false
+  jobs:
+    - name: sync-techloan
+      schedule: "0,15,30,45 * * * *"
+      command: ["/scripts/management_command.sh"]
+      args: ["sync_techloan"]
 daemon:
-  enabled: true
+  enabled: false  # cronjob is probably more appropriate
   daemons:
     - name: sync-techloan
       replicaCount: 1
       command: ["/scripts/management_daemon.sh"]
-      args: ["--delay", "900", "sync_techloan"]
+      args: ["--delay", "300", "sync_techloan"]
 environmentVariables:
   - name: AUTH_MODULE
     value: oauth

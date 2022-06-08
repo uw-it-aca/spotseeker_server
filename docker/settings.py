@@ -59,14 +59,10 @@ if DEBUG:
         }
     }
 else:
-    # Settings used for caching individual Spots in JSON (and maybe images
-    # soon, too).
+    # The various MEMCACHED variables are set in django-container's base_settings/common.py
     CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "OPTIONS": {
-                "MAX_ENTRIES": os.getenv("CACHE_MAX_ENTRIES", 300),
-                "TIMEOUT": os.getenv("CACHE_TIMEOUT", 300),
-            },
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+            'LOCATION': MEMCACHED_SERVERS,
         }
     }

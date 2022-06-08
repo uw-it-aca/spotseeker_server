@@ -114,6 +114,7 @@ class Spots:
         return self.spots.__iter__()
 
     def sync_with_techloan(self, techloan: Techloan):
+        logger.debug("sync with techloan")
         for spot in self:
             spot.deactive_all_items()
             equipments = techloan.equipments_for_spot(spot)
@@ -142,7 +143,7 @@ class Spots:
 
     def _get_item_id_by_item_info(self, items: list, item_name, item_brand,
                                   item_model, cte_type_id: str) -> int:
-        if cte_type_id:
+        if cte_type_id != 'None':
             for item in items:
                 if item['extended_info'].get('cte_type_id') == cte_type_id:
                     return item['id']
@@ -251,16 +252,17 @@ class Spots:
                     image_id = self._get_image_id(
                         image_url, items_content, item_id
                     )
+                    old_image_url = f"{item_url}/{item_id}/image/{image_id}"
                     # delete old image
                     r = requests.delete(
-                        f"{item_url}/{item_id}/image/{image_id}",
+                        old_image_url,
                         auth=self._oauth,
                         headers=headers,
                     )
                     if r.status_code != 200:
                         logger.error(
-                            f"Can't delete old image for {item_name}: \
-                                {r.status_code}"
+                            f"Can't delete old image at {old_image_url} for "
+                            f"{item_name} with ID {item_id}: {r.status_code}"
                         )
                         continue
 
@@ -279,8 +281,9 @@ class Spots:
                     headers=headers,
                 )
                 if r.status_code != 201:
-                    raise Exception(
-                        "Error uploading image: {}".format(r.status_code)
+                    logger.error(
+                        "Error {} uploading image to {}".format(
+                            r.status_code, full_url)
                     )
 
             if resp.status_code not in (
@@ -322,6 +325,7 @@ class Spots:
 
     @classmethod
     def from_spotseeker_server(cls, config) -> 'Spots':
+        logger.debug("get spots from spotseeker_server")
         oauth = OAuth1(config['oauth_key'], config['oauth_secret'])
         headers = {
             'X-OAuth-User': config['oauth_user'],

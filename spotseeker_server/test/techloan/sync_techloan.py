@@ -37,7 +37,7 @@ good_techloan_updater = {
 filter = Spots._filter
 
 
-def _remove_images(spots: list) -> list:
+def remove_images(spots: list) -> list:
     spots_copy = copy.deepcopy(spots)
     for spot in spots_copy:
         for item in spot['items']:
@@ -45,8 +45,8 @@ def _remove_images(spots: list) -> list:
     return spots_copy
 
 
-def _remove_item_extended_info(spots: list, key: str,
-                               replacement=None) -> list:
+def remove_item_extended_info(spots: list, key: str,
+                              replacement=None) -> list:
     spots_copy = copy.deepcopy(spots)
     for spot in spots_copy:
         for item in spot['items']:
@@ -71,6 +71,10 @@ def call_sync(*args, **kwargs):
 
 
 class SyncTechloanTest(TechloanTestCase):
+    """
+    Tests to make sure that the sync_techloan management command
+    works as expected.
+    """
 
     def setUp(self):
         self.equipments = [
@@ -257,8 +261,8 @@ class SyncTechloanTest(TechloanTestCase):
         ]
 
         self.mock_spots2 = copy.deepcopy(self.mock_spots)
-        self.mock_spots_no_imgs = _remove_images(self.mock_spots)
-        self.mock_spots_bad_cte_ids = _remove_item_extended_info(
+        self.mock_spots_no_imgs = remove_images(self.mock_spots)
+        self.mock_spots_bad_cte_ids = remove_item_extended_info(
             self.mock_spots, 'cte_type_id', replacement='-1230123'
         )
 
@@ -343,14 +347,6 @@ class SyncTechloanTest(TechloanTestCase):
     def get_image_ids(self, spots, item_id):
         return [image['id'] for spot in spots for item in spot['items']
                 if (item['id'] == item_id) for image in item['images']]
-        # ids = []
-        # for spot in spots:
-        #     for item in spot['items']:
-        #         if item['id'] == item_id:
-        #             for image in item['images']:
-        #                 print(str(image))
-        #                 ids.append(image['id'])
-        # return ids
 
     @responses.activate
     @override_settings(SPOTSEEKER_TECHLOAN_UPDATER=good_techloan_updater)

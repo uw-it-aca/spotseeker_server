@@ -162,10 +162,9 @@ class Spots:
                 return False
         return False
 
-    def _get_image_id(self, image_url, items: list, item_id) -> int:
+    def _get_image_id(self, items: list, item_id) -> int:
         for item in items:
-            if item['id'] == item_id and \
-                    item['extended_info'].get('i_image_url') == image_url:
+            if item['id'] == item_id:
                 return item['images'][0]['id']
 
     def _download_image(self, image_url, cte_type_id):
@@ -236,9 +235,7 @@ class Spots:
                 # if different image exists, delete it
                 if image_exists:
                     # find image id
-                    image_id = self._get_image_id(
-                        image_url, items_content, item_id
-                    )
+                    image_id = self._get_image_id(items_content, item_id)
                     old_image_url = f"{item_url}/{item_id}/image/{image_id}"
 
                     # delete old image

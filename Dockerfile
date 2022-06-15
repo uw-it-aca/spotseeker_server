@@ -13,6 +13,8 @@ RUN . /app/bin/activate && pip install -r requirements.txt
 ADD --chown=acait:acait . /app/
 ADD --chown=acait:acait docker/ project/
 COPY --chown=acait:acait docker/test_settings.py project/test_settings.py
+ADD --chown=acait:acait docker/app_start.sh /scripts
+RUN chmod u+x /scripts/app_start.sh
 
 FROM gcr.io/uwit-mci-axdd/django-test-container:1.3.8 as app-test-container
 

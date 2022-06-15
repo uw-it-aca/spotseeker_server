@@ -23,5 +23,6 @@ setup(
         "schema",
         "six",
         "phonenumbers",
+        "responses",
     ],
 )

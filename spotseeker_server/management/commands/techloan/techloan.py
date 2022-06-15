@@ -7,6 +7,7 @@ from typing import Iterator
 
 import requests
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from schema import Schema, Or
 
 logger = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ class Techloan:
 
     @classmethod
     def from_cte_api(cls) -> 'Techloan':
+        logger.debug("getting data from CTE api")
         if cls._url is None:
             raise ImproperlyConfigured("No techloan URL configured")
         equipments = requests.get(cls._url).json()

@@ -24,20 +24,25 @@ class Command(BaseCommand):
         'oauth_user': str,
     })
 
-    def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
-
     def handle(self, *args, **options):
         try:
             self._settings_scheme.validate(
                 settings.SPOTSEEKER_TECHLOAN_UPDATER)
         except Exception as ex:
-            logger.error("Settings misconfigured: ", ex)
+            logger.error(f"Settings misconfigured: {str(ex)}")
             return
 
-        techloan = Techloan.from_cte_api()
-        spots = Spots.from_spotseeker_server(
+        techloan = self.get_techloan()
+        spots = self.get_spots()
+        self.sync_techloan_to_spots(techloan, spots)
+
+    def get_techloan(self):
+        return Techloan.from_cte_api()
+
+    def get_spots(self):
+        return Spots.from_spotseeker_server(
             settings.SPOTSEEKER_TECHLOAN_UPDATER)
 
+    def sync_techloan_to_spots(self, techloan, spots):
         spots.sync_with_techloan(techloan)
         spots.upload_data()

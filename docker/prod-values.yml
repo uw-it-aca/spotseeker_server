@@ -57,9 +57,14 @@ gcsCredentials:
   mounted: true
   secretName: api.scout.uw.edu-gc-service-credentials
 cronjob:
-  enabled: false
-daemon:
   enabled: true
+  jobs:
+    - name: sync-techloan
+      schedule: "0,15,30,45 * * * *"
+      command: ["/scripts/management_command.sh"]
+      args: ["sync_techloan"]
+daemon:
+  enabled: false  # cronjob is probably more appropriate
   daemons:
     - name: sync-techloan
       replicaCount: 1

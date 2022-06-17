@@ -20,3 +20,4 @@ FROM gcr.io/uwit-mci-axdd/django-test-container:1.3.8 as app-test-container
 
 COPY --from=0 /app/ /app/
 COPY --from=0 /static/ /static/
+COPY --from=0 /scripts/ /scripts/

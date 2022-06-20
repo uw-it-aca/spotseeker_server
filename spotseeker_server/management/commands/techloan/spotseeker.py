@@ -3,6 +3,8 @@
 
 import json
 import logging
+import shutil
+from urllib.error import HTTPError
 from urllib.request import urlretrieve
 import tempfile
 import io
@@ -167,15 +169,25 @@ class Spots:
             if item['id'] == item_id:
                 return item['images'][0]['id']
 
-    def _download_image(self, image_url, cte_type_id):
+    def _download_image(self, image_url, cte_type_id) -> str:
         try:
-            image, _ = urlretrieve(image_url)
-            return image
+            file_name, _ = urlretrieve(image_url)
+            return file_name
+        except HTTPError as e:
+            if e.code == 403:
+                r = requests.get(image_url, stream=True)
+                if r.status_code == 200:
+                    file_name = '/tmp/' + image_url.split('/')[-1]
+                    with open(file_name, 'wb') as f:
+                        r.raw.decode_content = True
+                        shutil.copyfileobj(r.raw, f)
+                        return file_name
+            logger.warning(f'Failed to download image {image_url}'
+                           f' for equipment {cte_type_id}: {str(e)}')
+            return None
         except Exception as ex:
-            logger.warning(
-                "Failed to retrieve image for item with CTE ID "
-                f"{cte_type_id}: {str(ex)}"
-            )
+            logger.warning(f'Failed to download image {image_url}'
+                           f' for equipment {cte_type_id}: {str(ex)}')
             return None
 
     def upload_data(self):
@@ -211,11 +223,6 @@ class Spots:
                 cte_type_id = item['extended_info'].get('cte_type_id')
                 recent_changes = item['extended_info'].get('i_recent_changes')
 
-                image = self._download_image(image_url, cte_type_id) \
-                    if image_url and recent_changes else None
-                if image is None:
-                    continue
-
                 item_id = self._get_item_id_by_cte_id(
                     items_content, str(cte_type_id)
                 )
@@ -224,8 +231,6 @@ class Spots:
                     continue
 
                 image_exists = self._item_image_exists(item_id, items_content)
-                # TODO: weird case where image_url is None as is what happens
-                # with manager-added images
                 has_image = image_exists and \
                     self._item_has_image(item_id, image_url, items_content)
                 # if same image already exists, skip
@@ -250,6 +255,12 @@ class Spots:
                             f"{item_name} with ID {item_id}: {r.status_code}"
                         )
                         continue
+
+                image = self._download_image(image_url, cte_type_id) \
+                    if image_url and (recent_changes or not image_exists) \
+                    else None
+                if image is None:
+                    continue
 
                 # make url by replacing the 'spot/' with 'item/...'
                 full_url = f"{item_url}/{item_id}/image"

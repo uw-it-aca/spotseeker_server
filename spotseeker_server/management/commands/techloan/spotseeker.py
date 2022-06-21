@@ -3,9 +3,7 @@
 
 import json
 import logging
-import shutil
-from urllib.error import HTTPError
-from urllib.request import urlretrieve
+import urllib.request as req
 import tempfile
 import io
 import requests
@@ -171,20 +169,11 @@ class Spots:
 
     def _download_image(self, image_url, cte_type_id) -> str:
         try:
-            file_name, _ = urlretrieve(image_url)
+            opener = req.build_opener()
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            req.install_opener(opener)
+            file_name, _ = req.urlretrieve(image_url)
             return file_name
-        except HTTPError as e:
-            if e.code == 403:
-                r = requests.get(image_url, stream=True)
-                if r.status_code == 200:
-                    file_name = '/tmp/' + image_url.split('/')[-1]
-                    with open(file_name, 'wb') as f:
-                        r.raw.decode_content = True
-                        shutil.copyfileobj(r.raw, f)
-                        return file_name
-            logger.warning(f'Failed to download image {image_url}'
-                           f' for equipment {cte_type_id}: {str(e)}')
-            return None
         except Exception as ex:
             logger.warning(f'Failed to download image {image_url}'
                            f' for equipment {cte_type_id}: {str(ex)}')

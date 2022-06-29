@@ -113,7 +113,7 @@ class Spots:
         return self.spots.__iter__()
 
     def sync_with_techloan(self, techloan: Techloan):
-        logger.debug("sync with techloan")
+        logger.info("Sync with techloan")
         for spot in self:
             spot.deactive_all_items()
             equipments = techloan.equipments_for_spot(spot)
@@ -168,6 +168,8 @@ class Spots:
                 return item['images'][0]['id']
 
     def _download_image(self, image_url, cte_type_id) -> str:
+        logger.info("Downloading image: " + image_url)
+
         try:
             opener = req.build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0')]
@@ -193,6 +195,7 @@ class Spots:
                 'X-OAuth-User': self._config['oauth_user'],
                 'If-Match': spot['etag'],
             }
+            logger.info('Updating spot ' + str(spot['id']))
             resp = requests.put(
                 url=f"{url}/{spot['id']}",
                 auth=self._oauth,
@@ -206,6 +209,7 @@ class Spots:
             ).json()['items']
 
             # post item images
+            logger.info("Uploading images for spot " + str(spot['id']))
             for item in spot.items:
                 item_name = item['name']
                 image_url = item['extended_info'].get('i_image_url')
@@ -233,6 +237,7 @@ class Spots:
                     old_image_url = f"{item_url}/{item_id}/image/{image_id}"
 
                     # delete old image
+                    logger.info('Deleting old image ' + old_image_url)
                     r = requests.delete(
                         old_image_url,
                         auth=self._oauth,
@@ -259,6 +264,7 @@ class Spots:
                 files = {'image': ('image.jpg', buf)}
 
                 # post new image
+                logger.info('Uploading image ' + full_url)
                 r = requests.post(
                     full_url,
                     files=files,
@@ -310,7 +316,7 @@ class Spots:
 
     @classmethod
     def from_spotseeker_server(cls, config) -> 'Spots':
-        logger.debug("get spots from spotseeker_server")
+        logger.info("Get spots from spotseeker_server")
         oauth = OAuth1(config['oauth_key'], config['oauth_secret'])
         headers = {
             'X-OAuth-User': config['oauth_user'],

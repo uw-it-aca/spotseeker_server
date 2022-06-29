@@ -167,7 +167,6 @@ class Spots:
             if item['id'] == item_id:
                 return item['images'][0]['id']
 
-
     def _download_image(self, image_url, cte_type_id) -> str:
         logger.info("Downloading image: " + image_url)
 

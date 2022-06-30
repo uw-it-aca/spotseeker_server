@@ -1,4 +1,6 @@
-FROM gcr.io/uwit-mci-axdd/django-container:1.3.8 as app-container
+ARG DJANGO_CONTAINER_VERSION=1.3.8
+
+FROM gcr.io/uwit-mci-axdd/django-container:${DJANGO_CONTAINER_VERSION} as app-container
 
 USER root
 RUN apt-get update && apt-get install mysql-client libmysqlclient-dev -y
@@ -16,7 +18,7 @@ COPY --chown=acait:acait docker/test_settings.py project/test_settings.py
 ADD --chown=acait:acait docker/app_start.sh /scripts
 RUN chmod u+x /scripts/app_start.sh
 
-FROM gcr.io/uwit-mci-axdd/django-test-container:1.3.8 as app-test-container
+FROM gcr.io/uwit-mci-axdd/django-test-container:${DJANGO_CONTAINER_VERSION} as app-test-container
 
 COPY --from=0 /app/ /app/
 COPY --from=0 /static/ /static/

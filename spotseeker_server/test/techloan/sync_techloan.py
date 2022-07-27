@@ -211,7 +211,8 @@ class SyncTechloanTest(TechloanTestCase):
                         "i_model": "Latitude E5440",
                         "i_brand": "Dell",
                         "i_check_out_period": "14",
-                        "i_is_active": "true"
+                        "i_is_active": "true",
+                        "cte_type_id": "54321",
                     },
                     "images": []
                 },
@@ -225,7 +226,8 @@ class SyncTechloanTest(TechloanTestCase):
                         "i_model": "Passport P-150",
                         "i_brand": "Fender",
                         "i_check_out_period": "7",
-                        "i_is_active": "true"
+                        "i_is_active": "true",
+                        "cte_type_id": "54321",
                     },
                     "images": []
                 }
@@ -384,6 +386,16 @@ class SyncTechloanTest(TechloanTestCase):
                 status=200,
                 body=json.dumps(self.get_spot_by_id(id, self.mock_spots)),
             )
+
+            for item_id in self.get_item_ids(self.mock_spots, spot_ids=[id]):
+                for image_id in self.get_image_ids(self.mock_spots, item_id):
+                    responses.add(
+                        responses.DELETE,
+                        'http://techloan.test/api/v1/item/'
+                        f'{item_id}/image/{image_id}',
+                        status=200,
+                        body=json.dumps('OK'),
+                    )
 
         # assert no errors logged
         with self.assertLogs() as cm:
@@ -550,6 +562,16 @@ class SyncTechloanTest(TechloanTestCase):
                     self.get_spot_by_id(id, self.mock_spots_bad_cte_ids)
                 ),
             )
+
+            for item_id in self.get_item_ids(self.mock_spots, spot_ids=[id]):
+                for image_id in self.get_image_ids(self.mock_spots, item_id):
+                    responses.add(
+                        responses.DELETE,
+                        'http://techloan.test/api/v1/item/'
+                        f'{item_id}/image/{image_id}',
+                        status=200,
+                        body=json.dumps('OK'),
+                    )
 
         # assert errors for bad cte logged
         with self.assertLogs(level='ERROR') as cm:

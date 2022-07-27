@@ -3,7 +3,7 @@
 
 import json
 import logging
-from urllib.request import urlretrieve
+import urllib.request as req
 import tempfile
 import io
 import requests
@@ -113,7 +113,7 @@ class Spots:
         return self.spots.__iter__()
 
     def sync_with_techloan(self, techloan: Techloan):
-        logger.debug("sync with techloan")
+        logger.info("Sync with techloan")
         for spot in self:
             spot.deactive_all_items()
             equipments = techloan.equipments_for_spot(spot)
@@ -167,15 +167,18 @@ class Spots:
             if item['id'] == item_id:
                 return item['images'][0]['id']
 
-    def _download_image(self, image_url, cte_type_id):
+    def _download_image(self, image_url, cte_type_id) -> str:
+        logger.info("Downloading image: " + image_url)
+
         try:
-            image, _ = urlretrieve(image_url)
-            return image
+            opener = req.build_opener()
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            req.install_opener(opener)
+            file_name, _ = req.urlretrieve(image_url)
+            return file_name
         except Exception as ex:
-            logger.warning(
-                "Failed to retrieve image for item with CTE ID "
-                f"{cte_type_id}: {str(ex)}"
-            )
+            logger.warning(f'Failed to download image {image_url}'
+                           f' for equipment {cte_type_id}: {str(ex)}')
             return None
 
     def upload_data(self):
@@ -192,6 +195,7 @@ class Spots:
                 'X-OAuth-User': self._config['oauth_user'],
                 'If-Match': spot['etag'],
             }
+            logger.info('Updating spot ' + str(spot['id']))
             resp = requests.put(
                 url=f"{url}/{spot['id']}",
                 auth=self._oauth,
@@ -205,16 +209,12 @@ class Spots:
             ).json()['items']
 
             # post item images
+            logger.info("Uploading images for spot " + str(spot['id']))
             for item in spot.items:
                 item_name = item['name']
                 image_url = item['extended_info'].get('i_image_url')
                 cte_type_id = item['extended_info'].get('cte_type_id')
                 recent_changes = item['extended_info'].get('i_recent_changes')
-
-                image = self._download_image(image_url, cte_type_id) \
-                    if image_url and recent_changes else None
-                if image is None:
-                    continue
 
                 item_id = self._get_item_id_by_cte_id(
                     items_content, str(cte_type_id)
@@ -224,8 +224,6 @@ class Spots:
                     continue
 
                 image_exists = self._item_image_exists(item_id, items_content)
-                # TODO: weird case where image_url is None as is what happens
-                # with manager-added images
                 has_image = image_exists and \
                     self._item_has_image(item_id, image_url, items_content)
                 # if same image already exists, skip
@@ -239,6 +237,7 @@ class Spots:
                     old_image_url = f"{item_url}/{item_id}/image/{image_id}"
 
                     # delete old image
+                    logger.info('Deleting old image ' + old_image_url)
                     r = requests.delete(
                         old_image_url,
                         auth=self._oauth,
@@ -251,6 +250,12 @@ class Spots:
                         )
                         continue
 
+                image = self._download_image(image_url, cte_type_id) \
+                    if image_url and (recent_changes or not image_exists) \
+                    else None
+                if image is None:
+                    continue
+
                 # make url by replacing the 'spot/' with 'item/...'
                 full_url = f"{item_url}/{item_id}/image"
                 # read image
@@ -259,6 +264,7 @@ class Spots:
                 files = {'image': ('image.jpg', buf)}
 
                 # post new image
+                logger.info('Uploading image ' + full_url)
                 r = requests.post(
                     full_url,
                     files=files,
@@ -310,7 +316,7 @@ class Spots:
 
     @classmethod
     def from_spotseeker_server(cls, config) -> 'Spots':
-        logger.debug("get spots from spotseeker_server")
+        logger.info("Get spots from spotseeker_server")
         oauth = OAuth1(config['oauth_key'], config['oauth_secret'])
         headers = {
             'X-OAuth-User': config['oauth_user'],

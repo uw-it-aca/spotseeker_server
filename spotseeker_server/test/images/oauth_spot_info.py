@@ -8,7 +8,7 @@ import tempfile
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
-from os.path import abspath, dirname
+from os.path import abspath, dirname, isfile
 from spotseeker_server.models import Spot, SpotImage, TrustedOAuthClient
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
@@ -73,7 +73,7 @@ class SpotResourceOAuthImageTest(TestCase):
 
             # JPEG for PUT test
             jpeg = self.spot_put.spotimage_set.create(
-                description="This is the JPEG test",
+                description="This is the JPEG PUT test",
                 image=SimpleUploadedFile(
                     "test_jpeg.jpg",
                     open(
@@ -90,31 +90,46 @@ class SpotResourceOAuthImageTest(TestCase):
                 name="This is to test deleting images in the spot resource, with oauth"
             )
             self.spot_delete = spot_delete
+            self.delete_url = "http://testserver/api/v1/spot/{0}".format(self.spot_delete.pk)
+
+            #GIF for DELETE test
+            gif = self.spot_delete.spotimage_set.create(
+                description="This is the GIF DELETE test",
+                image=SimpleUploadedFile(
+                    "test_gif.gif",
+                    open(
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, "rb"
+                    ).read(),
+                    "image/gif",
+                ),
+            )
+            self.gif = gif
+            self.gif_url = "%s/image/%s" % (self.delete_url, self.gif.pk)
             
 
 
 
     def tearDown(self):
         shutil.rmtree(self.TEMP_DIR)
-
+    
+    #POST a PNG image, ensure that the spot has only 1 image and user attributes are correct
     def test_oauth_attributes_post(self):
-        _, headers, _ = self.client.sign(
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            _, headers, _ = self.client.sign(
                 "http://testserver/api/v1/spot/%s" % self.spot_post.pk
             )
-            
-        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
             c = Client()
             response = c.post(
                 "/api/v1/spot/{0}/image".format(self.spot_post.pk),
                 {
-                    "description": "oauth image",
+                    "description": "This is the PNG POST test",
                     "image": SimpleUploadedFile(
-                    "test_jpeg.jpg",
+                    "test_png.png",
                     open(
-                            "%s/../resources/test_jpeg.jpg" % TEST_ROOT,
+                            "%s/../resources/test_png.png" % TEST_ROOT,
                             "rb",
                         ).read(),
-                            "image/jpeg",
+                            "image/png",
                         ),
                 },
                 HTTP_AUTHORIZATION=headers["Authorization"],
@@ -144,10 +159,10 @@ class SpotResourceOAuthImageTest(TestCase):
             "Image has the proper upload user",
         )
 
-    #Get an image (image1), change it via PUT (image2), make sure that PUT request was 200 & image1!=image2
+    #Get a JPEG image (image1), change it via PUT (image2), make sure that PUT request was 200 & image1!=image2
     def test_oauth_attributes_put(self):
-        _, headers, _ = self.client.sign(self.put_url)
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            _, headers, _ = self.client.sign(self.put_url)
             c = Client()
             response = c.get(self.put_url, HTTP_AUTHORIZATION=headers["Authorization"],
             HTTP_X_OAUTH_USER="pmichaud")
@@ -180,7 +195,6 @@ class SpotResourceOAuthImageTest(TestCase):
                 HTTP_AUTHORIZATION=put_headers["Authorization"],
                 HTTP_X_OAUTH_USER="pmichaud",
             )
-            print(response)
             self.assertEquals(response.status_code, 200, "PUT was successful")
 
             ___, get_headers, ___ = self.client.sign(self.put_url)
@@ -189,6 +203,28 @@ class SpotResourceOAuthImageTest(TestCase):
             spot_dict_after = json.loads(response.content)
             self.assertNotEquals(spot_dict_before["images"][0], spot_dict_after["images"][0], "Images weren't equal after PUT")
 
+    #Delete a GIF image, confirm that DELETE is succesful, further GET & DELETE return 404, image no longer exists as a file
     def test_oauth_attributes_delete(self):
+        with self.settings(MEDIA_ROOT=self.TEMP_DIR):
+            _, headers, _ = self.client.sign(self.gif_url)
+            c = Client()
+            response = c.get(self.gif_url, HTTP_AUTHORIZATION=headers["Authorization"],HTTP_X_OAUTH_USER="pmichaud")
+            etag = response["ETag"]
+
+            __,delete_headers,__ = self.client.sign(self.gif_url)
+            response = c.delete(self.gif_url, If_Match=etag, HTTP_AUTHORIZATION=delete_headers["Authorization"], 
+            HTTP_X_OAUTH_USER="pmichaud")
+            self.assertEquals(response.status_code, 200)
+
+            ___,get_headers,___ = self.client.sign(self.gif_url)
+            response = c.get(self.gif_url, HTTP_AUTHORIZATION=get_headers["Authorization"],HTTP_X_OAUTH_USER="pmichaud")
+            self.assertEquals(response.status_code, 404)
+
+            ____,delete2_headers,____= self.client.sign(self.gif_url)
+            response = c.delete(self.gif_url, If_Match=etag, HTTP_AUTHORIZATION=delete2_headers["Authorization"], 
+            HTTP_X_OAUTH_USER="pmichaud")
+            self.assertEqual(response.status_code, 404)
+
+            self.assertEqual(isfile(self.gif.image.path), False)
 
             

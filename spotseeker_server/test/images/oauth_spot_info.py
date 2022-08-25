@@ -67,15 +67,17 @@ class SpotResourceOAuthImageTest(TestCase):
             )
             self.spot_put = spot_put
             self.put_url = "http://testserver/api/v1/spot/{0}".format(
-                self.spot_put.pk)
+                self.spot_put.pk
+            )
 
             # JPEG for PUT test
             jpeg = self.spot_put.spotimage_set.create(
                 description="This is the JPEG PUT test",
                 image=SimpleUploadedFile(
                     "test_jpeg.jpg",
-                    open("%s/../resources/test_jpeg.jpg" % TEST_ROOT,
-                            "rb").read(),
+                    open(
+                        "%s/../resources/test_jpeg.jpg" % TEST_ROOT, "rb"
+                    ).read(),
                     "image/jpeg",
                 ),
             )
@@ -97,8 +99,9 @@ class SpotResourceOAuthImageTest(TestCase):
                 description="This is the GIF DELETE test",
                 image=SimpleUploadedFile(
                     "test_gif.gif",
-                    open("%s/../resources/test_gif.gif" % TEST_ROOT,
-                            "rb").read(),
+                    open(
+                        "%s/../resources/test_gif.gif" % TEST_ROOT, "rb"
+                    ).read(),
                     "image/gif",
                 ),
             )
@@ -188,8 +191,9 @@ class SpotResourceOAuthImageTest(TestCase):
                     "description": new_name,
                     "image": SimpleUploadedFile(
                         "test_jpeg2.jpg",
-                        open("%s/../resources/test_jpeg2.jpg" % TEST_ROOT,
-                             "rb").read(),
+                        open(
+                            "%s/../resources/test_jpeg2.jpg" % TEST_ROOT, "rb"
+                        ).read(),
                         "image/jpeg",
                     ),
                 },
@@ -213,7 +217,7 @@ class SpotResourceOAuthImageTest(TestCase):
                 "Images weren't equal after PUT",
             )
 
-    # Delete a GIF image, confirm that DELETE is succesful, 
+    # Delete a GIF image, confirm that DELETE is succesful,
     # further GET & DELETE return 404, image no longer exists as a file
     def test_oauth_attributes_delete(self):
         with self.settings(MEDIA_ROOT=self.TEMP_DIR):

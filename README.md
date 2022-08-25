@@ -66,7 +66,7 @@ python manage.py create_sample_spots
 
 ## Running the tests
 
-    $ docker-compose run --rm app bin/python manage.py test
+    $ docker-compose build; docker-compose run --rm app bin/python manage.py test
 
 ## Deployment
 

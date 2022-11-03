@@ -431,6 +431,24 @@ class Command(BaseCommand):
                 building_name="Art Atrium",
             )
             aa_balcony.spottypes.add(outdoor_type)
+            f = open(
+                os.path.join(base_dir, "resources", "building3.jpg"), "rb"
+            )
+            f2 = open(
+                os.path.join(base_dir, "resources", "building4.jpg"), "rb"
+            )
+            aa_balcony_img = SpotImage.objects.create(
+                description="This is one " "building",
+                spot=aa_balcony,
+                display_index=0,
+                image=File(f),
+            )
+            aa_balcony_img2 = SpotImage.objects.create(
+                description="This is one " "building",
+                spot=aa_balcony,
+                display_index=1,
+                image=File(f2),
+            )
             aa_balcony.save()
 
             for day in ["su", "m", "t", "w", "th", "f", "sa"]:

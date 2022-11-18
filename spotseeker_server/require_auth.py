@@ -37,7 +37,7 @@ def get_auth_method(method_name):
     except (AttributeError, NameError):
         raise ImproperlyConfigured(
             'Module "%s" does not define a "%s" '
-            "method." % (module, method_name)
+            "method." % (mod, method_name)
         )
 
 

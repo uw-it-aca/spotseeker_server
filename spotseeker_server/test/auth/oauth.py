@@ -12,8 +12,10 @@ import random
 from oauth_provider.models import Consumer
 from oauthlib import oauth1
 from django.test.utils import override_settings
-from mock import patch
+from unittest.mock import patch, MagicMock
 from spotseeker_server import models
+from spotseeker_server.require_auth import get_auth_module, get_auth_method
+from spotseeker_server.auth import all_ok, oauth, fake_oauth
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.oauth")
@@ -320,3 +322,20 @@ class SpotAuthOAuth(TestCase):
         client = TrustedOAuthClient.objects.get(consumer=consumer)
 
         self.assertIsInstance(client, TrustedOAuthClient)
+
+    @override_settings()
+    def test_get_auth_module(self):
+        del settings.SPOTSEEKER_AUTH_MODULE
+        self.assertEqual(all_ok, get_auth_module())
+
+        with override_settings(SPOTSEEKER_AUTH_MODULE=''
+                               'spotseeker_server.auth.all_ok'):
+            self.assertEqual(all_ok, get_auth_module())
+
+        with override_settings(SPOTSEEKER_AUTH_MODULE=''
+                               'spotseeker_server.auth.oauth'):
+            self.assertEqual(oauth, get_auth_module())
+
+        with override_settings(SPOTSEEKER_AUTH_MODULE=''
+                               'spotseeker_server.auth.fake_oauth'):
+            self.assertEqual(fake_oauth, get_auth_module())

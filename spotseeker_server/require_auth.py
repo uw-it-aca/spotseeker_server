@@ -25,7 +25,7 @@ from django.conf import settings
 def get_auth_module():
     try:
         mod_name = settings.SPOTSEEKER_AUTH_MODULE
-    except NameError:
+    except (NameError, AttributeError):
         return spotseeker_server.auth.all_ok
     return load_module_by_name(mod_name)
 

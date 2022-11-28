@@ -16,6 +16,7 @@ from unittest.mock import patch, MagicMock
 from spotseeker_server import models
 from spotseeker_server.require_auth import get_auth_module, get_auth_method
 from spotseeker_server.auth import all_ok, oauth, fake_oauth
+from django.core.exceptions import ImproperlyConfigured
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.oauth")
@@ -339,3 +340,23 @@ class SpotAuthOAuth(TestCase):
         with override_settings(SPOTSEEKER_AUTH_MODULE=''
                                'spotseeker_server.auth.fake_oauth'):
             self.assertEqual(fake_oauth, get_auth_module())
+
+    @override_settings()
+    def test_get_auth_method(self):
+        with override_settings(SPOTSEEKER_AUTH_MODULE=''
+                               'spotseeker_server.auth.all_ok'):
+            self.assertEqual(None,
+                             get_auth_method('authenticate_application')())
+
+        with override_settings(SPOTSEEKER_AUTH_MODULE=''
+                               'spotseeker_server.auth.fake_oauth'):
+            self.assertEqual(None,
+                             get_auth_method('authenticate_application')())
+
+        with override_settings(SPOTSEEKER_AUTH_MODULE=''
+                               'spotseeker_server.auth.oauth'):
+            auth_method = get_auth_method('authenticate_application')
+            response = auth_method('bad arg0', 'bad arg1')
+            self.assertEqual(401, response.status_code)
+
+        self.assertRaises(ImproperlyConfigured, get_auth_method, 'fake')

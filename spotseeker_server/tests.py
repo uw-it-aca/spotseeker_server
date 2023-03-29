@@ -21,9 +21,9 @@ from spotseeker_server.test.images.put import SpotImagePUTTest
 from spotseeker_server.test.images.delete import SpotImageDELETETest
 from spotseeker_server.test.images.thumb import ImageThumbTest
 from spotseeker_server.test.images.spot_info import SpotResourceImageTest
-from spotseeker_server.test.images.oauth_spot_info import (
-    SpotResourceOAuthImageTest,
-)
+# from spotseeker_server.test.images.oauth_spot_info import (
+#     SpotResourceOAuthImageTest,
+# )
 from spotseeker_server.test.item.model import ItemModelTest
 from spotseeker_server.test.search.item import SpotSearchItemTest
 from spotseeker_server.test.search.buildings import BuildingSearchTest

@@ -12,8 +12,6 @@ SPOTSEEKER_AUTH_MODULE = spotseeker_server.auth.oauth
 """
 from django.http import HttpResponse
 
-from oauth_provider.utils import get_oauth_request, verify_oauth_request
-from oauth_provider.store import store, InvalidConsumerError, InvalidTokenError
 from spotseeker_server.models import TrustedOAuthClient
 
 import logging

@@ -12,12 +12,11 @@ import string
 import time
 
 from django.core.management.base import BaseCommand, CommandError
-from oauth_provider.models import Consumer
 
 from spotseeker_server.models import TrustedOAuthClient
 
 
-class Command(BaseCommand):
+class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
     help = (
         "Creates a unique key and secret for clients "
         "connecting to the server"

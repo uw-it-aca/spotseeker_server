@@ -8,7 +8,6 @@ else:
     DEBUG = False
 
 INSTALLED_APPS += [
-    "oauth_provider",
     "spotseeker_server",
 ]
 
@@ -59,7 +58,8 @@ if DEBUG:
         }
     }
 else:
-    # The various MEMCACHED variables are set in django-container's base_settings/common.py
+    # The various MEMCACHED variables are set in django-container's
+    # base_settings/common.py
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',

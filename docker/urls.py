@@ -17,9 +17,9 @@ from django.conf import settings
 from django.conf.urls import url, include
 
 urlpatterns = [
-    url(r'^auth/', include('oauth_provider.urls')),
+    # url(r'^auth/', include('oauth_provider.urls')),
     url(r'^api/', include('spotseeker_server.urls')),
-    url(r'^', include('django_prometheus.urls')), # add here for django 1.11 compatibility
+    url(r'^', include('django_prometheus.urls')),  # django 1.11 compatibility
 ]
 
 if settings.DEBUG:

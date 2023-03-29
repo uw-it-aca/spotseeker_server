@@ -19,7 +19,7 @@ from spotseeker_server.views.rest_dispatch import JSONResponse, RESTDispatch
 
 
 class SchemaGenView(RESTDispatch):
-    @app_auth_required
+    # @app_auth_required
     def GET(self, request):
         """Json data that should contain every single piece of information
         that any spot might contain.

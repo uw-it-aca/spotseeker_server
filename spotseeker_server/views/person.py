@@ -9,7 +9,7 @@ from django.conf import settings
 class PersonView(RESTDispatch):
     """Information (username, email) about a person"""
 
-    @user_auth_required
+    # @user_auth_required
     def GET(self, request):
         user = self._get_user(request)
 

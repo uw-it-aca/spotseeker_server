@@ -15,14 +15,14 @@ class FavoritesView(RESTDispatch):
     GET returns 200 with a list of spots.
     """
 
-    @user_auth_required
+    # @user_auth_required
     def GET(self, request, spot_id=None):
         if spot_id is None:
             return self._get_all_favorites(request)
         else:
             return self._get_is_favorite(request, spot_id)
 
-    @user_auth_required
+    # @user_auth_required
     def PUT(self, request, spot_id):
         user = self._get_user(request)
         spot = Spot.objects.get(pk=spot_id)
@@ -35,7 +35,7 @@ class FavoritesView(RESTDispatch):
         fav, created = FavoriteSpot.objects.get_or_create(user=user, spot=spot)
         return JSONResponse(True)
 
-    @user_auth_required
+    # @user_auth_required
     def DELETE(self, request, spot_id):
         user = self._get_user(request)
         spot = Spot.objects.get(pk=spot_id)

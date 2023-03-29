@@ -167,20 +167,20 @@ class SpotView(RESTDispatch):
     DELETE returns 200 and deletes the Spot.
     """
 
-    @app_auth_required
+    # @app_auth_required
     def GET(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
         response = JSONResponse(spot.json_data_structure())
         response["ETag"] = spot.etag
         return response
 
-    @user_auth_required
-    @admin_auth_required
+    # @user_auth_required
+    # @admin_auth_required
     def POST(self, request):
         return self.build_and_save_from_input(request, None)
 
-    @user_auth_required
-    @admin_auth_required
+    # @user_auth_required
+    # @admin_auth_required
     def PUT(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
 
@@ -188,8 +188,8 @@ class SpotView(RESTDispatch):
 
         return self.build_and_save_from_input(request, spot)
 
-    @user_auth_required
-    @admin_auth_required
+    # @user_auth_required
+    # @admin_auth_required
     def DELETE(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
 

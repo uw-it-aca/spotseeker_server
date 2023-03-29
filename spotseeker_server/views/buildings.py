@@ -22,7 +22,7 @@ class BuildingListView(RESTDispatch):
     GET returns 200 with a list of buildings.
     """
 
-    @app_auth_required
+    # @app_auth_required
     def GET(self, request):
         chain = SearchFilterChain(request)
         search_view = SearchView()

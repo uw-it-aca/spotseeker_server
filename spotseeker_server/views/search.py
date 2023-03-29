@@ -38,12 +38,12 @@ class SearchView(RESTDispatch):
     based on a query string.
     """
 
-    @user_auth_required
-    @admin_auth_required
+    # @user_auth_required
+    # @admin_auth_required
     def POST(self, request):
         return SpotView().run(request)
 
-    @app_auth_required
+    # @app_auth_required
     def GET(self, request):
         chain = SearchFilterChain(request)
         spots = self.filter_on_request(

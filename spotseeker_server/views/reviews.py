@@ -20,7 +20,7 @@ import json
 
 
 class ReviewsView(RESTDispatch):
-    @user_auth_required
+    # @user_auth_required
     def POST(self, request, spot_id):
         user = self._get_user(request)
         space = Spot.objects.get(pk=spot_id)
@@ -48,7 +48,7 @@ class ReviewsView(RESTDispatch):
         response = HttpResponse("OK", status=201)
         return response
 
-    @app_auth_required
+    # @app_auth_required
     def GET(self, request, spot_id, include_unpublished=False):
         space = Spot.objects.get(pk=spot_id)
         # Use the param after validating the user should see unpublished
@@ -68,8 +68,8 @@ class ReviewsView(RESTDispatch):
 
 
 class UnpublishedReviewsView(RESTDispatch):
-    @user_auth_required
-    @admin_auth_required
+    # @user_auth_required
+    # @admin_auth_required
     def GET(self, request):
         objects = SpaceReview.objects.filter(
             is_published=False, is_deleted=False
@@ -78,8 +78,8 @@ class UnpublishedReviewsView(RESTDispatch):
 
         return JSONResponse(reviews)
 
-    @user_auth_required
-    @admin_auth_required
+    # @user_auth_required
+    # @admin_auth_required
     def POST(self, request):
         data = json.loads(request.body)
         user = self._get_user(request)

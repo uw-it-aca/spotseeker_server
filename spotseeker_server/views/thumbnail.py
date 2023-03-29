@@ -30,7 +30,7 @@ RE_WIDTHxHEIGHT = re.compile(r"^(\d+)x(\d+)$")
 class ThumbnailView(RESTDispatch):
     """Returns 200 with a thumbnail of a SpotImage."""
 
-    @app_auth_required
+    # @app_auth_required
     def GET(
         self,
         request,

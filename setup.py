@@ -7,7 +7,7 @@ setup(
     version="1.0",
     description="REST Backend for SpaceScout",
     install_requires=[
-        "Django==2.0.*",
+        "Django==2.2.*",
         "future",
         "mock<=1.0.1",
         "oauthlib==3.1.*",

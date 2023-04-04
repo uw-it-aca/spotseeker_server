@@ -201,8 +201,8 @@ class Spot(models.Model):
 class FavoriteSpot(models.Model):
     """A FavoriteSpot associates a User and Spot."""
 
-    user = models.ForeignKey(User)
-    spot = models.ForeignKey(Spot)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
 
     def json_data_structure(self):
         """Returns the JSON for the Spot that is a Favorite."""
@@ -229,7 +229,7 @@ class SpotAvailableHours(models.Model):
         ("su", "sunday"),
     )
 
-    spot = models.ForeignKey(Spot)
+    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
     day = models.CharField(max_length=3, choices=DAY_CHOICES)
 
     start_time = models.TimeField()
@@ -285,7 +285,7 @@ class SpotExtendedInfo(models.Model):
 
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
-    spot = models.ForeignKey(Spot)
+    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = "Spot extended info"
@@ -318,7 +318,7 @@ class SpotImage(models.Model):
     description = models.CharField(max_length=200, blank=True)
     display_index = models.PositiveIntegerField(null=True, blank=True)
     image = models.ImageField(upload_to="space_images")
-    spot = models.ForeignKey(Spot)
+    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
     height = models.IntegerField()

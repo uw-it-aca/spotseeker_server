@@ -3,11 +3,11 @@
 
 from django.db import models
 
-import oauth_provider.models
+from django.contrib.auth.models import User
 
 
-class TrustedOAuthClient(models.Model):
-    consumer = models.ForeignKey(oauth_provider.models.Consumer)
+class TrustedOAuthClient(models.Model):  # TODO: change to consumer/client
+    consumer = models.ForeignKey(User, on_delete=models.CASCADE)
     is_trusted = models.BooleanField(default=False)
     bypasses_user_authorization = models.BooleanField(default=False)
 

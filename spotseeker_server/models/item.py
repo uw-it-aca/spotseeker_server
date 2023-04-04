@@ -15,7 +15,8 @@ from .utility import update_etag
 class Item(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField(max_length=50, blank=True)
-    spot = models.ForeignKey(Spot, blank=True, null=True)
+    spot = models.ForeignKey(Spot, blank=True, null=True,
+                             on_delete=models.CASCADE)
     # These need to be item_ cat/subcat due to DB issues
     item_category = models.CharField(max_length=50, null=True)
     item_subcategory = models.CharField(max_length=50, null=True)
@@ -50,7 +51,8 @@ class Item(models.Model):
 
 
 class ItemExtendedInfo(models.Model):
-    item = models.ForeignKey(Item, blank=True, null=True)
+    item = models.ForeignKey(Item, blank=True, null=True,
+                             on_delete=models.CASCADE)
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
 
@@ -81,7 +83,7 @@ class ItemImage(models.Model):
     description = models.CharField(max_length=200, blank=True)
     display_index = models.PositiveIntegerField(null=True, blank=True)
     image = models.ImageField(upload_to="item_images")
-    item = models.ForeignKey(Item)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
     height = models.IntegerField()

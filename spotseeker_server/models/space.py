@@ -9,11 +9,13 @@ from .spot import Spot
 
 
 class SpaceReview(models.Model):
-    space = models.ForeignKey(Spot)
-    reviewer = models.ForeignKey(User, related_name='reviewer')
+    space = models.ForeignKey(Spot, on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(User, related_name='reviewer',
+                                 on_delete=models.CASCADE)
     published_by = models.ForeignKey(User,
                                      related_name='published_by',
-                                     null=True)
+                                     null=True,
+                                     on_delete=models.CASCADE)
     review = models.CharField(max_length=1000, default="")
     original_review = models.CharField(max_length=1000, default="")
     rating = models.IntegerField(validators=[MaxValueValidator(5),
@@ -55,13 +57,13 @@ class SpaceReview(models.Model):
 
 
 class SharedSpace(models.Model):
-    space = models.ForeignKey(Spot)
+    space = models.ForeignKey(Spot, on_delete=models.CASCADE)
     user = models.CharField(max_length=16)
     sender = models.CharField(max_length=256)
 
 
 class SharedSpaceRecipient(models.Model):
-    shared_space = models.ForeignKey(SharedSpace)
+    shared_space = models.ForeignKey(SharedSpace, on_delete=models.CASCADE)
     hash_key = models.CharField(max_length=32)
     recipient = models.CharField(max_length=256)
     user = models.CharField(max_length=16, null=True, blank=True, default=None)

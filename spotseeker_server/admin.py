@@ -118,6 +118,7 @@ admin.site.register(SpotExtendedInfo, SpotExtendedInfoAdmin)
 
 admin.site.register(SpotType)
 admin.site.register(TrustedOAuthClient)
+admin.site.register(Client)
 
 
 class ItemAdmin(admin.ModelAdmin):

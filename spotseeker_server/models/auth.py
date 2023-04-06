@@ -7,7 +7,7 @@ from django.contrib.auth.models import User, AbstractUser
 
 
 class Client(AbstractUser):
-    # name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     client_id = models.CharField(max_length=255)
     client_secret = models.CharField(max_length=255)
 

@@ -161,31 +161,6 @@ class Spot(models.Model):
         cache.set(self.json_cache_key(), spot_json)
         return spot_json
 
-    def update_rating(self):
-        data = self.spacereview_set.filter(
-            is_published=True, is_deleted=False
-        ).aggregate(total=Sum("rating"), count=Count("rating"))
-        if not data["total"]:
-            return
-
-        # Round down to .5 stars:
-        new_rating = int(2 * data["total"] / data["count"]) / 2.0
-
-        # update_or_create isn't in this django version, unfortunately
-        ei, created = self.spotextendedinfo_set.get_or_create(
-            key="rating", defaults={"value": new_rating}
-        )
-        if not created:
-            ei.value = new_rating
-            ei.save()
-
-        ei, created = self.spotextendedinfo_set.get_or_create(
-            key="review_count", defaults={"value": data["count"]}
-        )
-        if not created:
-            ei.value = data["count"]
-            ei.save()
-
     def delete(self, *args, **kwargs):
         self.invalidate_cache()
         super(Spot, self).delete(*args, **kwargs)

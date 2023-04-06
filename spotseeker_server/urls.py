@@ -25,7 +25,6 @@ from spotseeker_server.views.share_space import (
     ShareSpaceView,
     SharedSpaceReferenceView,
 )
-from spotseeker_server.views.reviews import ReviewsView, UnpublishedReviewsView
 from spotseeker_server.views.item_image import ItemImageView
 from spotseeker_server.views.add_item_image import AddItemImageView
 from spotseeker_server.views.item_thumbnail import ItemThumbnailView
@@ -87,12 +86,10 @@ urlpatterns = [
         csrf_exempt(ItemThumbnailView().run),
         name="item-image-thumb",
     ),
-    url(r"v1/spot/(?P<spot_id>\d+)/reviews$", csrf_exempt(ReviewsView().run)),
     url(r"v1/user/me$", csrf_exempt(PersonView().run)),
     url(r"v1/spot/(?P<spot_id>\d+)/share$", csrf_exempt(ShareSpaceView().run)),
     url(
         r"v1/spot/(?P<spot_id>\d+)/shared$",
         csrf_exempt(SharedSpaceReferenceView().run),
     ),
-    url(r"v1/reviews/unpublished$", csrf_exempt(UnpublishedReviewsView().run)),
 ]

@@ -4,12 +4,11 @@
 from django.test import TestCase
 from django.conf import settings
 from django.core.management import call_command
-from spotseeker_server.models import Spot, TrustedOAuthClient
+from spotseeker_server.models import Spot, TrustedOAuthClient, Client
 import simplejson as json
 import hashlib
 import time
 import random
-from oauth_provider.models import Consumer
 from oauthlib import oauth1
 from django.test.utils import override_settings
 from unittest.mock import patch, MagicMock
@@ -45,7 +44,7 @@ class SpotAuthOAuth(TestCase):
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        create_consumer = Consumer.objects.create(
+        create_consumer = Client.objects.create(
             name=consumer_name, key=key, secret=secret
         )
 
@@ -128,7 +127,7 @@ class SpotAuthOAuth(TestCase):
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        create_consumer = Consumer.objects.create(
+        create_consumer = Client.objects.create(
             name=consumer_name, key=key, secret=secret
         )
 
@@ -174,7 +173,7 @@ class SpotAuthOAuth(TestCase):
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        create_consumer = Consumer.objects.create(
+        create_consumer = Client.objects.create(
             name=consumer_name, key=key, secret=secret
         )
 
@@ -221,7 +220,7 @@ class SpotAuthOAuth(TestCase):
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        create_consumer = Consumer.objects.create(
+        create_consumer = Client.objects.create(
             name=consumer_name, key=key, secret=secret
         )
         trusted_consumer = TrustedOAuthClient.objects.create(
@@ -273,7 +272,7 @@ class SpotAuthOAuth(TestCase):
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        create_consumer = Consumer.objects.create(
+        create_consumer = Client.objects.create(
             name=consumer_name, key=key, secret=secret
         )
         trusted_consumer = TrustedOAuthClient.objects.create(
@@ -318,7 +317,7 @@ class SpotAuthOAuth(TestCase):
             silent=True,
         )
 
-        consumer = Consumer.objects.get(name=consumer_name)
+        consumer = Client.objects.get(name=consumer_name)
 
         client = TrustedOAuthClient.objects.get(consumer=consumer)
 

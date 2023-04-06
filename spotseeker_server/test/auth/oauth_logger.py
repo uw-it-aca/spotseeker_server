@@ -83,7 +83,7 @@ class SpotAuthOAuthLogger(TestCase):
                 )
             ).hexdigest()
 
-            create_consumer = Consumer.objects.create(
+            create_consumer = Client.objects.create(
                 name=consumer_name, key=key, secret=secret
             )
 

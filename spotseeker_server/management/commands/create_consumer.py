@@ -13,7 +13,7 @@ import time
 
 from django.core.management.base import BaseCommand, CommandError
 
-from spotseeker_server.models import TrustedOAuthClient
+from spotseeker_server.models import TrustedOAuthClient, Client
 
 
 class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
@@ -63,13 +63,13 @@ class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
             for _ in range(16)
         )
 
-        consumer = Consumer.objects.create(
+        client = Client.objects.create(
             name=consumer_name, key=key, secret=secret
         )
 
         if options["trusted"]:
             trusted = TrustedOAuthClient.objects.create(
-                consumer=consumer,
+                consumer=client,
                 is_trusted=1,
                 bypasses_user_authorization=False,
             )

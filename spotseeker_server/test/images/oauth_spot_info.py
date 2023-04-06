@@ -9,11 +9,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
 from os.path import abspath, dirname, isfile
-from spotseeker_server.models import Spot, SpotImage, TrustedOAuthClient
+from spotseeker_server.models import Spot, SpotImage, TrustedOAuthClient, \
+                                     Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from PIL import Image
-from oauth_provider.models import Consumer
 import random
 import hashlib
 import time
@@ -43,7 +43,7 @@ class SpotResourceOAuthImageTest(TestCase):
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        create_consumer = Consumer.objects.create(
+        create_consumer = Client.objects.create(
             name=consumer_name, key=key, secret=secret
         )
         self.trusted_consumer = TrustedOAuthClient.objects.create(

@@ -18,6 +18,10 @@ from django.urls import path, re_path, include
 
 urlpatterns = [
     path('api/', include('spotseeker_server.urls')),
+    path(
+        'auth/',
+        include('oauth2_provider.urls', namespace='oauth2_provider')
+    ),
 ]
 
 if settings.DEBUG:

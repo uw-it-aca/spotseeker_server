@@ -9,11 +9,14 @@ else:
 
 INSTALLED_APPS += [
     "spotseeker_server",
+    "oauth2_provider",
 ]
 
 MIDDLEWARE += [
     "spotseeker_server.logger.oauth.LogMiddleware",
 ]
+
+AUTH_USER_MODEL = "spotseeker_server.Client"
 
 # django storages settings
 if not DEBUG:

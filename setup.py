@@ -11,6 +11,7 @@ setup(
         "future",
         "mock<=1.0.1",
         "oauthlib==3.1.*",
+        "django-oauth-toolkit",
         "requests==2.26.*",
         "requests-oauthlib==1.3.*",
         "Pillow",

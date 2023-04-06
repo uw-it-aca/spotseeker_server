@@ -3,16 +3,31 @@
 
 from django.db import models
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 
 
-class TrustedOAuthClient(models.Model):  # TODO: change to consumer/client
-    consumer = models.ForeignKey(User, on_delete=models.CASCADE)
+class Client(AbstractUser):
+    # name = models.CharField(max_length=255)
+    client_id = models.CharField(max_length=255)
+    client_secret = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name_plural = "OAuth Clients"
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.__unicode__()
+
+
+class TrustedOAuthClient(models.Model):
+    consumer = models.ForeignKey(Client, on_delete=models.CASCADE)
     is_trusted = models.BooleanField(default=False)
     bypasses_user_authorization = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name_plural = "Trusted OAuth clients"
+        verbose_name_plural = "Trusted OAuth Clients"
 
     def __unicode__(self):
         return self.consumer.name

@@ -201,7 +201,7 @@ class Spot(models.Model):
 class FavoriteSpot(models.Model):
     """A FavoriteSpot associates a User and Spot."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
     spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
 
     def json_data_structure(self):

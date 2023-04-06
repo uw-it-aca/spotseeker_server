@@ -10,12 +10,12 @@ from .spot import Spot
 
 class SpaceReview(models.Model):
     space = models.ForeignKey(Spot, on_delete=models.CASCADE)
-    reviewer = models.ForeignKey(User, related_name='reviewer',
-                                 on_delete=models.CASCADE)
-    published_by = models.ForeignKey(User,
-                                     related_name='published_by',
-                                     null=True,
-                                     on_delete=models.CASCADE)
+    # reviewer = models.ForeignKey(User, related_name='reviewer',
+                                #  on_delete=models.CASCADE)
+    # published_by = models.ForeignKey(User,
+    #                                  related_name='published_by',
+    #                                  null=True,
+    #                                  on_delete=models.CASCADE)
     review = models.CharField(max_length=1000, default="")
     original_review = models.CharField(max_length=1000, default="")
     rating = models.IntegerField(validators=[MaxValueValidator(5),

@@ -198,22 +198,6 @@ class Spot(models.Model):
             return cls.objects.get(pk=spot_id)
 
 
-class FavoriteSpot(models.Model):
-    """A FavoriteSpot associates a User and Spot."""
-
-    user = models.ForeignKey(User)
-    spot = models.ForeignKey(Spot)
-
-    def json_data_structure(self):
-        """Returns the JSON for the Spot that is a Favorite."""
-        return self.spot.json_data_structure()
-
-    def clean(self):
-        spots = self.user.favoritespot_set.all()
-        if self.spot in spots:
-            raise ValidationError("This Spot has already been favorited")
-
-
 class SpotAvailableHours(models.Model):
     """The hours a Spot is available, i.e. the open or closed hours for
     the building the spot is located in.

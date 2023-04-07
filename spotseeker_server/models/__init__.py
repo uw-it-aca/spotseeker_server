@@ -3,6 +3,6 @@
 
 from .auth import TrustedOAuthClient
 from .item import Item, ItemExtendedInfo, ItemImage
-from .space import SharedSpace, SharedSpaceRecipient, SpaceReview
+from .space import SharedSpace, SharedSpaceRecipient
 from .spot import Spot, SpotAvailableHours, SpotExtendedInfo, \
     SpotImage, SpotType

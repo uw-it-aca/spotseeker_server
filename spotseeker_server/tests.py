@@ -65,7 +65,6 @@ from spotseeker_server.test.uw_spot.spot_put import UWSpotPUTTest
 from spotseeker_server.test.uw_spot.schema import UWSpotSchemaTest
 from spotseeker_server.test.uw_spot.uw_search import UWSearchTest
 from spotseeker_server.test.share_space import ShareSpaceTest
-from spotseeker_server.test.reviews import ReviewsTest
 from spotseeker_server.test.item.form import ItemFormsTest
 from spotseeker_server.test.spot_caching import SpotCacheTest
 from spotseeker_server.test.item.image_delete import ItemImageDELETETest

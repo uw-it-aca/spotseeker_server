@@ -4,7 +4,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from spotseeker_server.views.spot import SpotView
 from optparse import make_option
-from spotseeker_server.models import (Spot, SpotImage, FavoriteSpot,
+from spotseeker_server.models import (Spot, SpotImage,
                                       SpotAvailableHours, SpotExtendedInfo,
                                       SpaceReview, SharedSpace,
                                       SharedSpaceRecipient, Item, ItemImage,
@@ -89,7 +89,6 @@ class Command(BaseCommand):
                 return
             Spot.objects.all().delete()
             SpotImage.objects.all().delete()
-            FavoriteSpot.objects.all().delete()
             SpotAvailableHours.objects.all().delete()
             SpotExtendedInfo.objects.all().delete()
             Item.objects.all().delete()

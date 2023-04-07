@@ -12,7 +12,6 @@ from spotseeker_server.test.spot_put import SpotPUTTest
 from spotseeker_server.test.spot_delete import SpotDELETETest
 from spotseeker_server.test.spot_post import SpotPOSTTest
 from spotseeker_server.test.spot_get import SpotGETTest
-from spotseeker_server.test.favorite_model import FavoriteSpotTest
 from spotseeker_server.test.no_rest_methods import NoRESTMethodsTest
 from spotseeker_server.test.schema import SpotSchemaTest
 from spotseeker_server.test.images.get import SpotImageGETTest
@@ -65,7 +64,6 @@ from spotseeker_server.test.uw_spot.spot_post import UWSpotPOSTTest
 from spotseeker_server.test.uw_spot.spot_put import UWSpotPUTTest
 from spotseeker_server.test.uw_spot.schema import UWSpotSchemaTest
 from spotseeker_server.test.uw_spot.uw_search import UWSearchTest
-from spotseeker_server.test.favorites import FavoritesTest
 from spotseeker_server.test.share_space import ShareSpaceTest
 from spotseeker_server.test.reviews import ReviewsTest
 from spotseeker_server.test.item.form import ItemFormsTest

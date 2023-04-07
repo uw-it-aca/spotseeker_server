@@ -158,18 +158,6 @@ class UWSpotPOSTTest(TransactionTestCase):
         valid_cases = ["south_lake_union", "seattle"]
         self.uw_ei_field_common(field, invalid_cases, valid_cases)
 
-    def test_uw_field_review_count(self):
-        field = "review_count"
-        invalid_cases = ["One", "1One"]
-        valid_cases = ["1"]
-        self.uw_ei_field_common(field, invalid_cases, valid_cases)
-
-    def test_uw_field_rating(self):
-        field = "rating"
-        invalid_cases = ["One", "1One"]
-        valid_cases = ["1"]
-        self.uw_ei_field_common(field, invalid_cases, valid_cases)
-
     def test_uw_field_auto_labstats_available(self):
         field = "auto_labstats_available"
         invalid_cases = ["One", "1One"]

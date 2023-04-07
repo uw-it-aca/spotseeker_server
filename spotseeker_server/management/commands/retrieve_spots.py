@@ -6,8 +6,7 @@ from spotseeker_server.views.spot import SpotView
 from optparse import make_option
 from spotseeker_server.models import (Spot, SpotImage,
                                       SpotAvailableHours, SpotExtendedInfo,
-                                      SharedSpace,
-                                      SharedSpaceRecipient, Item, ItemImage,
+                                      Item, ItemImage,
                                       ItemExtendedInfo)
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -93,7 +92,6 @@ class Command(BaseCommand):
             SpotExtendedInfo.objects.all().delete()
             Item.objects.all().delete()
             ItemImage.objects.all().delete()
-            SharedSpace.objects.all().delete()
 
         start_time = time.time()
         # make request to URLmodels.Model

@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """ Changes
@@ -161,31 +161,6 @@ class Spot(models.Model):
         cache.set(self.json_cache_key(), spot_json)
         return spot_json
 
-    def update_rating(self):
-        data = self.spacereview_set.filter(
-            is_published=True, is_deleted=False
-        ).aggregate(total=Sum("rating"), count=Count("rating"))
-        if not data["total"]:
-            return
-
-        # Round down to .5 stars:
-        new_rating = int(2 * data["total"] / data["count"]) / 2.0
-
-        # update_or_create isn't in this django version, unfortunately
-        ei, created = self.spotextendedinfo_set.get_or_create(
-            key="rating", defaults={"value": new_rating}
-        )
-        if not created:
-            ei.value = new_rating
-            ei.save()
-
-        ei, created = self.spotextendedinfo_set.get_or_create(
-            key="review_count", defaults={"value": data["count"]}
-        )
-        if not created:
-            ei.value = data["count"]
-            ei.save()
-
     def delete(self, *args, **kwargs):
         self.invalidate_cache()
         super(Spot, self).delete(*args, **kwargs)
@@ -196,22 +171,6 @@ class Spot(models.Model):
             return cls.objects.get(external_id=spot_id[9:])
         else:
             return cls.objects.get(pk=spot_id)
-
-
-class FavoriteSpot(models.Model):
-    """A FavoriteSpot associates a User and Spot."""
-
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
-    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
-
-    def json_data_structure(self):
-        """Returns the JSON for the Spot that is a Favorite."""
-        return self.spot.json_data_structure()
-
-    def clean(self):
-        spots = self.user.favoritespot_set.all()
-        if self.spot in spots:
-            raise ValidationError("This Spot has already been favorited")
 
 
 class SpotAvailableHours(models.Model):

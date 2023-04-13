@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TransactionTestCase
@@ -156,18 +156,6 @@ class UWSpotPOSTTest(TransactionTestCase):
         field = "campus"
         invalid_cases = ["south_", "1"]
         valid_cases = ["south_lake_union", "seattle"]
-        self.uw_ei_field_common(field, invalid_cases, valid_cases)
-
-    def test_uw_field_review_count(self):
-        field = "review_count"
-        invalid_cases = ["One", "1One"]
-        valid_cases = ["1"]
-        self.uw_ei_field_common(field, invalid_cases, valid_cases)
-
-    def test_uw_field_rating(self):
-        field = "rating"
-        invalid_cases = ["One", "1One"]
-        valid_cases = ["1"]
         self.uw_ei_field_common(field, invalid_cases, valid_cases)
 
     def test_uw_field_auto_labstats_available(self):

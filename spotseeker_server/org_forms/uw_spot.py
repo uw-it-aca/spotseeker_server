@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """ Changes
@@ -40,9 +40,7 @@ validated_ei = {
     "location_description": "str",
     "noise_level": ["silent", "quiet", "moderate", "variable"],
     "num_computers": "int",
-    "rating": "int",
     "reservable": ["true", "reservations"],
-    "review_count": "int",
     "s_cuisine_american": ["true"],
     "s_cuisine_bbq": ["true"],
     "s_cuisine_chinese": ["true"],

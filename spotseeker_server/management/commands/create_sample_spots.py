@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 # -*- coding: utf-8 -*-
@@ -223,52 +223,6 @@ class Command(BaseCommand):
                 image=File(f),
             )
 
-            reviewer1, created = User.objects.get_or_create(username="review1")
-            reviewer2, created = User.objects.get_or_create(username="review2")
-            publisher1, created = User.objects.get_or_create(
-                username="publisher1"
-            )
-            publisher2, created = User.objects.get_or_create(
-                username="publisher2"
-            )
-
-            review1 = SpaceReview.objects.create(
-                space=art,
-                reviewer=reviewer1,
-                published_by=publisher1,
-                review="Super duper space" "\nReally nice.",
-                rating=5,
-                date_published=timezone.now(),
-                is_published=True,
-            )
-
-            review2 = SpaceReview.objects.create(
-                space=art,
-                reviewer=reviewer2,
-                published_by=publisher2,
-                review="OK space",
-                rating=4,
-                date_published=timezone.now(),
-                is_published=True,
-            )
-
-            review3 = SpaceReview.objects.create(
-                space=art,
-                reviewer=reviewer2,
-                published_by=publisher2,
-                review="Blah",
-                rating=1,
-                date_published=timezone.now(),
-                is_published=False,
-            )
-
-            SpotExtendedInfo.objects.create(
-                key="rating", value="4.5", spot=art
-            )
-            SpotExtendedInfo.objects.create(
-                key="review_count", value="2", spot=art
-            )
-
             study_room_type = SpotType.objects.get_or_create(
                 name="study_room"
             )[0]
@@ -431,6 +385,24 @@ class Command(BaseCommand):
                 building_name="Art Atrium",
             )
             aa_balcony.spottypes.add(outdoor_type)
+            f = open(
+                os.path.join(base_dir, "resources", "building3.jpg"), "rb"
+            )
+            f2 = open(
+                os.path.join(base_dir, "resources", "building4.jpg"), "rb"
+            )
+            aa_balcony_img = SpotImage.objects.create(
+                description="This is one " "building",
+                spot=aa_balcony,
+                display_index=0,
+                image=File(f),
+            )
+            aa_balcony_img2 = SpotImage.objects.create(
+                description="This is one " "building",
+                spot=aa_balcony,
+                display_index=1,
+                image=File(f2),
+            )
             aa_balcony.save()
 
             for day in ["su", "m", "t", "w", "th", "f", "sa"]:

@@ -1,13 +1,12 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from django.core.management.base import BaseCommand, CommandError
 from spotseeker_server.views.spot import SpotView
 from optparse import make_option
-from spotseeker_server.models import (Spot, SpotImage, FavoriteSpot,
+from spotseeker_server.models import (Spot, SpotImage,
                                       SpotAvailableHours, SpotExtendedInfo,
-                                      SpaceReview, SharedSpace,
-                                      SharedSpaceRecipient, Item, ItemImage,
+                                      Item, ItemImage,
                                       ItemExtendedInfo)
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -89,13 +88,10 @@ class Command(BaseCommand):
                 return
             Spot.objects.all().delete()
             SpotImage.objects.all().delete()
-            FavoriteSpot.objects.all().delete()
             SpotAvailableHours.objects.all().delete()
             SpotExtendedInfo.objects.all().delete()
             Item.objects.all().delete()
             ItemImage.objects.all().delete()
-            SpaceReview.objects.all().delete()
-            SharedSpace.objects.all().delete()
 
         start_time = time.time()
         # make request to URLmodels.Model

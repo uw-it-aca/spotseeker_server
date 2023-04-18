@@ -38,7 +38,6 @@ class SearchView(RESTDispatch):
     based on a query string.
     """
 
-    # @user_auth_required
     # @admin_auth_required
     def POST(self, request):
         return SpotView().run(request)

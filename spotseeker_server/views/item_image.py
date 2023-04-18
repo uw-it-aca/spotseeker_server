@@ -48,7 +48,6 @@ class ItemImageView(RESTDispatch):
         response["Content-type"] = img.content_type
         return response
 
-    # @user_auth_required
     # @admin_auth_required
     def PUT(self, request, item_id, image_id):
         img = ItemImage.objects.get(pk=image_id)
@@ -76,7 +75,6 @@ class ItemImageView(RESTDispatch):
 
         return self.GET(request, item_id, image_id)
 
-    # @user_auth_required
     # @admin_auth_required
     def DELETE(self, request, item_id, image_id):
         img = ItemImage.objects.get(pk=image_id)

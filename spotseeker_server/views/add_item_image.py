@@ -19,7 +19,6 @@ class AddItemImageView(RESTDispatch):
     /api/v1/item/<item id>/image.
     """
 
-    # @user_auth_required
     # @admin_auth_required  # TODO: add back? Doesn't pass on its own
     def POST(self, request, item_id):
         item = Item.objects.get(pk=item_id)

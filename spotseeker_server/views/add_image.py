@@ -19,7 +19,6 @@ class AddImageView(RESTDispatch):
     /api/v1/spot/<spot id>/image.
     """
 
-    # @user_auth_required
     # @admin_auth_required
     def POST(self, request, spot_id):
         spot = Spot.objects.get(pk=spot_id)

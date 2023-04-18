@@ -9,16 +9,12 @@
     }
 },
 {
-    "model": "oauth_provider.consumer",
+    "model": "spotseeker_server.client",
     "pk": 1,
     "fields": {
         "name": "javerage",
-        "description": "",
-        "key": "dummy",
-        "secret": "dummy",
-        "status": 1,
-        "user": null,
-        "xauth_allowed": false
+        "client_id": "dummy",
+        "client_secret": "dummy"
     }
 }
 ]

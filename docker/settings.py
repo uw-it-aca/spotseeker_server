@@ -10,13 +10,36 @@ else:
 INSTALLED_APPS += [
     "spotseeker_server",
     "oauth2_provider",
+    "corsheaders",
 ]
 
 MIDDLEWARE += [
     "spotseeker_server.logger.oauth.LogMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 AUTH_USER_MODEL = "spotseeker_server.Client"
+
+AUTHENTICATION_BACKENDS = (
+    "oauth2_provider.backends.OAuth2Backend",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+# TODO: remove? registration should be done through the manager,
+# not logging in to the admin
+LOGIN_URL = '/admin/login/'
+
+if DEBUG:
+    CORS_ORIGIN_ALLOW_ALL = True
+else:
+    CORS_ORIGIN_ALLOW_ALL = False
+    CORS_ALLOWED_ORIGINS = [  # TODO: move to env var?
+        "https://scout.uw.edu",
+        "https://manager.scout.uw.edu",
+        # TODO: not the best idea to do it like this, but it works for now
+        "https://test.scout.uw.edu",
+        "https://test.manager.scout.uw.edu",
+    ]
 
 # django storages settings
 if not DEBUG:

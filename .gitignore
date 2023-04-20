@@ -30,6 +30,9 @@ spotseeker_web
 # IDE files
 .idea/
 
+# vscode files
+.vscode/
+
 # pipenv
 Pipfile
 Pipfile.lock

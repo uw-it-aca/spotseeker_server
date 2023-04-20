@@ -1,14 +1,6 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Changes
-    =================================================================
-
-    sbutler1@illinois.edu: added external_id support; moved some URL
-        patterns into the ThumbnailView; added names for reverse()
-        support.
-"""
-
 from django.urls import path, re_path, include
 from django.views.decorators.csrf import csrf_exempt
 from spotseeker_server.views.buildings import BuildingListView

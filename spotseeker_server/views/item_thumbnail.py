@@ -30,15 +30,9 @@ RE_WIDTHxHEIGHT = re.compile(r"^(\d+)x(\d+)$")
 class ItemThumbnailView(RESTDispatch):
     """Returns 200 with a thumbnail of a ItemImage."""
 
-    @app_auth_required
-    def GET(
-        self,
-        request,
-        item_id,
-        image_id,
-        thumb_dimensions=None,
-        constrain=False,
-    ):
+    # @app_auth_required
+    def get(self, request, item_id, image_id,
+            thumb_dimensions=None, constrain=False):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 

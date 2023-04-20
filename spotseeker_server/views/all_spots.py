@@ -14,6 +14,6 @@ from spotseeker_server.require_auth import app_auth_required
 
 class AllSpotsView(RESTDispatch):
     # @app_auth_required
-    def GET(self, request):
+    def get(self, request):
         spots = [spot.json_data_structure() for spot in Spot.objects.all()]
         return JSONResponse(spots)

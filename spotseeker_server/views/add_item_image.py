@@ -20,7 +20,7 @@ class AddItemImageView(RESTDispatch):
     """
 
     # @admin_auth_required  # TODO: add back? Doesn't pass on its own
-    def POST(self, request, item_id):
+    def post(self, request, item_id):
         item = Item.objects.get(pk=item_id)
 
         if "image" not in request.FILES:

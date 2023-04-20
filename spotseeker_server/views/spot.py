@@ -34,6 +34,7 @@ from spotseeker_server.dispatch import (
     spot_post_build,
 )
 import spotseeker_server.views.spot_item
+from oauth2_provider.views.generic import ProtectedResourceView
 
 from past.builtins import basestring
 
@@ -168,29 +169,27 @@ class SpotView(RESTDispatch):
     """
 
     # @app_auth_required
-    def GET(self, request, spot_id):
+    def get(self, request, spot_id):
+        return HttpResponse("Hello, world. You're at the spot index.")
         spot = Spot.get_with_external(spot_id)
         response = JSONResponse(spot.json_data_structure())
         response["ETag"] = spot.etag
         return response
 
-    # @user_auth_required
     # @admin_auth_required
-    def POST(self, request):
+    def post(self, request):
         return self.build_and_save_from_input(request, None)
 
-    # @user_auth_required
     # @admin_auth_required
-    def PUT(self, request, spot_id):
+    def put(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
 
         self.validate_etag(request, spot)
 
         return self.build_and_save_from_input(request, spot)
 
-    # @user_auth_required
     # @admin_auth_required
-    def DELETE(self, request, spot_id):
+    def delete(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
 
         self.validate_etag(request, spot)

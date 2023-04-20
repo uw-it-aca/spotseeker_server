@@ -31,14 +31,8 @@ class ThumbnailView(RESTDispatch):
     """Returns 200 with a thumbnail of a SpotImage."""
 
     # @app_auth_required
-    def GET(
-        self,
-        request,
-        spot_id,
-        image_id,
-        thumb_dimensions=None,
-        constrain=False,
-    ):
+    def get(self, request, spot_id, image_id,
+            thumb_dimensions=None, constrain=False):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 

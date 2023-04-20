@@ -69,14 +69,14 @@ class RESTDispatch:
         method = request.META["REQUEST_METHOD"]
 
         try:
-            if "GET" == method and hasattr(self, "GET"):
-                response = self.GET(*args, **named_args)
-            elif "POST" == method and hasattr(self, "POST"):
-                response = self.POST(*args, **named_args)
-            elif "PUT" == method and hasattr(self, "PUT"):
-                response = self.PUT(*args, **named_args)
-            elif "DELETE" == method and hasattr(self, "DELETE"):
-                response = self.DELETE(*args, **named_args)
+            if "GET" == method and hasattr(self, "get"):
+                response = self.get(*args, **named_args)
+            elif "POST" == method and hasattr(self, "post"):
+                response = self.post(*args, **named_args)
+            elif "PUT" == method and hasattr(self, "put"):
+                response = self.put(*args, **named_args)
+            elif "DELETE" == method and hasattr(self, "delete"):
+                response = self.delete(*args, **named_args)
             else:
                 raise RESTException("Method not allowed", 405)
 

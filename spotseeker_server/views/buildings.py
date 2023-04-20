@@ -23,7 +23,7 @@ class BuildingListView(RESTDispatch):
     """
 
     # @app_auth_required
-    def GET(self, request):
+    def get(self, request):
         chain = SearchFilterChain(request)
         search_view = SearchView()
         spots = SearchView.filter_on_request(

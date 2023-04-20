@@ -30,7 +30,7 @@ class ImageView(RESTDispatch):
     """
 
     # @app_auth_required
-    def GET(self, request, spot_id, image_id):
+    def get(self, request, spot_id, image_id):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 
@@ -49,7 +49,7 @@ class ImageView(RESTDispatch):
         return response
 
     # @admin_auth_required
-    def PUT(self, request, spot_id, image_id):
+    def put(self, request, spot_id, image_id):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 
@@ -75,7 +75,7 @@ class ImageView(RESTDispatch):
         return self.GET(request, spot_id, image_id)
 
     # @admin_auth_required
-    def DELETE(self, request, spot_id, image_id):
+    def delete(self, request, spot_id, image_id):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 

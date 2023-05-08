@@ -11,8 +11,6 @@ import time
 import random
 from oauthlib import oauth1
 from django.test.utils import override_settings
-from unittest.mock import patch, MagicMock
-from spotseeker_server import models
 from spotseeker_server.require_auth import get_auth_module, get_auth_method
 from spotseeker_server.auth import all_ok, oauth, fake_oauth
 from django.core.exceptions import ImproperlyConfigured

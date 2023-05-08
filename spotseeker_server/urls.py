@@ -1,7 +1,7 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.urls import path, re_path, include
+from django.urls import path, re_path
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from spotseeker_server.views.buildings import BuildingListView

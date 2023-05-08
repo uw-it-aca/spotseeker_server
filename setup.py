@@ -12,7 +12,7 @@ setup(
         "mock<=1.0.1",
         "oauthlib==3.1.*",
         "django-oauth-toolkit",
-        "django-cors-headers",
+        "django-cors-headers==3.10.*",
         "requests==2.26.*",
         "requests-oauthlib==1.3.*",
         "Pillow",

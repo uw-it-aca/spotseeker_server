@@ -10,16 +10,14 @@
 
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpResponse
 
 from spotseeker_server.forms.spot import SpotForm
 from spotseeker_server.models import *
-from spotseeker_server.require_auth import *
 from spotseeker_server.views.rest_dispatch import JSONResponse, RESTDispatch
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 
-class SchemaGenView(RESTDispatch):
-    # @app_auth_required
+class SchemaGenView(RESTDispatch, ReadWriteScopedResourceView):
     def get(self, request):
         """Json data that should contain every single piece of information
         that any spot might contain.

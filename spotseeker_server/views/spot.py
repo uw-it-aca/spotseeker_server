@@ -17,13 +17,8 @@ from spotseeker_server.views.rest_dispatch import (
     JSONResponse,
 )
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
-from spotseeker_server.default_forms.item import DefaultItemForm as ItemForm
-from spotseeker_server.default_forms.item import (
-    DefaultItemExtendedInfoForm as ItemExtendedInfoForm,
-)
 from spotseeker_server.models import *
 from django.http import HttpResponse
-from spotseeker_server.require_auth import *
 from django.db import transaction
 import simplejson as json
 import django.dispatch
@@ -33,8 +28,7 @@ from spotseeker_server.dispatch import (
     spot_post_save,
     spot_post_build,
 )
-import spotseeker_server.views.spot_item
-from oauth2_provider.views.generic import ProtectedResourceView
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 from past.builtins import basestring
 
@@ -160,7 +154,7 @@ def _save_extended_info(sender, **kwargs):
                 pass
 
 
-class SpotView(RESTDispatch):
+class SpotView(RESTDispatch, ReadWriteScopedResourceView):
     """Performs actions on a Spot at /api/v1/spot/<spot id>.
     GET returns 200 with Spot details.
     POST to /api/v1/spot with valid JSON returns 200 and creates a new Spot.
@@ -168,19 +162,15 @@ class SpotView(RESTDispatch):
     DELETE returns 200 and deletes the Spot.
     """
 
-    # @app_auth_required
     def get(self, request, spot_id):
-        return HttpResponse("Hello, world. You're at the spot index.")
         spot = Spot.get_with_external(spot_id)
         response = JSONResponse(spot.json_data_structure())
         response["ETag"] = spot.etag
         return response
 
-    # @admin_auth_required
     def post(self, request):
         return self.build_and_save_from_input(request, None)
 
-    # @admin_auth_required
     def put(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
 
@@ -188,7 +178,6 @@ class SpotView(RESTDispatch):
 
         return self.build_and_save_from_input(request, spot)
 
-    # @admin_auth_required
     def delete(self, request, spot_id):
         spot = Spot.get_with_external(spot_id)
 

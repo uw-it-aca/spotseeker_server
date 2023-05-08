@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.db import models
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import AbstractUser
 
 from base64 import b64encode
 
@@ -12,7 +12,6 @@ class Client(AbstractUser):
     client_id = models.CharField(max_length=255)
     client_secret = models.CharField(max_length=255)
     client_credential = models.CharField(max_length=255, blank=True)
-    access_token = models.CharField(max_length=255, blank=True)
 
     class Meta:
         verbose_name_plural = "OAuth Clients"
@@ -23,11 +22,8 @@ class Client(AbstractUser):
             .decode('utf-8')
         return self.client_credential
 
-    def __unicode__(self):
-        return self.name
-
     def __str__(self):
-        return self.__unicode__()
+        return self.name
 
 
 class TrustedOAuthClient(models.Model):

@@ -33,10 +33,11 @@ if DEBUG:
     CORS_ORIGIN_ALLOW_ALL = True
 else:
     CORS_ORIGIN_ALLOW_ALL = False
-    CORS_ALLOWED_ORIGINS = [  # TODO: move to env var?
+    CORS_ALLOWED_ORIGINS = [
         "https://scout.uw.edu",
         "https://manager.scout.uw.edu",
-        # TODO: not the best idea to do it like this, but it works for now
+        # TODO: not the best idea to do it like this, but it works for now,
+        # move to ENV=test?
         "https://test.scout.uw.edu",
         "https://test.manager.scout.uw.edu",
     ]

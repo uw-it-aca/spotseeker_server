@@ -1,4 +1,4 @@
-ARG DJANGO_CONTAINER_VERSION=1.3.8
+ARG DJANGO_CONTAINER_VERSION=1.4.1
 
 FROM gcr.io/uwit-mci-axdd/django-container:${DJANGO_CONTAINER_VERSION} as app-container
 

@@ -5,7 +5,7 @@ import logging
 from io import StringIO
 import contextlib
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 
 from spotseeker_server.models import Client
 
@@ -18,6 +18,17 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = "Register applications with Spotseeker."
+
+    def add_arguments(self, parser: CommandParser) -> None:
+        parser.add_argument(
+            '-s',
+            '--show-credential',
+            action='store_true',
+            default=False,
+            dest='show_credential',
+            help="Print the credential created, very sensitive info.",
+        )
+        return super().add_arguments(parser)
 
     def handle(self, *args, **options):
         if args and args[0]:
@@ -65,7 +76,10 @@ class Command(BaseCommand):
         logger.debug("Compiling client credentials...")
 
         client = Client.objects.get(name=name)
-        client.get_client_credential()
+        credential = client.get_client_credential()
         client.save()
+
+        if options['show_credential']:
+            logger.info("Credential: {}".format(credential))
 
         logger.info("Done.")

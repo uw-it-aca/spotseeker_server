@@ -15,8 +15,12 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import HttpResponse
+from oauth2_provider.models import get_access_token_model
 import simplejson as json
 import traceback
+
+
+AccessToken = get_access_token_model()
 
 
 class JSONResponse(HttpResponse):
@@ -69,6 +73,9 @@ class RESTDispatch:
         method = request.META["REQUEST_METHOD"]
 
         try:
+            print("RESTDispatch.run: method = %s" % method)
+            self.validate_oauth_scope(request, method)
+
             if "GET" == method and hasattr(self, "get"):
                 response = self.get(*args, **named_args)
             elif "POST" == method and hasattr(self, "post"):
@@ -120,6 +127,22 @@ class RESTDispatch:
 
         if request.META["HTTP_IF_MATCH"] != obj.etag:
             raise RESTException("Invalid ETag", 409)
+
+    def validate_oauth_scope(self, request, method: str) -> None:
+        access_token = request.headers.get("Authorization").split(" ")[1]
+        token = AccessToken.objects.get(token=access_token)
+        scope = token.scope
+        print("validate_oauth_scope: scope = %s" % scope)
+
+        # match scope with request method
+        if method == "GET":
+            if "read" not in scope:
+                raise RESTException("Invalid scope", 403)
+        elif method in ("POST", "PUT", "DELETE"):
+            if "write" not in scope:
+                raise RESTException("Invalid scope", 403)
+        else:
+            raise RESTException("Method not allowed", 405)
 
     def _get_user(self, request):
         if "SS_OAUTH_USER" not in request.META:

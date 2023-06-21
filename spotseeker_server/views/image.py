@@ -70,7 +70,7 @@ class ImageView(RESTDispatch, ReadWriteScopedResourceView):
             img.display_index = request.META["files"]["display_index"]
         img.save()
 
-        return self.GET(request, spot_id, image_id)
+        return self.get(request, spot_id, image_id)
 
     def delete(self, request, spot_id, image_id):
         img = SpotImage.objects.get(pk=image_id)

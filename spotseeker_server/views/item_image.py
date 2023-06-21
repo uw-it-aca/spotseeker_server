@@ -71,7 +71,7 @@ class ItemImageView(RESTDispatch, ReadWriteScopedResourceView):
         img.save()
         item.spot.save()
 
-        return self.GET(request, item_id, image_id)
+        return self.get(request, item_id, image_id)
 
     def delete(self, request, item_id, image_id):
         img = ItemImage.objects.get(pk=image_id)

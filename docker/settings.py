@@ -25,10 +25,6 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
-# TODO: remove? registration should be done through the manager,
-# not logging in to the admin
-LOGIN_URL = '/admin/login/'
-
 if DEBUG:
     CORS_ORIGIN_ALLOW_ALL = True
 else:

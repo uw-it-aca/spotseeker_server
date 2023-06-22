@@ -1,30 +1,16 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.contrib.auth.models import User
 from django.test import TestCase
-from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, Item
 from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 import simplejson as json
 import random
 from spotseeker_server.test import utils_test
 import copy
 
 from past.builtins import basestring
-
-try:
-    from unittest import skip
-except ImportError:
-
-    def skip(*args, **kwargs):
-        def inner(self):
-            pass
-
-        return inner
 
 
 @override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")

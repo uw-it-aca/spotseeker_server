@@ -16,6 +16,10 @@ from spotseeker_server.views.rest_dispatch import (
     RESTFormInvalidError,
     JSONResponse,
 )
+
+# ItemStash import required for Signal receivers, do not remove!
+from spotseeker_server.views.spot_item import ItemStash
+
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.models import *
 from django.http import HttpResponse
@@ -222,7 +226,7 @@ class SpotView(RESTDispatch, ReadWriteScopedResourceView):
             stash=stash,
         )
 
-        # Remve excluded fields
+        # Remove excluded fields
         excludefields = set(SpotForm.implementation().Meta.exclude)
         for fieldname in excludefields:
             if fieldname in json_values:

@@ -20,9 +20,6 @@ from spotseeker_server.test.images.put import SpotImagePUTTest
 from spotseeker_server.test.images.delete import SpotImageDELETETest
 from spotseeker_server.test.images.thumb import ImageThumbTest
 from spotseeker_server.test.images.spot_info import SpotResourceImageTest
-# from spotseeker_server.test.images.oauth_spot_info import (
-#     SpotResourceOAuthImageTest,
-# )
 from spotseeker_server.test.item.model import ItemModelTest
 from spotseeker_server.test.search.item import SpotSearchItemTest
 from spotseeker_server.test.search.buildings import BuildingSearchTest
@@ -56,9 +53,6 @@ from spotseeker_server.test.hours.open_now_location_attributes import (
 )
 from spotseeker_server.test.hours.overlap import SpotHoursOverlapTest
 from spotseeker_server.test.hours.modify import SpotHoursModifyTest
-from spotseeker_server.test.auth.all_ok import SpotAuthAllOK
-# from spotseeker_server.test.auth.oauth import SpotAuthOAuth
-# from spotseeker_server.test.auth.oauth_logger import SpotAuthOAuthLogger
 from spotseeker_server.test.uw_spot.spot_form import UWSpotFormTest
 from spotseeker_server.test.uw_spot.spot_post import UWSpotPOSTTest
 from spotseeker_server.test.uw_spot.spot_put import UWSpotPUTTest

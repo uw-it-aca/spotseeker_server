@@ -34,8 +34,5 @@ class TrustedOAuthClient(models.Model):
     class Meta:
         verbose_name_plural = "Trusted OAuth Clients"
 
-    def __unicode__(self):
-        return self.consumer.name
-
     def __str__(self):
-        return self.__unicode__()
+        return self.consumer.name

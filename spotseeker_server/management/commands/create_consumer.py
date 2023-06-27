@@ -2,21 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """ This provides a management command to django's manage.py called
-create_consumer that will generate a oauth key and secret based on the consumer
-name.
+create_consumer that will generate a client with a valid credential based on
+the consumer name.
 """
-from optparse import make_option
 import hashlib
 import random
 import string
 import time
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from spotseeker_server.models import TrustedOAuthClient, Client
 
 
-class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
+class Command(BaseCommand):
     help = (
         "Creates a unique key and secret for clients "
         "connecting to the server"
@@ -24,6 +23,7 @@ class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
 
     def add_arguments(self, parser):
         parser.add_argument(
+            "-n",
             "--name",
             dest="consumer_name",
             default=False,
@@ -31,6 +31,7 @@ class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
         )
 
         parser.add_argument(
+            "-t",
             "--trusted",
             dest="trusted",
             action="store_true",
@@ -40,6 +41,7 @@ class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
         )
 
         parser.add_argument(
+            "-s",
             "--silent",
             dest="silent",
             action="store_true",
@@ -51,29 +53,30 @@ class Command(BaseCommand):  # TODO: must be redone, relies on old oauth
         if options["consumer_name"]:
             consumer_name = options["consumer_name"]
         else:
-            consumer_name = input("Enter consumer name: ")
+            consumer_name = input("Enter client name: ")
 
+        # key and secret can be anything, but we'll try to keep it unique
         key = hashlib.sha1(
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        # django-oauth-plus now wants secrets to be 16 chars
         secret = "".join(
             random.choice(string.ascii_letters + string.digits)
             for _ in range(16)
         )
 
         client = Client.objects.create(
-            name=consumer_name, key=key, secret=secret
+            username=consumer_name,
+            name=consumer_name, client_id=key, client_secret=secret
         )
+        credential = client.get_client_credential()
 
         if options["trusted"]:
             trusted = TrustedOAuthClient.objects.create(
                 consumer=client,
-                is_trusted=1,
+                is_trusted=True,
                 bypasses_user_authorization=False,
             )
 
         if not options["silent"]:
-            self.stdout.write("Key: %s\n" % key)
-            self.stdout.write("Secret: %s\n" % secret)
+            self.stdout.write(f"Credential: {credential}\n")

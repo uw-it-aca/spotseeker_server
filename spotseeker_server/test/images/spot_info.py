@@ -4,15 +4,12 @@
 import shutil
 import tempfile
 
-from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from mock import patch
 from os.path import abspath, dirname
 from PIL import Image
-from spotseeker_server import models
 from spotseeker_server.models import Spot, SpotImage
 import datetime
 import simplejson as json
@@ -21,7 +18,7 @@ TEST_ROOT = abspath(dirname(__file__))
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok",
+    SPOTSEEKER_OAUTH_ENABLED=False,
     SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms.spot."
     "DefaultSpotForm",
 )

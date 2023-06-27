@@ -1,7 +1,6 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
@@ -11,7 +10,7 @@ import json
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok",
+    SPOTSEEKER_OAUTH_ENABLED=False,
     SPOTSEEKER_SEARCH_FILTERS=(
         "spotseeker_server.org_filters.uw_search.Filter",
     ),

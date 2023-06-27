@@ -2,17 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
+from django.test.utils import override_settings
 from spotseeker_server.org_forms.uw_spot import UWSpotForm
 from spotseeker_server.org_forms.uw_spot import UWSpotExtendedInfoForm
-from django.conf import settings
-from django.test.utils import override_settings
 
-ALL_OK = "spotseeker_server.auth.all_ok"
 UW_SPOT_FORM = "spotseeker_server.org_forms.uw_spot.UWSpotForm"
 UW_EXT_INFO_FORM = "spotseeker_server.org_forms.uw.spot.UWSpotExtendedInfoForm"
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE=ALL_OK)
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(SPOTSEEKER_SPOT_FORM=UW_SPOT_FORM)
 @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM=UW_EXT_INFO_FORM)
 class UWSpotFormTest(TestCase):

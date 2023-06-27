@@ -1,24 +1,19 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.conf import settings
-from django.core import cache
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from mock import patch
 from os.path import abspath, dirname
-from spotseeker_server import models
 from spotseeker_server.models import Item, Spot
 import json
-import random
 import shutil
 import tempfile
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
 class ItemImagePOSTTest(TestCase):
     """Tests POSTing to /api/v1/item/<item id>/image."""

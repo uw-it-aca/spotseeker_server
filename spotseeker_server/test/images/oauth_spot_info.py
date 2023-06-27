@@ -1,7 +1,6 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-import secrets
 import shutil
 import tempfile
 
@@ -9,24 +8,19 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
 from os.path import abspath, dirname, isfile
-from spotseeker_server.models import Spot, SpotImage, TrustedOAuthClient, \
-                                     Client
+from spotseeker_server.models import Spot, TrustedOAuthClient, Client
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.conf import settings
-from PIL import Image
 import random
 import hashlib
 import time
 from oauthlib import oauth1
 import simplejson as json
-from mock import patch
-from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
 @override_settings(SPOTSEEKER_AUTH_ADMINS=("pmichaud",))
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.oauth")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=True)
 class SpotResourceOAuthImageTest(TestCase):
     # In these tests the oauth signature for the same url could've been reused
     # However, for every single request a new oauth signature is issued

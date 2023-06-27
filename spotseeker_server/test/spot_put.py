@@ -13,7 +13,7 @@ import copy
 from past.builtins import basestring
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(
     SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms.spot."
     "DefaultSpotForm"

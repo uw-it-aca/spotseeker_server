@@ -73,7 +73,7 @@ class RESTDispatch:
         method = request.META["REQUEST_METHOD"]
 
         try:
-            if settings.SPOTSEEKER_AUTH_MODULE == "oauth":
+            if settings.SPOTSEEKER_OAUTH_ENABLED:
                 self.validate_oauth_scope(request, method)
 
             if "GET" == method and hasattr(self, "get"):

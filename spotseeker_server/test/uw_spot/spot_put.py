@@ -2,24 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TransactionTestCase
-from django.conf import settings
 from django.test.client import Client
+from django.test.utils import override_settings
 from spotseeker_server.models import Spot, SpotExtendedInfo
 import simplejson as json
 import random
-from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 from spotseeker_server.test import utils_test
 
 from past.builtins import basestring
 
-ALL_OK = "spotseeker_server.auth.all_ok"
 UW_SPOT_FORM = "spotseeker_server.org_forms.uw_spot.UWSpotForm"
 UW_EXT_INFO_FORM = "spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm"
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE=ALL_OK)
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(SPOTSEEKER_SPOT_FORM=UW_SPOT_FORM)
 @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM=UW_EXT_INFO_FORM)
 @override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
@@ -188,103 +184,100 @@ class UWSpotPUTTest(TransactionTestCase):
         )
 
     def test_valid_json_but_invalid_extended_info(self):
-        with self.settings(
-            SPOTSEEKER_AUTH_MODULE=ALL_OK, SPOTSEEKER_SPOT_FORM=UW_SPOT_FORM
-        ):
-            c = Client()
-            new_name = "testing PUT name: {0}".format(random.random())
-            new_capacity = 20
+        c = Client()
+        new_name = "testing PUT name: {0}".format(random.random())
+        new_capacity = 20
 
-            response = c.get(self.url)
-            etag = response["ETag"]
-            app_type = "food"
+        response = c.get(self.url)
+        etag = response["ETag"]
+        app_type = "food"
 
-            json_string = (
-                '{"name":"%s","capacity":"%s",\
-                "location":{"latitude": 55, "longitude": -30},\
-                "extended_info":{"location_description":\
-                "This is a description",\
-                "has_whiteboards":"true",\
-                "num_computers": "10",\
-                "has_outlets":"true","has_computers":"true",\
-                "manager":"Sam","organization":"UW",\
-                "app_type":"%s"}}'
-                % (new_name, new_capacity, app_type)
-            )
+        json_string = (
+            '{"name":"%s","capacity":"%s",\
+            "location":{"latitude": 55, "longitude": -30},\
+            "extended_info":{"location_description":\
+            "This is a description",\
+            "has_whiteboards":"true",\
+            "num_computers": "10",\
+            "has_outlets":"true","has_computers":"true",\
+            "manager":"Sam","organization":"UW",\
+            "app_type":"%s"}}'
+            % (new_name, new_capacity, app_type)
+        )
 
-            response = c.put(
-                self.url,
-                json_string,
-                content_type="application/json",
-                If_Match=etag,
-            )
-            self.assertEquals(
-                response.status_code, 200, "Accepts a valid json string"
-            )
+        response = c.put(
+            self.url,
+            json_string,
+            content_type="application/json",
+            If_Match=etag,
+        )
+        self.assertEquals(
+            response.status_code, 200, "Accepts a valid json string"
+        )
 
-            # test: invalid extended info value
-            response = c.get(self.url)
-            etag = response["ETag"]
-            updated_json_string = (
-                '{"name":"%s","capacity":"%s",\
-                "location": {"latitude": 55, "longitude": -30},\
-                "extended_info":{"has_whiteboards":"true",\
-                "location_description": "   ",\
-                "has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB", \
-                "has_computers":"true", "num_computers":"10","manager":"Sam",\
-                "organization":"UW"}}'
-                % (new_name, new_capacity)
-            )
+        # test: invalid extended info value
+        response = c.get(self.url)
+        etag = response["ETag"]
+        updated_json_string = (
+            '{"name":"%s","capacity":"%s",\
+            "location": {"latitude": 55, "longitude": -30},\
+            "extended_info":{"has_whiteboards":"true",\
+            "location_description": "   ",\
+            "has_outlets":"wub wub wub wu wu wuhhhh WUB WUB WUBBBBUB", \
+            "has_computers":"true", "num_computers":"10","manager":"Sam",\
+            "organization":"UW"}}'
+            % (new_name, new_capacity)
+        )
 
-            response = c.put(
-                self.url,
-                updated_json_string,
-                content_type="application/json",
-                If_Match=etag,
-            )
-            self.assertEquals(
-                response.status_code,
-                400,
-                "Doesn't update spot with invalid extended info",
-            )
+        response = c.put(
+            self.url,
+            updated_json_string,
+            content_type="application/json",
+            If_Match=etag,
+        )
+        self.assertEquals(
+            response.status_code,
+            400,
+            "Doesn't update spot with invalid extended info",
+        )
 
-            response = c.get(self.url)
-            self.assertEquals(
-                json.loads(json_string)["extended_info"],
-                json.loads(response.content)["extended_info"],
-                "Doesn't update spot with invalid extended info",
-            )
+        response = c.get(self.url)
+        self.assertEquals(
+            json.loads(json_string)["extended_info"],
+            json.loads(response.content)["extended_info"],
+            "Doesn't update spot with invalid extended info",
+        )
 
-            # test: invalid int value
-            invalid_int = "invalid_int"
-            invalid_int_json_string = (
-                '{"name":"%s","capacity":"%s",\
-                "location": {"latitude": 55, "longitude": -30},\
-                "extended_info":{"has_whiteboards":"true",\
-                "location_description": "This is a description",\
-                "has_outlets":"true", "has_computers":"true", \
-                "num_computers":"%s","manager":"Sam","organization":"UW"}}'
-                % (new_name, new_capacity, invalid_int)
-            )
+        # test: invalid int value
+        invalid_int = "invalid_int"
+        invalid_int_json_string = (
+            '{"name":"%s","capacity":"%s",\
+            "location": {"latitude": 55, "longitude": -30},\
+            "extended_info":{"has_whiteboards":"true",\
+            "location_description": "This is a description",\
+            "has_outlets":"true", "has_computers":"true", \
+            "num_computers":"%s","manager":"Sam","organization":"UW"}}'
+            % (new_name, new_capacity, invalid_int)
+        )
 
-            response = c.put(
-                self.url,
-                invalid_int_json_string,
-                content_type="application/json",
-                If_Match=etag,
-            )
-            self.assertEquals(
-                response.status_code,
-                400,
-                "Doesn't update spot with invalid int value",
-            )
+        response = c.put(
+            self.url,
+            invalid_int_json_string,
+            content_type="application/json",
+            If_Match=etag,
+        )
+        self.assertEquals(
+            response.status_code,
+            400,
+            "Doesn't update spot with invalid int value",
+        )
 
-            response = c.get(self.url)
-            self.assertEquals(
-                json.loads(json_string)["extended_info"],
-                json.loads(response.content)["extended_info"],
-                "Doesn't update spot with invalid int value",
-            )
+        response = c.get(self.url)
+        self.assertEquals(
+            json.loads(json_string)["extended_info"],
+            json.loads(response.content)["extended_info"],
+            "Doesn't update spot with invalid int value",
+        )
 
     def test_phone_number_validation(self):
         phone_numbers = (

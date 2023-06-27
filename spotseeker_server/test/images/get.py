@@ -3,28 +3,20 @@
 
 import shutil
 import tempfile
+from io import BytesIO as IOStream
 
-try:
-    from cStringIO import StringIO as IOStream
-except ModuleNotFoundError:
-    from io import BytesIO as IOStream
-
-from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from mock import patch
 from os.path import abspath, dirname
 from PIL import Image
 from spotseeker_server.models import Spot, SpotImage
-from spotseeker_server import models
-import random
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class SpotImageGETTest(TestCase):
     def setUp(self):
         self.TEMP_DIR = tempfile.mkdtemp()

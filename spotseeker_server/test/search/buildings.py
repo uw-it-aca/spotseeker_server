@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 import simplejson as json
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class BuildingSearchTest(SpotServerTestCase):
     """Tests the /api/v1/buildings interface."""
 
@@ -73,7 +73,7 @@ class BuildingSearchTest(SpotServerTestCase):
 
     def test_get_all_buildings(self):
         c = self.client
-        # TODO: Even though this works, we do not recommend using this method.
+        # Even though this works, we do not recommend using this method.
         # You should be passing at least one query param.
         response = c.get("/api/v1/buildings")
         buildings = json.loads(response.content)

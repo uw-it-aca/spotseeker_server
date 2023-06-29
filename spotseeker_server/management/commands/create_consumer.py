@@ -12,7 +12,7 @@ import time
 
 from django.core.management.base import BaseCommand
 
-from spotseeker_server.models import TrustedOAuthClient, Client
+from spotseeker_server.models import Client
 
 
 class Command(BaseCommand):
@@ -27,16 +27,6 @@ class Command(BaseCommand):
             "--name",
             dest="consumer_name",
             help="A name for the consumer",
-        )
-
-        parser.add_argument(
-            "-t",
-            "--trusted",
-            dest="trusted",
-            action="store_true",
-            default=False,
-            help="Makes this consumer trusted "
-            "(Adds a TrustedOAuthClient for it)",
         )
 
         parser.add_argument(
@@ -69,13 +59,7 @@ class Command(BaseCommand):
             name=consumer_name, client_id=key, client_secret=secret
         )
         credential = client.get_client_credential()
-
-        if options["trusted"]:
-            trusted = TrustedOAuthClient.objects.create(
-                consumer=client,
-                is_trusted=True,
-                bypasses_user_authorization=False,
-            )
+        client.save()
 
         if not options["silent"]:
             self.stdout.write(f"Credential: {credential}\n")

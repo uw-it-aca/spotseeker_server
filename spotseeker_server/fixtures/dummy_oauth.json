@@ -1,14 +1,5 @@
 [
 {
-    "model": "spotseeker_server.trustedoauthclient",
-    "pk": 1,
-    "fields": {
-        "consumer": 1,
-        "is_trusted": true,
-        "bypasses_user_authorization": false
-    }
-},
-{
     "model": "spotseeker_server.client",
     "pk": 1,
     "fields": {

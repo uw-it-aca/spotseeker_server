@@ -26,7 +26,6 @@ class Command(BaseCommand):
             "-n",
             "--name",
             dest="consumer_name",
-            default=False,
             help="A name for the consumer",
         )
 

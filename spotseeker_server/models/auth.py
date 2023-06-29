@@ -17,6 +17,11 @@ class Client(AbstractUser):
         verbose_name_plural = "OAuth Clients"
 
     def get_client_credential(self) -> str:
+        """
+        creates a client credential for the client, setting it for the Client
+        and returning it
+        """
+
         raw_cred = f"{self.client_id}:{self.client_secret}"
         self.client_credential = b64encode(raw_cred.encode('utf-8'))\
             .decode('utf-8')
@@ -26,7 +31,7 @@ class Client(AbstractUser):
         return self.name
 
 
-class TrustedOAuthClient(models.Model):
+class TrustedOAuthClient(models.Model):  # TODO: remove?
     consumer = models.ForeignKey(Client, on_delete=models.CASCADE)
     is_trusted = models.BooleanField(default=False)
     bypasses_user_authorization = models.BooleanField(default=False)

@@ -18,7 +18,10 @@ from django.http import HttpResponse
 from oauth2_provider.models import get_access_token_model
 import simplejson as json
 import traceback
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 AccessToken = get_access_token_model()
 
@@ -129,24 +132,35 @@ class RESTDispatch:
             raise RESTException("Invalid ETag", 409)
 
     def validate_oauth_scope(self, request, method: str) -> None:
+        if "Authorization" not in request.headers:
+            raise RESTException("Missing Authorization header", 401)
+
         access_token = request.headers.get("Authorization").split(" ")[1]
-        token = AccessToken.objects.get(token=access_token)
+
+        try:
+            token = AccessToken.objects.get(token=access_token)
+
+            if token.is_expired():
+                raise RESTException("Expired access token", 401)
+
+        except AccessToken.DoesNotExist:
+            raise RESTException("Invalid access token", 401)
+
         scope = token.scope
-        print("validate_oauth_scope: scope = %s" % scope)
+        logger.debug(f"Validating scope: {scope}")
 
         # match scope with request method
         if method == "GET":
             if "read" not in scope:
-                raise RESTException("Invalid scope", 403)
+                raise RESTException(f"Invalid scope for method {method}", 403)
         elif method in ("POST", "PUT", "DELETE"):
             if "write" not in scope:
-                raise RESTException("Invalid scope", 403)
+                raise RESTException(f"Invalid scope for method {method}", 403)
         else:
             raise RESTException("Method not allowed", 405)
 
     def _get_user(self, request):
         if "SS_OAUTH_USER" not in request.META:
-            print(request.META)
             raise RESTException(
                 "missing oauth user - improper auth backend?", 400
             )

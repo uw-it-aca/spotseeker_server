@@ -29,15 +29,3 @@ class Client(AbstractUser):
 
     def __str__(self):
         return self.name
-
-
-class TrustedOAuthClient(models.Model):  # TODO: remove?
-    consumer = models.ForeignKey(Client, on_delete=models.CASCADE)
-    is_trusted = models.BooleanField(default=False)
-    bypasses_user_authorization = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name_plural = "Trusted OAuth Clients"
-
-    def __str__(self):
-        return self.consumer.name

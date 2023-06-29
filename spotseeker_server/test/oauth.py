@@ -3,8 +3,7 @@
 
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.core.management import call_command
-from spotseeker_server.models import Spot, TrustedOAuthClient, Client
+from spotseeker_server.models import Spot, Client
 import simplejson as json
 from datetime import timedelta
 from django.utils import timezone
@@ -202,22 +201,3 @@ class SpotAuthOAuth(TestCase):
             403,
             "Rejects a PUT from a non-trusted oauth client",
         )
-
-    def test_create_trusted_client(self):
-        """Tests to be sure the create_consumer
-        command can create trusted clients.
-        """
-        consumer_name = "This is for testing create_consumer"
-
-        call_command(
-            "create_consumer",
-            consumer_name=consumer_name,
-            trusted=True,
-            silent=True,
-        )
-
-        consumer = Client.objects.get(name=consumer_name)
-
-        client = TrustedOAuthClient.objects.get(consumer=consumer)
-
-        self.assertIsInstance(client, TrustedOAuthClient)

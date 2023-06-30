@@ -49,8 +49,7 @@ if not DEBUG:
         "/gcs/credentials.json"
     )
 
-SPOTSEEKER_OAUTH_ENABLED = os.getenv(
-    "SPOTSEEKER_OAUTH_ENABLED", "true").lower() == "true"
+SPOTSEEKER_OAUTH_ENABLED = not DEBUG
 # turn string of auth admins into list
 SPOTSEEKER_AUTH_ADMINS = (
     os.getenv("SPOTSEEKER_AUTH_ADMINS", "").replace(" ", "").split(",")

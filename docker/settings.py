@@ -25,15 +25,14 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
-if DEBUG:
-    CORS_ORIGIN_ALLOW_ALL = True
-else:
-    CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = DEBUG
+if os.getenv("ENV", "localdev") == "prod":
     CORS_ALLOWED_ORIGINS = [
         "https://scout.uw.edu",
         "https://manager.scout.uw.edu",
-        # TODO: not the best idea to do it like this, but it works for now,
-        # move to ENV=test?
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
         "https://test.scout.uw.edu",
         "https://test.manager.scout.uw.edu",
     ]

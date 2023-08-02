@@ -71,6 +71,8 @@ daemon:
       command: ["/scripts/management_daemon.sh"]
       args: ["--delay", "300", "sync_techloan"]
 environmentVariables:
+  - name: SPOTSEEKER_OAUTH_ENABLED
+    value: true
   - name: CLUSTER_CNAME
     value: api.scout.uw.edu
   - name: ENV

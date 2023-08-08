@@ -96,7 +96,7 @@ class Command(BaseCommand):
             spot=art,
         )
         art_ada = SpotExtendedInfo.objects.create(
-            key="app_type", value="food", spot=art
+            key="app_type", value="study", spot=art
         )
         art_ada = SpotExtendedInfo.objects.create(
             key="has_whiteboards", value="true", spot=art

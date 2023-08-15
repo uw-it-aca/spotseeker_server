@@ -5,20 +5,16 @@ import shutil
 import tempfile
 
 from django.test import TestCase
-from django.conf import settings
 from django.test.client import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 from spotseeker_server.models import Item, ItemImage, Spot
-from os.path import abspath, dirname, isfile
+from os.path import abspath, dirname
 from django.test.utils import override_settings
-from mock import patch
-from django.core import cache
-from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
 class ItemImageDELETETest(TestCase):
     """Tests DELETE of a ItemImage at /api/v1/item/<item id>/image/<image id>.

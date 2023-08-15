@@ -18,16 +18,6 @@ class Migration(migrations.Migration):
             field=models.ImageField(upload_to='item_images'),
         ),
         migrations.AlterField(
-            model_name='spacereview',
-            name='original_review',
-            field=models.CharField(default='', max_length=1000),
-        ),
-        migrations.AlterField(
-            model_name='spacereview',
-            name='review',
-            field=models.CharField(default='', max_length=1000),
-        ),
-        migrations.AlterField(
             model_name='spotavailablehours',
             name='day',
             field=models.CharField(choices=[('m', 'monday'), ('t', 'tuesday'), ('w', 'wednesday'), ('th', 'thursday'), ('f', 'friday'), ('sa', 'saturday'), ('su', 'sunday')], max_length=3),

@@ -2,15 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from spotseeker_server.test import SpotServerTestCase
-from django.conf import settings
-from spotseeker_server.models import Spot, SpotExtendedInfo, SpotType
 import simplejson as json
 from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class SpotSearchCapacityTest(SpotServerTestCase):
     def test_capacity(self):
 

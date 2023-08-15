@@ -15,8 +15,15 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import HttpResponse
+from oauth2_provider.models import get_access_token_model
 import simplejson as json
 import traceback
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+AccessToken = get_access_token_model()
 
 
 class JSONResponse(HttpResponse):
@@ -69,14 +76,17 @@ class RESTDispatch:
         method = request.META["REQUEST_METHOD"]
 
         try:
-            if "GET" == method and hasattr(self, "GET"):
-                response = self.GET(*args, **named_args)
-            elif "POST" == method and hasattr(self, "POST"):
-                response = self.POST(*args, **named_args)
-            elif "PUT" == method and hasattr(self, "PUT"):
-                response = self.PUT(*args, **named_args)
-            elif "DELETE" == method and hasattr(self, "DELETE"):
-                response = self.DELETE(*args, **named_args)
+            if settings.SPOTSEEKER_OAUTH_ENABLED:
+                self.validate_oauth_scope(request, method)
+
+            if "GET" == method and hasattr(self, "get"):
+                response = self.get(*args, **named_args)
+            elif "POST" == method and hasattr(self, "post"):
+                response = self.post(*args, **named_args)
+            elif "PUT" == method and hasattr(self, "put"):
+                response = self.put(*args, **named_args)
+            elif "DELETE" == method and hasattr(self, "delete"):
+                response = self.delete(*args, **named_args)
             else:
                 raise RESTException("Method not allowed", 405)
 
@@ -121,9 +131,36 @@ class RESTDispatch:
         if request.META["HTTP_IF_MATCH"] != obj.etag:
             raise RESTException("Invalid ETag", 409)
 
+    def validate_oauth_scope(self, request, method: str) -> None:
+        if "Authorization" not in request.headers:
+            raise RESTException("Missing Authorization header", 401)
+
+        access_token = request.headers.get("Authorization").split(" ")[1]
+
+        try:
+            token = AccessToken.objects.get(token=access_token)
+
+            if token.is_expired():
+                raise RESTException("Expired access token", 401)
+
+        except AccessToken.DoesNotExist:
+            raise RESTException("Invalid access token", 401)
+
+        scope = token.scope
+        logger.debug(f"Validating scope: {scope}")
+
+        # match scope with request method
+        if method == "GET":
+            if "read" not in scope:
+                raise RESTException(f"Invalid scope for method {method}", 403)
+        elif method in ("POST", "PUT", "DELETE"):
+            if "write" not in scope:
+                raise RESTException(f"Invalid scope for method {method}", 403)
+        else:
+            raise RESTException("Method not allowed", 405)
+
     def _get_user(self, request):
         if "SS_OAUTH_USER" not in request.META:
-            print(request.META)
             raise RESTException(
                 "missing oauth user - improper auth backend?", 400
             )

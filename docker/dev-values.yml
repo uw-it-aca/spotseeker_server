@@ -42,6 +42,8 @@ instance: dev
 image:
   repository: gcr.io/uwit-mci-axdd/spotseeker
   tag: IMAGE_TAG
+spec:
+  refreshInterval: 10m
 memcached:
   enabled: true
   replicaCount: 1

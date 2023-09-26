@@ -28,14 +28,14 @@ securityPolicy:
   enabled: true
 externalService:
   enabled: true
-  name: spotseeker-db-service
+  name: spotseeker-dev-db-service
   type: ClusterIP
   serviceAddress: 172.18.0.196
   servicePort: 3306
 database:
   engine: mysql
   name: api_dev
-  hostname: spotseeker-db-service
+  hostname: spotseeker-dev-db-service
   secretName: dev.api.scout.uw.edu-sql-secrets
 repo: spotseeker
 instance: dev

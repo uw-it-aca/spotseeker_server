@@ -12,18 +12,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='spacereview',
-            name='is_deleted',
-            field=models.BooleanField(default=False),
-            preserve_default=True,
-        ),
-        migrations.AlterField(
-            model_name='spacereview',
-            name='is_published',
-            field=models.BooleanField(default=False),
-            preserve_default=True,
-        ),
-        migrations.AlterField(
             model_name='trustedoauthclient',
             name='bypasses_user_authorization',
             field=models.BooleanField(default=False),

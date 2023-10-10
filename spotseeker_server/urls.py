@@ -1,15 +1,8 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Changes
-    =================================================================
-
-    sbutler1@illinois.edu: added external_id support; moved some URL
-        patterns into the ThumbnailView; added names for reverse()
-        support.
-"""
-
-from django.conf.urls import include, url
+from django.urls import path, re_path
+from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from spotseeker_server.views.buildings import BuildingListView
 from spotseeker_server.views.spot import SpotView
@@ -24,63 +17,123 @@ from spotseeker_server.views.person import PersonView
 from spotseeker_server.views.item_image import ItemImageView
 from spotseeker_server.views.add_item_image import AddItemImageView
 from spotseeker_server.views.item_thumbnail import ItemThumbnailView
+import oauth2_provider.views as oauth2_views
+
+# OAuth2 provider endpoints
+oauth2_endpoint_views = [
+    path(
+        "authorize/",
+        oauth2_views.AuthorizationView.as_view(),
+        name="authorize"
+    ),
+    path("token/", oauth2_views.TokenView.as_view(), name="token"),
+    path(
+        "revoke-token/",
+        oauth2_views.RevokeTokenView.as_view(),
+        name="revoke-token"
+    ),
+]
+
+if settings.DEBUG:
+    # OAuth2 Application Management endpoints
+    oauth2_endpoint_views += [
+        path(
+            "applications/",
+            oauth2_views.ApplicationList.as_view(),
+            name="list"
+        ),
+        path(
+            "applications/register/",
+            oauth2_views.ApplicationRegistration.as_view(),
+            name="register"
+        ),
+        path(
+            "applications/<int:pk>/",
+            oauth2_views.ApplicationDetail.as_view(),
+            name="detail"
+        ),
+        path(
+            "applications/<int:pk>/delete/",
+            oauth2_views.ApplicationDelete.as_view(),
+            name="delete"
+        ),
+        path(
+            "applications/<int:pk>/update/",
+            oauth2_views.ApplicationUpdate.as_view(),
+            name="update"
+        ),
+    ]
+
+    # OAuth2 Token Management endpoints
+    oauth2_endpoint_views += [
+        path(
+            "authorized-tokens/",
+            oauth2_views.AuthorizedTokensListView.as_view(),
+            name="authorized-token-list"
+        ),
+        path(
+            "authorized-tokens/<int:pk>/delete/",
+            oauth2_views.AuthorizedTokenDeleteView.as_view(),
+            name="authorized-token-delete"
+        ),
+    ]
 
 urlpatterns = [
-    url(r"v1/null$", csrf_exempt(NullView().run)),
-    url(
+    path("v1/null", csrf_exempt(NullView().run)),
+    re_path(
         r"v1/spot/(?P<spot_id>(\d+|external:[\w-]+))$",
         csrf_exempt(SpotView().run),
         name="spot",
     ),
-    url(r"v1/spot/?$", csrf_exempt(SearchView().run), name="spot-search"),
-    url(r"v1/spot/all$", csrf_exempt(AllSpotsView().run), name="spots"),
-    url(
+    re_path(r"v1/spot/?$", csrf_exempt(SearchView().run), name="spot-search"),
+    path("v1/spot/all", csrf_exempt(AllSpotsView().run), name="spots"),
+    re_path(
         r"v1/buildings/?$",
         csrf_exempt(BuildingListView().run),
         name="buildings",
     ),
-    url(r"v1/schema$", csrf_exempt(SchemaGenView().run), name="schema"),
-    url(r"v1/spot/(?P<spot_id>\d+)/image$", csrf_exempt(AddImageView().run)),
-    url(
-        r"v1/spot/(?P<spot_id>\d+)/image/" r"(?P<image_id>\d+)$",
+    path("v1/schema", csrf_exempt(SchemaGenView().run), name="schema"),
+    path(r"v1/spot/<int:spot_id>/image", csrf_exempt(AddImageView().run)),
+    path(
+        "v1/spot/<int:spot_id>/image/<int:image_id>",
         csrf_exempt(ImageView().run),
         name="spot-image",
     ),
-    url(
+    re_path(
         r"v1/spot/(?P<spot_id>\d+)/image/"
         r"(?P<image_id>\d+)/thumb/constrain/"
         "(?P<thumb_dimensions>.+)?$",
         csrf_exempt(ThumbnailView().run),
         {"constrain": True},
     ),
-    url(
+    re_path(
         r"v1/spot/(?P<spot_id>\d+)/image/"
         r"(?P<image_id>\d+)/thumb/"
         r"(?P<thumb_dimensions>.+)?$",
         csrf_exempt(ThumbnailView().run),
         name="spot-image-thumb",
     ),
-    url(
+    re_path(
         r"v1/item/(?P<item_id>\d+)/image$", csrf_exempt(AddItemImageView().run)
     ),
-    url(
+    re_path(
         r"v1/item/(?P<item_id>\d+)/image/" r"(?P<image_id>[\d]+)$",
         csrf_exempt(ItemImageView().run),
         name="item-image",
     ),
-    url(
+    re_path(
         r"v1/item/(?P<item_id>\d+)/image/"
         r"(?P<image_id>\d+)/thumb/constrain/"
         r"(?P<thumb_dimensions>.+)?$",
         csrf_exempt(ItemThumbnailView().run),
         {"constrain": True},
     ),
-    url(
+    re_path(
         r"v1/item/(?P<item_id>\d+)/image/"
         r"(?P<image_id>\d+)/thumb/"
         r"(?P<thumb_dimensions>.+)?$",
         csrf_exempt(ItemThumbnailView().run),
         name="item-image-thumb",
     ),
-    url(r"v1/user/me$", csrf_exempt(PersonView().run)),
+    re_path(r"v1/user/me$", csrf_exempt(PersonView().run)),
 ]

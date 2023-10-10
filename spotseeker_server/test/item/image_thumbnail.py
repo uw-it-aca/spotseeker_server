@@ -3,28 +3,20 @@
 
 import shutil
 import tempfile
-
-try:
-    from cStringIO import StringIO as IOStream
-except ModuleNotFoundError:
-    from io import BytesIO as IOStream
+from io import BytesIO as IOStream
 
 from django.test import TestCase
-from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.client import Client
+from django.test.utils import override_settings
 from spotseeker_server.models import Item, ItemImage, Spot
 from PIL import Image
 from os.path import abspath, dirname
-from django.test.utils import override_settings
-from mock import patch
-from django.core import cache
-from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
 class ItemImageThumbTest(TestCase):
 

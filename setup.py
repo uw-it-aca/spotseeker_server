@@ -13,7 +13,7 @@ setup(
         "oauthlib==3.1.*",
         "django-oauth-toolkit",
         "django-cors-headers==3.10.*",
-        "requests",  # TODO: test with live scout, scout-manager, techloan
+        "requests",
         "requests-oauthlib==1.3.*",
         "Pillow",
         "pylibmc",  # switch to what django-container uses upon upgrade

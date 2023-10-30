@@ -66,15 +66,6 @@ SPOTSEEKER_SPOTEXTENDEDINFO_FORM = (
     "spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm"
 )
 
-SPOTSEEKER_TECHLOAN_UPDATER = {
-    "server_host": os.getenv("SPOTSEEKER_WEB_SERVER_HOST"),
-    "oauth_key": os.getenv("SPOTSEEKER_WEB_OAUTH_KEY"),
-    "oauth_secret": os.getenv("SPOTSEEKER_WEB_OAUTH_SECRET"),
-    "oauth_user": os.getenv("SPOTSEEKER_WEB_OAUTH_USER"),
-}
-
-SPOTSEEKER_TECHLOAN_URL = os.getenv("SPOTSEEKER_TECHLOAN_URL")
-
 if DEBUG:
     CACHES = {
         "default": {

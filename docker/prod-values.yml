@@ -56,13 +56,6 @@ memcached:
 gcsCredentials:
   mounted: true
   secretName: api.scout.uw.edu-gc-service-credentials
-cronjob:
-  enabled: true
-  jobs:
-    - name: sync-techloan
-      schedule: "0,15,30,45 * * * *"
-      command: ["/scripts/management_command.sh"]
-      args: ["sync_techloan"]
 daemon:
   enabled: false  # cronjob is probably more appropriate
   daemons:
@@ -96,17 +89,6 @@ externalSecrets:
         - name: storage-bucket-name
           property: storage-bucket-name
         - name: storage-project-id
-          property: storage-project-id
-        - name: spotseeker-techloan-url
-          property: spotseeker-techloan-url
-        - name: spotseeker-web-server-host
-          property: spotseeker-web-server-host
-        - name: spotseeker-web-oauth-key
-          property: spotseeker-web-oauth-key
-        - name: spotseeker-web-oauth-secret
-          property: spotseeker-web-oauth-secret
-        - name: spotseeker-web-oauth-user
-          property: spotseeker-web-oauth-user
     - name: api.scout.uw.edu-sql-secrets
       externalKey: axdd/kv/data/scout/common/sql-secrets
       data:
@@ -136,23 +118,3 @@ environmentVariablesSecrets:
     name: STORAGE_PROJECT_ID
     secretName: api.scout.uw.edu-secrets
     secretKey: storage-project-id
-  spotseekerTechloanUrl:
-    name: SPOTSEEKER_TECHLOAN_URL
-    secretName: api.scout.uw.edu-secrets
-    secretKey: spotseeker-techloan-url
-  spotseekerWebServerHost:
-    name: SPOTSEEKER_WEB_SERVER_HOST
-    secretName: api.scout.uw.edu-secrets
-    secretKey: spotseeker-web-server-host
-  spotseekerWebOauthKey:
-    name: SPOTSEEKER_WEB_OAUTH_KEY
-    secretName: api.scout.uw.edu-secrets
-    secretKey: spotseeker-web-oauth-key
-  spotseekerWebOauthSecret:
-    name: SPOTSEEKER_WEB_OAUTH_SECRET
-    secretName: api.scout.uw.edu-secrets
-    secretKey: spotseeker-web-oauth-secret
-  spotseekerWebOauthUser:
-    name: SPOTSEEKER_WEB_OAUTH_USER
-    secretName: api.scout.uw.edu-secrets
-    secretKey: spotseeker-web-oauth-user

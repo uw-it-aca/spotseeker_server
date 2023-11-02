@@ -2,28 +2,22 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.contrib.auth.models
+import django.contrib.auth.validators
 import re
 from django.conf import settings
 import django.core.validators
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('oauth_provider', '0001_initial'),
+        ('auth', '0011_update_proxy_permissions'),
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='FavoriteSpot',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
         migrations.CreateModel(
             name='Item',
             fields=[
@@ -43,7 +37,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=50)),
                 ('value', models.CharField(max_length=350)),
-                ('item', models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True)),
+                ('item', models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Item extended info',
@@ -65,53 +59,7 @@ class Migration(migrations.Migration):
                 ('etag', models.CharField(max_length=40)),
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
-                ('item', models.ForeignKey(to='spotseeker_server.Item')),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='SharedSpace',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('user', models.CharField(max_length=16)),
-                ('sender', models.CharField(max_length=256)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='SharedSpaceRecipient',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('hash_key', models.CharField(max_length=32)),
-                ('recipient', models.CharField(max_length=256)),
-                ('user', models.CharField(default=None, max_length=16, null=True, blank=True)),
-                ('date_shared', models.DateTimeField(auto_now_add=True)),
-                ('shared_count', models.IntegerField()),
-                ('date_first_viewed', models.DateTimeField(null=True)),
-                ('viewed_count', models.IntegerField()),
-                ('shared_space', models.ForeignKey(to='spotseeker_server.SharedSpace')),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='SpaceReview',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('review', models.CharField(default=b'', max_length=1000)),
-                ('original_review', models.CharField(default=b'', max_length=1000)),
-                ('rating', models.IntegerField(validators=[django.core.validators.MaxValueValidator(5), django.core.validators.MinValueValidator(1)])),
-                ('date_submitted', models.DateTimeField(auto_now_add=True)),
-                ('date_published', models.DateTimeField(null=True)),
-                ('is_published', models.BooleanField()),
-                ('is_deleted', models.BooleanField()),
-                ('published_by', models.ForeignKey(related_name='published_by', to=settings.AUTH_USER_MODEL, null=True)),
-                ('reviewer', models.ForeignKey(related_name='reviewer', to=settings.AUTH_USER_MODEL)),
+                ('item', models.ForeignKey(to='spotseeker_server.Item', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -147,7 +95,7 @@ class Migration(migrations.Migration):
                 ('day', models.CharField(max_length=3, choices=[(b'm', b'monday'), (b't', b'tuesday'), (b'w', b'wednesday'), (b'th', b'thursday'), (b'f', b'friday'), (b'sa', b'saturday'), (b'su', b'sunday')])),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Spot available hours',
@@ -160,7 +108,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=50)),
                 ('value', models.CharField(max_length=350)),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Spot extended info',
@@ -182,7 +130,7 @@ class Migration(migrations.Migration):
                 ('etag', models.CharField(max_length=40)),
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -199,12 +147,39 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='Client',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('password', models.CharField(max_length=128, verbose_name='password')),
+                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
+                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
+                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
+                ('first_name', models.CharField(blank=True, max_length=30, verbose_name='first name')),
+                ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
+                ('email', models.EmailField(blank=True, max_length=254, verbose_name='email address')),
+                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
+                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
+                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
+                ('name', models.CharField(max_length=255)),
+                ('client_id', models.CharField(max_length=255)),
+                ('client_secret', models.CharField(max_length=255)),
+                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
+                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions')),
+            ],
+            options={
+                'verbose_name_plural': 'OAuth Clients',
+            },
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
+        ),
+        migrations.CreateModel(
             name='TrustedOAuthClient',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('is_trusted', models.BooleanField()),
                 ('bypasses_user_authorization', models.BooleanField()),
-                ('consumer', models.ForeignKey(to='oauth_provider.Consumer')),
+                ('consumer', models.ForeignKey(to='spotseeker_server.Client', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Trusted OAuth clients',
@@ -221,18 +196,6 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name='spots', max_length=50, null=True, to='spotseeker_server.SpotType', blank=True),
             preserve_default=True,
         ),
-        migrations.AddField(
-            model_name='spacereview',
-            name='space',
-            field=models.ForeignKey(to='spotseeker_server.Spot'),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='sharedspace',
-            name='space',
-            field=models.ForeignKey(to='spotseeker_server.Spot'),
-            preserve_default=True,
-        ),
         migrations.AlterUniqueTogether(
             name='itemextendedinfo',
             unique_together=set([('item', 'key')]),
@@ -240,19 +203,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='item',
             name='spot',
-            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='favoritespot',
-            name='spot',
-            field=models.ForeignKey(to='spotseeker_server.Spot'),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='favoritespot',
-            name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

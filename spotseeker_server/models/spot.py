@@ -14,13 +14,11 @@
 
 from PIL import Image
 
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.uploadedfile import UploadedFile
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_slug
 from django.db import models
-from django.db.models import Sum, Count
 from django.urls import reverse
 
 from .utility import update_etag
@@ -188,7 +186,7 @@ class SpotAvailableHours(models.Model):
         ("su", "sunday"),
     )
 
-    spot = models.ForeignKey(Spot)
+    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
     day = models.CharField(max_length=3, choices=DAY_CHOICES)
 
     start_time = models.TimeField()
@@ -244,7 +242,7 @@ class SpotExtendedInfo(models.Model):
 
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=350)
-    spot = models.ForeignKey(Spot)
+    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = "Spot extended info"
@@ -277,7 +275,7 @@ class SpotImage(models.Model):
     description = models.CharField(max_length=200, blank=True)
     display_index = models.PositiveIntegerField(null=True, blank=True)
     image = models.ImageField(upload_to="space_images")
-    spot = models.ForeignKey(Spot)
+    spot = models.ForeignKey(Spot, on_delete=models.CASCADE)
     content_type = models.CharField(max_length=40)
     width = models.IntegerField()
     height = models.IntegerField()

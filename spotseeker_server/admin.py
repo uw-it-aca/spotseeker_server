@@ -7,10 +7,8 @@
     sbutler1@illinois.edu: use the same forms as used for REST.
 """
 
-from importlib import import_module
-from django.db import models
 from django.contrib import admin
-from django.conf import settings
+from django.contrib.auth.admin import UserAdmin
 from spotseeker_server.models import *
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.forms.item import ItemForm, ItemExtendedInfoForm
@@ -117,7 +115,7 @@ admin.site.register(SpotExtendedInfo, SpotExtendedInfoAdmin)
 
 
 admin.site.register(SpotType)
-admin.site.register(TrustedOAuthClient)
+admin.site.register(Client, UserAdmin)
 
 
 class ItemAdmin(admin.ModelAdmin):

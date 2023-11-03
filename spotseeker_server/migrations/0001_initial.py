@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=50)),
                 ('value', models.CharField(max_length=350)),
-                ('item', models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True)),
+                ('item', models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Item extended info',
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
                 ('etag', models.CharField(max_length=40)),
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
-                ('item', models.ForeignKey(to='spotseeker_server.Item')),
+                ('item', models.ForeignKey(to='spotseeker_server.Item', on_delete=models.CASCADE))),
             ],
             options={
             },
@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
                 ('day', models.CharField(max_length=3, choices=[(b'm', b'monday'), (b't', b'tuesday'), (b'w', b'wednesday'), (b'th', b'thursday'), (b'f', b'friday'), (b'sa', b'saturday'), (b'su', b'sunday')])),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Spot available hours',
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=50)),
                 ('value', models.CharField(max_length=350)),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Spot extended info',
@@ -129,7 +129,7 @@ class Migration(migrations.Migration):
                 ('etag', models.CharField(max_length=40)),
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -178,7 +178,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('is_trusted', models.BooleanField()),
                 ('bypasses_user_authorization', models.BooleanField()),
-                ('consumer', models.ForeignKey(to='spotseeker_server.Client')),
+                ('consumer', models.ForeignKey(to='spotseeker_server.Client', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Trusted OAuth clients',
@@ -202,7 +202,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='item',
             name='spot',
-            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True),
+            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

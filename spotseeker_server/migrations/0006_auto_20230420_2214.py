@@ -20,4 +20,40 @@ class Migration(migrations.Migration):
             name='client_credential',
             field=models.CharField(blank=True, max_length=255),
         ),
+
+        migrations.AlterField(
+            model_name='itemextendedinfo',
+            name='item',
+            field=models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True, on_delete=models.CASCADE),
+        ),
+
+        migrations.AlterField(
+            model_name='itemimage',
+            name='item',
+            field=models.ForeignKey(to='spotseeker_server.Item', on_delete=models.CASCADE),
+        ),
+
+        migrations.AlterField(
+            model_name='spotavailablehours',
+            name='spot',
+            field=models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE),
+        ),
+
+        migrations.AlterField(
+            model_name='spotextendedinfo',
+            name='spot',
+            field=models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE),
+        ),
+
+        migrations.AlterField(
+            model_name='spotimage',
+            name='spot',
+            field=models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE),
+        ),
+
+        migrations.AlterField(
+            model_name='item',
+            name='spot',
+            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True, on_delete=models.CASCADE),
+        ),
     ]

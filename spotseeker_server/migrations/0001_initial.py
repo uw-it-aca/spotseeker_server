@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
                 ('etag', models.CharField(max_length=40)),
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
-                ('item', models.ForeignKey(to='spotseeker_server.Item', on_delete=models.CASCADE))),
+                ('item', models.ForeignKey(to='spotseeker_server.Item', on_delete=models.CASCADE)),
             ],
             options={
             },

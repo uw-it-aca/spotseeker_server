@@ -11,6 +11,8 @@ INSTALLED_APPS += [
     "spotseeker_server",
     "oauth2_provider",
     "corsheaders",
+    # remove when no longer needed! i.e. before merge to develop
+    "django_extensions",
 ]
 
 MIDDLEWARE += [

@@ -23,6 +23,36 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='Item',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=50)),
+                ('slug', models.SlugField(blank=True)),
+                ('item_category', models.CharField(max_length=50, null=True)),
+                ('item_subcategory', models.CharField(max_length=50, null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Spot',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(blank=True, max_length=100)),
+                ('latitude', models.DecimalField(decimal_places=8, max_digits=11, null=True)),
+                ('longitude', models.DecimalField(decimal_places=8, max_digits=11, null=True)),
+                ('height_from_sea_level', models.DecimalField(blank=True, decimal_places=8, max_digits=11, null=True)),
+                ('building_name', models.CharField(blank=True, max_length=100)),
+                ('floor', models.CharField(blank=True, max_length=50)),
+                ('room_number', models.CharField(blank=True, max_length=25)),
+                ('capacity', models.IntegerField(blank=True, null=True)),
+                ('display_access_restrictions', models.CharField(blank=True, max_length=200)),
+                ('organization', models.CharField(blank=True, max_length=50)),
+                ('manager', models.CharField(blank=True, max_length=50)),
+                ('etag', models.CharField(max_length=40)),
+                ('last_modified', models.DateTimeField(auto_now=True, auto_now_add=True)),
+                ('external_id', models.CharField(blank=True, default=None, max_length=100, null=True, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+\\Z'), "Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens.", 'invalid')])),
+            ],
+        ),
+        migrations.CreateModel(
             name='SpotType',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -58,36 +88,22 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Spot',
+            name='SpotExtendedInfo',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(blank=True, max_length=100)),
-                ('latitude', models.DecimalField(decimal_places=8, max_digits=11, null=True)),
-                ('longitude', models.DecimalField(decimal_places=8, max_digits=11, null=True)),
-                ('height_from_sea_level', models.DecimalField(blank=True, decimal_places=8, max_digits=11, null=True)),
-                ('building_name', models.CharField(blank=True, max_length=100)),
-                ('floor', models.CharField(blank=True, max_length=50)),
-                ('room_number', models.CharField(blank=True, max_length=25)),
-                ('capacity', models.IntegerField(blank=True, null=True)),
-                ('display_access_restrictions', models.CharField(blank=True, max_length=200)),
-                ('organization', models.CharField(blank=True, max_length=50)),
-                ('manager', models.CharField(blank=True, max_length=50)),
-                ('etag', models.CharField(max_length=40)),
-                ('last_modified', models.DateTimeField(auto_now=True)),
-                ('external_id', models.CharField(blank=True, default=None, max_length=100, null=True, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+\\Z'), "Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens.", 'invalid')])),
-                ('spottypes', models.ManyToManyField(blank=True, max_length=50, related_name='spots', to='spotseeker_server.SpotType')),
+                ('key', models.CharField(max_length=50)),
+                ('value', models.CharField(max_length=350)),
+                ('spot', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='spotseeker_server.Spot')),
             ],
+            options={
+                'verbose_name_plural': 'Spot extended info',
+                'unique_together': {('spot', 'key')},
+            },
         ),
-        migrations.CreateModel(
-            name='Item',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('slug', models.SlugField(blank=True)),
-                ('item_category', models.CharField(max_length=50, null=True)),
-                ('item_subcategory', models.CharField(max_length=50, null=True)),
-                ('spot', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='spotseeker_server.Spot')),
-            ],
+        migrations.AddField(
+            model_name='spot',
+            name='spottypes',
+            field=models.ManyToManyField(blank=True, max_length=50, related_name='spots', to='spotseeker_server.SpotType'),
         ),
         migrations.CreateModel(
             name='ItemExtendedInfo',
@@ -101,6 +117,16 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Item extended info',
                 'unique_together': {('item', 'key')},
             },
+        ),
+        migrations.AddField(
+            model_name='item',
+            name='spot',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='spotseeker_server.Spot'),
+        ),
+        migrations.AlterField(
+            model_name='spot',
+            name='last_modified',
+            field=models.DateTimeField(auto_now=True),
         ),
         migrations.CreateModel(
             name='ItemImage',
@@ -131,19 +157,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name_plural': 'Spot available hours',
-            },
-        ),
-        migrations.CreateModel(
-            name='SpotExtendedInfo',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(max_length=50)),
-                ('value', models.CharField(max_length=350)),
-                ('spot', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='spotseeker_server.Spot')),
-            ],
-            options={
-                'verbose_name_plural': 'Spot extended info',
-                'unique_together': {('spot', 'key')},
             },
         ),
         migrations.CreateModel(

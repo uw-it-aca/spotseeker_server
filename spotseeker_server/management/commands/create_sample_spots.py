@@ -684,3 +684,24 @@ class Command(BaseCommand):
         ItemExtendedInfo.objects.create(
             key="i_is_active", value="true", item=thingy
         )
+
+        loan_office = Spot.objects.create(
+            name="Yet Another Tech Loan Office",
+            building_name="Kane Hall (KNE)",
+            longitude=Decimal("-122.306382"),
+            latitude=Decimal("47.653477"),
+        )
+        loan_office.spottypes.add(item_place_type)
+        loan_office.save()
+        SpotExtendedInfo.objects.create(
+            key="app_type", value="tech", spot=loan_office
+        )
+        SpotExtendedInfo.objects.create(
+            key="has_cte_techloan", value="true", spot=loan_office
+        )
+        SpotExtendedInfo.objects.create(
+            key="cte_techloan_id", value="9", spot=loan_office
+        )
+        SpotExtendedInfo.objects.create(
+            key="campus", value="seattle", spot=loan_office
+        )

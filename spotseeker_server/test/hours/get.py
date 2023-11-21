@@ -2,16 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
-from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class SpotHoursGETTest(TestCase):
     def setUp(self):
         spot = Spot.objects.create(name="This spot has available hours")

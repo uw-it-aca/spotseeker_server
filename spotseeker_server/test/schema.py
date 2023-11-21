@@ -5,12 +5,10 @@ from spotseeker_server.models import *
 from django.test.client import Client
 from django.test import TestCase
 import simplejson as json
-from mock import patch
-from spotseeker_server import models
 from django.test.utils import override_settings
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(
     SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms.spot."
     "DefaultSpotForm"

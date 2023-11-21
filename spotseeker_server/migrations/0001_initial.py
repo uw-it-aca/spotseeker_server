@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=50)),
                 ('value', models.CharField(max_length=350)),
-                ('item', models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True)),
+                ('item', models.ForeignKey(blank=True, to='spotseeker_server.Item', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Item extended info',
@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
                 ('etag', models.CharField(max_length=40)),
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
-                ('item', models.ForeignKey(to='spotseeker_server.Item')),
+                ('item', models.ForeignKey(to='spotseeker_server.Item', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                 ('shared_count', models.IntegerField()),
                 ('date_first_viewed', models.DateTimeField(null=True)),
                 ('viewed_count', models.IntegerField()),
-                ('shared_space', models.ForeignKey(to='spotseeker_server.SharedSpace')),
+                ('shared_space', models.ForeignKey(to='spotseeker_server.SharedSpace', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -110,8 +110,8 @@ class Migration(migrations.Migration):
                 ('date_published', models.DateTimeField(null=True)),
                 ('is_published', models.BooleanField()),
                 ('is_deleted', models.BooleanField()),
-                ('published_by', models.ForeignKey(related_name='published_by', to=settings.AUTH_USER_MODEL, null=True)),
-                ('reviewer', models.ForeignKey(related_name='reviewer', to=settings.AUTH_USER_MODEL)),
+                ('published_by', models.ForeignKey(related_name='published_by', to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
+                ('reviewer', models.ForeignKey(related_name='reviewer', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -147,7 +147,7 @@ class Migration(migrations.Migration):
                 ('day', models.CharField(max_length=3, choices=[(b'm', b'monday'), (b't', b'tuesday'), (b'w', b'wednesday'), (b'th', b'thursday'), (b'f', b'friday'), (b'sa', b'saturday'), (b'su', b'sunday')])),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Spot available hours',
@@ -160,7 +160,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=50)),
                 ('value', models.CharField(max_length=350)),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Spot extended info',
@@ -182,7 +182,7 @@ class Migration(migrations.Migration):
                 ('etag', models.CharField(max_length=40)),
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
-                ('spot', models.ForeignKey(to='spotseeker_server.Spot')),
+                ('spot', models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -204,7 +204,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('is_trusted', models.BooleanField()),
                 ('bypasses_user_authorization', models.BooleanField()),
-                ('consumer', models.ForeignKey(to='oauth_provider.Consumer')),
+                ('consumer', models.ForeignKey(to='oauth_provider.Consumer', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Trusted OAuth clients',
@@ -224,13 +224,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='spacereview',
             name='space',
-            field=models.ForeignKey(to='spotseeker_server.Spot'),
+            field=models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='sharedspace',
             name='space',
-            field=models.ForeignKey(to='spotseeker_server.Spot'),
+            field=models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -240,19 +240,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='item',
             name='spot',
-            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True),
+            field=models.ForeignKey(blank=True, to='spotseeker_server.Spot', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='favoritespot',
             name='spot',
-            field=models.ForeignKey(to='spotseeker_server.Spot'),
+            field=models.ForeignKey(to='spotseeker_server.Spot', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='favoritespot',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

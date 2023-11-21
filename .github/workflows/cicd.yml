@@ -194,7 +194,7 @@ jobs:
           commit_hash: ${{ needs.context.outputs.commit_hash }}
           git_repo_branch: ${{ needs.context.outputs.git_repo_branch }}
           gh_auth_token: ${{ secrets.GH_AUTH_TOKEN }}
-          app_instance: dev
+          app_instance: eval
 
       - name: 'Surface context from executed build step'
         id: context

@@ -5,11 +5,10 @@ from django.conf import settings
 from django.urls import path, include
 from django.contrib import admin
 
-urlpatterns = [
-    path('api/', include('spotseeker_server.urls')),
+urlpatterns += [
+    path("api/", include("spotseeker_server.urls")),
     path(
-        'auth/',
-        include('oauth2_provider.urls', namespace='oauth2_provider')
+        "auth/", include("oauth2_provider.urls", namespace="oauth2_provider")
     ),
 ]
 
@@ -17,8 +16,8 @@ if settings.DEBUG:
     from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
     urlpatterns += [
-        path('admin/doc/', include('django.contrib.admindocs.urls')),
-        path('admin/', admin.site.urls),
+        path("admin/doc/", include("django.contrib.admindocs.urls")),
+        path("admin/", admin.site.urls),
     ]
 
     urlpatterns += staticfiles_urlpatterns()

@@ -18,19 +18,18 @@ from django.utils.http import http_date
 from wsgiref.util import FileWrapper
 from django.core.exceptions import ValidationError
 from django.core.files.images import ImageFile
-from spotseeker_server.require_auth import *
 from spotseeker_server.models import *
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 
-class ItemImageView(RESTDispatch):
+class ItemImageView(RESTDispatch, ReadWriteScopedResourceView):
     """Handles actions at /api/v1/item/<item id>/image/<image id>.
     GET returns 200 with the image.
     PUT returns 200 and updates the image.
     DELETE returns 200 and deletes the image.
     """
 
-    @app_auth_required
-    def GET(self, request, item_id, image_id):
+    def get(self, request, item_id, image_id):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 
@@ -48,9 +47,7 @@ class ItemImageView(RESTDispatch):
         response["Content-type"] = img.content_type
         return response
 
-    @user_auth_required
-    @admin_auth_required
-    def PUT(self, request, item_id, image_id):
+    def put(self, request, item_id, image_id):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 
@@ -74,11 +71,9 @@ class ItemImageView(RESTDispatch):
         img.save()
         item.spot.save()
 
-        return self.GET(request, item_id, image_id)
+        return self.get(request, item_id, image_id)
 
-    @user_auth_required
-    @admin_auth_required
-    def DELETE(self, request, item_id, image_id):
+    def delete(self, request, item_id, image_id):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 

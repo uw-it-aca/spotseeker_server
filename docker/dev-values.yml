@@ -1,13 +1,17 @@
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1
 ingress:
   enabled: true
   tls:
     spotseeker:
-      secretName: test.api.scout.uw.edu-ingress-cert
+      secretName: dev.api.scout.uw.edu-ingress-cert
       hosts:
-        - test.api.scout.uw.edu
+        - dev.api.scout.uw.edu
   hosts:
     spotseeker:
-      host: test.api.scout.uw.edu
+      host: dev.api.scout.uw.edu
       paths:
         - "/"
   annotations:
@@ -28,17 +32,17 @@ securityPolicy:
   enabled: true
 externalService:
   enabled: true
-  name: spotseeker-db-service
+  name: spotseeker-dev-db-service
   type: ClusterIP
   serviceAddress: 172.18.0.196
   servicePort: 3306
 database:
   engine: mysql
-  name: api_test
-  hostname: spotseeker-db-service
-  secretName: test.api.scout.uw.edu-sql-secrets
+  name: api_dev
+  hostname: spotseeker-dev-db-service
+  secretName: dev.api.scout.uw.edu-sql-secrets
 repo: spotseeker
-instance: test
+instance: dev
 image:
   repository: gcr.io/uwit-mci-axdd/spotseeker
   tag: IMAGE_TAG
@@ -49,9 +53,9 @@ memcached:
     type: RollingUpdate
 gcsCredentials:
   mounted: true
-  secretName: test.api.scout.uw.edu-gc-service-credentials
+  secretName: dev.api.scout.uw.edu-gc-service-credentials
 cronjob:
-  enabled: true
+  enabled: false
   jobs:
     - name: sync-techloan
       schedule: "0,15,30,45 * * * *"
@@ -65,12 +69,12 @@ daemon:
       command: ["/scripts/management_daemon.sh"]
       args: ["--delay", "300", "sync_techloan"]
 environmentVariables:
-  - name: SPOTSEEKER_OAUTH_ENABLED
-    value: true
+  - name: AUTH_MODULE
+    value: oauth
   - name: CLUSTER_CNAME
-    value: test.api.scout.uw.edu
+    value: dev.api.scout.uw.edu
   - name: ENV
-    value: test
+    value: dev
   - name: WEBSERVER
     value: nginx
   - name: CACHE_MAX_ENTRIES
@@ -80,8 +84,8 @@ environmentVariables:
 externalSecrets:
   enabled: true
   secrets:
-    - name: test.api.scout.uw.edu-secrets
-      externalKey: axdd/kv/data/scout/test-api/secrets
+    - name: dev.api.scout.uw.edu-secrets
+      externalKey: axdd/kv/data/scout/dev-api/secrets
       data:
         - name: django-secret
           property: django-secret
@@ -101,14 +105,14 @@ externalSecrets:
           property: spotseeker-web-oauth-secret
         - name: spotseeker-web-oauth-user
           property: spotseeker-web-oauth-user
-    - name: test.api.scout.uw.edu-sql-secrets
+    - name: dev.api.scout.uw.edu-sql-secrets
       externalKey: axdd/kv/data/scout/common/sql-secrets
       data:
         - name: username
           property: username
         - name: password
           property: password
-    - name: test.api.scout.uw.edu-gc-service-credentials
+    - name: dev.api.scout.uw.edu-gc-service-credentials
       externalKey: axdd/kv/data/scout/common/gc-service-credentials
       data:
         - name: credentials.json
@@ -116,37 +120,37 @@ externalSecrets:
 environmentVariablesSecrets:
   djangoSecret:
     name: DJANGO_SECRET
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: django-secret
   spotseekerAuthAdmins:
     name: SPOTSEEKER_AUTH_ADMINS
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: spotseeker-auth-admins
   storageBucketName:
     name: STORAGE_BUCKET_NAME
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: storage-bucket-name
   storageProjectId:
     name: STORAGE_PROJECT_ID
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: storage-project-id
   spotseekerTechloanUrl:
     name: SPOTSEEKER_TECHLOAN_URL
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: spotseeker-techloan-url
   spotseekerWebServerHost:
     name: SPOTSEEKER_WEB_SERVER_HOST
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: spotseeker-web-server-host
   spotseekerWebOauthKey:
     name: SPOTSEEKER_WEB_OAUTH_KEY
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: spotseeker-web-oauth-key
   spotseekerWebOauthSecret:
     name: SPOTSEEKER_WEB_OAUTH_SECRET
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: spotseeker-web-oauth-secret
   spotseekerWebOauthUser:
     name: SPOTSEEKER_WEB_OAUTH_USER
-    secretName: test.api.scout.uw.edu-secrets
+    secretName: dev.api.scout.uw.edu-secrets
     secretKey: spotseeker-web-oauth-user

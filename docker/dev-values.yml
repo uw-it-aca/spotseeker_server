@@ -83,6 +83,7 @@ environmentVariables:
     value: "86400"
 externalSecrets:
   enabled: true
+  refreshInterval: "5m"
   secrets:
     - name: dev.api.scout.uw.edu-secrets
       externalKey: axdd/kv/data/scout/dev-api/secrets
@@ -136,7 +137,6 @@ environmentVariablesSecrets:
     secretKey: storage-project-id
   spotseekerTechloanUrl:
     name: SPOTSEEKER_TECHLOAN_URL
-    refreshInterval: "5m"
     secretName: dev.api.scout.uw.edu-secrets
     secretKey: spotseeker-techloan-url
   spotseekerWebServerHost:

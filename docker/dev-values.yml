@@ -86,7 +86,6 @@ externalSecrets:
   secrets:
     - name: dev.api.scout.uw.edu-secrets
       externalKey: axdd/kv/data/scout/dev-api/secrets
-      refreshInterval: "5m"
       data:
         - name: django-secret
           property: django-secret

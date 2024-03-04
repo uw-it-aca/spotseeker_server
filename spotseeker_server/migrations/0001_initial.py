@@ -19,15 +19,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='FavoriteSpot',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='Item',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -69,50 +60,6 @@ class Migration(migrations.Migration):
                 ('upload_user', models.CharField(max_length=40)),
                 ('upload_application', models.CharField(max_length=100)),
                 ('item', models.ForeignKey(to='spotseeker_server.Item', on_delete=models.CASCADE)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='SharedSpace',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('user', models.CharField(max_length=16)),
-                ('sender', models.CharField(max_length=256)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='SharedSpaceRecipient',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('hash_key', models.CharField(max_length=32)),
-                ('recipient', models.CharField(max_length=256)),
-                ('user', models.CharField(default=None, max_length=16, null=True, blank=True)),
-                ('date_shared', models.DateTimeField(auto_now_add=True)),
-                ('shared_count', models.IntegerField()),
-                ('date_first_viewed', models.DateTimeField(null=True)),
-                ('viewed_count', models.IntegerField()),
-                ('shared_space', models.ForeignKey(to='spotseeker_server.SharedSpace', on_delete=models.CASCADE)),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='SpaceReview',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('review', models.CharField(default=b'', max_length=1000)),
-                ('original_review', models.CharField(default=b'', max_length=1000)),
-                ('rating', models.IntegerField(validators=[django.core.validators.MaxValueValidator(5), django.core.validators.MinValueValidator(1)])),
-                ('date_submitted', models.DateTimeField(auto_now_add=True)),
-                ('date_published', models.DateTimeField(null=True)),
-                ('is_published', models.BooleanField()),
-                ('is_deleted', models.BooleanField()),
             ],
             options={
             },

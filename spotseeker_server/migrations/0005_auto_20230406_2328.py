@@ -19,18 +19,6 @@ class Migration(migrations.Migration):
             options={'verbose_name_plural': 'Trusted OAuth Clients'},
         ),
         migrations.DeleteModel(
-            name='FavoriteSpot',
-        ),
-        migrations.DeleteModel(
-            name='SharedSpace',
-        ),
-        migrations.DeleteModel(
-            name='SharedSpaceRecipient',
-        ),
-        migrations.DeleteModel(
-            name='SpaceReview',
-        ),
-        migrations.DeleteModel(
             name="Client",
         ),
     ]

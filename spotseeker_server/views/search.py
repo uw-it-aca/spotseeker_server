@@ -23,7 +23,6 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
-from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot, SpotType
 from pyproj import Geod
 from decimal import *
@@ -31,20 +30,18 @@ from time import *
 from datetime import datetime
 import pytz
 import sys
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 
-class SearchView(RESTDispatch):
+class SearchView(RESTDispatch, ReadWriteScopedResourceView):
     """Handles searching for Spots with particular attributes
     based on a query string.
     """
 
-    @user_auth_required
-    @admin_auth_required
-    def POST(self, request):
+    def post(self, request):
         return SpotView().run(request)
 
-    @app_auth_required
-    def GET(self, request):
+    def get(self, request):
         chain = SearchFilterChain(request)
         spots = self.filter_on_request(
             request.GET, chain, request.META, "spot"

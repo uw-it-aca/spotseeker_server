@@ -4,21 +4,18 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client
-import mock
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
-from datetime import datetime, timedelta
+from datetime import datetime
 import datetime as alternate_date
-import time
 from mock import patch
-from spotseeker_server import models
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class SpotHoursOpenUntilTest(TestCase):
     """Tests search requests for spots that are open at a particular time."""
 
-    @mock.patch("spotseeker_server.views.search.SearchView.get_datetime")
+    @patch("spotseeker_server.views.search.SearchView.get_datetime")
     def test_open_until(self, datetime_mock):
         # Create a spot that isn't open now but will be in an hour.
         spot = Spot.objects.create(name="This spot is open later")

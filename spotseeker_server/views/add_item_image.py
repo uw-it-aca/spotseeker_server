@@ -10,18 +10,16 @@
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import ItemImage, Item
 from django.http import HttpResponse
-from spotseeker_server.require_auth import *
 from PIL import Image
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 
-class AddItemImageView(RESTDispatch):
+class AddItemImageView(RESTDispatch, ReadWriteScopedResourceView):
     """Saves a ItemImage for a particular Item on POST to
     /api/v1/item/<item id>/image.
     """
 
-    @user_auth_required
-    @admin_auth_required
-    def POST(self, request, item_id):
+    def post(self, request, item_id):
         item = Item.objects.get(pk=item_id)
 
         if "image" not in request.FILES:

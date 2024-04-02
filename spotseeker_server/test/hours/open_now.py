@@ -2,27 +2,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
-from django.conf import settings
 from django.test.client import Client
 from spotseeker_server.models import Spot, SpotAvailableHours
 import simplejson as json
 from datetime import datetime
 import datetime as alternate_date
-import mock
-
 from time import *
 from django.test.utils import override_settings
 from mock import patch
-from spotseeker_server import models
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class SpotHoursOpenNowTest(TestCase):
     """Tests that we can tell if a Spot is available now,
     based on it's Available Hours.
     """
 
-    @mock.patch("spotseeker_server.views.search.SearchView.get_datetime")
+    @patch("spotseeker_server.views.search.SearchView.get_datetime")
     def test_open_now(self, datetime_mock):
         open_spot = Spot.objects.create(name="This spot is open now")
         no_hours_spot = Spot.objects.create(name="This spot has no hours")
@@ -84,7 +80,7 @@ class SpotHoursOpenNowTest(TestCase):
         )
         self.assertEquals(has_open_spot, True, "Finds the open spot")
 
-    @mock.patch("spotseeker_server.views.search.SearchView.get_datetime")
+    @patch("spotseeker_server.views.search.SearchView.get_datetime")
     def test_thirty_sec_before_midnight(self, datetime_mock):
         """Tests when the user makes a request between 23:59 and 00:00."""
         open_spot = Spot.objects.create(name="Spot open overnight")

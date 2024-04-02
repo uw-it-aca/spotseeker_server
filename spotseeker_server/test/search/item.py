@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
-from django.conf import settings
-from django.test.client import Client
 from django.test.utils import override_settings
 from spotseeker_server.models import (
     Spot,
@@ -12,21 +10,9 @@ from spotseeker_server.models import (
     ItemExtendedInfo,
 )
 import simplejson as json
-from mock import patch
-from spotseeker_server import models
-
-try:
-    from unittest import skip
-except ImportError:
-
-    def skip(*args, **kwargs):
-        def inner(self):
-            pass
-
-        return inner
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class SpotSearchItemTest(TestCase):
     """
     Tests on the implemented item filters. Checks whether the new filters work

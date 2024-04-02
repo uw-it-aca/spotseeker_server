@@ -17,7 +17,7 @@ def new_hours(spot, day, start, end):
     )
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class SpotSearchTimeTest(TestCase):
     def test_SameDayTimeInSerial(self):
         """Simple open hours test with a single date range per spot"""

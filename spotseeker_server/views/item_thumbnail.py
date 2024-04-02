@@ -8,37 +8,27 @@
         here to simplify the URL patterns; adapt to the new RESTDispatch
         framework.
 """
-try:
-    from cStringIO import StringIO as IOStream
-except ModuleNotFoundError:
-    from io import BytesIO as IOStream
 
+from io import BytesIO as IOStream
 from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import ItemImage, Item
 from django.http import HttpResponse
 from django.utils.http import http_date
-from spotseeker_server.require_auth import app_auth_required
 from PIL import Image
 import time
 import re
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 RE_WIDTH = re.compile(r"width:(\d+)")
 RE_HEIGHT = re.compile(r"height:(\d+)")
 RE_WIDTHxHEIGHT = re.compile(r"^(\d+)x(\d+)$")
 
 
-class ItemThumbnailView(RESTDispatch):
+class ItemThumbnailView(RESTDispatch, ReadWriteScopedResourceView):
     """Returns 200 with a thumbnail of a ItemImage."""
 
-    @app_auth_required
-    def GET(
-        self,
-        request,
-        item_id,
-        image_id,
-        thumb_dimensions=None,
-        constrain=False,
-    ):
+    def get(self, request, item_id, image_id,
+            thumb_dimensions=None, constrain=False):
         img = ItemImage.objects.get(pk=image_id)
         item = img.item
 

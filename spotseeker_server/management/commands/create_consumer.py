@@ -2,19 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """ This provides a management command to django's manage.py called
-create_consumer that will generate a oauth key and secret based on the consumer
-name.
+create_consumer that will generate a client with a valid credential based on
+the consumer name.
 """
-from optparse import make_option
 import hashlib
 import random
 import string
 import time
 
-from django.core.management.base import BaseCommand, CommandError
-from oauth_provider.models import Consumer
+from django.core.management.base import BaseCommand
 
-from spotseeker_server.models import TrustedOAuthClient
+from spotseeker_server.models import Client
 
 
 class Command(BaseCommand):
@@ -25,22 +23,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
+            "-n",
             "--name",
             dest="consumer_name",
-            default=False,
             help="A name for the consumer",
         )
 
         parser.add_argument(
-            "--trusted",
-            dest="trusted",
-            action="store_true",
-            default=False,
-            help="Makes this consumer trusted "
-            "(Adds a TrustedOAuthClient for it)",
-        )
-
-        parser.add_argument(
+            "-s",
             "--silent",
             dest="silent",
             action="store_true",
@@ -52,29 +42,24 @@ class Command(BaseCommand):
         if options["consumer_name"]:
             consumer_name = options["consumer_name"]
         else:
-            consumer_name = input("Enter consumer name: ")
+            consumer_name = input("Enter client name: ")
 
+        # key and secret can be anything, but we'll try to keep it unique
         key = hashlib.sha1(
             "{0} - {1}".format(random.random(), time.time()).encode("utf-8")
         ).hexdigest()
 
-        # django-oauth-plus now wants secrets to be 16 chars
         secret = "".join(
             random.choice(string.ascii_letters + string.digits)
             for _ in range(16)
         )
 
-        consumer = Consumer.objects.create(
-            name=consumer_name, key=key, secret=secret
+        client = Client.objects.create(
+            username=consumer_name,
+            name=consumer_name, client_id=key, client_secret=secret
         )
-
-        if options["trusted"]:
-            trusted = TrustedOAuthClient.objects.create(
-                consumer=consumer,
-                is_trusted=1,
-                bypasses_user_authorization=False,
-            )
+        credential = client.get_client_credential()
+        client.save()
 
         if not options["silent"]:
-            self.stdout.write("Key: %s\n" % key)
-            self.stdout.write("Secret: %s\n" % secret)
+            self.stdout.write(f"Credential: {credential}\n")

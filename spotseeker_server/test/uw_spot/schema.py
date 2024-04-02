@@ -8,12 +8,11 @@ from django.test import TestCase
 import simplejson as json
 
 
-ALL_OK = "spotseeker_server.auth.all_ok"
 UW_SPOT_FORM = "spotseeker_server.org_forms.uw_spot.UWSpotForm"
 UW_EXT_INFO_FORM = "spotseeker_server.org_forms.uw_spot.UWSpotExtendedInfoForm"
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE=ALL_OK)
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(SPOTSEEKER_SPOT_FORM=UW_SPOT_FORM)
 @override_settings(SPOTSEEKER_SPOTEXTENDEDINFO_FORM=UW_EXT_INFO_FORM)
 class UWSpotSchemaTest(TestCase):

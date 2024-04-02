@@ -11,9 +11,7 @@ from django import forms
 from django.dispatch import receiver
 from spotseeker_server.default_forms.spot import DefaultSpotForm
 from spotseeker_server.default_forms.spot import DefaultSpotExtendedInfoForm
-from spotseeker_server.models import Spot, SpotExtendedInfo
 from spotseeker_server.dispatch import spot_post_build
-import simplejson as json
 import re
 import phonenumbers
 
@@ -21,7 +19,7 @@ import phonenumbers
 # dict of all of the uw extended info with values that must be validated
 # and what all of the possible validated values are, or validated types
 validated_ei = {
-    "app_type": ["food", "tech"],
+    "app_type": ["food", "study", "tech"],
     "auto_labstats_available": "int",
     "auto_labstats_total": "int",
     "campus": ["seattle", "tacoma", "bothell", "south_lake_union"],

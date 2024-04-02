@@ -2,23 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
-from django.conf import settings
-from django.test.client import Client, encode_multipart
+from django.test.client import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test.utils import override_settings
 from spotseeker_server.models import Item, ItemImage, Spot
 from os.path import abspath, dirname
 import os
 import random
 import tempfile
 import shutil
-from django.test.utils import override_settings
-from mock import patch
-from spotseeker_server import models
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 @override_settings(SPOTSEEKER_AUTH_ADMINS=("demo_user",))
 class ItemImagePUTTest(TestCase):
     """Tests updating a ItemImage by PUTting to

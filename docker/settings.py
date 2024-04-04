@@ -10,6 +10,7 @@ else:
 INSTALLED_APPS += [
     "oauth_provider",
     "spotseeker_server",
+    "django_extensions",
 ]
 
 MIDDLEWARE += [

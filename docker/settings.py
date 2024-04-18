@@ -11,6 +11,7 @@ INSTALLED_APPS += [
     "spotseeker_server",
     "oauth2_provider",
     "corsheaders",
+    "django_extensions",
 ]
 
 MIDDLEWARE += [

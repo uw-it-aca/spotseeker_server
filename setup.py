@@ -26,5 +26,7 @@ setup(
         "six",
         "phonenumbers",
         "responses",
+        # should be removed when no longer needed
+        "django-extensions",
     ],
 )

@@ -1,16 +1,15 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
-from spotseeker_server.require_auth import user_auth_required
 from django.conf import settings
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 
-class PersonView(RESTDispatch):
+class PersonView(RESTDispatch, ReadWriteScopedResourceView):
     """Information (username, email) about a person"""
 
-    @user_auth_required
-    def GET(self, request):
+    def get(self, request):
         user = self._get_user(request)
 
         data = {

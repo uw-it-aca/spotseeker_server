@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
@@ -11,19 +11,9 @@ from spotseeker_server.test import utils_test
 
 from past.builtins import basestring
 
-try:
-    from unittest import skip
-except ImportError:
-
-    def skip(*args, **kwargs):
-        def inner(self):
-            pass
-
-        return inner
-
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok",
+    SPOTSEEKER_OAUTH_ENABLED=False,
     SPOTSEEKER_SPOT_FORM="spotseeker_server.default_forms.spot."
     "DefaultSpotForm",
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM="spotseeker_server.default_forms.spot."

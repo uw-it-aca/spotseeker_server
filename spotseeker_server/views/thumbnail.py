@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """ Changes
@@ -17,28 +17,21 @@ from spotseeker_server.views.rest_dispatch import RESTDispatch, RESTException
 from spotseeker_server.models import SpotImage, Spot
 from django.http import HttpResponse
 from django.utils.http import http_date
-from spotseeker_server.require_auth import app_auth_required
 from PIL import Image
 import time
 import re
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 RE_WIDTH = re.compile(r"width:(\d+)")
 RE_HEIGHT = re.compile(r"height:(\d+)")
 RE_WIDTHxHEIGHT = re.compile(r"^(\d+)x(\d+)$")
 
 
-class ThumbnailView(RESTDispatch):
+class ThumbnailView(RESTDispatch, ReadWriteScopedResourceView):
     """Returns 200 with a thumbnail of a SpotImage."""
 
-    @app_auth_required
-    def GET(
-        self,
-        request,
-        spot_id,
-        image_id,
-        thumb_dimensions=None,
-        constrain=False,
-    ):
+    def get(self, request, spot_id, image_id,
+            thumb_dimensions=None, constrain=False):
         img = SpotImage.objects.get(pk=image_id)
         spot = img.spot
 

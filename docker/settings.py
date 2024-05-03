@@ -8,14 +8,35 @@ else:
     DEBUG = False
 
 INSTALLED_APPS += [
-    "oauth_provider",
     "spotseeker_server",
+    "oauth2_provider",
+    "corsheaders",
     "django_extensions",
 ]
 
 MIDDLEWARE += [
     "spotseeker_server.logger.oauth.LogMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
+AUTH_USER_MODEL = "spotseeker_server.Client"
+
+AUTHENTICATION_BACKENDS = (
+    "oauth2_provider.backends.OAuth2Backend",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+CORS_ORIGIN_ALLOW_ALL = DEBUG
+if os.getenv("ENV", "localdev") == "prod":
+    CORS_ALLOWED_ORIGINS = [
+        "https://scout.uw.edu",
+        "https://manager.scout.uw.edu",
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://test.scout.uw.edu",
+        "https://test.manager.scout.uw.edu",
+    ]
 
 # django storages settings
 if not DEBUG:
@@ -28,9 +49,11 @@ if not DEBUG:
         "/gcs/credentials.json"
     )
 
-SPOTSEEKER_AUTH_MODULE = "spotseeker_server.auth.{}".format(
-    os.getenv("AUTH_MODULE", "all_ok")
-)
+SPOTSEEKER_OAUTH_ENABLED = os.getenv("SPOTSEEKER_OAUTH_ENABLED", not DEBUG)
+# convert string to boolean if set in .env
+if type(SPOTSEEKER_OAUTH_ENABLED) == str:
+    SPOTSEEKER_OAUTH_ENABLED = SPOTSEEKER_OAUTH_ENABLED.lower() == "true"
+
 # turn string of auth admins into list
 SPOTSEEKER_AUTH_ADMINS = (
     os.getenv("SPOTSEEKER_AUTH_ADMINS", "").replace(" ", "").split(",")
@@ -60,10 +83,11 @@ if DEBUG:
         }
     }
 else:
-    # The various MEMCACHED variables are set in django-container's base_settings/common.py
+    # The various MEMCACHED variables are set in django-container's
+    # base_settings/common.py
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-            'LOCATION': MEMCACHED_SERVERS,
+        "default": {
+            "BACKEND": "django.core.cache.backends.memcached.PyLibMCCache",
+            "LOCATION": MEMCACHED_SERVERS,
         }
     }

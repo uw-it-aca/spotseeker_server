@@ -1,31 +1,22 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import shutil
 import tempfile
+from io import BytesIO as IOStream
 
-try:
-    from cStringIO import StringIO as IOStream
-except ModuleNotFoundError:
-    from io import BytesIO as IOStream
-
-from django.conf import settings
-from django.core import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from mock import patch
 from os.path import abspath, dirname
 from PIL import Image
 from spotseeker_server.models import Item, ItemImage
-from spotseeker_server import models
-import random
 
 TEST_ROOT = abspath(dirname(__file__))
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok")
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class ItemImageGETTest(TestCase):
 
     dummy_cache_setting = {

@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from django import forms
@@ -14,10 +14,6 @@ from spotseeker_server.default_forms.item import (
     DefaultItemExtendedInfoForm as ItemExtendedInfoForm,
 )
 from spotseeker_server.models import *
-from django.http import HttpResponse
-from spotseeker_server.require_auth import *
-from django.db import transaction
-import simplejson as json
 import django.dispatch
 from spotseeker_server.dispatch import (
     spot_pre_build,

@@ -1,10 +1,8 @@
 #!/bin/bash
 
-if [ "$ENV" = "localdev" ]
-then
+if [ "$ENV" = "localdev" ]; then
 
-  python manage.py migrate
-  python manage.py loaddata uw.json
-  python manage.py loaddata dummy_oauth.json
+	python manage.py migrate
+	python manage.py loaddata uw.json
 
 fi

@@ -6,25 +6,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('spotseeker_server', '0003_auto_20181105_2251'),
+        ("spotseeker_server", "0003_auto_20181105_2251"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='itemimage',
-            name='image',
-            field=models.ImageField(upload_to='item_images'),
+            model_name="itemimage",
+            name="image",
+            field=models.ImageField(upload_to="item_images"),
         ),
         migrations.AlterField(
-            model_name='spotavailablehours',
-            name='day',
-            field=models.CharField(choices=[('m', 'monday'), ('t', 'tuesday'), ('w', 'wednesday'), ('th', 'thursday'), ('f', 'friday'), ('sa', 'saturday'), ('su', 'sunday')], max_length=3),
+            model_name="spacereview",
+            name="original_review",
+            field=models.CharField(default="", max_length=1000),
         ),
         migrations.AlterField(
-            model_name='spotimage',
-            name='image',
-            field=models.ImageField(upload_to='space_images'),
+            model_name="spacereview",
+            name="review",
+            field=models.CharField(default="", max_length=1000),
+        ),
+        migrations.AlterField(
+            model_name="spotavailablehours",
+            name="day",
+            field=models.CharField(
+                choices=[
+                    ("m", "monday"),
+                    ("t", "tuesday"),
+                    ("w", "wednesday"),
+                    ("th", "thursday"),
+                    ("f", "friday"),
+                    ("sa", "saturday"),
+                    ("su", "sunday"),
+                ],
+                max_length=3,
+            ),
+        ),
+        migrations.AlterField(
+            model_name="spotimage",
+            name="image",
+            field=models.ImageField(upload_to="space_images"),
         ),
     ]

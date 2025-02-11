@@ -4,7 +4,7 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 from spotseeker_server.forms.item import ItemForm, ItemExtendedInfoForm
-from spotseeker_server.default_forms.item import DefaultItemForm,\
+from spotseeker_server.default_forms.item import DefaultItemForm, \
     DefaultItemExtendedInfoForm
 
 

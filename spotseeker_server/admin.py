@@ -81,7 +81,7 @@ class SpotImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        if type(queryset) == SpotImage:
+        if isinstance(type(queryset), SpotImage):
             queryset.delete()
         else:
             for spot_image in queryset.all():
@@ -156,7 +156,7 @@ class ItemImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        if type(queryset) == ItemImage:
+        if isinstance(type(queryset), ItemImage):
             queryset.delete()
         else:
             for item_image in queryset.all():

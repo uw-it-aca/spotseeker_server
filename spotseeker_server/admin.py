@@ -1,10 +1,11 @@
 # Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Changes
-    =================================================================
+"""
+Changes
+=================================================================
 
-    sbutler1@illinois.edu: use the same forms as used for REST.
+sbutler1@illinois.edu: use the same forms as used for REST.
 """
 
 from django.contrib import admin

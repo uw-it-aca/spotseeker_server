@@ -34,8 +34,8 @@ externalService:
   enabled: true
   name: spotseeker-dev-db-service
   type: ClusterIP
-  serviceAddress: 172.18.0.196
-  servicePort: 3306
+  serviceAddress: 34.83.34.217
+  servicePort: 5432
 database:
   engine: mysql
   name: api_dev

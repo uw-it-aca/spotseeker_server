@@ -1,10 +1,11 @@
 # Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Changes
-    =================================================================
+"""
+Changes
+=================================================================
 
-    sbutler1@illinois.edu: use the same forms as used for REST.
+sbutler1@illinois.edu: use the same forms as used for REST.
 """
 
 from django.contrib import admin
@@ -80,7 +81,7 @@ class SpotImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        if type(queryset) == SpotImage:
+        if isinstance(type(queryset), SpotImage):
             queryset.delete()
         else:
             for spot_image in queryset.all():
@@ -155,7 +156,7 @@ class ItemImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        if type(queryset) == ItemImage:
+        if isinstance(type(queryset), ItemImage):
             queryset.delete()
         else:
             for item_image in queryset.all():

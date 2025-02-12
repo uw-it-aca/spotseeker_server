@@ -1,3 +1,4 @@
+# postgres
 psycopg2
 # this is temporary for testing migrations in upgrade
 django-extensions==2.2.*

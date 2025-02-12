@@ -37,7 +37,7 @@ externalService:
   serviceAddress: 172.18.0.196
   servicePort: 3306
 database:
-  engine: mysql
+  engine: postgres
   name: api_dev
   hostname: spotseeker-dev-db-service
   secretName: dev.api.scout.uw.edu-sql-secrets

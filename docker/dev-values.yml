@@ -34,7 +34,7 @@ externalService:
   enabled: true
   name: spotseeker-dev-db-service
   type: ClusterIP
-  serviceAddress: 34.83.34.217
+  serviceAddress: 10.45.16.3
   servicePort: 5432
 database:
   engine: postgres

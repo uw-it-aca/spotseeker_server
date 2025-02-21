@@ -23,8 +23,8 @@ class Client(AbstractUser):
         """
 
         raw_cred = f"{self.client_id}:{self.client_secret}"
-        self.client_credential = b64encode(raw_cred.encode('utf-8'))\
-            .decode('utf-8')
+        self.client_credential = b64encode(
+                raw_cred.encode("utf-8")).decode("utf-8")
         return self.client_credential
 
     def __str__(self):

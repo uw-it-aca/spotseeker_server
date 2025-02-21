@@ -11,6 +11,7 @@ INSTALLED_APPS += [
     "spotseeker_server",
     "oauth2_provider",
     "corsheaders",
+    "django_extensions",
 ]
 
 MIDDLEWARE += [
@@ -85,8 +86,8 @@ else:
     # The various MEMCACHED variables are set in django-container's
     # base_settings/common.py
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-            'LOCATION': MEMCACHED_SERVERS,
+        "default": {
+            "BACKEND": "django.core.cache.backends.memcached.PyLibMCCache",
+            "LOCATION": MEMCACHED_SERVERS,
         }
     }

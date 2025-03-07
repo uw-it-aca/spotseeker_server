@@ -1,16 +1,15 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-""" Changes
-    =================================================================
+"""
+Changes
+=================================================================
 
-    sbutler1@illinois.edu: use the same forms as used for REST.
+sbutler1@illinois.edu: use the same forms as used for REST.
 """
 
-from importlib import import_module
-from django.db import models
 from django.contrib import admin
-from django.conf import settings
+from django.contrib.auth.admin import UserAdmin
 from spotseeker_server.models import *
 from spotseeker_server.forms.spot import SpotForm, SpotExtendedInfoForm
 from spotseeker_server.forms.item import ItemForm, ItemExtendedInfoForm
@@ -82,7 +81,7 @@ class SpotImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        if type(queryset) == SpotImage:
+        if isinstance(type(queryset), SpotImage):
             queryset.delete()
         else:
             for spot_image in queryset.all():
@@ -117,7 +116,7 @@ admin.site.register(SpotExtendedInfo, SpotExtendedInfoAdmin)
 
 
 admin.site.register(SpotType)
-admin.site.register(TrustedOAuthClient)
+admin.site.register(Client, UserAdmin)
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -157,7 +156,7 @@ class ItemImageAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, queryset):
-        if type(queryset) == ItemImage:
+        if isinstance(type(queryset), ItemImage):
             queryset.delete()
         else:
             for item_image in queryset.all():

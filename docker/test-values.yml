@@ -30,10 +30,10 @@ externalService:
   enabled: true
   name: spotseeker-db-service
   type: ClusterIP
-  serviceAddress: 172.18.0.196
-  servicePort: 3306
+  serviceAddress: 172.18.0.4
+  servicePort: 5432
 database:
-  engine: mysql
+  engine: postgres
   name: api_test
   hostname: spotseeker-db-service
   secretName: test.api.scout.uw.edu-sql-secrets

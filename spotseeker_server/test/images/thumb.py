@@ -1,13 +1,9 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import shutil
 import tempfile
-
-try:
-    from cStringIO import StringIO as IOStream
-except ModuleNotFoundError:
-    from io import BytesIO as IOStream
+from io import BytesIO as IOStream
 
 from spotseeker_server.test.images import ImageTestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -23,7 +19,7 @@ image_folder = "%s/../resources" % TEST_ROOT
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok",
+    SPOTSEEKER_OAUTH_ENABLED=False,
     SPOTSEEKER_AUTH_ADMINS=("demo_user",),
 )
 class ImageThumbTest(ImageTestCase):

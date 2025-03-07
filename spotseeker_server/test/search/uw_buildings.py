@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import simplejson as json
@@ -9,7 +9,7 @@ from spotseeker_server.org_filters import SearchFilterChain
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE="spotseeker_server.auth.all_ok",
+    SPOTSEEKER_OAUTH_ENABLED=False,
     SPOTSEEKER_SEARCH_FILTERS=(
         "spotseeker_server.org_filters.uw_search.Filter",
     ),

@@ -1,10 +1,10 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
 from django.test.utils import override_settings
 from spotseeker_server.forms.item import ItemForm, ItemExtendedInfoForm
-from spotseeker_server.default_forms.item import DefaultItemForm,\
+from spotseeker_server.default_forms.item import DefaultItemForm, \
     DefaultItemExtendedInfoForm
 
 
@@ -14,7 +14,7 @@ DEFAULT_EI_FORM = ('spotseeker_server.default_forms.item.DefaultItem'
 
 
 @override_settings(
-    SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok',
+    SPOTSEEKER_OAUTH_ENABLED=False,
     SPOTSEEKER_SPOT_FORM=DEFAULT_FORM,
     SPOTSEEKER_SPOTEXTENDEDINFO_FORM=DEFAULT_EI_FORM)
 class ItemFormsTest(TestCase):

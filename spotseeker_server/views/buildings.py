@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """ Changes
@@ -9,21 +9,20 @@
 """
 
 from spotseeker_server.views.rest_dispatch import RESTDispatch, JSONResponse
-from spotseeker_server.require_auth import *
 from spotseeker_server.models import Spot
 from spotseeker_server.org_filters import SearchFilterChain
 from spotseeker_server.views.search import SearchView
 from django.http import HttpResponse
 from django.core.exceptions import FieldError
+from oauth2_provider.views.generic import ReadWriteScopedResourceView
 
 
-class BuildingListView(RESTDispatch):
+class BuildingListView(RESTDispatch, ReadWriteScopedResourceView):
     """Performs actions on the list of buildings, at /api/v1/buildings.
     GET returns 200 with a list of buildings.
     """
 
-    @app_auth_required
-    def GET(self, request):
+    def get(self, request):
         chain = SearchFilterChain(request)
         search_view = SearchView()
         spots = SearchView.filter_on_request(

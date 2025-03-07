@@ -1,8 +1,7 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from django.test import TestCase
-from django.test.client import Client
 from django.test.utils import override_settings
 import simplejson as json
 from spotseeker_server.models import Spot, SpotExtendedInfo
@@ -16,7 +15,7 @@ def spot_with_noise_level(name, noise_level):
     return spot
 
 
-@override_settings(SPOTSEEKER_AUTH_MODULE='spotseeker_server.auth.all_ok')
+@override_settings(SPOTSEEKER_OAUTH_ENABLED=False)
 class NoiseLevelTestCase(TestCase):
 
     @classmethod

@@ -30,10 +30,10 @@ externalService:
   enabled: true
   name: spotseeker-db-service
   type: ClusterIP
-  serviceAddress: 172.18.0.196
-  servicePort: 3306
+  serviceAddress: 172.18.0.4
+  servicePort: 5432
 database:
-  engine: mysql
+  engine: postgres
   name: api_test
   hostname: spotseeker-db-service
   secretName: test.api.scout.uw.edu-sql-secrets
@@ -65,8 +65,8 @@ daemon:
       command: ["/scripts/management_daemon.sh"]
       args: ["--delay", "300", "sync_techloan"]
 environmentVariables:
-  - name: SPOTSEEKER_OAUTH_ENABLED
-    value: "true"
+  - name: AUTH_MODULE
+    value: oauth
   - name: CLUSTER_CNAME
     value: test.api.scout.uw.edu
   - name: ENV

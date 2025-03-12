@@ -3,6 +3,7 @@ ARG DJANGO_CONTAINER_VERSION=2.0.8
 FROM us-docker.pkg.dev/uwit-mci-axdd/containers/django-container:${DJANGO_CONTAINER_VERSION} AS app-container
 
 USER root
+RUN apt-get update && apt-get install mysql-client libmysqlclient-dev -y
 RUN apt-get update && apt-get install libpq-dev -y
 USER acait
 

@@ -9,7 +9,7 @@ else:
 
 INSTALLED_APPS += [
     "spotseeker_server",
-    "oauth_provider",  # should be removed once the new one is working
+    # "oauth_provider",  # should be removed once the new one is working
     "oauth2_provider",
     "corsheaders",
     "django_extensions",

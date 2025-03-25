@@ -20,7 +20,7 @@ setup(
         "pyproj",
         "pytz",
         "simplejson>=2.1",
-        "django-oauth-plus@git+https://github.com/abztrakt/django-oauth-plus@spotseeker-changes#egg=2.2.9.edx-4",
+        # "django-oauth-plus@git+https://github.com/abztrakt/django-oauth-plus@spotseeker-changes#egg=2.2.9.edx-4",
         "django-storages[google]",
         "schema",
         "six",

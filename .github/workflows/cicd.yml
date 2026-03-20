@@ -47,7 +47,7 @@ on:
 
 jobs:
   context:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-20.04
 
     outputs:
       commit_hash: ${{ steps.context.outputs.commit_hash }}
@@ -62,24 +62,16 @@ jobs:
           release_name: ${{ env.RELEASE_NAME }}
 
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-20.04
 
     needs: context
 
-    permissions:
-      contents: read
-      security-events: write
-      # Coveralls may or may not need the following permissions
-      # pull-requests: write    # For PR comments
-      # statuses: write        # For commit status updates  
-      # checks: write          # For check runs
-
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v2
         with:
           python-version: 3.6
 
@@ -114,10 +106,10 @@ jobs:
           fi
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v1
 
       - name: Cache Docker layers
-        uses: actions/cache@v5
+        uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-$(echo ${{ hashFiles('Dockerfile') }} | head -c 16)
@@ -125,9 +117,8 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Build App Image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v2
         with:
-          context: .
           target: app-container
           tags: ${{ needs.context.outputs.image_tag }}
           push: false
@@ -136,7 +127,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Build Test Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v2
         with:
           target: app-test-container
           tags: app-test-container
@@ -159,7 +150,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          python -m pip install --upgrade pip coverage coveralls==3.3.1
+          python -m pip install --upgrade pip coverage coveralls==2.2.0
           coverage combine
           coveralls
 
@@ -178,11 +169,11 @@ jobs:
     outputs:
       context: ${{ steps.context.outputs.context }}
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v2
 
       - name: Deployment Pipeline
         if: >-
@@ -208,14 +199,14 @@ jobs:
       - name: 'Surface context from executed build step'
         id: context
         shell: bash
-        run: echo "context=$(< ${CONTEXT_FILENAME})" >> $GITHUB_OUTPUT
+        run: echo "::set-output name=context::$(< ${CONTEXT_FILENAME})"
 
   housekeeping:
     if: github.event_name == 'push'
 
     needs: [context, build, deploy]
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-20.04
 
     steps:
       - name: House Keeping
